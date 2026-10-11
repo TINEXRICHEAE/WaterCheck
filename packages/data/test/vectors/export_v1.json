@@ -1,0 +1,29 @@
+{
+  "description": "ExportFile v1 vector shared with backend/tests/test_export_file.py. Test-only secret.",
+  "installation_id": "7d1f0c62-3a4b-4c1e-9f55-0a2b3c4d5e6f",
+  "secret": "test-only-installation-secret",
+  "created_at": "2026-10-10T09:00:00.000Z",
+  "nonce": "AQIDBAUGBwgJCgsM",
+  "content": {
+    "installation_id": "7d1f0c62-3a4b-4c1e-9f55-0a2b3c4d5e6f",
+    "schema_version": 1,
+    "exported_at": "2026-10-10T09:00:00.000Z",
+    "items": [
+      {
+        "outbox_id": 1,
+        "entity": "water_source",
+        "entity_id": "b4c9a1e2-0000-4000-8000-000000000001",
+        "op": "insert",
+        "base_version": null,
+        "created_at": "2026-10-10T08:30:00.000Z",
+        "status": "pending",
+        "last_error": null,
+        "payload": {
+          "code": "ABIM-ENT-001",
+          "source_type": "borehole"
+        }
+      }
+    ]
+  },
+  "file": "{\n  \"format\": \"watercheck-export\",\n  \"version\": 1,\n  \"installation_id\": \"7d1f0c62-3a4b-4c1e-9f55-0a2b3c4d5e6f\",\n  \"created_at\": \"2026-10-10T09:00:00.000Z\",\n  \"alg\": \"A256GCM+HKDF-SHA256\",\n  \"nonce\": \"AQIDBAUGBwgJCgsM\",\n  \"ciphertext\": \"A+lAcAwUV9SEzIKXCf8Hif8olX6q8/pWNf+PfjZVhCsJpA5rdG9jJB+BINmLlRK4yLCeA6k1dCiEgORQlSewtdeDjbcTYfjQZt2OqPU5BPjeCRK7FCQ+98rHmiL83eGZBQL8IU9aMHQJBiF3AhK4zQFx8Ja1lrhRhd/Tda/K/Yf9ngFOCXAJ9DJwXG6VIIlZnkNwT1mCtkBNZXVIsBn7s0CmC3XV0TskeU5L2f5h6qByySXXg5KuweIJSUc7jXvES2uqPuuL7o0OMgDfCsI00F66P3EjDxgw7UvMlf8iOA1BlXZW+SFRnxp7adDZiolaT9ub0GHMCNM0oFLqJEKXNTUimKYraFEHI9tKboG6Uxb0xYHOROOZ0WpCAWY3IVaZXYYN19rn/HZ3h9Q3zGBQCBZEGy4jr3iHrSZdSNx3rkBG4aD25ctgLN13hfo2LXT4bajHQUb3eNZ2qWl+IJ3DO00g8HOdsVyoyY7V4+xGbkNov8BiuOXMdEYOICHdrkk/gtP3zevyrX5QeYNw4Gxn0ovsZUx2\"\n}"
+}

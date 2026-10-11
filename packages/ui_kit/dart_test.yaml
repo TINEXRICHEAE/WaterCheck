@@ -1,0 +1,4 @@
+tags:
+  golden:
+    # Pixel comparisons; generated on Windows. Exclude on other platforms:
+    #   flutter test --exclude-tags golden

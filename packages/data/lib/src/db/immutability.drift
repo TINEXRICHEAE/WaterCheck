@@ -1,0 +1,55 @@
+-- Insert-only records (SPEC §5.4). Deleting is refused; updating is refused
+-- for every column except server_seq, which sync sets after the push.
+import 'tables.dart';
+
+CREATE TRIGGER test_sessions_no_delete BEFORE DELETE ON test_sessions
+BEGIN SELECT RAISE(ABORT, 'test_sessions are immutable'); END;
+CREATE TRIGGER test_sessions_no_update BEFORE UPDATE OF
+  id, source_id, calibration_id, tester_profile_id, reference_standard_id, calibrated,
+  lat, lon, location_accuracy_m, distance_from_source_m, distance_override_reason, notes,
+  tested_at_device, installation_id, collector_key, collector_snapshot
+  ON test_sessions
+BEGIN SELECT RAISE(ABORT, 'test_sessions are immutable'); END;
+
+CREATE TRIGGER test_results_no_delete BEFORE DELETE ON test_results
+BEGIN SELECT RAISE(ABORT, 'test_results are immutable'); END;
+CREATE TRIGGER test_results_no_update BEFORE UPDATE OF
+  id, session_id, overall, standard_id, computed_by, retest_of, amendment_of,
+  amendment_reason, flags, limitation_code, created_at_device
+  ON test_results
+BEGIN SELECT RAISE(ABORT, 'test_results are immutable'); END;
+
+CREATE TRIGGER readings_no_delete BEFORE DELETE ON readings
+BEGIN SELECT RAISE(ABORT, 'readings are immutable'); END;
+CREATE TRIGGER readings_no_update BEFORE UPDATE OF
+  id, session_id, result_id, parameter_code, value, detected, acceptable, value_text,
+  unit, result, is_derived, source_device
+  ON readings
+BEGIN SELECT RAISE(ABORT, 'readings are immutable'); END;
+
+CREATE TRIGGER calibrations_no_delete BEFORE DELETE ON calibrations
+BEGIN SELECT RAISE(ABORT, 'calibrations are immutable'); END;
+CREATE TRIGGER calibrations_no_update BEFORE UPDATE OF
+  id, tester_serial, tester_profile_id, reference_standard_id, buffers, passed,
+  performed_at_device, installation_id, collector_key, collector_snapshot
+  ON calibrations
+BEGIN SELECT RAISE(ABORT, 'calibrations are immutable'); END;
+
+CREATE TRIGGER alert_events_no_delete BEFORE DELETE ON alert_events
+BEGIN SELECT RAISE(ABORT, 'alert_events are immutable'); END;
+CREATE TRIGGER alert_events_no_update BEFORE UPDATE OF
+  id, alert_id, actor_id, event_type, note, occurred_at_device,
+  installation_id, collector_key, collector_snapshot
+  ON alert_events
+BEGIN SELECT RAISE(ABORT, 'alert_events are immutable'); END;
+
+CREATE TRIGGER sanitary_inspections_no_delete BEFORE DELETE ON sanitary_inspections
+BEGIN SELECT RAISE(ABORT, 'sanitary_inspections are immutable'); END;
+CREATE TRIGGER sanitary_inspections_no_update BEFORE UPDATE OF
+  id, source_id, answers, inspected_at_device, installation_id, collector_key, collector_snapshot
+  ON sanitary_inspections
+BEGIN SELECT RAISE(ABORT, 'sanitary_inspections are immutable'); END;
+
+-- Sources are soft-deleted only (F-SRC-5).
+CREATE TRIGGER water_sources_no_delete BEFORE DELETE ON water_sources
+BEGIN SELECT RAISE(ABORT, 'water_sources are deactivated, never deleted'); END;

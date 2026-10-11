@@ -1,0 +1,151 @@
+{
+  "@@locale": "en",
+  "statusSafe": "SAFE",
+  "@statusSafe": {
+    "description": "Overall result: safe on the measured parameters. Shown with a tick icon."
+  },
+  "statusUnsafe": "UNSAFE",
+  "@statusUnsafe": {
+    "description": "Overall result: at least one reading outside the limits."
+  },
+  "statusInconclusive": "INCONCLUSIVE",
+  "@statusInconclusive": {
+    "description": "Overall result: a required reading is missing or invalid."
+  },
+  "statusNotTested": "NOT TESTED",
+  "@statusNotTested": {
+    "description": "Source has never been tested."
+  },
+  "statusDueSoon": "DUE",
+  "@statusDueSoon": {
+    "description": "Source test is due within a few days."
+  },
+  "statusOverdue": "OVERDUE",
+  "@statusOverdue": {
+    "description": "Source test is past its due date."
+  },
+  "syncAllSent": "Everything is sent",
+  "syncPending": "{count, plural, =1{1 item waiting to send} other{{count} items waiting to send}}",
+  "@syncPending": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "syncRejected": "{count, plural, =1{1 item was refused} other{{count} items were refused}}",
+  "@syncRejected": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "syncOfflineHint": "Saved on this phone. It will be sent when the internet returns.",
+  "syncNeverSent": "Not sent yet",
+  "syncLastSent": "Last sent {when}",
+  "@syncLastSent": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "provisionalLimits": "Provisional limits",
+  "@provisionalLimits": {
+    "description": "Badge on reference profiles whose values await confirmation."
+  },
+  "customLimits": "Custom limits",
+  "@customLimits": {
+    "description": "Badge on results computed with limits edited at calibration."
+  },
+  "refDataTitle": "Reference data",
+  "refDataIntro": "Loaded on this device from the bundled seed. Works offline.",
+  "refParameters": "Parameters ({count})",
+  "@refParameters": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "refCore": "Core (always shown first)",
+  "refProfiles": "Reference profiles ({count})",
+  "@refProfiles": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "refLimitCount": "{count} limits",
+  "@refLimitCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "refTesterProfiles": "Tester profiles",
+  "refAreas": "Areas",
+  "refRules": "Rules",
+  "refRequired": "Required: {list}",
+  "@refRequired": {
+    "placeholders": {
+      "list": {
+        "type": "String"
+      }
+    }
+  },
+  "refSchedule": "Test every {routine} days; {rainy} days in the rainy season; {abnormal} days after an abnormal result",
+  "@refSchedule": {
+    "placeholders": {
+      "routine": {
+        "type": "int"
+      },
+      "rainy": {
+        "type": "int"
+      },
+      "abnormal": {
+        "type": "int"
+      }
+    }
+  },
+  "refNoLimit": "no limit",
+  "refMustBeAbsent": "must be absent",
+  "refMustBeAcceptable": "must be acceptable",
+  "pinEnter": "Enter your PIN",
+  "pinChoose": "Choose a PIN",
+  "pinChooseHint": "4 to 8 digits. You will need it to open the app.",
+  "pinConfirm": "Enter the same PIN again",
+  "pinMismatch": "The PINs did not match. Try again.",
+  "pinWrong": "{count, plural, =0{Wrong PIN.} =1{Wrong PIN. 1 more try before a wait.} other{Wrong PIN. {count} more tries before a wait.}}",
+  "@pinWrong": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pinWait": "Too many wrong PINs. Try again in {seconds} seconds.",
+  "@pinWait": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "pinOk": "OK",
+  "pinDelete": "Delete last digit",
+  "pinUseBiometric": "Use fingerprint or face",
+  "pinDigitsEntered": "{count, plural, =0{No digits entered} =1{1 digit entered} other{{count} digits entered}}",
+  "@pinDigitsEntered": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "trendTitle": "Trend",
+  "trendLimit": "Limit"
+}

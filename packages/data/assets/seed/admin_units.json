@@ -1,0 +1,42 @@
+{
+  "schema": "watercheck.admin_units/1",
+  "version": 1,
+  "notes": "Pilot area (SPEC §7). Sub-county and parish names are placeholders to verify with Abim District.",
+  "admin_units": [
+    {
+      "id": "72ed731a-9495-51b3-8c8b-62a1ca18c7bb",
+      "code": "UG",
+      "level": "country",
+      "name": "Uganda",
+      "parent_id": null
+    },
+    {
+      "id": "d6c106a8-75c2-5da8-84a2-d31674be7a9a",
+      "code": "UG-ABIM",
+      "level": "district",
+      "name": "Abim",
+      "parent_id": "72ed731a-9495-51b3-8c8b-62a1ca18c7bb"
+    },
+    {
+      "id": "42a2fb7e-8a94-5e1c-aa33-a6f71e298aa8",
+      "code": "UG-ABIM-SC1",
+      "level": "subcounty",
+      "name": "TODO-verify sub-county",
+      "parent_id": "d6c106a8-75c2-5da8-84a2-d31674be7a9a"
+    },
+    {
+      "id": "f829f4b4-65c6-50e8-9a81-98461a07c9d6",
+      "code": "UG-ABIM-SC1-P1",
+      "level": "parish",
+      "name": "TODO-verify parish",
+      "parent_id": "42a2fb7e-8a94-5e1c-aa33-a6f71e298aa8"
+    },
+    {
+      "id": "ad625def-3111-5ddd-835f-b24118d37f01",
+      "code": "ABIM-ENT",
+      "level": "village",
+      "name": "Entebbe",
+      "parent_id": "f829f4b4-65c6-50e8-9a81-98461a07c9d6"
+    }
+  ]
+}

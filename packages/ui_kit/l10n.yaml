@@ -1,0 +1,6 @@
+# English only (ADR-007). Text lives here, never in widget code.
+arb-dir: lib/l10n
+template-arb-file: ui_kit_en.arb
+output-localization-file: ui_kit_localizations.dart
+output-class: UiKitLocalizations
+nullable-getter: false

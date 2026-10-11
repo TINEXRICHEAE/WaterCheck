@@ -1,0 +1,13 @@
+targets:
+  $default:
+    builders:
+      drift_dev:
+        options:
+          # ISO-8601 text: sortable, readable, and matches the server's JSON.
+          store_date_time_values_as_text: true
+          # Outbox payloads use the SQL column names (snake_case), like the API.
+          use_sql_column_name_as_json_key: true
+          databases:
+            app: lib/src/db/database.dart
+          schema_dir: drift_schemas/
+          test_dir: test/drift/

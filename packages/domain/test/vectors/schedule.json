@@ -1,0 +1,293 @@
+{
+ "schema": "watercheck.vectors.schedule/1",
+ "notes": "Shared by Dart and Python. Config from infra/seed/rules.json. Expected values set by hand from SPEC §7.",
+ "vectors": [
+  {
+   "id": "never-tested",
+   "description": "No history",
+   "history": [],
+   "today": "2026-01-20",
+   "expect": {
+    "status": "not_tested",
+    "mode": null,
+    "due": null
+   }
+  },
+  {
+   "id": "routine-ok",
+   "description": "Last safe test in January (dry season): due after 30 days",
+   "history": [
+    {
+     "date": "2026-01-10",
+     "overall": "safe"
+    }
+   ],
+   "today": "2026-01-20",
+   "expect": {
+    "status": "ok",
+    "mode": "routine",
+    "due": "2026-02-09"
+   }
+  },
+  {
+   "id": "routine-due-soon-start",
+   "description": "3 days before the due date",
+   "history": [
+    {
+     "date": "2026-01-10",
+     "overall": "safe"
+    }
+   ],
+   "today": "2026-02-06",
+   "expect": {
+    "status": "due_soon",
+    "mode": "routine",
+    "due": "2026-02-09"
+   }
+  },
+  {
+   "id": "routine-due-day",
+   "description": "On the due date",
+   "history": [
+    {
+     "date": "2026-01-10",
+     "overall": "safe"
+    }
+   ],
+   "today": "2026-02-09",
+   "expect": {
+    "status": "due_soon",
+    "mode": "routine",
+    "due": "2026-02-09"
+   }
+  },
+  {
+   "id": "routine-overdue",
+   "description": "One day after the due date",
+   "history": [
+    {
+     "date": "2026-01-10",
+     "overall": "safe"
+    }
+   ],
+   "today": "2026-02-10",
+   "expect": {
+    "status": "overdue",
+    "mode": "routine",
+    "due": "2026-02-09"
+   }
+  },
+  {
+   "id": "routine-day-before-due-soon",
+   "description": "4 days before the due date",
+   "history": [
+    {
+     "date": "2026-01-10",
+     "overall": "safe"
+    }
+   ],
+   "today": "2026-02-05",
+   "expect": {
+    "status": "ok",
+    "mode": "routine",
+    "due": "2026-02-09"
+   }
+  },
+  {
+   "id": "rainy-season",
+   "description": "April is rainy season: every 14 days",
+   "history": [
+    {
+     "date": "2026-04-01",
+     "overall": "safe"
+    }
+   ],
+   "today": "2026-04-05",
+   "expect": {
+    "status": "ok",
+    "mode": "rainy_season",
+    "due": "2026-04-15"
+   }
+  },
+  {
+   "id": "rainy-season-last-month",
+   "description": "November is still rainy season",
+   "history": [
+    {
+     "date": "2026-11-30",
+     "overall": "safe"
+    }
+   ],
+   "today": "2026-12-15",
+   "expect": {
+    "status": "overdue",
+    "mode": "rainy_season",
+    "due": "2026-12-14"
+   }
+  },
+  {
+   "id": "dry-december",
+   "description": "December is dry season",
+   "history": [
+    {
+     "date": "2026-12-01",
+     "overall": "safe"
+    }
+   ],
+   "today": "2026-12-28",
+   "expect": {
+    "status": "due_soon",
+    "mode": "routine",
+    "due": "2026-12-31"
+   }
+  },
+  {
+   "id": "after-abnormal",
+   "description": "Unsafe result: weekly",
+   "history": [
+    {
+     "date": "2026-01-10",
+     "overall": "unsafe"
+    }
+   ],
+   "today": "2026-01-12",
+   "expect": {
+    "status": "ok",
+    "mode": "after_abnormal",
+    "due": "2026-01-17"
+   }
+  },
+  {
+   "id": "after-abnormal-one-normal",
+   "description": "One normal result is not enough",
+   "history": [
+    {
+     "date": "2026-01-17",
+     "overall": "safe"
+    },
+    {
+     "date": "2026-01-10",
+     "overall": "unsafe"
+    }
+   ],
+   "today": "2026-01-24",
+   "expect": {
+    "status": "due_soon",
+    "mode": "after_abnormal",
+    "due": "2026-01-24"
+   }
+  },
+  {
+   "id": "after-abnormal-cleared",
+   "description": "Two consecutive normal results clear weekly testing",
+   "history": [
+    {
+     "date": "2026-01-24",
+     "overall": "safe"
+    },
+    {
+     "date": "2026-01-17",
+     "overall": "safe"
+    },
+    {
+     "date": "2026-01-10",
+     "overall": "unsafe"
+    }
+   ],
+   "today": "2026-01-30",
+   "expect": {
+    "status": "ok",
+    "mode": "routine",
+    "due": "2026-02-23"
+   }
+  },
+  {
+   "id": "after-abnormal-inconclusive",
+   "description": "Inconclusive after unsafe keeps weekly testing",
+   "history": [
+    {
+     "date": "2026-01-20",
+     "overall": "inconclusive"
+    },
+    {
+     "date": "2026-01-10",
+     "overall": "unsafe"
+    }
+   ],
+   "today": "2026-01-21",
+   "expect": {
+    "status": "ok",
+    "mode": "after_abnormal",
+    "due": "2026-01-27"
+   }
+  },
+  {
+   "id": "inconclusive-does-not-break-streak",
+   "description": "Inconclusive between two normals does not reset the count",
+   "history": [
+    {
+     "date": "2026-01-24",
+     "overall": "safe"
+    },
+    {
+     "date": "2026-01-20",
+     "overall": "inconclusive"
+    },
+    {
+     "date": "2026-01-17",
+     "overall": "safe"
+    },
+    {
+     "date": "2026-01-10",
+     "overall": "unsafe"
+    }
+   ],
+   "today": "2026-01-30",
+   "expect": {
+    "status": "ok",
+    "mode": "routine",
+    "due": "2026-02-23"
+   }
+  },
+  {
+   "id": "unordered-history",
+   "description": "History order does not matter",
+   "history": [
+    {
+     "date": "2026-01-10",
+     "overall": "unsafe"
+    },
+    {
+     "date": "2026-01-24",
+     "overall": "safe"
+    },
+    {
+     "date": "2026-01-17",
+     "overall": "safe"
+    }
+   ],
+   "today": "2026-01-30",
+   "expect": {
+    "status": "ok",
+    "mode": "routine",
+    "due": "2026-02-23"
+   }
+  },
+  {
+   "id": "month-rollover",
+   "description": "31 January + 30 days = 2 March (2026 is not a leap year)",
+   "history": [
+    {
+     "date": "2026-01-31",
+     "overall": "safe"
+    }
+   ],
+   "today": "2026-02-20",
+   "expect": {
+    "status": "ok",
+    "mode": "routine",
+    "due": "2026-03-02"
+   }
+  }
+ ]
+}

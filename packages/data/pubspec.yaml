@@ -1,0 +1,40 @@
+name: data
+description: WaterCheck local data layer (Drift, repositories, outbox, SyncService).
+version: 0.1.0
+publish_to: none
+resolution: workspace
+
+environment:
+  sdk: ^3.13.0
+  flutter: ">=3.47.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  domain:
+    path: ../domain
+  drift: ^2.35.2
+  sqlite3: ^3.7.0
+  flutter_secure_storage: ^11.2.0
+  path_provider: ^2.1.6
+  uuid: ^4.6.0
+  path: ^1.9.1
+  cryptography: ^2.9.0
+  api_client:
+    path: ../api_client
+  dio: ^5.11.1
+  image: ^4.10.2
+  crypto: ^3.0.7
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  drift_dev: ^2.35.1
+  build_runner: ^2.16.1
+
+flutter:
+  # Copy of infra/seed, refreshed by tools/sync_seed.ps1 (checked by a test).
+  assets:
+    - assets/seed/
+    - assets/seed/reference_profiles/

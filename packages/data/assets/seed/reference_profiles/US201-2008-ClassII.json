@@ -1,0 +1,218 @@
+{
+  "schema": "watercheck.reference_profile/1",
+  "id": "ba9093d7-4551-54b4-9da1-3c14a7041644",
+  "code": "US201-2008-ClassII",
+  "title": "US 201:2008 Class II (untreated: borehole, spring, well, rainwater)",
+  "version": 1,
+  "is_custom": false,
+  "based_on_id": null,
+  "published_at": "2026-10-10T00:00:00Z",
+  "provisional": true,
+  "provisional_note": "Default values for the PoC (decision D-MN, 2026-10-10). Collectors may edit any limit at field calibration; edits create a custom profile with a reason and a visible badge. This file is never changed by the app.",
+  "source": {
+    "document": "US 201:2008 Drinking (potable) water — Specification, 2nd edition 2008-09-08 (UNBS)",
+    "local_copy": "Research/(ref7)UGANDA_STANDARD_Drinking (potable) water.pdf",
+    "class": "II",
+    "checked": "2026-10-10 against the printed tables (ADR-005 §5)"
+  },
+  "limits": [
+    {
+      "parameter_code": "temp",
+      "unit": "°C",
+      "note": "recorded, no limit",
+      "source": "not in US 201"
+    },
+    {
+      "parameter_code": "ph",
+      "unit": "pH",
+      "min": 6.5,
+      "max": 8.5,
+      "source": "Table 1, p.7"
+    },
+    {
+      "parameter_code": "ec",
+      "unit": "µS/cm",
+      "max": 2500,
+      "note": "at 25 °C",
+      "source": "Table 1, p.7"
+    },
+    {
+      "parameter_code": "tds",
+      "unit": "mg/L",
+      "max": 1500,
+      "source": "Table 1, p.7"
+    },
+    {
+      "parameter_code": "turbidity",
+      "unit": "NTU",
+      "max": 10,
+      "source": "Table 1, p.7"
+    },
+    {
+      "parameter_code": "colour",
+      "unit": "TCU",
+      "max": 15,
+      "source": "Table 1, p.7"
+    },
+    {
+      "parameter_code": "odour",
+      "unit": "",
+      "must_be_acceptable": true,
+      "note": "acceptable to consumers and no abnormal changes",
+      "source": "Table 1, p.7"
+    },
+    {
+      "parameter_code": "taste",
+      "unit": "",
+      "must_be_acceptable": true,
+      "note": "acceptable to consumers and no abnormal changes",
+      "source": "Table 1, p.7"
+    },
+    {
+      "parameter_code": "iron",
+      "unit": "mg/L",
+      "max": 1,
+      "source": "Table 1, p.7"
+    },
+    {
+      "parameter_code": "ammonia",
+      "unit": "mg/L",
+      "max": 1.0,
+      "source": "Table 1, p.7"
+    },
+    {
+      "parameter_code": "aluminium",
+      "unit": "mg/L",
+      "max": 0.2,
+      "source": "Table 1, p.7"
+    },
+    {
+      "parameter_code": "potassium",
+      "unit": "mg/L",
+      "max": 100,
+      "source": "Table 1, p.7"
+    },
+    {
+      "parameter_code": "sodium",
+      "unit": "mg/L",
+      "max": 400,
+      "source": "Table 1, p.7"
+    },
+    {
+      "parameter_code": "chloride",
+      "unit": "mg/L",
+      "max": 500,
+      "source": "Table 1, p.7"
+    },
+    {
+      "parameter_code": "magnesium",
+      "unit": "mg/L",
+      "max": 150,
+      "source": "Table 1, p.7"
+    },
+    {
+      "parameter_code": "arsenic",
+      "unit": "mg/L",
+      "max": 0.05,
+      "source": "Table 2, pp.7-8"
+    },
+    {
+      "parameter_code": "fluoride",
+      "unit": "mg/L",
+      "max": 1.5,
+      "source": "Table 2, pp.7-8"
+    },
+    {
+      "parameter_code": "manganese",
+      "unit": "mg/L",
+      "max": 0.1,
+      "note": "AS PRINTED; stricter than Class I (1.0) - see plan D-MN",
+      "source": "Table 2, pp.7-8"
+    },
+    {
+      "parameter_code": "chromium",
+      "unit": "mg/L",
+      "max": 0.05,
+      "note": "calculated as total Cr",
+      "source": "Table 2, pp.7-8"
+    },
+    {
+      "parameter_code": "selenium",
+      "unit": "mg/L",
+      "max": 0.01,
+      "source": "Table 2, pp.7-8"
+    },
+    {
+      "parameter_code": "mercury",
+      "unit": "mg/L",
+      "max": 0.001,
+      "source": "Table 2, pp.7-8"
+    },
+    {
+      "parameter_code": "free_cl",
+      "unit": "mg/L",
+      "max": 5,
+      "note": "Table 3 'Chlorine'",
+      "source": "Table 3, p.8"
+    },
+    {
+      "parameter_code": "copper",
+      "unit": "mg/L",
+      "max": 2,
+      "source": "Table 3, p.8"
+    },
+    {
+      "parameter_code": "lead",
+      "unit": "mg/L",
+      "max": 0.01,
+      "source": "Table 3, p.8"
+    },
+    {
+      "parameter_code": "nickel",
+      "unit": "mg/L",
+      "max": 0.02,
+      "source": "Table 3, p.8"
+    },
+    {
+      "parameter_code": "cadmium",
+      "unit": "mg/L",
+      "max": 0.003,
+      "source": "Table 5, p.10"
+    },
+    {
+      "parameter_code": "nitrate",
+      "unit": "mg/L",
+      "max": 50,
+      "note": "as NO3; short-term exposure",
+      "source": "Table 4, p.9"
+    },
+    {
+      "parameter_code": "nitrite",
+      "unit": "mg/L",
+      "max": 3,
+      "note": "as NO2; short-term exposure (long-term 0.2)",
+      "source": "Table 4, p.9"
+    },
+    {
+      "parameter_code": "ecoli",
+      "unit": "count/100mL",
+      "must_be_absent": true,
+      "note": "not detected (minimum 95% of samples)",
+      "source": "Table 7, p.11"
+    },
+    {
+      "parameter_code": "total_coliforms",
+      "unit": "count/100mL",
+      "must_be_absent": true,
+      "note": "not detected (minimum 95% of samples)",
+      "source": "Table 7, p.11"
+    },
+    {
+      "parameter_code": "hpc",
+      "unit": "count/mL",
+      "max": 100,
+      "note": "minimum 95% of samples",
+      "source": "Table 7, p.11"
+    }
+  ]
+}
