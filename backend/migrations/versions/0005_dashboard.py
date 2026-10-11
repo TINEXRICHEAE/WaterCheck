@@ -1,4 +1,4 @@
-"""Dashboard: collector marks and submission flags in the feed, notification preferences (P9, ADR-014).
+"""Dashboard (P9, ADR-014): marks and flags in the feed, notification preferences.
 
 Revision ID: 0005
 Revises: 0004
