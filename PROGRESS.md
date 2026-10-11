@@ -1,7 +1,17 @@
 # Progress
 
-**Current phase:** P9 — Stakeholder dashboard: **in progress** (dashboard, sources, collectors, profile and the nationwide map done; the nationwide stakeholder chain is next). P8 gate passed 2026-10-11.
+**Current phase:** P9 — Stakeholder dashboard: **gate passed** (2026-10-11) with two items deferred or partial (real Windows click-through → P12; web reload 4.5 s on Fast 3G, 2.0 s from app start → long-term caching at deployment, P12). Next: P10 (reports and exports), with the nationwide user chain view in P11.
 **Last updated:** 2026-10-11
+
+## P9 gate ✅ (two items deferred or partial)
+
+- [x] **The same dashboard for every stakeholder, each seeing only their area:** backend scoping tests and row-level security.
+- [x] **Windows offline:** dashboard and map from cache, an alert acknowledged offline and synced on reconnect (Console widget test, native mode). *The click-through on the real Windows build is deferred to P12.*
+- [x] **Web:** works online; a clear "Connection lost" banner when the server drops (widget test). The reload that lost the session is fixed.
+- [x] **Profile switch changes what is shown, never what is stored** (data test).
+- [x] **Load time:** Windows 47 ms (136 ms re-evaluated). Web on Fast 3G: **2.0 s from app start**, 4.5 s from reload (was 10.9 s), with the server summary shown first. *The last 2.5 s is the browser re-checking app files; fixed by long-term caching of hashed files at deployment (P12).*
+- [x] **Accessibility:** 200% text without overflow; keyboard reaches and opens sources.
+- Demo: [docs/demos/P9.md](docs/demos/P9.md). Tests: backend 214, data 67 + 8 live, Collect 49, Console 27, domain 162, ui_kit 11, api_client 4.
 
 ## P8 gate ✅ (sandbox and push pending accounts)
 

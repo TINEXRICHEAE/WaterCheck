@@ -14,9 +14,11 @@ $before = (Get-PSDrive C).Free
 foreach ($app in 'console', 'collect') {
   $build = Join-Path $root "apps\$app\build"
   if (Test-Path $build) {
+    # Android plugin folders nest deeper than PowerShell's path limit:
+    # `cmd /c rd` removes them reliably.
     Get-ChildItem $build -Force |
       Where-Object { $Previews -or $_.Name -ne 'web' } |
-      Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
+      ForEach-Object { cmd /c rd /s /q "\\?\$($_.FullName)" 2>$null }
   }
 }
 Get-ChildItem (Join-Path $root 'packages') -Directory | ForEach-Object {
