@@ -1,0 +1,31 @@
+{
+  "schema": "watercheck.tester_profiles/1",
+  "version": 1,
+  "profiles": [
+    {
+      "id": "bdb3ebef-e4e6-5a17-965f-3d9592cd79fc",
+      "name": "4-in-1 pen: Temp, pH, EC, TDS",
+      "manufacturer": null,
+      "model": "generic",
+      "tds_factor": 0.7,
+      "parameters": [
+        {
+          "parameter_code": "temp",
+          "unit": "°C"
+        },
+        {
+          "parameter_code": "ph",
+          "unit": "pH"
+        },
+        {
+          "parameter_code": "ec",
+          "unit": "µS/cm"
+        },
+        {
+          "parameter_code": "tds",
+          "unit": "mg/L"
+        }
+      ]
+    }
+  ]
+}

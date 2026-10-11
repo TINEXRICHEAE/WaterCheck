@@ -1,0 +1,53 @@
+{
+  "schema": "watercheck.response_cards/1",
+  "version": 1,
+  "notes": "SPEC §6.3. English only (ADR-007). Plain words for low literacy.",
+  "response_cards": [
+    {
+      "id": "e8cbf48f-f357-533c-b7d9-9ab040044393",
+      "trigger_rule": "unsafe",
+      "audience": "collector",
+      "version": 1,
+      "title": "Readings outside the safe limits",
+      "actions": [
+        "Check the tester calibration and test again.",
+        "If the result is the same, tell people to boil or treat the water, or use another source.",
+        "Inform the VHT and the LC1 chairperson."
+      ],
+      "report_to": [
+        "Health Inspector",
+        "District Water Officer"
+      ],
+      "report_note": "Report within 48 hours and ask for laboratory confirmation."
+    },
+    {
+      "id": "0831c416-a476-5756-ba95-33431ebb4746",
+      "trigger_rule": "baseline_jump",
+      "audience": "collector",
+      "version": 1,
+      "title": "Sudden change from this source's usual readings",
+      "actions": [
+        "Test again.",
+        "Check around the source for latrines, waste, flooding or mining."
+      ],
+      "report_to": [
+        "Health Inspector"
+      ],
+      "report_note": "Test this source more often until readings settle."
+    },
+    {
+      "id": "bafdb9ae-086e-5221-8e8c-2c2223f88e3f",
+      "trigger_rule": "ecoli",
+      "audience": "collector",
+      "version": 1,
+      "title": "E. coli found",
+      "actions": [
+        "Tell people not to drink this water without boiling or treating it."
+      ],
+      "report_to": [
+        "District Health Officer"
+      ],
+      "report_note": "Report immediately."
+    }
+  ]
+}

@@ -1,0 +1,484 @@
+{
+  "schema": "watercheck.catalogue/1",
+  "version": 1,
+  "notes": "Parameter catalogue (SPEC §6.0). plausible_min/max are engineering sanity ranges in default_unit, not standards; outside them a reading is 'invalid' (ADR-005 §4). Units must match reference-profile limit units after alias normalisation (rules.json).",
+  "categories": [
+    {
+      "code": "physical",
+      "name": "Physical",
+      "display_order": 1
+    },
+    {
+      "code": "chemical",
+      "name": "Chemical",
+      "display_order": 2
+    },
+    {
+      "code": "microbiological",
+      "name": "Microbiological",
+      "display_order": 3
+    },
+    {
+      "code": "heavy_metals",
+      "name": "Heavy metals & trace elements",
+      "display_order": 4
+    },
+    {
+      "code": "custom",
+      "name": "Custom",
+      "display_order": 5
+    }
+  ],
+  "parameters": [
+    {
+      "code": "temp",
+      "name": "Temperature",
+      "category": "physical",
+      "default_unit": "°C",
+      "value_type": "numeric",
+      "is_core": true,
+      "display_order": 1,
+      "plausible_min": -5,
+      "plausible_max": 60
+    },
+    {
+      "code": "ph",
+      "name": "pH",
+      "category": "chemical",
+      "default_unit": "pH",
+      "value_type": "numeric",
+      "is_core": true,
+      "display_order": 2,
+      "plausible_min": 0,
+      "plausible_max": 14
+    },
+    {
+      "code": "ec",
+      "name": "Electrical conductivity",
+      "category": "physical",
+      "default_unit": "µS/cm",
+      "value_type": "numeric",
+      "is_core": true,
+      "display_order": 3,
+      "plausible_min": 0,
+      "plausible_max": 20000
+    },
+    {
+      "code": "tds",
+      "name": "Total dissolved solids",
+      "category": "physical",
+      "default_unit": "mg/L",
+      "value_type": "numeric",
+      "is_core": true,
+      "display_order": 4,
+      "plausible_min": 0,
+      "plausible_max": 15000
+    },
+    {
+      "code": "turbidity",
+      "name": "Turbidity",
+      "category": "physical",
+      "default_unit": "NTU",
+      "value_type": "numeric",
+      "is_core": false,
+      "display_order": 4,
+      "plausible_min": 0,
+      "plausible_max": 4000
+    },
+    {
+      "code": "colour",
+      "name": "Colour",
+      "category": "physical",
+      "default_unit": "TCU",
+      "value_type": "numeric",
+      "is_core": false,
+      "display_order": 5,
+      "plausible_min": 0,
+      "plausible_max": 500
+    },
+    {
+      "code": "odour",
+      "name": "Odour",
+      "category": "physical",
+      "default_unit": "",
+      "value_type": "acceptability",
+      "is_core": false,
+      "display_order": 6
+    },
+    {
+      "code": "taste",
+      "name": "Taste",
+      "category": "physical",
+      "default_unit": "",
+      "value_type": "acceptability",
+      "is_core": false,
+      "display_order": 7
+    },
+    {
+      "code": "tss",
+      "name": "Total suspended solids",
+      "category": "physical",
+      "default_unit": "mg/L",
+      "value_type": "numeric",
+      "is_core": false,
+      "display_order": 8,
+      "plausible_min": 0,
+      "plausible_max": 10000
+    },
+    {
+      "code": "free_cl",
+      "name": "Free chlorine",
+      "category": "chemical",
+      "default_unit": "mg/L",
+      "value_type": "numeric",
+      "is_core": false,
+      "display_order": 2,
+      "plausible_min": 0,
+      "plausible_max": 20
+    },
+    {
+      "code": "total_cl",
+      "name": "Total chlorine",
+      "category": "chemical",
+      "default_unit": "mg/L",
+      "value_type": "numeric",
+      "is_core": false,
+      "display_order": 3,
+      "plausible_min": 0,
+      "plausible_max": 20
+    },
+    {
+      "code": "hardness",
+      "name": "Hardness (as CaCO3)",
+      "category": "chemical",
+      "default_unit": "mg/L",
+      "value_type": "numeric",
+      "is_core": false,
+      "display_order": 4,
+      "plausible_min": 0,
+      "plausible_max": 2000
+    },
+    {
+      "code": "alkalinity",
+      "name": "Alkalinity (as CaCO3)",
+      "category": "chemical",
+      "default_unit": "mg/L",
+      "value_type": "numeric",
+      "is_core": false,
+      "display_order": 5,
+      "plausible_min": 0,
+      "plausible_max": 2000
+    },
+    {
+      "code": "chloride",
+      "name": "Chloride",
+      "category": "chemical",
+      "default_unit": "mg/L",
+      "value_type": "numeric",
+      "is_core": false,
+      "display_order": 6,
+      "plausible_min": 0,
+      "plausible_max": 20000
+    },
+    {
+      "code": "sulphate",
+      "name": "Sulphate",
+      "category": "chemical",
+      "default_unit": "mg/L",
+      "value_type": "numeric",
+      "is_core": false,
+      "display_order": 7,
+      "plausible_min": 0,
+      "plausible_max": 5000
+    },
+    {
+      "code": "nitrate",
+      "name": "Nitrate (as NO3)",
+      "category": "chemical",
+      "default_unit": "mg/L",
+      "value_type": "numeric",
+      "is_core": false,
+      "display_order": 8,
+      "plausible_min": 0,
+      "plausible_max": 1000
+    },
+    {
+      "code": "nitrite",
+      "name": "Nitrite (as NO2)",
+      "category": "chemical",
+      "default_unit": "mg/L",
+      "value_type": "numeric",
+      "is_core": false,
+      "display_order": 9,
+      "plausible_min": 0,
+      "plausible_max": 100
+    },
+    {
+      "code": "ammonia",
+      "name": "Ammonia",
+      "category": "chemical",
+      "default_unit": "mg/L",
+      "value_type": "numeric",
+      "is_core": false,
+      "display_order": 10,
+      "plausible_min": 0,
+      "plausible_max": 100
+    },
+    {
+      "code": "fluoride",
+      "name": "Fluoride",
+      "category": "chemical",
+      "default_unit": "mg/L",
+      "value_type": "numeric",
+      "is_core": false,
+      "display_order": 11,
+      "plausible_min": 0,
+      "plausible_max": 50
+    },
+    {
+      "code": "iron",
+      "name": "Iron",
+      "category": "chemical",
+      "default_unit": "mg/L",
+      "value_type": "numeric",
+      "is_core": false,
+      "display_order": 12,
+      "plausible_min": 0,
+      "plausible_max": 100
+    },
+    {
+      "code": "manganese",
+      "name": "Manganese",
+      "category": "chemical",
+      "default_unit": "mg/L",
+      "value_type": "numeric",
+      "is_core": false,
+      "display_order": 13,
+      "plausible_min": 0,
+      "plausible_max": 50
+    },
+    {
+      "code": "copper",
+      "name": "Copper",
+      "category": "chemical",
+      "default_unit": "mg/L",
+      "value_type": "numeric",
+      "is_core": false,
+      "display_order": 14,
+      "plausible_min": 0,
+      "plausible_max": 100
+    },
+    {
+      "code": "sodium",
+      "name": "Sodium",
+      "category": "chemical",
+      "default_unit": "mg/L",
+      "value_type": "numeric",
+      "is_core": false,
+      "display_order": 15,
+      "plausible_min": 0,
+      "plausible_max": 20000
+    },
+    {
+      "code": "potassium",
+      "name": "Potassium",
+      "category": "chemical",
+      "default_unit": "mg/L",
+      "value_type": "numeric",
+      "is_core": false,
+      "display_order": 16,
+      "plausible_min": 0,
+      "plausible_max": 5000
+    },
+    {
+      "code": "magnesium",
+      "name": "Magnesium",
+      "category": "chemical",
+      "default_unit": "mg/L",
+      "value_type": "numeric",
+      "is_core": false,
+      "display_order": 17,
+      "plausible_min": 0,
+      "plausible_max": 5000
+    },
+    {
+      "code": "calcium",
+      "name": "Calcium",
+      "category": "chemical",
+      "default_unit": "mg/L",
+      "value_type": "numeric",
+      "is_core": false,
+      "display_order": 18,
+      "plausible_min": 0,
+      "plausible_max": 5000
+    },
+    {
+      "code": "ecoli",
+      "name": "E. coli",
+      "category": "microbiological",
+      "default_unit": "count/100mL",
+      "value_type": "presence",
+      "is_core": false,
+      "display_order": 1
+    },
+    {
+      "code": "total_coliforms",
+      "name": "Total coliforms",
+      "category": "microbiological",
+      "default_unit": "count/100mL",
+      "value_type": "presence",
+      "is_core": false,
+      "display_order": 2
+    },
+    {
+      "code": "faecal_coliforms",
+      "name": "Faecal (thermotolerant) coliforms",
+      "category": "microbiological",
+      "default_unit": "count/100mL",
+      "value_type": "presence",
+      "is_core": false,
+      "display_order": 3
+    },
+    {
+      "code": "hpc",
+      "name": "Heterotrophic plate count",
+      "category": "microbiological",
+      "default_unit": "count/mL",
+      "value_type": "numeric",
+      "is_core": false,
+      "display_order": 4,
+      "plausible_min": 0,
+      "plausible_max": 1000000
+    },
+    {
+      "code": "enterococci",
+      "name": "Enterococci",
+      "category": "microbiological",
+      "default_unit": "count/100mL",
+      "value_type": "presence",
+      "is_core": false,
+      "display_order": 5
+    },
+    {
+      "code": "protozoa",
+      "name": "Protozoa (Giardia/Cryptosporidium)",
+      "category": "microbiological",
+      "default_unit": "count/10L",
+      "value_type": "numeric",
+      "is_core": false,
+      "display_order": 6,
+      "plausible_min": 0,
+      "plausible_max": 100000
+    },
+    {
+      "code": "viruses",
+      "name": "Enteric viruses",
+      "category": "microbiological",
+      "default_unit": "count/100L",
+      "value_type": "numeric",
+      "is_core": false,
+      "display_order": 7,
+      "plausible_min": 0,
+      "plausible_max": 100000
+    },
+    {
+      "code": "lead",
+      "name": "Lead",
+      "category": "heavy_metals",
+      "default_unit": "mg/L",
+      "value_type": "numeric",
+      "is_core": false,
+      "display_order": 1,
+      "plausible_min": 0,
+      "plausible_max": 10
+    },
+    {
+      "code": "arsenic",
+      "name": "Arsenic",
+      "category": "heavy_metals",
+      "default_unit": "mg/L",
+      "value_type": "numeric",
+      "is_core": false,
+      "display_order": 2,
+      "plausible_min": 0,
+      "plausible_max": 10
+    },
+    {
+      "code": "mercury",
+      "name": "Mercury",
+      "category": "heavy_metals",
+      "default_unit": "mg/L",
+      "value_type": "numeric",
+      "is_core": false,
+      "display_order": 3,
+      "plausible_min": 0,
+      "plausible_max": 10
+    },
+    {
+      "code": "cadmium",
+      "name": "Cadmium",
+      "category": "heavy_metals",
+      "default_unit": "mg/L",
+      "value_type": "numeric",
+      "is_core": false,
+      "display_order": 4,
+      "plausible_min": 0,
+      "plausible_max": 10
+    },
+    {
+      "code": "chromium",
+      "name": "Chromium",
+      "category": "heavy_metals",
+      "default_unit": "mg/L",
+      "value_type": "numeric",
+      "is_core": false,
+      "display_order": 5,
+      "plausible_min": 0,
+      "plausible_max": 10
+    },
+    {
+      "code": "nickel",
+      "name": "Nickel",
+      "category": "heavy_metals",
+      "default_unit": "mg/L",
+      "value_type": "numeric",
+      "is_core": false,
+      "display_order": 6,
+      "plausible_min": 0,
+      "plausible_max": 10
+    },
+    {
+      "code": "selenium",
+      "name": "Selenium",
+      "category": "heavy_metals",
+      "default_unit": "mg/L",
+      "value_type": "numeric",
+      "is_core": false,
+      "display_order": 7,
+      "plausible_min": 0,
+      "plausible_max": 10
+    },
+    {
+      "code": "aluminium",
+      "name": "Aluminium",
+      "category": "heavy_metals",
+      "default_unit": "mg/L",
+      "value_type": "numeric",
+      "is_core": false,
+      "display_order": 8,
+      "plausible_min": 0,
+      "plausible_max": 100
+    },
+    {
+      "code": "zinc",
+      "name": "Zinc",
+      "category": "heavy_metals",
+      "default_unit": "mg/L",
+      "value_type": "numeric",
+      "is_core": false,
+      "display_order": 9,
+      "plausible_min": 0,
+      "plausible_max": 100
+    }
+  ]
+}

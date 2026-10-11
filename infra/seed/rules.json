@@ -1,0 +1,131 @@
+{
+  "schema": "watercheck.rules/1",
+  "version": 2,
+  "notes": "Configurable rule parameters (SPEC §6.2, §7; ADR-005). Changing values here changes behaviour with no code change.",
+  "default_reference_profile": "US201-2008-ClassII",
+  "required_parameters": [
+    "temp",
+    "ph",
+    "ec",
+    "tds"
+  ],
+  "tds_from_ec_factor": 0.7,
+  "proximity_max_m": 100,
+  "proximity_note": "Distance from the source above which the collector must give a reason (SPEC §3.1 step 4).",
+  "baseline": {
+    "window": 3,
+    "min_samples": 3,
+    "rules": [
+      {
+        "parameter_code": "tds",
+        "mode": "relative_percent",
+        "threshold": 30
+      },
+      {
+        "parameter_code": "ec",
+        "mode": "relative_percent",
+        "threshold": 30
+      },
+      {
+        "parameter_code": "ph",
+        "mode": "absolute",
+        "threshold": 1.0
+      }
+    ]
+  },
+  "limitation": {
+    "germ_parameter": "ecoli",
+    "safe_default": "no_germ_test",
+    "safe_with_negative_germ_test": "ecoli_negative_reminder"
+  },
+  "schedule": {
+    "routine_days": 30,
+    "rainy_season_days": 14,
+    "rainy_season_months": [
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11
+    ],
+    "rainy_season_source": "Abim District COBERS report 2026 (ref1): rainy season March to November",
+    "after_abnormal_days": 7,
+    "normal_results_to_clear": 2,
+    "due_soon_days": 3
+  },
+  "units": [
+    {
+      "canonical": "µS/cm",
+      "aliases": [
+        "uS/cm",
+        "μS/cm",
+        "us/cm",
+        "microS/cm",
+        "µs/cm"
+      ]
+    },
+    {
+      "canonical": "°C",
+      "aliases": [
+        "C",
+        "degC",
+        "deg C",
+        "celsius",
+        "ºC"
+      ]
+    },
+    {
+      "canonical": "mg/L",
+      "aliases": [
+        "mg/l",
+        "ppm",
+        "mgl"
+      ]
+    },
+    {
+      "canonical": "pH",
+      "aliases": [
+        "ph",
+        "pH units"
+      ]
+    },
+    {
+      "canonical": "NTU",
+      "aliases": [
+        "ntu"
+      ]
+    },
+    {
+      "canonical": "TCU",
+      "aliases": [
+        "tcu",
+        "Pt-Co",
+        "PtCo"
+      ]
+    },
+    {
+      "canonical": "count/100mL",
+      "aliases": [
+        "count/100 mL",
+        "cfu/100mL",
+        "CFU/100mL",
+        "cfu/100 mL",
+        "/100mL",
+        "per 100 mL"
+      ]
+    },
+    {
+      "canonical": "count/mL",
+      "aliases": [
+        "cfu/mL",
+        "CFU/mL",
+        "/mL",
+        "per mL"
+      ]
+    }
+  ]
+}

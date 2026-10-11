@@ -1,0 +1,94 @@
+{
+  "schema": "watercheck.lists/1",
+  "version": 1,
+  "notes": "Pick lists held as data (SPEC §2.1, F-SRC-1, F-SRC-3).",
+  "collector_types": [
+    {
+      "code": "vht",
+      "name": "VHT member"
+    },
+    {
+      "code": "lc1",
+      "name": "LC1 leader"
+    },
+    {
+      "code": "resident",
+      "name": "Trained resident"
+    },
+    {
+      "code": "student",
+      "name": "Student"
+    },
+    {
+      "code": "other",
+      "name": "Other"
+    }
+  ],
+  "source_types": [
+    {
+      "code": "borehole",
+      "name": "Borehole"
+    },
+    {
+      "code": "protected_spring",
+      "name": "Protected spring"
+    },
+    {
+      "code": "shallow_well",
+      "name": "Shallow well"
+    },
+    {
+      "code": "tap",
+      "name": "Tap"
+    },
+    {
+      "code": "rain_tank",
+      "name": "Rain tank"
+    },
+    {
+      "code": "other",
+      "name": "Other"
+    }
+  ],
+  "functional_statuses": [
+    {
+      "code": "functional",
+      "name": "Working"
+    },
+    {
+      "code": "partly_functional",
+      "name": "Partly working"
+    },
+    {
+      "code": "broken",
+      "name": "Broken"
+    }
+  ],
+  "sanitary_checklist": [
+    {
+      "code": "latrine_30m",
+      "question": "Is there a latrine within 30 m of the source?",
+      "risk_if": "yes"
+    },
+    {
+      "code": "waste_30m",
+      "question": "Is there rubbish or waste within 30 m?",
+      "risk_if": "yes"
+    },
+    {
+      "code": "animals_30m",
+      "question": "Do animals drink or graze within 30 m?",
+      "risk_if": "yes"
+    },
+    {
+      "code": "standing_water",
+      "question": "Is there standing water around the source?",
+      "risk_if": "yes"
+    },
+    {
+      "code": "drainage_ok",
+      "question": "Does the drainage channel work?",
+      "risk_if": "no"
+    }
+  ]
+}

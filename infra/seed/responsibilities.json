@@ -1,0 +1,26 @@
+{
+  "schema": "watercheck.responsibilities/1",
+  "version": 1,
+  "responsibilities": [
+    {
+      "code": "water",
+      "name": "Water"
+    },
+    {
+      "code": "sanitation",
+      "name": "Sanitation"
+    },
+    {
+      "code": "health_inspection",
+      "name": "Health inspection"
+    },
+    {
+      "code": "national",
+      "name": "National / policy"
+    },
+    {
+      "code": "other",
+      "name": "Other"
+    }
+  ]
+}

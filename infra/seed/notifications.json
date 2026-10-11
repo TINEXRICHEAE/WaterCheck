@@ -1,0 +1,19 @@
+{
+  "schema": "watercheck.notifications/1",
+  "version": 1,
+  "notes": "Alert notifications and escalation (SPEC §4.7, F-ALR-4, §8.5). Hours are counted from when the alert opened; editable by the IT admin (P11).",
+  "escalation_hours": [48, 96],
+  "escalation": {
+    "1": "Also tell everyone whose area covers the source at district level or above, whatever their responsibility.",
+    "2": "Also tell the IT admins."
+  },
+  "channels": {
+    "email": true,
+    "push": true,
+    "sms_for_severities": ["critical"]
+  },
+  "sms_fallback": {
+    "after_hours": 6,
+    "gateway_number": ""
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "options": {
+    "paths": {
+      "root": "/config",
+      "styles": ".",
+      "mbtiles": "/data",
+      "fonts": "/usr/src/app/node_modules/tileserver-gl-styles/fonts"
+    }
+  },
+  "styles": {
+    "watercheck": {
+      "style": "watercheck.json"
+    }
+  },
+  "data": {
+    "v3": {
+      "mbtiles": "uganda.mbtiles"
+    }
+  }
+}
