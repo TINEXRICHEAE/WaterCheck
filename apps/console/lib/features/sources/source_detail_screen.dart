@@ -15,6 +15,7 @@ import '../../app/session.dart';
 import '../../l10n/app_localizations.dart';
 import '../dashboard/dashboard_state.dart';
 import '../dashboard/filter_bar.dart';
+import '../reports/notice_button.dart';
 
 typedef _Extras = ({
   List<PhotoSummary> photos,
@@ -112,6 +113,8 @@ class SourceDetailScreen extends ConsumerWidget {
               icon: const Icon(Icons.edit_outlined),
               label: Text(l10n.sourceUpdate),
             ),
+            const SizedBox(width: 8),
+            NoticeButton(sourceId: s.id),
           ],
         ),
         const SizedBox(height: 8),

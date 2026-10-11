@@ -19,7 +19,7 @@
   "sourcesHint": "All sources in your area with status, last test and history.",
   "alertsHint": "Open alerts by age and severity: acknowledge, record action, close.",
   "collectorsHint": "Who submitted what, built from submissions. Mark collectors known or flag a submission.",
-  "reportsHint": "PDF reports stating the limits used, CSV export and community notices.",
+  "reportsHint": "Made on this device from the data synced to it; works offline on Windows and Android.",
   "adminReferenceData": "Reference data",
   "adminReferenceDataHint": "Parameters, limits, tester profiles and areas loaded on this device",
   "adminMoreHint": "Users, installations, configuration, security, system health and audit arrive in P11.",
@@ -480,5 +480,181 @@
         "type": "int"
       }
     }
-  }
+  },
+  "noticeTitle": "Water test notice",
+  "noticeHeadlineUnsafe": "NOT SAFE to drink without boiling or treating",
+  "noticeHeadlineCaution": "NOT CONFIRMED SAFE: boil or treat before drinking",
+  "noticeHeadlineSafe": "Safe on the last test",
+  "noticeHeadlineNotTested": "Not tested yet",
+  "noticeTested": "Tested on {date}",
+  "@noticeTested": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "noticeWhatToDo": "What to do",
+  "noticeBoil": "Boil drinking water for at least one minute, or treat it (for example with chlorine tablets).",
+  "noticeOtherSource": "If you can, use another safe source until the next test.",
+  "noticeContainers": "Keep water containers covered and clean.",
+  "noticeReportChange": "Tell the village health team if the colour, smell or taste changes.",
+  "noticeMeasured": "What was measured",
+  "noticeLimitationNoGermTest": "This test cannot detect germs. Boiling is still the safest choice.",
+  "noticeLimitationGermNegative": "No E. coli was found in this test, but water can become unsafe at any time.",
+  "noticeContact": "Questions: ask the village health team (VHT) or the health inspector.",
+  "noticePrinted": "Printed {date} from WaterCheck",
+  "@noticePrinted": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "pdfColParameter": "Measured",
+  "pdfColValue": "Value",
+  "pdfColLimit": "Safe range",
+  "pdfColResult": "Result",
+  "readingResult": "{result, select, ok{OK} high{Too high} low{Too low} detected{Found} unacceptable{Not acceptable} invalid{Invalid} other{-}}",
+  "@readingResult": {
+    "placeholders": {
+      "result": {
+        "type": "String"
+      }
+    }
+  },
+  "statusWord": "{status, select, safe{SAFE} unsafe{UNSAFE} inconclusive{INCONCLUSIVE} other{NOT TESTED}}",
+  "@statusWord": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "reportTitle": "Water quality report",
+  "reportArea": "Area: {name}",
+  "@reportArea": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "reportPeriod": "Period: {from} to {to}",
+  "@reportPeriod": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "reportGenerated": "Generated {date} on this device",
+  "@reportGenerated": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "reportProfiles": "Limit sets used",
+  "reportProfileLine": "{code}: {title} (version {version})",
+  "@reportProfileLine": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      },
+      "title": {
+        "type": "String"
+      },
+      "version": {
+        "type": "int"
+      }
+    }
+  },
+  "reportProvisional": "Provisional: may change after field calibration.",
+  "reportCustom": "Custom limits based on {base}. Reason: {reason}",
+  "@reportCustom": {
+    "placeholders": {
+      "base": {
+        "type": "String"
+      },
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "reportIndicators": "Impact indicators",
+  "indSourcesTested": "Sources tested in the period",
+  "indTests": "Tests in the period",
+  "indAbnormalAction": "Abnormal tests with a documented action",
+  "indOnSchedule": "Sources tested on schedule",
+  "indCollectors": "Collectors active",
+  "indAck": "Median time to acknowledge an alert",
+  "indOf": "{n} of {total}",
+  "@indOf": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "reportSources": "Sources",
+  "colSource": "Source",
+  "colVillage": "Village",
+  "colLastTest": "Last test",
+  "colStatus": "Status",
+  "colReadings": "Latest readings (value / safe range)",
+  "reportAlerts": "Alerts and responses",
+  "colOpened": "Opened",
+  "colAlert": "Alert",
+  "colActions": "What was done",
+  "reportNoAlerts": "No alerts were opened in this period.",
+  "reportLimitations": "Limitations",
+  "reportLimitationsText": "Results come from field test kits, not a laboratory. A test cannot detect germs unless E. coli was tested. Each result is judged under the limit set used when it was collected (named above); provisional limits may change after field calibration. Sources without a location or never tested are listed but cannot show trends.",
+  "reportPage": "Page {n} of {total}",
+  "@reportPage": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "reportNone": "None",
+  "reportsTitle": "Reports and exports",
+  "reportsPdf": "PDF report",
+  "reportsPdfHint": "Summary, impact indicators, sources with their latest values, alerts and what was done.",
+  "reportsCsv": "Readings (CSV)",
+  "reportsCsvHint": "One row per reading, for spreadsheets and analysis.",
+  "reportsSaved": "Saved: {name}",
+  "@reportsSaved": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "reportsCancelled": "Not saved.",
+  "reportsFailed": "Could not make the file: {error}",
+  "@reportsFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "reportsPrint": "Print",
+  "reportsSave": "Save",
+  "noticeAction": "Community notice",
+  "noticeSize": "Paper size",
+  "colIndicator": "Indicator",
+  "colValue": "Value"
 }

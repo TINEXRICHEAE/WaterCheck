@@ -1,7 +1,14 @@
 # Progress
 
-**Current phase:** P9 — Stakeholder dashboard: **gate passed** (2026-10-11) with two items deferred or partial (real Windows click-through → P12; web reload 4.5 s on Fast 3G, 2.0 s from app start → long-term caching at deployment, P12). Next: P10 (reports and exports), with the nationwide user chain view in P11.
+**Current phase:** P10 — Reports and exports: **gate passed** (2026-10-11) except printing a notice on a real printer (deferred to P12). Next: P11 (IT admin console), including users at any level and the chain view.
 **Last updated:** 2026-10-11
+
+## P10 gate ✅ (real-printer check deferred)
+
+- [x] **Report numbers equal database queries** on the 50-source fixture (data test); the PDF checklist rendered and inspected.
+- [x] **CSV:** one row per reading in the filter; typed columns; pandas reads 2,000 rows as datetime/float/int.
+- [ ] **Notice printed on a real printer, readable at 1 m:** *deferred to P12* (A4/A5 rendered and inspected).
+- Demo: [docs/demos/P10.md](docs/demos/P10.md), ADR-015. Tests: backend 214, data 70 + 8 live, Collect 49, Console 30, domain 162, ui_kit 11, api_client 4.
 
 ## P9 gate ✅ (two items deferred or partial)
 
@@ -264,6 +271,7 @@ See [docs/adr/](docs/adr/) (ADR-001 to ADR-013).
 - P5: on a real phone: activate, switch to airplane mode, kill and reopen; the P3 workflows run with only the app lock. Also the QR scan and the fingerprint prompt on a real device.
 - P5: manual click-through of Console sign-in in a browser and in the Windows app (all steps are covered by automated tests).
 - P7: photo capture on a real Android phone (camera permission, low-end memory), the low-storage block on a nearly full phone, and the Wi-Fi rule with real mobile data.
+- P10: print a community notice on a real printer and judge it readable at 1 m.
 - P12: cleanup job for abandoned upload chunks older than 30 days (ADR-012), done jobs and old notifications (ADR-013).
 - P8: SMS round trip in the Africa's Talking sandbox and push on real devices, once the accounts exist.
 - P6: chaos scenarios #1–#5 once on a real phone (airplane mode for days, kill mid-sync, two phones, wrong clock, server down); background sync with Doze and battery saver.

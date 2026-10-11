@@ -7,9 +7,12 @@ import 'dashboard_state.dart';
 /// Area, period and reference profile (F-RPT-7). The chosen profile is
 /// always named on screen.
 class FilterBar extends ConsumerWidget {
-  const FilterBar({super.key, this.showPeriod = true});
+  const FilterBar({super.key, this.showPeriod = true, this.showProfile = true});
 
   final bool showPeriod;
+
+  /// Reports judge results as collected, so they hide it.
+  final bool showProfile;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -45,15 +48,16 @@ class FilterBar extends ConsumerWidget {
             ],
             onChanged: (d) => n.days(d ?? 30),
           ),
-        _Dropdown<String?>(
-          label: l10n.filterProfile,
-          value: s.profileId,
-          items: [
-            (null, l10n.filterAsCollected),
-            for (final p in profiles) (p.id, p.title),
-          ],
-          onChanged: n.profile,
-        ),
+        if (showProfile)
+          _Dropdown<String?>(
+            label: l10n.filterProfile,
+            value: s.profileId,
+            items: [
+              (null, l10n.filterAsCollected),
+              for (final p in profiles) (p.id, p.title),
+            ],
+            onChanged: n.profile,
+          ),
       ],
     );
   }

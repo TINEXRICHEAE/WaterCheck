@@ -26,3 +26,7 @@ final stakeholderRepositoryProvider = Provider<StakeholderRepository>(
 final sourceRepositoryProvider = Provider<SourceRepository>(
   (ref) => DriftSourceRepository(ref.watch(databaseProvider)),
 );
+
+final reportQueriesProvider = Provider<ReportQueries>(
+  (ref) => ReportQueries(ref.watch(databaseProvider)),
+);

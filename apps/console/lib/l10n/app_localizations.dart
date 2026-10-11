@@ -169,7 +169,7 @@ abstract class AppLocalizations {
   /// No description provided for @reportsHint.
   ///
   /// In en, this message translates to:
-  /// **'PDF reports stating the limits used, CSV export and community notices.'**
+  /// **'Made on this device from the data synced to it; works offline on Windows and Android.'**
   String get reportsHint;
 
   /// No description provided for @adminReferenceData.
@@ -1479,6 +1479,408 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count} sources here; zoom in'**
   String mapCluster(int count);
+
+  /// No description provided for @noticeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Water test notice'**
+  String get noticeTitle;
+
+  /// No description provided for @noticeHeadlineUnsafe.
+  ///
+  /// In en, this message translates to:
+  /// **'NOT SAFE to drink without boiling or treating'**
+  String get noticeHeadlineUnsafe;
+
+  /// No description provided for @noticeHeadlineCaution.
+  ///
+  /// In en, this message translates to:
+  /// **'NOT CONFIRMED SAFE: boil or treat before drinking'**
+  String get noticeHeadlineCaution;
+
+  /// No description provided for @noticeHeadlineSafe.
+  ///
+  /// In en, this message translates to:
+  /// **'Safe on the last test'**
+  String get noticeHeadlineSafe;
+
+  /// No description provided for @noticeHeadlineNotTested.
+  ///
+  /// In en, this message translates to:
+  /// **'Not tested yet'**
+  String get noticeHeadlineNotTested;
+
+  /// No description provided for @noticeTested.
+  ///
+  /// In en, this message translates to:
+  /// **'Tested on {date}'**
+  String noticeTested(String date);
+
+  /// No description provided for @noticeWhatToDo.
+  ///
+  /// In en, this message translates to:
+  /// **'What to do'**
+  String get noticeWhatToDo;
+
+  /// No description provided for @noticeBoil.
+  ///
+  /// In en, this message translates to:
+  /// **'Boil drinking water for at least one minute, or treat it (for example with chlorine tablets).'**
+  String get noticeBoil;
+
+  /// No description provided for @noticeOtherSource.
+  ///
+  /// In en, this message translates to:
+  /// **'If you can, use another safe source until the next test.'**
+  String get noticeOtherSource;
+
+  /// No description provided for @noticeContainers.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep water containers covered and clean.'**
+  String get noticeContainers;
+
+  /// No description provided for @noticeReportChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell the village health team if the colour, smell or taste changes.'**
+  String get noticeReportChange;
+
+  /// No description provided for @noticeMeasured.
+  ///
+  /// In en, this message translates to:
+  /// **'What was measured'**
+  String get noticeMeasured;
+
+  /// No description provided for @noticeLimitationNoGermTest.
+  ///
+  /// In en, this message translates to:
+  /// **'This test cannot detect germs. Boiling is still the safest choice.'**
+  String get noticeLimitationNoGermTest;
+
+  /// No description provided for @noticeLimitationGermNegative.
+  ///
+  /// In en, this message translates to:
+  /// **'No E. coli was found in this test, but water can become unsafe at any time.'**
+  String get noticeLimitationGermNegative;
+
+  /// No description provided for @noticeContact.
+  ///
+  /// In en, this message translates to:
+  /// **'Questions: ask the village health team (VHT) or the health inspector.'**
+  String get noticeContact;
+
+  /// No description provided for @noticePrinted.
+  ///
+  /// In en, this message translates to:
+  /// **'Printed {date} from WaterCheck'**
+  String noticePrinted(String date);
+
+  /// No description provided for @pdfColParameter.
+  ///
+  /// In en, this message translates to:
+  /// **'Measured'**
+  String get pdfColParameter;
+
+  /// No description provided for @pdfColValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Value'**
+  String get pdfColValue;
+
+  /// No description provided for @pdfColLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Safe range'**
+  String get pdfColLimit;
+
+  /// No description provided for @pdfColResult.
+  ///
+  /// In en, this message translates to:
+  /// **'Result'**
+  String get pdfColResult;
+
+  /// No description provided for @readingResult.
+  ///
+  /// In en, this message translates to:
+  /// **'{result, select, ok{OK} high{Too high} low{Too low} detected{Found} unacceptable{Not acceptable} invalid{Invalid} other{-}}'**
+  String readingResult(String result);
+
+  /// No description provided for @statusWord.
+  ///
+  /// In en, this message translates to:
+  /// **'{status, select, safe{SAFE} unsafe{UNSAFE} inconclusive{INCONCLUSIVE} other{NOT TESTED}}'**
+  String statusWord(String status);
+
+  /// No description provided for @reportTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Water quality report'**
+  String get reportTitle;
+
+  /// No description provided for @reportArea.
+  ///
+  /// In en, this message translates to:
+  /// **'Area: {name}'**
+  String reportArea(String name);
+
+  /// No description provided for @reportPeriod.
+  ///
+  /// In en, this message translates to:
+  /// **'Period: {from} to {to}'**
+  String reportPeriod(String from, String to);
+
+  /// No description provided for @reportGenerated.
+  ///
+  /// In en, this message translates to:
+  /// **'Generated {date} on this device'**
+  String reportGenerated(String date);
+
+  /// No description provided for @reportProfiles.
+  ///
+  /// In en, this message translates to:
+  /// **'Limit sets used'**
+  String get reportProfiles;
+
+  /// No description provided for @reportProfileLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{code}: {title} (version {version})'**
+  String reportProfileLine(String code, String title, int version);
+
+  /// No description provided for @reportProvisional.
+  ///
+  /// In en, this message translates to:
+  /// **'Provisional: may change after field calibration.'**
+  String get reportProvisional;
+
+  /// No description provided for @reportCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom limits based on {base}. Reason: {reason}'**
+  String reportCustom(String base, String reason);
+
+  /// No description provided for @reportIndicators.
+  ///
+  /// In en, this message translates to:
+  /// **'Impact indicators'**
+  String get reportIndicators;
+
+  /// No description provided for @indSourcesTested.
+  ///
+  /// In en, this message translates to:
+  /// **'Sources tested in the period'**
+  String get indSourcesTested;
+
+  /// No description provided for @indTests.
+  ///
+  /// In en, this message translates to:
+  /// **'Tests in the period'**
+  String get indTests;
+
+  /// No description provided for @indAbnormalAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Abnormal tests with a documented action'**
+  String get indAbnormalAction;
+
+  /// No description provided for @indOnSchedule.
+  ///
+  /// In en, this message translates to:
+  /// **'Sources tested on schedule'**
+  String get indOnSchedule;
+
+  /// No description provided for @indCollectors.
+  ///
+  /// In en, this message translates to:
+  /// **'Collectors active'**
+  String get indCollectors;
+
+  /// No description provided for @indAck.
+  ///
+  /// In en, this message translates to:
+  /// **'Median time to acknowledge an alert'**
+  String get indAck;
+
+  /// No description provided for @indOf.
+  ///
+  /// In en, this message translates to:
+  /// **'{n} of {total}'**
+  String indOf(int n, int total);
+
+  /// No description provided for @reportSources.
+  ///
+  /// In en, this message translates to:
+  /// **'Sources'**
+  String get reportSources;
+
+  /// No description provided for @colSource.
+  ///
+  /// In en, this message translates to:
+  /// **'Source'**
+  String get colSource;
+
+  /// No description provided for @colVillage.
+  ///
+  /// In en, this message translates to:
+  /// **'Village'**
+  String get colVillage;
+
+  /// No description provided for @colLastTest.
+  ///
+  /// In en, this message translates to:
+  /// **'Last test'**
+  String get colLastTest;
+
+  /// No description provided for @colStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get colStatus;
+
+  /// No description provided for @colReadings.
+  ///
+  /// In en, this message translates to:
+  /// **'Latest readings (value / safe range)'**
+  String get colReadings;
+
+  /// No description provided for @reportAlerts.
+  ///
+  /// In en, this message translates to:
+  /// **'Alerts and responses'**
+  String get reportAlerts;
+
+  /// No description provided for @colOpened.
+  ///
+  /// In en, this message translates to:
+  /// **'Opened'**
+  String get colOpened;
+
+  /// No description provided for @colAlert.
+  ///
+  /// In en, this message translates to:
+  /// **'Alert'**
+  String get colAlert;
+
+  /// No description provided for @colActions.
+  ///
+  /// In en, this message translates to:
+  /// **'What was done'**
+  String get colActions;
+
+  /// No description provided for @reportNoAlerts.
+  ///
+  /// In en, this message translates to:
+  /// **'No alerts were opened in this period.'**
+  String get reportNoAlerts;
+
+  /// No description provided for @reportLimitations.
+  ///
+  /// In en, this message translates to:
+  /// **'Limitations'**
+  String get reportLimitations;
+
+  /// No description provided for @reportLimitationsText.
+  ///
+  /// In en, this message translates to:
+  /// **'Results come from field test kits, not a laboratory. A test cannot detect germs unless E. coli was tested. Each result is judged under the limit set used when it was collected (named above); provisional limits may change after field calibration. Sources without a location or never tested are listed but cannot show trends.'**
+  String get reportLimitationsText;
+
+  /// No description provided for @reportPage.
+  ///
+  /// In en, this message translates to:
+  /// **'Page {n} of {total}'**
+  String reportPage(int n, int total);
+
+  /// No description provided for @reportNone.
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get reportNone;
+
+  /// No description provided for @reportsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reports and exports'**
+  String get reportsTitle;
+
+  /// No description provided for @reportsPdf.
+  ///
+  /// In en, this message translates to:
+  /// **'PDF report'**
+  String get reportsPdf;
+
+  /// No description provided for @reportsPdfHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Summary, impact indicators, sources with their latest values, alerts and what was done.'**
+  String get reportsPdfHint;
+
+  /// No description provided for @reportsCsv.
+  ///
+  /// In en, this message translates to:
+  /// **'Readings (CSV)'**
+  String get reportsCsv;
+
+  /// No description provided for @reportsCsvHint.
+  ///
+  /// In en, this message translates to:
+  /// **'One row per reading, for spreadsheets and analysis.'**
+  String get reportsCsvHint;
+
+  /// No description provided for @reportsSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved: {name}'**
+  String reportsSaved(String name);
+
+  /// No description provided for @reportsCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Not saved.'**
+  String get reportsCancelled;
+
+  /// No description provided for @reportsFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not make the file: {error}'**
+  String reportsFailed(String error);
+
+  /// No description provided for @reportsPrint.
+  ///
+  /// In en, this message translates to:
+  /// **'Print'**
+  String get reportsPrint;
+
+  /// No description provided for @reportsSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get reportsSave;
+
+  /// No description provided for @noticeAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Community notice'**
+  String get noticeAction;
+
+  /// No description provided for @noticeSize.
+  ///
+  /// In en, this message translates to:
+  /// **'Paper size'**
+  String get noticeSize;
+
+  /// No description provided for @colIndicator.
+  ///
+  /// In en, this message translates to:
+  /// **'Indicator'**
+  String get colIndicator;
+
+  /// No description provided for @colValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Value'**
+  String get colValue;
 }
 
 class _AppLocalizationsDelegate

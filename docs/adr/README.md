@@ -18,3 +18,4 @@ Format: context → decision → consequences. Number them sequentially. Never r
 | [012](ADR-012-attachments.md) | Photo attachments: resumable chunked upload through the API, private storage | Accepted |
 | [013](ADR-013-alerts-and-notifications.md) | Alerts, notifications, escalation and the SMS fallback (own job queue) | Accepted |
 | [014](ADR-014-dashboard-and-map.md) | Stakeholder dashboard computed on the device, collector marks and flags, offline raster MBTiles map | Accepted |
+| [015](ADR-015-reports-and-exports.md) | Reports, CSV export and community notices: made on the device, as collected, embedded fonts | Accepted |

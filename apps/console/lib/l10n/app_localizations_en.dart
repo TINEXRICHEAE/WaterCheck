@@ -53,7 +53,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reportsHint =>
-      'PDF reports stating the limits used, CSV export and community notices.';
+      'Made on this device from the data synced to it; works offline on Windows and Android.';
 
   @override
   String get adminReferenceData => 'Reference data';
@@ -867,4 +867,258 @@ class AppLocalizationsEn extends AppLocalizations {
   String mapCluster(int count) {
     return '$count sources here; zoom in';
   }
+
+  @override
+  String get noticeTitle => 'Water test notice';
+
+  @override
+  String get noticeHeadlineUnsafe =>
+      'NOT SAFE to drink without boiling or treating';
+
+  @override
+  String get noticeHeadlineCaution =>
+      'NOT CONFIRMED SAFE: boil or treat before drinking';
+
+  @override
+  String get noticeHeadlineSafe => 'Safe on the last test';
+
+  @override
+  String get noticeHeadlineNotTested => 'Not tested yet';
+
+  @override
+  String noticeTested(String date) {
+    return 'Tested on $date';
+  }
+
+  @override
+  String get noticeWhatToDo => 'What to do';
+
+  @override
+  String get noticeBoil =>
+      'Boil drinking water for at least one minute, or treat it (for example with chlorine tablets).';
+
+  @override
+  String get noticeOtherSource =>
+      'If you can, use another safe source until the next test.';
+
+  @override
+  String get noticeContainers => 'Keep water containers covered and clean.';
+
+  @override
+  String get noticeReportChange =>
+      'Tell the village health team if the colour, smell or taste changes.';
+
+  @override
+  String get noticeMeasured => 'What was measured';
+
+  @override
+  String get noticeLimitationNoGermTest =>
+      'This test cannot detect germs. Boiling is still the safest choice.';
+
+  @override
+  String get noticeLimitationGermNegative =>
+      'No E. coli was found in this test, but water can become unsafe at any time.';
+
+  @override
+  String get noticeContact =>
+      'Questions: ask the village health team (VHT) or the health inspector.';
+
+  @override
+  String noticePrinted(String date) {
+    return 'Printed $date from WaterCheck';
+  }
+
+  @override
+  String get pdfColParameter => 'Measured';
+
+  @override
+  String get pdfColValue => 'Value';
+
+  @override
+  String get pdfColLimit => 'Safe range';
+
+  @override
+  String get pdfColResult => 'Result';
+
+  @override
+  String readingResult(String result) {
+    String _temp0 = intl.Intl.selectLogic(result, {
+      'ok': 'OK',
+      'high': 'Too high',
+      'low': 'Too low',
+      'detected': 'Found',
+      'unacceptable': 'Not acceptable',
+      'invalid': 'Invalid',
+      'other': '-',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String statusWord(String status) {
+    String _temp0 = intl.Intl.selectLogic(status, {
+      'safe': 'SAFE',
+      'unsafe': 'UNSAFE',
+      'inconclusive': 'INCONCLUSIVE',
+      'other': 'NOT TESTED',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get reportTitle => 'Water quality report';
+
+  @override
+  String reportArea(String name) {
+    return 'Area: $name';
+  }
+
+  @override
+  String reportPeriod(String from, String to) {
+    return 'Period: $from to $to';
+  }
+
+  @override
+  String reportGenerated(String date) {
+    return 'Generated $date on this device';
+  }
+
+  @override
+  String get reportProfiles => 'Limit sets used';
+
+  @override
+  String reportProfileLine(String code, String title, int version) {
+    return '$code: $title (version $version)';
+  }
+
+  @override
+  String get reportProvisional =>
+      'Provisional: may change after field calibration.';
+
+  @override
+  String reportCustom(String base, String reason) {
+    return 'Custom limits based on $base. Reason: $reason';
+  }
+
+  @override
+  String get reportIndicators => 'Impact indicators';
+
+  @override
+  String get indSourcesTested => 'Sources tested in the period';
+
+  @override
+  String get indTests => 'Tests in the period';
+
+  @override
+  String get indAbnormalAction => 'Abnormal tests with a documented action';
+
+  @override
+  String get indOnSchedule => 'Sources tested on schedule';
+
+  @override
+  String get indCollectors => 'Collectors active';
+
+  @override
+  String get indAck => 'Median time to acknowledge an alert';
+
+  @override
+  String indOf(int n, int total) {
+    return '$n of $total';
+  }
+
+  @override
+  String get reportSources => 'Sources';
+
+  @override
+  String get colSource => 'Source';
+
+  @override
+  String get colVillage => 'Village';
+
+  @override
+  String get colLastTest => 'Last test';
+
+  @override
+  String get colStatus => 'Status';
+
+  @override
+  String get colReadings => 'Latest readings (value / safe range)';
+
+  @override
+  String get reportAlerts => 'Alerts and responses';
+
+  @override
+  String get colOpened => 'Opened';
+
+  @override
+  String get colAlert => 'Alert';
+
+  @override
+  String get colActions => 'What was done';
+
+  @override
+  String get reportNoAlerts => 'No alerts were opened in this period.';
+
+  @override
+  String get reportLimitations => 'Limitations';
+
+  @override
+  String get reportLimitationsText =>
+      'Results come from field test kits, not a laboratory. A test cannot detect germs unless E. coli was tested. Each result is judged under the limit set used when it was collected (named above); provisional limits may change after field calibration. Sources without a location or never tested are listed but cannot show trends.';
+
+  @override
+  String reportPage(int n, int total) {
+    return 'Page $n of $total';
+  }
+
+  @override
+  String get reportNone => 'None';
+
+  @override
+  String get reportsTitle => 'Reports and exports';
+
+  @override
+  String get reportsPdf => 'PDF report';
+
+  @override
+  String get reportsPdfHint =>
+      'Summary, impact indicators, sources with their latest values, alerts and what was done.';
+
+  @override
+  String get reportsCsv => 'Readings (CSV)';
+
+  @override
+  String get reportsCsvHint =>
+      'One row per reading, for spreadsheets and analysis.';
+
+  @override
+  String reportsSaved(String name) {
+    return 'Saved: $name';
+  }
+
+  @override
+  String get reportsCancelled => 'Not saved.';
+
+  @override
+  String reportsFailed(String error) {
+    return 'Could not make the file: $error';
+  }
+
+  @override
+  String get reportsPrint => 'Print';
+
+  @override
+  String get reportsSave => 'Save';
+
+  @override
+  String get noticeAction => 'Community notice';
+
+  @override
+  String get noticeSize => 'Paper size';
+
+  @override
+  String get colIndicator => 'Indicator';
+
+  @override
+  String get colValue => 'Value';
 }

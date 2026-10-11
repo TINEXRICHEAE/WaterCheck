@@ -13,8 +13,8 @@ import '../features/auth/pin_screens.dart';
 import '../features/auth/sign_in_screen.dart';
 import '../features/collectors/collectors_screen.dart';
 import '../features/dashboard/dashboard_screen.dart';
-import '../features/placeholder_section.dart';
 import '../features/profile/profile_screen.dart';
+import '../features/reports/reports_screen.dart';
 import '../features/sources/source_detail_screen.dart';
 import '../features/sources/sources_screen.dart';
 import 'console_sync.dart';
@@ -116,13 +116,13 @@ final routerProvider = Provider<GoRouter>((ref) {
               ),
             ],
           ),
-          _branch(
-            '/reports',
-            (l) => PlaceholderSection(
-              title: l.navReports,
-              hint: l.reportsHint,
-              phase: 'P10',
-            ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/reports',
+                builder: (_, _) => const ReportsScreen(),
+              ),
+            ],
           ),
           // Must stay last: stakeholders get the first five destinations.
           StatefulShellBranch(
@@ -146,18 +146,6 @@ final routerProvider = Provider<GoRouter>((ref) {
   ref.onDispose(router.dispose);
   return router;
 });
-
-StatefulShellBranch _branch(
-  String path,
-  Widget Function(AppLocalizations l10n) page,
-) => StatefulShellBranch(
-  routes: [
-    GoRoute(
-      path: path,
-      builder: (context, _) => page(AppLocalizations.of(context)),
-    ),
-  ],
-);
 
 class _ConsoleShell extends ConsumerWidget {
   const _ConsoleShell({required this.shell});
