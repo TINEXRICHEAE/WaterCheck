@@ -1,0 +1,120 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:watercheck_collect/app/gate.dart';
+import 'package:watercheck_collect/app/router.dart';
+
+import 'support/harness.dart';
+
+void main() {
+  group('gate redirects', () {
+    const fresh = AppGate(consented: false, activeCollectorKey: null);
+    const consented = AppGate(consented: true, activeCollectorKey: null);
+    const ready = AppGate(consented: true, activeCollectorKey: 'k');
+
+    test('nothing opens before the privacy notice is accepted', () {
+      expect(gateRedirect(fresh, '/'), '/welcome');
+      expect(gateRedirect(fresh, '/who/new'), '/welcome');
+      expect(gateRedirect(fresh, '/welcome'), isNull);
+    });
+
+    test('a collector must be chosen before field work', () {
+      expect(gateRedirect(consented, '/'), '/who');
+      expect(gateRedirect(consented, '/settings'), '/who');
+      expect(gateRedirect(consented, '/who/new'), isNull);
+      expect(gateRedirect(consented, '/welcome'), '/');
+    });
+
+    test('everything opens once ready', () {
+      expect(gateRedirect(ready, '/'), isNull);
+      expect(gateRedirect(ready, '/who'), isNull);
+      expect(gateRedirect(ready, '/welcome'), '/');
+    });
+  });
+
+  testWidgets('first launch: consent, add a person, then home', (tester) async {
+    final db = await pumpCollect(tester, onboarded: false);
+    expect(find.text('Welcome to WaterCheck'), findsOneWidget);
+    expect(find.textContaining('does not ask for national ID'), findsOneWidget);
+
+    await tapAndSettle(tester, find.text('I understand and agree'));
+    expect(find.text('Who is testing?'), findsOneWidget);
+    expect(
+      find.text('No one has been added on this phone yet.'),
+      findsOneWidget,
+    );
+
+    await tapAndSettle(tester, find.text('Add a person'));
+    expect(find.text('Your details'), findsOneWidget);
+    // The single seeded village fills in the area fields.
+    expect(find.text('Entebbe'), findsOneWidget);
+    expect(find.text('Abim'), findsOneWidget);
+
+    await tapAndSettle(tester, find.text('Save'));
+    expect(find.text('Please fill this in'), findsWidgets);
+
+    await tester.enterText(
+      find.widgetWithText(TextFormField, 'Full name'),
+      'Example Collector',
+    );
+    await tester.enterText(
+      find.widgetWithText(TextFormField, 'Phone number'),
+      '12345',
+    );
+    await tapAndSettle(tester, find.text('Save'));
+    expect(find.textContaining('Enter a Ugandan phone number'), findsOneWidget);
+
+    await tester.enterText(
+      find.widgetWithText(TextFormField, 'Phone number'),
+      '0772 123456',
+    );
+    await tapAndSettle(tester, find.text('I am a…'));
+    await tapAndSettle(tester, find.text('VHT member').last);
+    await tapAndSettle(tester, find.text('Save'));
+
+    expect(find.text('Village sources'), findsOneWidget);
+    expect(find.text('Testing now: Example Collector'), findsOneWidget);
+    await disposeApp(tester, db);
+  });
+
+  testWidgets('home shows the empty village and the sync indicator', (
+    tester,
+  ) async {
+    final db = await pumpCollect(tester);
+    expect(find.text('Village sources'), findsOneWidget);
+    expect(find.textContaining('No water sources yet'), findsOneWidget);
+    expect(find.text('Test a source'), findsOneWidget);
+    expect(find.byIcon(Icons.cloud_done_outlined), findsOneWidget);
+    await disposeApp(tester, db);
+  });
+
+  testWidgets('switching who is testing', (tester) async {
+    final db = await pumpCollect(tester);
+    await tapAndSettle(tester, find.text('Testing now: Example Collector'));
+    expect(find.text('Who is testing?'), findsOneWidget);
+    expect(find.text('+256772123456 · Entebbe'), findsOneWidget);
+    await tapAndSettle(tester, find.text('Example Collector'));
+    expect(find.text('Village sources'), findsOneWidget);
+    await disposeApp(tester, db);
+  });
+
+  testWidgets('settings opens the seeded reference data', (tester) async {
+    final db = await pumpCollect(tester);
+    await tapAndSettle(tester, find.text('Settings'));
+    await tapAndSettle(tester, find.text('Reference data'));
+    expect(find.text('Reference profiles (2)'), findsOneWidget);
+    expect(find.text('Provisional limits'), findsNWidgets(2));
+    expect(find.text('Required: temp, ph, ec, tds'), findsOneWidget);
+    await disposeApp(tester, db);
+  });
+
+  testWidgets('sync tab explains that records are saved here first', (
+    tester,
+  ) async {
+    final db = await pumpCollect(tester);
+    await tapAndSettle(tester, find.text('Sync'));
+    expect(find.text('Everything is sent'), findsOneWidget);
+    expect(find.textContaining('saved on this phone first'), findsOneWidget);
+    expect(find.text('Sync now'), findsOneWidget);
+    await disposeApp(tester, db);
+  });
+}

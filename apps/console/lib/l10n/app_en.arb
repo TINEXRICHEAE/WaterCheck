@@ -1,0 +1,484 @@
+{
+  "@@locale": "en",
+  "appTitle": "WaterCheck Console",
+  "navDashboard": "Dashboard",
+  "navSources": "Sources",
+  "navAlerts": "Alerts",
+  "navCollectors": "Collectors",
+  "navReports": "Reports",
+  "navAdmin": "Admin",
+  "comingIn": "Arrives in {phase}",
+  "@comingIn": {
+    "placeholders": {
+      "phase": {
+        "type": "String"
+      }
+    }
+  },
+  "dashboardHint": "Sources tested, % unsafe, open alerts, overdue sources and collector activity for your area.",
+  "sourcesHint": "All sources in your area with status, last test and history.",
+  "alertsHint": "Open alerts by age and severity: acknowledge, record action, close.",
+  "collectorsHint": "Who submitted what, built from submissions. Mark collectors known or flag a submission.",
+  "reportsHint": "PDF reports stating the limits used, CSV export and community notices.",
+  "adminReferenceData": "Reference data",
+  "adminReferenceDataHint": "Parameters, limits, tester profiles and areas loaded on this device",
+  "adminMoreHint": "Users, installations, configuration, security, system health and audit arrive in P11.",
+  "startupFailed": "WaterCheck Console could not open its local data.",
+  "startupRetry": "Try again",
+  "cancel": "Cancel",
+  "signInTitle": "Sign in to WaterCheck Console",
+  "signInUsername": "Username",
+  "signInUsernameHint": "Your phone number or email, as given by the IT admin",
+  "signInPassword": "Password",
+  "signInGo": "Sign in",
+  "signInWorking": "Signing in…",
+  "signInMissing": "Enter your username and password.",
+  "signInWrong": "Wrong username or password.",
+  "signInLocked": "Too many wrong attempts. Try again in 15 minutes, or ask the IT admin.",
+  "signInOffline": "Could not reach the server. Signing in needs the internet.",
+  "signInFailed": "Sign-in failed ({code}). Try again, or contact the IT admin.",
+  "@signInFailed": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "signInAfterIdle": "You were signed out after 30 minutes without activity.",
+  "signInExpired": "Your session has ended. Please sign in again.",
+  "forgotLink": "Forgot password?",
+  "forgotTitle": "Forgot your password?",
+  "forgotBody": "The IT admin will be asked to give you a new temporary password. Enter your username.",
+  "forgotSend": "Send request",
+  "forgotSent": "Request sent. The IT admin will contact you with a new temporary password.",
+  "forgotFailed": "The request could not be sent. Try again, or contact the IT admin.",
+  "passwordTitle": "Choose your own password",
+  "passwordIntro": "You signed in with a temporary password. Choose a new password that only you know.",
+  "passwordNew": "New password",
+  "passwordAgain": "New password again",
+  "passwordRule": "Use at least 10 characters, mixing letters and numbers.",
+  "passwordMismatch": "The two passwords are not the same.",
+  "passwordSame": "Choose a password different from the temporary one.",
+  "passwordSave": "Save password",
+  "pinChooseTitle": "Choose a PIN for this device",
+  "unlockFor": "Signed in as {name}",
+  "@unlockFor": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "unlockForgot": "Forgot PIN? Sign out",
+  "offlineBanner": "Offline: showing data saved on this device.",
+  "offlineRetry": "Reconnect",
+  "accountMenu": "Account",
+  "accountSignOut": "Sign out",
+  "roleAdmin": "IT admin",
+  "roleStakeholder": "Stakeholder",
+  "dashboardWelcome": "Signed in as {name}",
+  "@dashboardWelcome": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "dashboardAreas": "Your areas: {areas}",
+  "@dashboardAreas": {
+    "placeholders": {
+      "areas": {
+        "type": "String"
+      }
+    }
+  },
+  "dashboardNoAreas": "No areas have been assigned to you yet. Ask the IT admin.",
+  "dashboardAdminScope": "IT admin: all areas",
+  "recentTitle": "Latest tests",
+  "recentHint": "Synced from Collect phones in your areas.",
+  "recentEmpty": "No tests have reached this device yet.",
+  "recentLine": "{when} · by {collector}",
+  "@recentLine": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      },
+      "collector": {
+        "type": "String"
+      }
+    }
+  },
+  "recentUnknownCollector": "a collector",
+  "syncNow": "Sync now",
+  "syncRunning": "Syncing…",
+  "syncOffline": "Offline: showing data saved on this device. It will update when the connection returns.",
+  "syncProblem": "Could not sync ({code}). It will try again by itself.",
+  "@syncProblem": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "alertTriggerEcoli": "E. coli detected",
+  "alertTriggerUnsafe": "Unsafe result",
+  "alertTriggerBaseline": "Sudden change",
+  "alertTriggerSms": "Reported by SMS",
+  "alertStatusOpen": "Open",
+  "alertStatusAcknowledged": "Acknowledged",
+  "alertStatusAction": "Action in progress",
+  "alertStatusClosed": "Closed",
+  "alertStatusFalseAlarm": "False alarm",
+  "alertsTitle": "Alerts",
+  "alertsShowClosed": "Show closed",
+  "alertsNone": "No open alerts in your areas.",
+  "alertNotFound": "This alert is not on this device yet. Sync and try again.",
+  "alertSeverity": "Severity: {severity}",
+  "@alertSeverity": {
+    "placeholders": {
+      "severity": {
+        "type": "String"
+      }
+    }
+  },
+  "alertOpened": "Reported {when}",
+  "@alertOpened": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "alertReadings": "Readings",
+  "detected": "Detected",
+  "notDetected": "Not detected",
+  "alertActions": "What to do",
+  "alertAcknowledge": "Acknowledge",
+  "alertStartAction": "Action in progress",
+  "alertClose": "Close",
+  "alertFalseAlarm": "False alarm",
+  "alertRequestLab": "Request lab confirmation",
+  "alertAddNote": "Add a note",
+  "alertCloseTitle": "Close the alert: what was done?",
+  "alertFalseAlarmTitle": "Why is this a false alarm?",
+  "alertNoteHint": "For example: chlorinated the borehole, advised households to boil water",
+  "alertSave": "Save",
+  "alertHistory": "History",
+  "alertBySystem": "WaterCheck",
+  "alertByYou": "you",
+  "alertByStakeholder": "a stakeholder",
+  "eventAcknowledged": "Acknowledged",
+  "eventAction": "Action started",
+  "eventClosed": "Closed",
+  "eventFalseAlarm": "Marked a false alarm",
+  "eventActionTaken": "Collector recorded actions",
+  "eventLabRequested": "Lab confirmation requested",
+  "eventEscalated": "Escalated: nobody had acknowledged it",
+  "eventSms": "Received by SMS",
+  "eventReconciled": "SMS alert matched with the full record",
+  "eventNote": "Note",
+  "inboxTitle": "Notifications",
+  "inboxMarkAll": "Mark all read",
+  "inboxEmpty": "No notifications.",
+  "inboxOffline": "Notifications need a connection.",
+  "filterArea": "Area",
+  "filterAllAreas": "All my areas",
+  "filterPeriod": "Period",
+  "filterDays": "Last {days} days",
+  "@filterDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "filterProfile": "Judge results by",
+  "filterAsCollected": "Profile used at collection",
+  "profileShownAsCollected": "Each result is shown under the profile used when it was collected.",
+  "profileShownUnder": "All results re-evaluated under {code}. Saved results do not change.",
+  "@profileShownUnder": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "kpiTested": "Sources tested",
+  "kpiOfSources": "of {count} sources",
+  "@kpiOfSources": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "kpiUnsafe": "Tests unsafe",
+  "kpiUnsafeCount": "{count, plural, =0{no unsafe tests} =1{1 unsafe test} other{{count} unsafe tests}}",
+  "@kpiUnsafeCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "kpiOpenAlerts": "Open alerts",
+  "kpiOpenAlertsHint": "Not closed yet",
+  "kpiAckTime": "Time to acknowledge",
+  "kpiAckTimeHint": "Median, alerts in the period",
+  "overdueTitle": "{count, plural, =0{Overdue sources} =1{1 overdue source} other{{count} overdue sources}}",
+  "@overdueTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "overdueNone": "No source is overdue for testing.",
+  "overdueSince": "Test was due {when}",
+  "@overdueSince": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "seeAllSources": "All sources",
+  "collectorActivity": "Collector activity",
+  "seeAllCollectors": "All collectors",
+  "collectorsNone": "Nobody submitted data in this period.",
+  "collectorLine": "{count, plural, =1{1 submission} other{{count} submissions}}, last {when}",
+  "@collectorLine": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "markKnown": "Known",
+  "markFlagged": "Flagged",
+  "durationDays": "{count} days",
+  "@durationDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "durationHours": "{count} h",
+  "@durationHours": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "durationMinutes": "{count} min",
+  "@durationMinutes": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "sourcesSearch": "Search by code or name",
+  "filterAll": "All",
+  "filterUnsafe": "Unsafe",
+  "filterOverdue": "Overdue",
+  "filterNotTested": "Not tested",
+  "sourcesCount": "{count, plural, =0{No sources} =1{1 source} other{{count} sources}}",
+  "@sourcesCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "neverTested": "Never tested",
+  "lastTested": "Last tested {when}",
+  "@lastTested": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "overdueShort": "Overdue",
+  "functionalStatus": "{status, select, functional{Functional} partly_functional{Partly functional} broken{Broken} other{{status}}}",
+  "@functionalStatus": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "sourceType": "{type, select, borehole{Borehole} shallow_well{Shallow well} protected_spring{Protected spring} tap{Tap} rain_tank{Rain tank} other{Other source}}",
+  "@sourceType": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "sourceNotFound": "This source is not in your areas, or has not synced yet.",
+  "sourceUpdate": "Update source",
+  "sourceName": "Name",
+  "sourceHouseholds": "Households served (leave empty to keep)",
+  "sourceStatusLabel": "Working status",
+  "historyTitle": "Test history",
+  "reEvaluatedUnder": "re-evaluated under {code}",
+  "@reEvaluatedUnder": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "collectedUnder": "judged under {code}",
+  "@collectedUnder": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "submissionFlagged": "Flagged as suspicious",
+  "flagSubmission": "Flag as suspicious",
+  "flagReasonHint": "What looks wrong? For example: readings identical to last week",
+  "flagSave": "Flag",
+  "photosTitle": "Photos",
+  "photosNone": "No photos.",
+  "photoNeedsConnection": "Needs a connection",
+  "photoNotUploaded": "Not uploaded yet",
+  "inspectionsTitle": "Sanitary inspections",
+  "inspectionsNone": "No inspections.",
+  "inspectionRisks": "{risks} of {answered} risks present",
+  "@inspectionRisks": {
+    "placeholders": {
+      "risks": {
+        "type": "int"
+      },
+      "answered": {
+        "type": "int"
+      }
+    }
+  },
+  "submittedBy": "Submitted by",
+  "markCollector": "Mark collector",
+  "markAsKnown": "Mark as known",
+  "markAsFlagged": "Flag collector",
+  "navProfile": "My profile",
+  "profileTitle": "My profile",
+  "profileOffline": "Changing notifications needs a connection.",
+  "profileFailed": "Could not save. Try again.",
+  "notifyTitle": "How alerts reach me",
+  "notifyHint": "Alerts for your areas are always in the Console. Choose the other channels.",
+  "notifyInApp": "In the Console",
+  "notifyInAppHint": "Always on",
+  "notifyEmail": "Email",
+  "notifyNoEmail": "No email address on file; ask your IT administrator.",
+  "notifyPush": "Phone notification",
+  "notifyPushHint": "On Android phones signed in to the Console",
+  "notifySms": "SMS",
+  "notifyNoPhone": "No phone number on file; ask your IT administrator.",
+  "connectionLost": "Connection lost. Showing the data from the last sync.",
+  "viewList": "List",
+  "viewMap": "Map",
+  "mapNoBackground": "The map background is not available yet; dots still show where sources are.",
+  "mapMissingLocation": "{count, plural, =1{1 source has no location and is not on the map.} other{{count} sources have no location and are not on the map.}}",
+  "@mapMissingLocation": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "mapAttribution": "OpenStreetMap contributors",
+  "profileAreas": "Areas",
+  "profileResponsibilities": "Responsibilities",
+  "profileAllResponsibilities": "All alerts in my areas",
+  "profileContacts": "Contacts",
+  "profileNoContacts": "None on file; ask your IT administrator.",
+  "collectorType": "{type, select, vht{VHT member} lc1{LC1 leader} resident{Trained resident} student{Student} other{Other collector}}",
+  "@collectorType": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "responsibility": "{code, select, water{Water} sanitation{Sanitation} health_inspection{Health inspection} other{{code}}}",
+  "@responsibility": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "conflictTitle": "Two changes disagree",
+  "conflictBody": "A phone set the working status to \"{phone}\", but it is now \"{current}\" from a newer change. Which is right?",
+  "@conflictBody": {
+    "placeholders": {
+      "phone": {
+        "type": "String"
+      },
+      "current": {
+        "type": "String"
+      }
+    }
+  },
+  "conflictKeep": "Keep current",
+  "conflictUsePhone": "Use the phone's value",
+  "conflictActive": "In use",
+  "conflictInactive": "No longer in use",
+  "mapUnsafe": "Unsafe",
+  "mapInconclusive": "Inconclusive",
+  "mapOverdue": "Overdue",
+  "mapSafe": "Safe",
+  "mapNotTested": "Not tested",
+  "mapUnsafeResult": "Unsafe result",
+  "mapNoLocation": "Turn on location to see how far sources are from you.",
+  "mapLocateMe": "Show where I am",
+  "mapLayers": "Map layers",
+  "mapLayerDistances": "Distances from me",
+  "mapLayerLabels": "Source names",
+  "mapLatestIssue": "Latest issue",
+  "mapOpenMap": "Open map",
+  "mapNoIssue": "No open issues in your areas.",
+  "mapSeverity": "{severity, select, critical{Critical} high{High} medium{Medium} low{Low} other{{severity}}}",
+  "@mapSeverity": {
+    "placeholders": {
+      "severity": {
+        "type": "String"
+      }
+    }
+  },
+  "mapAway": "{distance} away",
+  "@mapAway": {
+    "placeholders": {
+      "distance": {
+        "type": "String"
+      }
+    }
+  },
+  "mapAgo": "{time} ago",
+  "@mapAgo": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "mapOpenSource": "Open the source",
+  "mapYouAreHere": "You are here",
+  "mapCluster": "{count} sources here; zoom in",
+  "@mapCluster": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
+}

@@ -1,0 +1,505 @@
+{
+  "@@locale": "en",
+  "appTitle": "WaterCheck Collect",
+  "navHome": "Home",
+  "navSync": "Sync",
+  "navSettings": "Settings",
+  "homeTitle": "Village sources",
+  "homeEmpty": "No water sources yet. Sources you add will appear here, with their latest result.",
+  "homeTestSource": "Test a source",
+  "homeComingSoon": "Testing arrives in the next build (P3).",
+  "syncTitle": "Sync",
+  "syncExplainer": "Records are saved on this phone first. They are sent automatically when there is a connection, and nothing is lost if the connection drops. Use Sync now to send straight away.",
+  "settingsTitle": "Settings",
+  "settingsReferenceData": "Reference data",
+  "settingsReferenceDataHint": "Parameters, limits, tester profiles and areas on this phone",
+  "settingsAbout": "About",
+  "settingsAboutBody": "WaterCheck Collect {version}. Water quality screening for Abim District. Results are screening only, not laboratory confirmation.",
+  "@settingsAboutBody": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "startupFailed": "WaterCheck could not open its data on this phone.",
+  "startupRetry": "Try again",
+  "welcomeTitle": "Welcome to WaterCheck",
+  "privacyHeading": "How your information is used",
+  "privacyBody": "WaterCheck records water test results for the shared water sources in your village.\n\nWith every result it saves your name, phone number, collector type, village and the place where you tested. This lets the district trust the result and contact you about it.\n\nWaterCheck does not ask for national ID numbers or information about households.\n\nEverything is kept locked (encrypted) on this phone and sent to the Abim District WaterCheck service when there is internet. You can stop taking part at any time by telling your VHT coordinator.",
+  "privacyVersion": "Privacy notice version {version}",
+  "@privacyVersion": {
+    "placeholders": {
+      "version": {
+        "type": "int"
+      }
+    }
+  },
+  "privacyAgree": "I understand and agree",
+  "whoTitle": "Who is testing?",
+  "whoIntro": "Choose your name. Everything you save is recorded with it.",
+  "whoEmpty": "No one has been added on this phone yet.",
+  "whoAdd": "Add a person",
+  "whoEdit": "Edit details",
+  "whoCurrent": "Testing now",
+  "whoSwitch": "Change who is testing",
+  "profileNewTitle": "Your details",
+  "profileEditTitle": "Edit details",
+  "profileFullName": "Full name",
+  "profilePhone": "Phone number",
+  "profilePhoneHint": "e.g. 0772 123456",
+  "profileCollectorType": "I am a…",
+  "profileVillage": "Village",
+  "profileParish": "Parish",
+  "profileSubcounty": "Sub-county",
+  "profileDistrict": "District",
+  "profileOrganisation": "Group or organisation (optional)",
+  "profileOrganisationHint": "e.g. COBERS team, school",
+  "profileNoId": "Do not enter a national ID number. WaterCheck does not need it.",
+  "profileSave": "Save",
+  "fieldRequired": "Please fill this in",
+  "phoneInvalid": "Enter a Ugandan phone number, e.g. 0772 123456",
+  "sourcesAdd": "Add source",
+  "sourceNewTitle": "New water source",
+  "sourceEditTitle": "Edit source",
+  "sourceCode": "Source code",
+  "sourceCodeHelp": "Village code and number, e.g. ABIM-ENT-003",
+  "sourceName": "Name (optional)",
+  "sourceNameHint": "e.g. Church borehole",
+  "sourceType": "Type of source",
+  "sourceHouseholds": "Households using it (optional)",
+  "sourceStatus": "Is it working?",
+  "sourceLocation": "Location",
+  "sourceLocationNone": "No location yet",
+  "sourceLocationFix": "{lat}, {lon} (± {accuracy} m)",
+  "@sourceLocationFix": {
+    "placeholders": {
+      "lat": {
+        "type": "String"
+      },
+      "lon": {
+        "type": "String"
+      },
+      "accuracy": {
+        "type": "String"
+      }
+    }
+  },
+  "sourceLocationCapture": "Get GPS location",
+  "sourceLocationCapturing": "Finding your location…",
+  "sourceLocationManual": "Type coordinates instead",
+  "sourceLatitude": "Latitude",
+  "sourceLongitude": "Longitude",
+  "sourceLocationInvalid": "Enter a number between -90 and 90 (latitude) or -180 and 180 (longitude)",
+  "sourceLocationPoorAccuracy": "Accuracy is poor. Stand in the open near the source and try again if you can.",
+  "locationServiceOff": "Location is switched off on this phone. Switch it on in the phone settings.",
+  "locationDenied": "WaterCheck may not use your location. Allow it to record where the source is.",
+  "locationDeniedForever": "Location access is blocked for WaterCheck. Allow it in the phone settings.",
+  "locationTimeout": "No GPS signal yet. Move into the open and try again.",
+  "locationUnavailable": "The location could not be found on this device. You can type the coordinates.",
+  "sourceSave": "Save source",
+  "sourceCodeTaken": "Another source in this village already has this code",
+  "sourceDeactivate": "Stop using this source",
+  "sourceDeactivateConfirm": "The source will be hidden from lists. Its tests are kept. Continue?",
+  "sourceDeactivated": "Source hidden from lists",
+  "cancel": "Cancel",
+  "confirm": "Continue",
+  "sourceLastTested": "Last tested {date}",
+  "@sourceLastTested": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "sourceNeverTested": "Never tested",
+  "sourceNextTest": "Next test by {date}",
+  "@sourceNextTest": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "sourceOverdueSince": "Test overdue since {date}",
+  "@sourceOverdueSince": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "sourceDetailTitle": "Source",
+  "sourceHouseholdsValue": "{count} households",
+  "@sourceHouseholdsValue": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "sourceEdit": "Edit",
+  "pickTitle": "Which source are you testing?",
+  "pickNearest": "Nearest to me",
+  "pickNoSources": "Add a source first.",
+  "setupTitle": "Before you test",
+  "setupCalibration": "Tester calibration",
+  "setupCalibratedToday": "Calibrated today ({result})",
+  "@setupCalibratedToday": {
+    "placeholders": {
+      "result": {
+        "type": "String"
+      }
+    }
+  },
+  "setupCalibrationPassed": "passed",
+  "setupCalibrationFailed": "failed",
+  "setupNotCalibrated": "Not calibrated today",
+  "setupCalibrate": "Calibrate now",
+  "setupSkipCalibration": "Test without calibrating",
+  "setupSkipWarning": "Results will be marked “not calibrated”.",
+  "setupTester": "Tester",
+  "setupLimits": "Safe limits",
+  "setupEditLimits": "Edit limits",
+  "setupLocation": "Are you at the source?",
+  "setupCheckLocation": "Check my location",
+  "setupDistance": "You are {metres} m from the source",
+  "@setupDistance": {
+    "placeholders": {
+      "metres": {
+        "type": "String"
+      }
+    }
+  },
+  "setupTooFar": "You seem to be more than {metres} m away. Say why, or move closer and check again.",
+  "@setupTooFar": {
+    "placeholders": {
+      "metres": {
+        "type": "String"
+      }
+    }
+  },
+  "setupFarReason": "Reason (e.g. water carried from the source)",
+  "setupSourceHasNoLocation": "This source has no saved location, so distance cannot be checked.",
+  "setupContinue": "Continue to readings",
+  "calibrationTitle": "Calibrate the tester",
+  "calibrationIntro": "Put the pH probe in the pH 7.00 buffer and enter what the tester shows.",
+  "calibrationSerial": "Tester serial number (optional)",
+  "calibrationBuffer7": "Reading in pH 7.00 buffer",
+  "calibrationBuffer4": "Reading in pH 4.01 buffer (optional)",
+  "calibrationPassedQuestion": "Did the calibration pass?",
+  "calibrationPass": "Passed",
+  "calibrationFail": "Failed",
+  "calibrationSave": "Save calibration",
+  "limitsTitle": "Edit safe limits",
+  "limitsIntro": "Changes create custom limits for your tests. The official limits are kept and the district sees what you changed.",
+  "limitsMin": "Min",
+  "limitsMax": "Max",
+  "limitsReason": "Why are you changing the limits?",
+  "limitsSave": "Use these limits",
+  "limitsChanged": "{count, plural, =1{1 limit changed} other{{count} limits changed}}",
+  "@limitsChanged": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "limitsNoChange": "Nothing changed yet",
+  "limitsNumberInvalid": "Enter a number",
+  "entryTitle": "Readings",
+  "entryCore": "Main readings",
+  "entryFromTester": "From this tester",
+  "entryAddMore": "Add more readings",
+  "entryCustom": "Add another kind of reading",
+  "entryDeriveTds": "Work out TDS from EC",
+  "entryDerived": "worked out from EC",
+  "entryImplausible": "This looks unusual. Check the number.",
+  "entryLimit": "limit {limit}",
+  "@entryLimit": {
+    "placeholders": {
+      "limit": {
+        "type": "String"
+      }
+    }
+  },
+  "entryNoLimit": "no limit",
+  "entryDetected": "Found",
+  "entryNotDetected": "Not found",
+  "entryAcceptable": "Normal",
+  "entryNotAcceptable": "Not normal",
+  "entryReview": "Check and submit",
+  "customParamTitle": "New kind of reading",
+  "customParamName": "Name",
+  "customParamCategory": "Group",
+  "customParamUnit": "Unit (e.g. mg/L)",
+  "customParamType": "What is recorded",
+  "customParamTypeNumber": "A number",
+  "customParamTypePresence": "Found / not found",
+  "customParamTypeText": "Words",
+  "customParamAdd": "Add",
+  "resultOk": "OK",
+  "resultLow": "LOW",
+  "resultHigh": "HIGH",
+  "resultDetected": "FOUND",
+  "resultUnacceptable": "NOT NORMAL",
+  "resultInvalid": "CHECK VALUE",
+  "resultNotAssessed": "NO LIMIT",
+  "reviewTitle": "Check and submit",
+  "reviewWho": "Tested by",
+  "reviewWhere": "Where",
+  "reviewNoLocation": "No location recorded",
+  "reviewSource": "Source",
+  "reviewLimits": "Limits used",
+  "reviewReadings": "Readings",
+  "reviewMissing": "Missing: {list}",
+  "@reviewMissing": {
+    "placeholders": {
+      "list": {
+        "type": "String"
+      }
+    }
+  },
+  "reviewUncalibrated": "Tester not calibrated today",
+  "reviewSubmit": "Submit",
+  "reviewSaved": "Saved on this phone. It will be sent when the internet returns.",
+  "resultTitle": "Result",
+  "limitationNoGermTest": "Safe on the measured parameters. This test cannot detect germs — boil or treat drinking water.",
+  "limitationEcoliNegative": "No E. coli found in this test. Still boil or treat drinking water to be safe.",
+  "resultUnsafeHint": "One or more readings are outside the safe limits.",
+  "resultInconclusiveHint": "Some readings are missing or need checking, so no decision can be made.",
+  "resultRetest": "Test again",
+  "resultDone": "Done",
+  "alertRaised": "An alert has been raised",
+  "alertRaisedHint": "It will be sent to the district. Follow the steps for this problem.",
+  "alertWhatToDo": "What to do now",
+  "alertTitle": "What to do",
+  "alertTriggerUnsafe": "Water outside the safe limits",
+  "alertTriggerEcoli": "E. coli found",
+  "alertTriggerBaseline": "Sudden change in this source",
+  "alertActionsHeading": "Tick what you have done",
+  "alertReportTo": "Report to",
+  "alertNote": "Notes (optional)",
+  "alertSaveActions": "Save what I did",
+  "alertActionsSaved": "Saved. The district will see what you did.",
+  "alertDone": "Done so far",
+  "alertNothingYet": "Nothing recorded yet.",
+  "alertOpenOnSource": "Open alerts",
+  "alertOpenedOn": "Raised {date}",
+  "@alertOpenedOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "historyTitle": "Test history",
+  "historyEmpty": "No tests yet.",
+  "historyCorrected": "Corrected later",
+  "historyCorrection": "Correction",
+  "historyRetest": "Retest",
+  "historyUncalibrated": "Not calibrated",
+  "trendTitle": "Trend",
+  "trendNotEnough": "Trends appear after two or more tests.",
+  "trendLimit": "Limit",
+  "amendStart": "Correct a mistake",
+  "amendExplain": "Fix a reading that was typed wrongly. The first result is kept and marked as corrected.",
+  "amendTitle": "Correcting a result",
+  "amendReason": "What was wrong?",
+  "amendReasonHint": "e.g. typed 71 instead of 7.1",
+  "amendSubmit": "Save correction",
+  "amendSuperseded": "This result was corrected. Open the newest one to make another correction.",
+  "sourceHistoryLater": "Test history and trends will appear here.",
+  "inspectionTitle": "Sanitary inspection",
+  "inspectionIntro": "Look around the source and answer each question.",
+  "inspectionYes": "Yes",
+  "inspectionNo": "No",
+  "inspectionSave": "Save inspection",
+  "inspectionSaved": "Inspection saved",
+  "inspectionStart": "Check the surroundings",
+  "inspectionNone": "Surroundings not checked yet",
+  "inspectionLast": "Checked {date}: {count, plural, =0{no risks found} =1{1 risk found} other{{count} risks found}}",
+  "@inspectionLast": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "activationTitle": "Activate this phone",
+  "activationIntro": "Enter the activation code from your IT admin. This needs the internet once. After that, WaterCheck works without internet and nobody needs to log in.",
+  "activationCodeLabel": "Activation code",
+  "activationScan": "Scan QR code",
+  "activationServer": "Server address",
+  "activationServerLabel": "Server address",
+  "activationServerHint": "Change only if the IT admin tells you to.",
+  "activationGo": "Activate",
+  "activationWorking": "Activating…",
+  "activationCodeFormat": "An activation code has 12 letters and numbers, like K7QM-RT4W-9XHB.",
+  "activationServerFormat": "The server address must start with http:// or https://.",
+  "activationBadQr": "That QR code is not a WaterCheck activation code.",
+  "activationInvalidCode": "This code is not recognised. Check it and try again.",
+  "activationExpiredCode": "This code has expired. Ask the IT admin for a new one.",
+  "activationUsedUp": "This code has already been used on as many phones as allowed. Ask the IT admin for a new one.",
+  "activationOffline": "Could not reach the server. Activation needs the internet once: check the connection and the server address, then try again.",
+  "activationFailed": "Activation failed ({code}). Try again, or contact the IT admin.",
+  "@activationFailed": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "scanHint": "Point the camera at the QR code from the IT admin.",
+  "scanCameraUnavailable": "The camera cannot be used. Type the code instead.",
+  "lockMessage": "WaterCheck is locked.",
+  "lockBiometricReason": "Unlock WaterCheck",
+  "lockForgot": "Forgot PIN?",
+  "lockForgotTitle": "Forgot your PIN?",
+  "lockForgotBody": "The PIN cannot be recovered. Resetting the app saves unsent records to an encrypted file for the IT admin, then erases WaterCheck from this phone so it can be activated again.",
+  "lockForgotReset": "Reset the app",
+  "lockSetupTitle": "Choose a PIN to protect WaterCheck",
+  "lockTurnOff": "Turn off app lock",
+  "lockOffTitle": "Turn off the app lock?",
+  "lockOffBody": "Anyone who picks up this phone can then open WaterCheck and see the records on it.",
+  "lockBiometricOfferTitle": "Use your fingerprint too?",
+  "lockBiometricOfferBody": "You can unlock with your fingerprint or face. The PIN still works.",
+  "lockBiometricYes": "Yes",
+  "lockBiometricNo": "No, PIN only",
+  "lockCurrentPin": "Enter your current PIN",
+  "revokedTitle": "This phone has been switched off",
+  "revokedBody": "The IT admin has stopped this phone from sending data. Save any unsent records to a file and give it to the IT admin. Then erase WaterCheck from this phone.",
+  "resetTitle": "Reset this phone",
+  "resetBody": "This erases all WaterCheck data from this phone and returns it to activation. Save unsent records to a file first and give it to the IT admin.",
+  "resetCounting": "Checking for unsent records…",
+  "resetNothingUnsent": "Everything has been sent.",
+  "resetUnsent": "{count, plural, =1{1 record not sent} other{{count} records not sent}}",
+  "@resetUnsent": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "resetFileHint": "The file is encrypted. Only the WaterCheck server can open it.",
+  "resetSave": "Save unsent records to a file",
+  "resetSaveAgain": "Saved. Save another copy",
+  "resetSaved": "File saved.",
+  "resetNotSaved": "Not saved.",
+  "resetSaveFailed": "The file could not be saved. Try again.",
+  "resetErase": "Erase this phone",
+  "resetConfirmTitle": "Erase WaterCheck from this phone?",
+  "resetConfirmBody": "All WaterCheck data on this phone will be erased. This cannot be undone.",
+  "resetConfirmLoses": "{count, plural, =1{1 record has not been sent or saved and will be lost.} other{{count} records have not been sent or saved and will be lost.}} This cannot be undone.",
+  "@resetConfirmLoses": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsActivatedFor": "Activated for {area}",
+  "@settingsActivatedFor": {
+    "placeholders": {
+      "area": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsInstallation": "Installation ID: {id}",
+  "@settingsInstallation": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsAppLock": "App lock",
+  "settingsAppLockHint": "Ask for a PIN when WaterCheck opens",
+  "settingsChangePin": "Change PIN",
+  "settingsBiometric": "Unlock with fingerprint or face",
+  "settingsReset": "Reset this phone",
+  "settingsResetHint": "Save unsent records, then erase WaterCheck",
+  "syncNow": "Sync now",
+  "syncRunning": "Sending and receiving…",
+  "syncOffline": "No connection. WaterCheck will try again by itself (next try about {when}).",
+  "@syncOffline": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "syncServerProblem": "The server did not answer ({code}). WaterCheck will try again by itself (next try about {when}).",
+  "@syncServerProblem": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      },
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "syncRejectedTitle": "Not accepted by the server",
+  "syncRejectedHint": "These records stay on this phone. Show this list to your IT admin.",
+  "entitySource": "Water source",
+  "entityTest": "Test",
+  "entityResult": "Result",
+  "entityReading": "Reading",
+  "entityAlert": "Alert",
+  "entityAlertAction": "Alert action",
+  "entityInspection": "Sanitary inspection",
+  "entityCalibration": "Calibration",
+  "entityCustomLimits": "Custom limits",
+  "entityCustomParameter": "Custom parameter",
+  "rejectMissingParent": "Something it belongs to was not accepted.",
+  "rejectOutOfScope": "It is outside this phone's area.",
+  "rejectNoCollector": "No collector was recorded for it.",
+  "rejectDuplicate": "A record with the same code already exists.",
+  "rejectNotAccepted": "This kind of change is not accepted from a phone.",
+  "rejectInvalid": "Some of its information was not valid.",
+  "rejectOther": "The server refused it ({reason}).",
+  "@rejectOther": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "photoSourceTitle": "Photos of this source",
+  "photoTesterTitle": "Photo of the tester display (optional)",
+  "photoTake": "Take photo",
+  "photoChoose": "Choose photo",
+  "photoSaved": "Photo saved. It will upload when the phone is on Wi-Fi.",
+  "photoLowStorage": "This phone is almost full (less than 100 MB free). Photos are switched off so readings can still be saved. Free some space to add photos.",
+  "photoNotImage": "That file is not a photo WaterCheck can use.",
+  "photoWaiting": "Waiting to upload",
+  "photoUploaded": "Uploaded",
+  "photoRejected": "Not accepted by the server",
+  "settingsPhotosMobile": "Upload photos on mobile data",
+  "settingsPhotosMobileHint": "Off: photos wait for Wi-Fi. Readings always send on any connection.",
+  "syncPhotosWaiting": "{count, plural, =1{1 photo waiting to upload} other{{count} photos waiting to upload}}",
+  "@syncPhotosWaiting": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "syncPhotosWifi": "Photos upload on Wi-Fi, or on mobile data if you allow it in Settings.",
+  "smsOfferTitle": "{hours, plural, =1{This alert has not been sent for 1 hour} other{This alert has not been sent for {hours} hours}}",
+  "@smsOfferTitle": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "smsOfferBody": "The district has not heard about it yet. Send a short SMS now; the full record will follow when the phone can sync. Normal SMS charges apply.",
+  "smsOfferButton": "Send by SMS",
+  "smsOfferFailed": "This device cannot open the SMS app."
+}

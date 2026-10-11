@@ -1,0 +1,52 @@
+import 'package:domain/domain.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ui_kit/ui_kit.dart';
+
+import '../../app/providers.dart';
+
+typedef _ReferenceData = ({
+  ParameterCatalogue catalogue,
+  List<ReferenceProfile> profiles,
+  List<TesterProfile> testers,
+  DomainRules rules,
+  List<(String, String)> areas,
+});
+
+final _referenceDataProvider = FutureProvider<_ReferenceData>((ref) async {
+  final repo = ref.watch(referenceDataRepositoryProvider);
+  const order = ['country', 'district', 'subcounty', 'parish', 'village'];
+  final units = await repo.adminUnits()
+    ..sort((a, b) => order.indexOf(a.level) - order.indexOf(b.level));
+  return (
+    catalogue: await repo.catalogue(),
+    profiles: await repo.referenceProfiles(),
+    testers: await repo.testerProfiles(),
+    rules: await repo.rules(),
+    areas: [for (final u in units) (u.level, u.name)],
+  );
+});
+
+/// Debug view of the seeded reference data (P2 gate).
+class ReferenceDataScreen extends ConsumerWidget {
+  const ReferenceDataScreen({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final data = ref.watch(_referenceDataProvider);
+    return Scaffold(
+      appBar: AppBar(title: Text(UiKitLocalizations.of(context).refDataTitle)),
+      body: data.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (e, _) => Center(child: Text('$e')),
+        data: (d) => ReferenceDataView(
+          catalogue: d.catalogue,
+          profiles: d.profiles,
+          testerProfiles: d.testers,
+          rules: d.rules,
+          areas: d.areas,
+        ),
+      ),
+    );
+  }
+}
