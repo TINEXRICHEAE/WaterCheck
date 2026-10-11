@@ -1,0 +1,27 @@
+# Spec errata (against SPEC v0.4)
+
+<!-- Source: plan.md §2 (kept outside the repo). Update both, or move the plan into the repo. -->
+
+Each item is resolved by a spec edit or an ADR in the phase named.
+
+**Status (2026-10-10):** G1, G2, G3 resolved and G11, G12 checked by [ADR-005](adr/ADR-005-results-and-classification.md); G10 made moot by [ADR-007](adr/ADR-007-english-only.md) (English only); G8 settled in P2 (web uses an in-memory database, ADR-006 and ADR-008). All others are open.
+
+Suggested fixes are in *italics*.
+
+| # | Where | Issue | Suggested resolution |
+|---|-------|-------|----------------------|
+| G1 ✅ ADR-005 | §5.3 `test_result` | `session_id` is **unique**, but amendments (§5.4) create a *new* `test_result` with `amendment_of` for the **same** session. These two rules conflict. | *Option a ★:* drop `unique(session_id)` and add `unique(session_id) where amendment_of is null`. *Option b:* an amendment creates a new session plus readings (a full copy), so each session keeps one result. Option a is simpler; option b keeps readings immutable *per result*. Note that amended **readings** also need a home, so option a needs `reading.result_id` or an `amendment_reading` table. **This must be settled in P1 or P2.** |
+| G2 ✅ ADR-005 | §5.3 `test_result` | No room for the **server recompute** and the **area-default-profile result** (P4: "recomputes … and also against the area's default profile"). `computed_by` plus a unique session leaves room for only one row. | *Add a `classification` table (session_id, standard_id, computed_by, overall, per-reading results JSON, flags), or let `test_result` hold several rows keyed on (session, standard, computed_by).* |
+| G3 ✅ ADR-005 | §5.3 `test_result` / `reading` | There are no columns for the **flags** (`baseline_jump`, `uncalibrated`, clock-sanity), the **limitation message**, TDS **`derived`** or `source_device` (§14). | *Add `flags text[]` on the result; `is_derived bool` and `source_device text` on the reading.* |
+| G4 ✅ P4 (origin columns on alert events) | §5.3 `alert_event` | `actor_id` references only `app_user`, but **collectors** record alert actions (§3.1 step 7). | *Add `installation_id`, `collector_key` and `collector_snapshot` to `alert_event` (and the origin columns to `alert`).* |
+| G5 ✅ P4 (linked_alert_id, severity) | §5.3 `alert` | §8.4 says an invalid transition "becomes a new alert linked to the old one", but there is no link column. There is also no `severity`, although the P9 inbox sorts by severity. | *Add `linked_alert_id` and `severity`.* |
+| G6 ✅ P4 (missing tables added) | §5.3 | These tables are mentioned elsewhere but missing from the schema: `sanitary_inspection`, `response_card`, `role_permission`, `sync_conflict`, `refresh_token`, `consent`, `area_default_profile`, `collector_mark` ("known"/flagged), `installation` app-lock settings, `testing_schedule` config, `notification`, `job` queue. | *Write these into the P4 Alembic migration; record them in a schema ADR.* |
+| G7 ✅ P3 (unique per result + trigger) | P1 vs P8 | Alerts are created **on the device** (F-ALR-1 local, P3) **and** on the server from synced results (P8). This could produce duplicates. | *The device alert is authoritative when present (client UUID). The server creates an alert only if none exists for that `trigger_result_id` + `trigger_rule`. Add a unique index on (trigger_result_id, trigger_rule).* |
+| G8 ✅ ADR-006/008 (in-memory on web) | P2 gate vs §10.2 | The P2 gate says Console web runs "with a browser storage database", but §10.2 says web Console has "no persistent local data… in-memory only". | ★ *Follow §10.2: an in-memory DB on web for the PoC. Edit the P2 gate wording.* |
+| G9 ✅ P6 (ADR-011: `area:<id>` and `scope`) | §8.2 | The pull example uses `stream=village:<id>`, but the stream list defines `area:<id>`. | *Use `area:<id>` everywhere.* |
+| G10 ✅ ADR-007 (English only) | P2 / i18n | `app_ett.arb`: **`ett` is the ISO 639-3 code for Etruscan**, not Ethur. | *Confirm the correct code with a linguist or SIL. If Ethur has no code of its own, use a documented private choice (e.g. treat it as a variant of the closest Ugandan language code) and record an ADR. Flutter needs a locale it can parse.* |
+| G11 ✅ checked | §6.1 | Several limits are marked *"as printed; verify"* (Class I pH 5.5, both manganese values). | *Check them against the US 201:2008 PDF you already have in `Research/` (ref7) before writing the seed JSON in P1. Record the source and page in the seed file.* |
+| G12 ✅ confirmed | §7 | Rainy season "March–November in Abim" (9 months) makes the default schedule fortnightly for most of the year. | *Confirm with the COBERS / district report (ref1). The value is config, so this blocks only the seed, not the code.* |
+| G13 ✅ P4 (role check + role_permission data) | §5.3 `app_user.role` | A `check` constraint hard-codes roles, but A0 says "no hard-coded roles" and §7 asks for a `role_permission` table. | *Keep the two **system** roles (`stakeholder`, `it_admin`) as a constraint; permissions come from `role_permission` data. Document this in an ADR.* |
+| G14 ✅ P8 (ADR-013: in-app + email on Windows) | P8 | FCM covers Android and web, but **not Windows desktop**. | *Windows Console relies on in-app plus email notifications; state this in the P8 tasks.* |
+| G15 | §2.1 | Collector phone numbers in snapshots are personal data that sync to the server. | *State the retention period in the privacy notice (P12) and the consent screen (P3 first launch).* |

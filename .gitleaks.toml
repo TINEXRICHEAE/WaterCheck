@@ -1,0 +1,14 @@
+# gitleaks: default rules plus a few known-safe paths.
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Public dev placeholders and third-party code"
+paths = [
+  # Placeholders the API refuses outside dev/test (ADR-009).
+  '''infra/\.env\.example''',
+  # Local virtualenv and build output, never committed.
+  '''backend/\.venv/''',
+  '''(^|/)build/''',
+  '''\.dart_tool/''',
+]

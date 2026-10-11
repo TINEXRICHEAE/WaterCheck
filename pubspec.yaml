@@ -1,0 +1,59 @@
+name: watercheck_workspace
+description: WaterCheck monorepo root (Dart pub workspace). Not a package.
+publish_to: none
+
+environment:
+  sdk: ^3.13.0
+
+workspace:
+  - apps/collect
+  - apps/console
+  - packages/domain
+  - packages/data
+  - packages/ui_kit
+  - packages/api_client
+
+# package:sqlite3 bundles SQLite through build hooks. sqlite3mc (SQLite3
+# Multiple Ciphers) gives whole-file encryption at rest without OpenSSL
+# (ADR-008). Hook user-defines are read from the workspace root.
+hooks:
+  user_defines:
+    sqlite3:
+      source: sqlite3mc
+
+melos:
+  scripts:
+    format:check:
+      exec:
+        command: dart format --output=none --set-exit-if-changed lib test
+        concurrency: 1
+      description: Fail if any Dart source or test file is not formatted (build folders are skipped).
+    analyze:
+      run: dart analyze --fatal-infos
+      description: Analyze the whole workspace (all packages at once).
+    test:dart:
+      exec:
+        command: dart test
+        concurrency: 1
+      packageFilters:
+        flutter: false
+        dirExists: test
+      description: Run tests in pure Dart packages.
+    coverage:domain:
+      exec:
+        command: dart run coverage:test_with_coverage && dart run tool/coverage_gate.dart 95
+        concurrency: 1
+      packageFilters:
+        scope: domain
+      description: Domain tests with coverage; fails below 95% (P1 gate).
+    test:flutter:
+      exec:
+        command: flutter test --no-pub
+        concurrency: 1
+      packageFilters:
+        flutter: true
+        dirExists: test
+      description: Run tests in Flutter packages and apps.
+
+dev_dependencies:
+  melos: ^8.9.0

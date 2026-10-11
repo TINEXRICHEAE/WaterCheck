@@ -1,0 +1,58 @@
+name: security
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "17 3 * * 1" # weekly, catches new advisories
+
+permissions:
+  contents: read
+
+jobs:
+  gitleaks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      # The binary avoids the gitleaks-action licence requirement for organisations.
+      - name: Install gitleaks
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release download -R gitleaks/gitleaks --pattern '*_linux_x64.tar.gz' -O gitleaks.tgz
+          tar -xzf gitleaks.tgz gitleaks
+      - name: Scan git history
+        run: ./gitleaks git --redact --verbose .
+
+  osv-scanner:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install osv-scanner
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release download -R google/osv-scanner --pattern 'osv-scanner_linux_amd64' -O osv-scanner
+          chmod +x osv-scanner
+      - name: Scan lockfiles
+        run: ./osv-scanner scan source --lockfile pubspec.lock --lockfile backend/uv.lock
+
+  pip-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version-file: backend/.python-version
+      - run: pipx install uv
+      - run: uv export --frozen --no-dev --no-hashes --format requirements-txt -o requirements.txt
+      - run: uvx pip-audit -r requirements.txt --strict

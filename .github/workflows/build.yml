@@ -1,0 +1,60 @@
+name: build
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  collect-apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - id: fvm
+        run: echo "version=$(jq -r .flutter .fvmrc)" >> "$GITHUB_OUTPUT"
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ steps.fvm.outputs.version }}
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: flutter build apk --debug
+        working-directory: apps/collect
+      - uses: actions/upload-artifact@v4
+        with:
+          name: collect-debug-apk
+          path: apps/collect/build/app/outputs/flutter-apk/app-debug.apk
+          retention-days: 14
+
+  console-web:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - id: fvm
+        run: echo "version=$(jq -r .flutter .fvmrc)" >> "$GITHUB_OUTPUT"
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ steps.fvm.outputs.version }}
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: flutter build web --base-href /console/
+        working-directory: apps/console
+      - uses: actions/upload-artifact@v4
+        with:
+          name: console-web
+          path: apps/console/build/web
+          retention-days: 14
