@@ -656,5 +656,175 @@
   "noticeAction": "Community notice",
   "noticeSize": "Paper size",
   "colIndicator": "Indicator",
-  "colValue": "Value"
+  "colValue": "Value",
+  "adminNeedsConnection": "Managing people and phones needs a connection to the server.",
+  "areaLevel": "{level, select, country{national} region{region} district{district} subcounty{sub-county} parish{parish} village{village} other{{level}}}",
+  "@areaLevel": {
+    "placeholders": {
+      "level": {
+        "type": "String"
+      }
+    }
+  },
+  "areaPickTitle": "Choose areas",
+  "areaPickOne": "Choose an area",
+  "areaPickSearch": "Search any village, sub-county, district or region",
+  "areaPickDone": "Use {n} areas",
+  "@areaPickDone": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "adminPeople": "People",
+  "adminPeopleHint": "Create stakeholders and IT admins at any level, reset passwords, disable accounts.",
+  "adminPhones": "Collect phones",
+  "adminPhonesHint": "Activation codes, phones in use, revoking a lost phone.",
+  "adminChain": "Who covers an area",
+  "adminChainHint": "The chain of people an alert reaches, level by level, and the gaps.",
+  "usersTitle": "People",
+  "usersNew": "New person",
+  "usersSearch": "Search by name, username or area",
+  "usersNeverSignedIn": "Never signed in",
+  "usersLastSignIn": "Last sign-in {when}",
+  "@usersLastSignIn": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "usersDisabled": "Disabled",
+  "usersLocked": "Locked",
+  "usersFirstSignIn": "Not signed in yet",
+  "usersFullName": "Full name",
+  "usersUsername": "Username (email or phone)",
+  "usersOrganisation": "Organisation",
+  "usersPosition": "Position",
+  "usersPhone": "Phone",
+  "usersEmail": "Email",
+  "usersAreas": "Areas",
+  "usersAddArea": "Add or change areas",
+  "usersAreasHint": "Any level, from a village to national. The person sees these areas and everything below them, and receives alerts from them.",
+  "usersResponsibilities": "Responsibilities",
+  "usersResponsibilitiesHint": "None chosen: every alert in their areas.",
+  "usersActive": "Account active",
+  "usersActiveHint": "Turning it off signs the person out everywhere.",
+  "usersResetPassword": "Reset password",
+  "usersCreate": "Create",
+  "usersTaken": "That username is already in use.",
+  "usersSelfLockout": "You cannot disable your own account or remove your own IT admin role.",
+  "usersFailed": "Could not save ({code}).",
+  "@usersFailed": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "credentialsTitle": "Temporary password",
+  "credentialsHint": "Shown only now. Give it to the person in person, by SMS or by email; they must change it when they first sign in.",
+  "credentialsUsername": "Username: {name}",
+  "@credentialsUsername": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "credentialsCopy": "Copy",
+  "credentialsDone": "Done",
+  "phonesTitle": "Collect phones",
+  "phonesHint": "Phones activated with a code for an area. Revoke a lost or stolen phone: it stops syncing and locks itself.",
+  "phonesNone": "No phones activated yet.",
+  "phonesNewCode": "New activation code",
+  "phonesActivity": "{collectors} collectors, {tests} tests",
+  "@phonesActivity": {
+    "placeholders": {
+      "collectors": {
+        "type": "int"
+      },
+      "tests": {
+        "type": "int"
+      }
+    }
+  },
+  "phonesNeverSynced": "Never synced",
+  "phonesLastSeen": "Last sync {when}",
+  "@phonesLastSeen": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "phonesRevokedAt": "Revoked {when}",
+  "@phonesRevokedAt": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "phonesRevoke": "Revoke",
+  "phonesRevokeTitle": "Revoke this phone?",
+  "phonesRevokeHint": "It stops syncing at once. Unsent records on it are saved to an encrypted file only the server can read.",
+  "phonesCodes": "Recent activation codes",
+  "phonesNoCodes": "No codes yet.",
+  "phonesCodeLine": "{used} of {max} phones · valid until {until}",
+  "@phonesCodeLine": {
+    "placeholders": {
+      "used": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      },
+      "until": {
+        "type": "String"
+      }
+    }
+  },
+  "phonesNewCodeFor": "Activation code for {area}",
+  "@phonesNewCodeFor": {
+    "placeholders": {
+      "area": {
+        "type": "String"
+      }
+    }
+  },
+  "phonesMax": "Up to {n} phones",
+  "@phonesMax": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "phonesValidDays": "Valid for {n} days",
+  "@phonesValidDays": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "phonesCreateCode": "Create code",
+  "phonesCodeTitle": "Code for {area}",
+  "@phonesCodeTitle": {
+    "placeholders": {
+      "area": {
+        "type": "String"
+      }
+    }
+  },
+  "phonesCodeHint": "Shown only now. On the phone, open WaterCheck Collect and scan the QR code or type the code.",
+  "phonesQrLabel": "Activation QR code",
+  "chainTitle": "Who covers an area",
+  "chainHint": "Pick any area to see who an alert from it reaches, level by level. Levels with nobody are skipped; the IT admins are told only when nobody covers it.",
+  "chainPick": "Choose an area",
+  "chainGap": "Nobody at this level (skipped)",
+  "chainFirst": "Gets the first notice",
+  "chainNobody": "Nobody covers this area: alerts from it go to the IT admins."
 }

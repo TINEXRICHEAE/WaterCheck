@@ -31,7 +31,11 @@ class CreatedUser:
 
 
 async def create_user(
-    conn: AsyncConnection, user: NewUser, *, created_by: UUID | None = None
+    conn: AsyncConnection,
+    user: NewUser,
+    *,
+    created_by: UUID | None = None,
+    platform: str = "cli",
 ) -> CreatedUser:
     """Creates a user with a temporary password they must change at first
     sign-in. The password is returned once and never stored in plain text."""
@@ -77,8 +81,8 @@ async def create_user(
     await conn.execute(
         text(
             "INSERT INTO audit_log (actor_id, platform, action, entity, entity_id) "
-            "VALUES (:by, 'cli', 'user.created', 'app_user', :id)"
+            "VALUES (:by, :platform, 'user.created', 'app_user', :id)"
         ),
-        {"by": created_by, "id": user_id},
+        {"by": created_by, "id": user_id, "platform": platform},
     )
     return CreatedUser(id=user_id, temporary_password=password)

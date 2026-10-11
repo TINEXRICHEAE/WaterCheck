@@ -5,6 +5,9 @@ import 'package:go_router/go_router.dart';
 import 'package:ui_kit/ui_kit.dart';
 
 import '../features/admin/admin_screen.dart';
+import '../features/admin/chain_screen.dart';
+import '../features/admin/phones_screen.dart';
+import '../features/admin/users_screen.dart';
 import '../features/admin/reference_data_screen.dart';
 import '../features/alerts/alert_detail_screen.dart';
 import '../features/alerts/alerts_screen.dart';
@@ -134,6 +137,18 @@ final routerProvider = Provider<GoRouter>((ref) {
                   GoRoute(
                     path: 'reference-data',
                     builder: (_, _) => const ReferenceDataScreen(),
+                  ),
+                  GoRoute(
+                    path: 'people',
+                    builder: (_, _) => const UsersScreen(),
+                  ),
+                  GoRoute(
+                    path: 'phones',
+                    builder: (_, _) => const PhonesScreen(),
+                  ),
+                  GoRoute(
+                    path: 'chain',
+                    builder: (_, _) => const ChainScreen(),
                   ),
                 ],
               ),

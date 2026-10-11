@@ -1121,4 +1121,264 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get colValue => 'Value';
+
+  @override
+  String get adminNeedsConnection =>
+      'Managing people and phones needs a connection to the server.';
+
+  @override
+  String areaLevel(String level) {
+    String _temp0 = intl.Intl.selectLogic(level, {
+      'country': 'national',
+      'region': 'region',
+      'district': 'district',
+      'subcounty': 'sub-county',
+      'parish': 'parish',
+      'village': 'village',
+      'other': '$level',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get areaPickTitle => 'Choose areas';
+
+  @override
+  String get areaPickOne => 'Choose an area';
+
+  @override
+  String get areaPickSearch =>
+      'Search any village, sub-county, district or region';
+
+  @override
+  String areaPickDone(int n) {
+    return 'Use $n areas';
+  }
+
+  @override
+  String get adminPeople => 'People';
+
+  @override
+  String get adminPeopleHint =>
+      'Create stakeholders and IT admins at any level, reset passwords, disable accounts.';
+
+  @override
+  String get adminPhones => 'Collect phones';
+
+  @override
+  String get adminPhonesHint =>
+      'Activation codes, phones in use, revoking a lost phone.';
+
+  @override
+  String get adminChain => 'Who covers an area';
+
+  @override
+  String get adminChainHint =>
+      'The chain of people an alert reaches, level by level, and the gaps.';
+
+  @override
+  String get usersTitle => 'People';
+
+  @override
+  String get usersNew => 'New person';
+
+  @override
+  String get usersSearch => 'Search by name, username or area';
+
+  @override
+  String get usersNeverSignedIn => 'Never signed in';
+
+  @override
+  String usersLastSignIn(String when) {
+    return 'Last sign-in $when';
+  }
+
+  @override
+  String get usersDisabled => 'Disabled';
+
+  @override
+  String get usersLocked => 'Locked';
+
+  @override
+  String get usersFirstSignIn => 'Not signed in yet';
+
+  @override
+  String get usersFullName => 'Full name';
+
+  @override
+  String get usersUsername => 'Username (email or phone)';
+
+  @override
+  String get usersOrganisation => 'Organisation';
+
+  @override
+  String get usersPosition => 'Position';
+
+  @override
+  String get usersPhone => 'Phone';
+
+  @override
+  String get usersEmail => 'Email';
+
+  @override
+  String get usersAreas => 'Areas';
+
+  @override
+  String get usersAddArea => 'Add or change areas';
+
+  @override
+  String get usersAreasHint =>
+      'Any level, from a village to national. The person sees these areas and everything below them, and receives alerts from them.';
+
+  @override
+  String get usersResponsibilities => 'Responsibilities';
+
+  @override
+  String get usersResponsibilitiesHint =>
+      'None chosen: every alert in their areas.';
+
+  @override
+  String get usersActive => 'Account active';
+
+  @override
+  String get usersActiveHint =>
+      'Turning it off signs the person out everywhere.';
+
+  @override
+  String get usersResetPassword => 'Reset password';
+
+  @override
+  String get usersCreate => 'Create';
+
+  @override
+  String get usersTaken => 'That username is already in use.';
+
+  @override
+  String get usersSelfLockout =>
+      'You cannot disable your own account or remove your own IT admin role.';
+
+  @override
+  String usersFailed(String code) {
+    return 'Could not save ($code).';
+  }
+
+  @override
+  String get credentialsTitle => 'Temporary password';
+
+  @override
+  String get credentialsHint =>
+      'Shown only now. Give it to the person in person, by SMS or by email; they must change it when they first sign in.';
+
+  @override
+  String credentialsUsername(String name) {
+    return 'Username: $name';
+  }
+
+  @override
+  String get credentialsCopy => 'Copy';
+
+  @override
+  String get credentialsDone => 'Done';
+
+  @override
+  String get phonesTitle => 'Collect phones';
+
+  @override
+  String get phonesHint =>
+      'Phones activated with a code for an area. Revoke a lost or stolen phone: it stops syncing and locks itself.';
+
+  @override
+  String get phonesNone => 'No phones activated yet.';
+
+  @override
+  String get phonesNewCode => 'New activation code';
+
+  @override
+  String phonesActivity(int collectors, int tests) {
+    return '$collectors collectors, $tests tests';
+  }
+
+  @override
+  String get phonesNeverSynced => 'Never synced';
+
+  @override
+  String phonesLastSeen(String when) {
+    return 'Last sync $when';
+  }
+
+  @override
+  String phonesRevokedAt(String when) {
+    return 'Revoked $when';
+  }
+
+  @override
+  String get phonesRevoke => 'Revoke';
+
+  @override
+  String get phonesRevokeTitle => 'Revoke this phone?';
+
+  @override
+  String get phonesRevokeHint =>
+      'It stops syncing at once. Unsent records on it are saved to an encrypted file only the server can read.';
+
+  @override
+  String get phonesCodes => 'Recent activation codes';
+
+  @override
+  String get phonesNoCodes => 'No codes yet.';
+
+  @override
+  String phonesCodeLine(int used, int max, String until) {
+    return '$used of $max phones · valid until $until';
+  }
+
+  @override
+  String phonesNewCodeFor(String area) {
+    return 'Activation code for $area';
+  }
+
+  @override
+  String phonesMax(int n) {
+    return 'Up to $n phones';
+  }
+
+  @override
+  String phonesValidDays(int n) {
+    return 'Valid for $n days';
+  }
+
+  @override
+  String get phonesCreateCode => 'Create code';
+
+  @override
+  String phonesCodeTitle(String area) {
+    return 'Code for $area';
+  }
+
+  @override
+  String get phonesCodeHint =>
+      'Shown only now. On the phone, open WaterCheck Collect and scan the QR code or type the code.';
+
+  @override
+  String get phonesQrLabel => 'Activation QR code';
+
+  @override
+  String get chainTitle => 'Who covers an area';
+
+  @override
+  String get chainHint =>
+      'Pick any area to see who an alert from it reaches, level by level. Levels with nobody are skipped; the IT admins are told only when nobody covers it.';
+
+  @override
+  String get chainPick => 'Choose an area';
+
+  @override
+  String get chainGap => 'Nobody at this level (skipped)';
+
+  @override
+  String get chainFirst => 'Gets the first notice';
+
+  @override
+  String get chainNobody =>
+      'Nobody covers this area: alerts from it go to the IT admins.';
 }

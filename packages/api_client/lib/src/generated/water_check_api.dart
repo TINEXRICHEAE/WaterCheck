@@ -7,6 +7,7 @@ import 'package:dio/dio.dart';
 import 'clients/health_client.dart';
 import 'clients/auth_client.dart';
 import 'clients/installations_client.dart';
+import 'clients/admin_client.dart';
 import 'clients/reference_client.dart';
 import 'clients/sync_client.dart';
 import 'clients/attachments_client.dart';
@@ -27,6 +28,7 @@ class WaterCheckApi {
   HealthClient? _health;
   AuthClient? _auth;
   InstallationsClient? _installations;
+  AdminClient? _admin;
   ReferenceClient? _reference;
   SyncClient? _sync;
   AttachmentsClient? _attachments;
@@ -41,6 +43,8 @@ class WaterCheckApi {
 
   InstallationsClient get installations =>
       _installations ??= InstallationsClient(_dio, baseUrl: _baseUrl);
+
+  AdminClient get admin => _admin ??= AdminClient(_dio, baseUrl: _baseUrl);
 
   ReferenceClient get reference =>
       _reference ??= ReferenceClient(_dio, baseUrl: _baseUrl);

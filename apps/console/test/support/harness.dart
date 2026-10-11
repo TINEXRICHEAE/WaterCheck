@@ -5,6 +5,7 @@ import 'package:data/data.dart';
 import 'package:drift/drift.dart' show driftRuntimeOptions;
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:watercheck_console/app/auth_api.dart';
 import 'package:watercheck_console/app/bootstrap.dart';
@@ -246,6 +247,9 @@ class FakeNotificationsApi implements NotificationsApi {
 
 /// Everything a Console test may set up or inspect.
 class ConsoleTestEnv {
+  /// Extra provider overrides for one test (e.g. a fake admin server).
+  final extraOverrides = <Override>[];
+
   /// Where the device is (null: location off).
   LatLng? location;
 
@@ -335,6 +339,7 @@ Future<AppDatabase> pumpConsole(
         notificationsApiProvider.overrideWithValue(env.notifications),
         mapTilesProvider.overrideWith((ref) async => MapTiles.none),
         deviceLocationProvider.overrideWith((ref) async => env.location),
+        ...env.extraOverrides,
       ],
     ),
   );

@@ -12,6 +12,27 @@ class AdminScreen extends StatelessWidget {
     return ListView(
       children: [
         ListTile(
+          leading: const Icon(Icons.people_alt_outlined),
+          title: Text(l10n.adminPeople),
+          subtitle: Text(l10n.adminPeopleHint),
+          trailing: const Icon(Icons.chevron_right),
+          onTap: () => context.go('/admin/people'),
+        ),
+        ListTile(
+          leading: const Icon(Icons.phone_android),
+          title: Text(l10n.adminPhones),
+          subtitle: Text(l10n.adminPhonesHint),
+          trailing: const Icon(Icons.chevron_right),
+          onTap: () => context.go('/admin/phones'),
+        ),
+        ListTile(
+          leading: const Icon(Icons.account_tree_outlined),
+          title: Text(l10n.adminChain),
+          subtitle: Text(l10n.adminChainHint),
+          trailing: const Icon(Icons.chevron_right),
+          onTap: () => context.go('/admin/chain'),
+        ),
+        ListTile(
           leading: const Icon(Icons.dataset_outlined),
           title: Text(l10n.adminReferenceData),
           subtitle: Text(l10n.adminReferenceDataHint),

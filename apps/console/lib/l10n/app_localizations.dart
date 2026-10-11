@@ -1881,6 +1881,426 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Value'**
   String get colValue;
+
+  /// No description provided for @adminNeedsConnection.
+  ///
+  /// In en, this message translates to:
+  /// **'Managing people and phones needs a connection to the server.'**
+  String get adminNeedsConnection;
+
+  /// No description provided for @areaLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'{level, select, country{national} region{region} district{district} subcounty{sub-county} parish{parish} village{village} other{{level}}}'**
+  String areaLevel(String level);
+
+  /// No description provided for @areaPickTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose areas'**
+  String get areaPickTitle;
+
+  /// No description provided for @areaPickOne.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose an area'**
+  String get areaPickOne;
+
+  /// No description provided for @areaPickSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Search any village, sub-county, district or region'**
+  String get areaPickSearch;
+
+  /// No description provided for @areaPickDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Use {n} areas'**
+  String areaPickDone(int n);
+
+  /// No description provided for @adminPeople.
+  ///
+  /// In en, this message translates to:
+  /// **'People'**
+  String get adminPeople;
+
+  /// No description provided for @adminPeopleHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Create stakeholders and IT admins at any level, reset passwords, disable accounts.'**
+  String get adminPeopleHint;
+
+  /// No description provided for @adminPhones.
+  ///
+  /// In en, this message translates to:
+  /// **'Collect phones'**
+  String get adminPhones;
+
+  /// No description provided for @adminPhonesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Activation codes, phones in use, revoking a lost phone.'**
+  String get adminPhonesHint;
+
+  /// No description provided for @adminChain.
+  ///
+  /// In en, this message translates to:
+  /// **'Who covers an area'**
+  String get adminChain;
+
+  /// No description provided for @adminChainHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The chain of people an alert reaches, level by level, and the gaps.'**
+  String get adminChainHint;
+
+  /// No description provided for @usersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'People'**
+  String get usersTitle;
+
+  /// No description provided for @usersNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New person'**
+  String get usersNew;
+
+  /// No description provided for @usersSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by name, username or area'**
+  String get usersSearch;
+
+  /// No description provided for @usersNeverSignedIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Never signed in'**
+  String get usersNeverSignedIn;
+
+  /// No description provided for @usersLastSignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Last sign-in {when}'**
+  String usersLastSignIn(String when);
+
+  /// No description provided for @usersDisabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Disabled'**
+  String get usersDisabled;
+
+  /// No description provided for @usersLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Locked'**
+  String get usersLocked;
+
+  /// No description provided for @usersFirstSignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Not signed in yet'**
+  String get usersFirstSignIn;
+
+  /// No description provided for @usersFullName.
+  ///
+  /// In en, this message translates to:
+  /// **'Full name'**
+  String get usersFullName;
+
+  /// No description provided for @usersUsername.
+  ///
+  /// In en, this message translates to:
+  /// **'Username (email or phone)'**
+  String get usersUsername;
+
+  /// No description provided for @usersOrganisation.
+  ///
+  /// In en, this message translates to:
+  /// **'Organisation'**
+  String get usersOrganisation;
+
+  /// No description provided for @usersPosition.
+  ///
+  /// In en, this message translates to:
+  /// **'Position'**
+  String get usersPosition;
+
+  /// No description provided for @usersPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone'**
+  String get usersPhone;
+
+  /// No description provided for @usersEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get usersEmail;
+
+  /// No description provided for @usersAreas.
+  ///
+  /// In en, this message translates to:
+  /// **'Areas'**
+  String get usersAreas;
+
+  /// No description provided for @usersAddArea.
+  ///
+  /// In en, this message translates to:
+  /// **'Add or change areas'**
+  String get usersAddArea;
+
+  /// No description provided for @usersAreasHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Any level, from a village to national. The person sees these areas and everything below them, and receives alerts from them.'**
+  String get usersAreasHint;
+
+  /// No description provided for @usersResponsibilities.
+  ///
+  /// In en, this message translates to:
+  /// **'Responsibilities'**
+  String get usersResponsibilities;
+
+  /// No description provided for @usersResponsibilitiesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'None chosen: every alert in their areas.'**
+  String get usersResponsibilitiesHint;
+
+  /// No description provided for @usersActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Account active'**
+  String get usersActive;
+
+  /// No description provided for @usersActiveHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Turning it off signs the person out everywhere.'**
+  String get usersActiveHint;
+
+  /// No description provided for @usersResetPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset password'**
+  String get usersResetPassword;
+
+  /// No description provided for @usersCreate.
+  ///
+  /// In en, this message translates to:
+  /// **'Create'**
+  String get usersCreate;
+
+  /// No description provided for @usersTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'That username is already in use.'**
+  String get usersTaken;
+
+  /// No description provided for @usersSelfLockout.
+  ///
+  /// In en, this message translates to:
+  /// **'You cannot disable your own account or remove your own IT admin role.'**
+  String get usersSelfLockout;
+
+  /// No description provided for @usersFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save ({code}).'**
+  String usersFailed(String code);
+
+  /// No description provided for @credentialsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Temporary password'**
+  String get credentialsTitle;
+
+  /// No description provided for @credentialsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Shown only now. Give it to the person in person, by SMS or by email; they must change it when they first sign in.'**
+  String get credentialsHint;
+
+  /// No description provided for @credentialsUsername.
+  ///
+  /// In en, this message translates to:
+  /// **'Username: {name}'**
+  String credentialsUsername(String name);
+
+  /// No description provided for @credentialsCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get credentialsCopy;
+
+  /// No description provided for @credentialsDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get credentialsDone;
+
+  /// No description provided for @phonesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Collect phones'**
+  String get phonesTitle;
+
+  /// No description provided for @phonesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Phones activated with a code for an area. Revoke a lost or stolen phone: it stops syncing and locks itself.'**
+  String get phonesHint;
+
+  /// No description provided for @phonesNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No phones activated yet.'**
+  String get phonesNone;
+
+  /// No description provided for @phonesNewCode.
+  ///
+  /// In en, this message translates to:
+  /// **'New activation code'**
+  String get phonesNewCode;
+
+  /// No description provided for @phonesActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'{collectors} collectors, {tests} tests'**
+  String phonesActivity(int collectors, int tests);
+
+  /// No description provided for @phonesNeverSynced.
+  ///
+  /// In en, this message translates to:
+  /// **'Never synced'**
+  String get phonesNeverSynced;
+
+  /// No description provided for @phonesLastSeen.
+  ///
+  /// In en, this message translates to:
+  /// **'Last sync {when}'**
+  String phonesLastSeen(String when);
+
+  /// No description provided for @phonesRevokedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Revoked {when}'**
+  String phonesRevokedAt(String when);
+
+  /// No description provided for @phonesRevoke.
+  ///
+  /// In en, this message translates to:
+  /// **'Revoke'**
+  String get phonesRevoke;
+
+  /// No description provided for @phonesRevokeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Revoke this phone?'**
+  String get phonesRevokeTitle;
+
+  /// No description provided for @phonesRevokeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'It stops syncing at once. Unsent records on it are saved to an encrypted file only the server can read.'**
+  String get phonesRevokeHint;
+
+  /// No description provided for @phonesCodes.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent activation codes'**
+  String get phonesCodes;
+
+  /// No description provided for @phonesNoCodes.
+  ///
+  /// In en, this message translates to:
+  /// **'No codes yet.'**
+  String get phonesNoCodes;
+
+  /// No description provided for @phonesCodeLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{used} of {max} phones · valid until {until}'**
+  String phonesCodeLine(int used, int max, String until);
+
+  /// No description provided for @phonesNewCodeFor.
+  ///
+  /// In en, this message translates to:
+  /// **'Activation code for {area}'**
+  String phonesNewCodeFor(String area);
+
+  /// No description provided for @phonesMax.
+  ///
+  /// In en, this message translates to:
+  /// **'Up to {n} phones'**
+  String phonesMax(int n);
+
+  /// No description provided for @phonesValidDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Valid for {n} days'**
+  String phonesValidDays(int n);
+
+  /// No description provided for @phonesCreateCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Create code'**
+  String get phonesCreateCode;
+
+  /// No description provided for @phonesCodeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Code for {area}'**
+  String phonesCodeTitle(String area);
+
+  /// No description provided for @phonesCodeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Shown only now. On the phone, open WaterCheck Collect and scan the QR code or type the code.'**
+  String get phonesCodeHint;
+
+  /// No description provided for @phonesQrLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Activation QR code'**
+  String get phonesQrLabel;
+
+  /// No description provided for @chainTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Who covers an area'**
+  String get chainTitle;
+
+  /// No description provided for @chainHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick any area to see who an alert from it reaches, level by level. Levels with nobody are skipped; the IT admins are told only when nobody covers it.'**
+  String get chainHint;
+
+  /// No description provided for @chainPick.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose an area'**
+  String get chainPick;
+
+  /// No description provided for @chainGap.
+  ///
+  /// In en, this message translates to:
+  /// **'Nobody at this level (skipped)'**
+  String get chainGap;
+
+  /// No description provided for @chainFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Gets the first notice'**
+  String get chainFirst;
+
+  /// No description provided for @chainNobody.
+  ///
+  /// In en, this message translates to:
+  /// **'Nobody covers this area: alerts from it go to the IT admins.'**
+  String get chainNobody;
 }
 
 class _AppLocalizationsDelegate
