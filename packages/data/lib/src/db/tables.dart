@@ -29,6 +29,13 @@ class AdminUnits extends Table {
   TextColumn get code => text().unique()();
   TextColumn get parentId => text().nullable().references(AdminUnits, #id)();
 
+  /// Official UBOS/OCHA P-code (regions, districts, sub-counties). Added in v4.
+  TextColumn get pcode => text().nullable()();
+
+  /// Centre point, so the map can move to the chosen area. Added in v4.
+  RealColumn get centerLat => real().nullable()();
+  RealColumn get centerLon => real().nullable()();
+
   @override
   Set<Column> get primaryKey => {id};
 }

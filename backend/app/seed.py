@@ -50,12 +50,14 @@ async def load_seed(conn: AsyncConnection, seed_dir: Path) -> list[str]:
     for u in units:  # parents are listed before children
         await conn.execute(
             text(
-                "INSERT INTO admin_unit (id, level, name, code, parent_id) "
-                "VALUES (:id, :level, :name, :code, :parent_id) "
-                "ON CONFLICT (id) DO UPDATE SET level = EXCLUDED.level, name = EXCLUDED.name, "
-                "code = EXCLUDED.code, parent_id = EXCLUDED.parent_id"
+                "INSERT INTO admin_unit (id, level, name, code, parent_id, pcode, center_lat, "
+                "center_lon) VALUES (:id, :level, :name, :code, :parent_id, :pcode, :center_lat, "
+                ":center_lon) ON CONFLICT (id) DO UPDATE SET level = EXCLUDED.level, "
+                "name = EXCLUDED.name, code = EXCLUDED.code, parent_id = EXCLUDED.parent_id, "
+                "pcode = EXCLUDED.pcode, center_lat = EXCLUDED.center_lat, "
+                "center_lon = EXCLUDED.center_lon"
             ),
-            u,
+            {"pcode": None, "center_lat": None, "center_lon": None, **u},
         )
     done.append(f"admin_units:{len(units)}")
 

@@ -37,7 +37,10 @@ _SRC = "(SELECT village_id FROM water_source s WHERE s.id = {col})"
 _SES = "(SELECT s.village_id FROM test_session t JOIN water_source s ON s.id = t.source_id WHERE t.id = {col})"  # noqa: E501
 
 REFERENCE: dict[str, str] = {
-    "admin_unit": "SELECT id, level, name, code, parent_id, {cols} FROM admin_unit x",
+    "admin_unit": (
+        "SELECT id, level, name, code, parent_id, pcode, center_lat, center_lon, {cols} "
+        "FROM admin_unit x"
+    ),
     "parameter_category": "SELECT code, name, display_order, {cols} FROM parameter_category x",
     "parameter_definition": (
         "SELECT code, name, category_code, default_unit, value_type, is_core, display_order, "

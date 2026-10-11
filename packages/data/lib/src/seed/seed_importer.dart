@@ -228,20 +228,23 @@ class SeedImporter {
   }
 
   Future<void> _adminUnits(JsonMap json) async {
-    // Parents are listed before children in the seed.
-    for (final u
-        in (json['admin_units']! as List).cast<Map<String, Object?>>()) {
-      await _db
-          .into(_db.adminUnits)
-          .insertOnConflictUpdate(
-            AdminUnitsCompanion.insert(
-              id: u['id']! as String,
-              level: u['level']! as String,
-              name: u['name']! as String,
-              code: u['code']! as String,
-              parentId: Value(u['parent_id'] as String?),
-            ),
-          );
-    }
+    // Parents are listed before children in the seed; one batch, as the
+    // nationwide list has ~1,700 units.
+    final units = (json['admin_units']! as List).cast<Map<String, Object?>>();
+    await _db.batch(
+      (b) => b.insertAllOnConflictUpdate(_db.adminUnits, [
+        for (final u in units)
+          AdminUnitsCompanion.insert(
+            id: u['id']! as String,
+            level: u['level']! as String,
+            name: u['name']! as String,
+            code: u['code']! as String,
+            parentId: Value(u['parent_id'] as String?),
+            pcode: Value(u['pcode'] as String?),
+            centerLat: Value((u['center_lat'] as num?)?.toDouble()),
+            centerLon: Value((u['center_lon'] as num?)?.toDouble()),
+          ),
+      ]),
+    );
   }
 }

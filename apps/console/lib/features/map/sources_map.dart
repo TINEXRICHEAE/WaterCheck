@@ -12,12 +12,10 @@ import 'package:ui_kit/ui_kit.dart';
 import '../../app/console_sync.dart';
 import '../../l10n/app_localizations.dart';
 import '../alerts/alerts_screen.dart' show severityColor, triggerText;
+import '../dashboard/dashboard_state.dart' show mapHomeProvider;
 import '../sources/sources_screen.dart' show sourcesQueryProvider;
 import 'device_location.dart';
 import 'map_tiles.dart';
-
-/// Centre of Uganda, when nothing else says where to look.
-const _uganda = LatLng(1.37, 32.29);
 
 /// Below this zoom, nearby dots merge into one with a count.
 const _clusterBelowZoom = 12.0;
@@ -151,6 +149,8 @@ class _SourcesMapState extends ConsumerState<SourcesMap> {
     final me = ref.watch(deviceLocationProvider).value;
     final alerts = ref.watch(_openAlertsProvider).value ?? const [];
     final focusId = ref.watch(mapFocusProvider);
+    final home =
+        ref.watch(mapHomeProvider).value ?? (lat: 1.37, lon: 32.29, zoom: 7.0);
     final placed = [
       for (final s in widget.sources)
         if (s.lat != null && s.lon != null) s,
@@ -178,14 +178,14 @@ class _SourcesMapState extends ConsumerState<SourcesMap> {
       children: [
         FlutterMap(
           mapController: _map,
-          key: ValueKey(Object.hash(Object.hashAll(points), focusId)),
+          key: ValueKey(Object.hash(Object.hashAll(points), focusId, home)),
           options: MapOptions(
             initialCenter: focus != null
                 ? LatLng(focus.lat!, focus.lon!)
                 : points.length == 1
                 ? points.single
-                : _uganda,
-            initialZoom: focus != null || points.length == 1 ? 14 : 7,
+                : LatLng(home.lat, home.lon),
+            initialZoom: focus != null || points.length == 1 ? 14 : home.zoom,
             initialCameraFit: focus == null && points.length > 1
                 ? CameraFit.coordinates(
                     coordinates: points,

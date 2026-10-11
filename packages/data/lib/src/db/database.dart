@@ -43,7 +43,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.executor);
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -62,6 +62,12 @@ class AppDatabase extends _$AppDatabase {
         // Stakeholder dashboard (P9): collector marks, submission flags.
         await m.createTable(collectorMarks);
         await m.createTable(submissionFlags);
+      }
+      if (from < 4) {
+        // Nationwide areas: P-codes and centre points (docs/PLAN.md §3).
+        await m.addColumn(adminUnits, adminUnits.pcode);
+        await m.addColumn(adminUnits, adminUnits.centerLat);
+        await m.addColumn(adminUnits, adminUnits.centerLon);
       }
     },
     beforeOpen: (details) async {

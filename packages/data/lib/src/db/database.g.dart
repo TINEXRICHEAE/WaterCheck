@@ -6542,8 +6542,48 @@ class $AdminUnitsTable extends AdminUnits
       'REFERENCES admin_units (id)',
     ),
   );
+  static const VerificationMeta _pcodeMeta = const VerificationMeta('pcode');
   @override
-  List<GeneratedColumn> get $columns => [id, level, name, code, parentId];
+  late final GeneratedColumn<String> pcode = GeneratedColumn<String>(
+    'pcode',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _centerLatMeta = const VerificationMeta(
+    'centerLat',
+  );
+  @override
+  late final GeneratedColumn<double> centerLat = GeneratedColumn<double>(
+    'center_lat',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _centerLonMeta = const VerificationMeta(
+    'centerLon',
+  );
+  @override
+  late final GeneratedColumn<double> centerLon = GeneratedColumn<double>(
+    'center_lon',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    level,
+    name,
+    code,
+    parentId,
+    pcode,
+    centerLat,
+    centerLon,
+  ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -6591,6 +6631,24 @@ class $AdminUnitsTable extends AdminUnits
         parentId.isAcceptableOrUnknown(data['parent_id']!, _parentIdMeta),
       );
     }
+    if (data.containsKey('pcode')) {
+      context.handle(
+        _pcodeMeta,
+        pcode.isAcceptableOrUnknown(data['pcode']!, _pcodeMeta),
+      );
+    }
+    if (data.containsKey('center_lat')) {
+      context.handle(
+        _centerLatMeta,
+        centerLat.isAcceptableOrUnknown(data['center_lat']!, _centerLatMeta),
+      );
+    }
+    if (data.containsKey('center_lon')) {
+      context.handle(
+        _centerLonMeta,
+        centerLon.isAcceptableOrUnknown(data['center_lon']!, _centerLonMeta),
+      );
+    }
     return context;
   }
 
@@ -6620,6 +6678,18 @@ class $AdminUnitsTable extends AdminUnits
         DriftSqlType.string,
         data['${effectivePrefix}parent_id'],
       ),
+      pcode: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}pcode'],
+      ),
+      centerLat: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}center_lat'],
+      ),
+      centerLon: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}center_lon'],
+      ),
     );
   }
 
@@ -6635,12 +6705,22 @@ class AdminUnitRow extends DataClass implements Insertable<AdminUnitRow> {
   final String name;
   final String code;
   final String? parentId;
+
+  /// Official UBOS/OCHA P-code (regions, districts, sub-counties). Added in v4.
+  final String? pcode;
+
+  /// Centre point, so the map can move to the chosen area. Added in v4.
+  final double? centerLat;
+  final double? centerLon;
   const AdminUnitRow({
     required this.id,
     required this.level,
     required this.name,
     required this.code,
     this.parentId,
+    this.pcode,
+    this.centerLat,
+    this.centerLon,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -6651,6 +6731,15 @@ class AdminUnitRow extends DataClass implements Insertable<AdminUnitRow> {
     map['code'] = Variable<String>(code);
     if (!nullToAbsent || parentId != null) {
       map['parent_id'] = Variable<String>(parentId);
+    }
+    if (!nullToAbsent || pcode != null) {
+      map['pcode'] = Variable<String>(pcode);
+    }
+    if (!nullToAbsent || centerLat != null) {
+      map['center_lat'] = Variable<double>(centerLat);
+    }
+    if (!nullToAbsent || centerLon != null) {
+      map['center_lon'] = Variable<double>(centerLon);
     }
     return map;
   }
@@ -6664,6 +6753,15 @@ class AdminUnitRow extends DataClass implements Insertable<AdminUnitRow> {
       parentId: parentId == null && nullToAbsent
           ? const Value.absent()
           : Value(parentId),
+      pcode: pcode == null && nullToAbsent
+          ? const Value.absent()
+          : Value(pcode),
+      centerLat: centerLat == null && nullToAbsent
+          ? const Value.absent()
+          : Value(centerLat),
+      centerLon: centerLon == null && nullToAbsent
+          ? const Value.absent()
+          : Value(centerLon),
     );
   }
 
@@ -6678,6 +6776,9 @@ class AdminUnitRow extends DataClass implements Insertable<AdminUnitRow> {
       name: serializer.fromJson<String>(json['name']),
       code: serializer.fromJson<String>(json['code']),
       parentId: serializer.fromJson<String?>(json['parent_id']),
+      pcode: serializer.fromJson<String?>(json['pcode']),
+      centerLat: serializer.fromJson<double?>(json['center_lat']),
+      centerLon: serializer.fromJson<double?>(json['center_lon']),
     );
   }
   @override
@@ -6689,6 +6790,9 @@ class AdminUnitRow extends DataClass implements Insertable<AdminUnitRow> {
       'name': serializer.toJson<String>(name),
       'code': serializer.toJson<String>(code),
       'parent_id': serializer.toJson<String?>(parentId),
+      'pcode': serializer.toJson<String?>(pcode),
+      'center_lat': serializer.toJson<double?>(centerLat),
+      'center_lon': serializer.toJson<double?>(centerLon),
     };
   }
 
@@ -6698,12 +6802,18 @@ class AdminUnitRow extends DataClass implements Insertable<AdminUnitRow> {
     String? name,
     String? code,
     Value<String?> parentId = const Value.absent(),
+    Value<String?> pcode = const Value.absent(),
+    Value<double?> centerLat = const Value.absent(),
+    Value<double?> centerLon = const Value.absent(),
   }) => AdminUnitRow(
     id: id ?? this.id,
     level: level ?? this.level,
     name: name ?? this.name,
     code: code ?? this.code,
     parentId: parentId.present ? parentId.value : this.parentId,
+    pcode: pcode.present ? pcode.value : this.pcode,
+    centerLat: centerLat.present ? centerLat.value : this.centerLat,
+    centerLon: centerLon.present ? centerLon.value : this.centerLon,
   );
   AdminUnitRow copyWithCompanion(AdminUnitsCompanion data) {
     return AdminUnitRow(
@@ -6712,6 +6822,9 @@ class AdminUnitRow extends DataClass implements Insertable<AdminUnitRow> {
       name: data.name.present ? data.name.value : this.name,
       code: data.code.present ? data.code.value : this.code,
       parentId: data.parentId.present ? data.parentId.value : this.parentId,
+      pcode: data.pcode.present ? data.pcode.value : this.pcode,
+      centerLat: data.centerLat.present ? data.centerLat.value : this.centerLat,
+      centerLon: data.centerLon.present ? data.centerLon.value : this.centerLon,
     );
   }
 
@@ -6722,13 +6835,17 @@ class AdminUnitRow extends DataClass implements Insertable<AdminUnitRow> {
           ..write('level: $level, ')
           ..write('name: $name, ')
           ..write('code: $code, ')
-          ..write('parentId: $parentId')
+          ..write('parentId: $parentId, ')
+          ..write('pcode: $pcode, ')
+          ..write('centerLat: $centerLat, ')
+          ..write('centerLon: $centerLon')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, level, name, code, parentId);
+  int get hashCode =>
+      Object.hash(id, level, name, code, parentId, pcode, centerLat, centerLon);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -6737,7 +6854,10 @@ class AdminUnitRow extends DataClass implements Insertable<AdminUnitRow> {
           other.level == this.level &&
           other.name == this.name &&
           other.code == this.code &&
-          other.parentId == this.parentId);
+          other.parentId == this.parentId &&
+          other.pcode == this.pcode &&
+          other.centerLat == this.centerLat &&
+          other.centerLon == this.centerLon);
 }
 
 class AdminUnitsCompanion extends UpdateCompanion<AdminUnitRow> {
@@ -6746,6 +6866,9 @@ class AdminUnitsCompanion extends UpdateCompanion<AdminUnitRow> {
   final Value<String> name;
   final Value<String> code;
   final Value<String?> parentId;
+  final Value<String?> pcode;
+  final Value<double?> centerLat;
+  final Value<double?> centerLon;
   final Value<int> rowid;
   const AdminUnitsCompanion({
     this.id = const Value.absent(),
@@ -6753,6 +6876,9 @@ class AdminUnitsCompanion extends UpdateCompanion<AdminUnitRow> {
     this.name = const Value.absent(),
     this.code = const Value.absent(),
     this.parentId = const Value.absent(),
+    this.pcode = const Value.absent(),
+    this.centerLat = const Value.absent(),
+    this.centerLon = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   AdminUnitsCompanion.insert({
@@ -6761,6 +6887,9 @@ class AdminUnitsCompanion extends UpdateCompanion<AdminUnitRow> {
     required String name,
     required String code,
     this.parentId = const Value.absent(),
+    this.pcode = const Value.absent(),
+    this.centerLat = const Value.absent(),
+    this.centerLon = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        level = Value(level),
@@ -6772,6 +6901,9 @@ class AdminUnitsCompanion extends UpdateCompanion<AdminUnitRow> {
     Expression<String>? name,
     Expression<String>? code,
     Expression<String>? parentId,
+    Expression<String>? pcode,
+    Expression<double>? centerLat,
+    Expression<double>? centerLon,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -6780,6 +6912,9 @@ class AdminUnitsCompanion extends UpdateCompanion<AdminUnitRow> {
       if (name != null) 'name': name,
       if (code != null) 'code': code,
       if (parentId != null) 'parent_id': parentId,
+      if (pcode != null) 'pcode': pcode,
+      if (centerLat != null) 'center_lat': centerLat,
+      if (centerLon != null) 'center_lon': centerLon,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -6790,6 +6925,9 @@ class AdminUnitsCompanion extends UpdateCompanion<AdminUnitRow> {
     Value<String>? name,
     Value<String>? code,
     Value<String?>? parentId,
+    Value<String?>? pcode,
+    Value<double?>? centerLat,
+    Value<double?>? centerLon,
     Value<int>? rowid,
   }) {
     return AdminUnitsCompanion(
@@ -6798,6 +6936,9 @@ class AdminUnitsCompanion extends UpdateCompanion<AdminUnitRow> {
       name: name ?? this.name,
       code: code ?? this.code,
       parentId: parentId ?? this.parentId,
+      pcode: pcode ?? this.pcode,
+      centerLat: centerLat ?? this.centerLat,
+      centerLon: centerLon ?? this.centerLon,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -6820,6 +6961,15 @@ class AdminUnitsCompanion extends UpdateCompanion<AdminUnitRow> {
     if (parentId.present) {
       map['parent_id'] = Variable<String>(parentId.value);
     }
+    if (pcode.present) {
+      map['pcode'] = Variable<String>(pcode.value);
+    }
+    if (centerLat.present) {
+      map['center_lat'] = Variable<double>(centerLat.value);
+    }
+    if (centerLon.present) {
+      map['center_lon'] = Variable<double>(centerLon.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -6834,6 +6984,9 @@ class AdminUnitsCompanion extends UpdateCompanion<AdminUnitRow> {
           ..write('name: $name, ')
           ..write('code: $code, ')
           ..write('parentId: $parentId, ')
+          ..write('pcode: $pcode, ')
+          ..write('centerLat: $centerLat, ')
+          ..write('centerLon: $centerLon, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -19765,6 +19918,9 @@ typedef $$AdminUnitsTableCreateCompanionBuilder = AdminUnitsCompanion Function({
   required String name,
   required String code,
   Value<String?> parentId,
+  Value<String?> pcode,
+  Value<double?> centerLat,
+  Value<double?> centerLon,
   Value<int> rowid,
 });
 typedef $$AdminUnitsTableUpdateCompanionBuilder = AdminUnitsCompanion Function({
@@ -19773,6 +19929,9 @@ typedef $$AdminUnitsTableUpdateCompanionBuilder = AdminUnitsCompanion Function({
   Value<String> name,
   Value<String> code,
   Value<String?> parentId,
+  Value<String?> pcode,
+  Value<double?> centerLat,
+  Value<double?> centerLon,
   Value<int> rowid,
 });
 
@@ -19824,6 +19983,21 @@ class $$AdminUnitsTableFilterComposer
 
   ColumnFilters<String> get code => $composableBuilder(
     column: $table.code,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get pcode => $composableBuilder(
+    column: $table.pcode,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get centerLat => $composableBuilder(
+    column: $table.centerLat,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get centerLon => $composableBuilder(
+    column: $table.centerLon,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -19880,6 +20054,21 @@ class $$AdminUnitsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get pcode => $composableBuilder(
+    column: $table.pcode,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get centerLat => $composableBuilder(
+    column: $table.centerLat,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get centerLon => $composableBuilder(
+    column: $table.centerLon,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$AdminUnitsTableOrderingComposer get parentId {
     final $$AdminUnitsTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -19924,6 +20113,15 @@ class $$AdminUnitsTableAnnotationComposer
 
   GeneratedColumn<String> get code =>
       $composableBuilder(column: $table.code, builder: (column) => column);
+
+  GeneratedColumn<String> get pcode =>
+      $composableBuilder(column: $table.pcode, builder: (column) => column);
+
+  GeneratedColumn<double> get centerLat =>
+      $composableBuilder(column: $table.centerLat, builder: (column) => column);
+
+  GeneratedColumn<double> get centerLon =>
+      $composableBuilder(column: $table.centerLon, builder: (column) => column);
 
   $$AdminUnitsTableAnnotationComposer get parentId {
     final $$AdminUnitsTableAnnotationComposer composer = $composerBuilder(
@@ -19982,6 +20180,9 @@ class $$AdminUnitsTableTableManager
                 Value<String> name = const Value.absent(),
                 Value<String> code = const Value.absent(),
                 Value<String?> parentId = const Value.absent(),
+                Value<String?> pcode = const Value.absent(),
+                Value<double?> centerLat = const Value.absent(),
+                Value<double?> centerLon = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => AdminUnitsCompanion(
                 id: id,
@@ -19989,6 +20190,9 @@ class $$AdminUnitsTableTableManager
                 name: name,
                 code: code,
                 parentId: parentId,
+                pcode: pcode,
+                centerLat: centerLat,
+                centerLon: centerLon,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -19998,6 +20202,9 @@ class $$AdminUnitsTableTableManager
                 required String name,
                 required String code,
                 Value<String?> parentId = const Value.absent(),
+                Value<String?> pcode = const Value.absent(),
+                Value<double?> centerLat = const Value.absent(),
+                Value<double?> centerLon = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => AdminUnitsCompanion.insert(
                 id: id,
@@ -20005,6 +20212,9 @@ class $$AdminUnitsTableTableManager
                 name: name,
                 code: code,
                 parentId: parentId,
+                pcode: pcode,
+                centerLat: centerLat,
+                centerLon: centerLon,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

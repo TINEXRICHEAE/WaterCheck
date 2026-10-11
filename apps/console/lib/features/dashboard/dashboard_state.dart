@@ -91,8 +91,25 @@ final comparableProfilesProvider = FutureProvider<List<ReferenceProfile>>(
   ],
 );
 
-/// Areas the user can pick: theirs and the units below them; IT admins and
-/// national scope get every district.
+const _levelRank = {
+  'country': 0,
+  'region': 1,
+  'district': 2,
+  'subcounty': 3,
+  'parish': 4,
+  'village': 5,
+};
+
+String _areaLabel(AdminUnit u) => switch (u.level) {
+  'district' => '${u.name} District',
+  'subcounty' => '${u.name} sub-county',
+  'parish' => '${u.name} parish',
+  _ => u.name,
+};
+
+/// Areas the user can pick: theirs and the units one level below; IT
+/// admins and national users get every region and district. Ordered from
+/// the widest level down.
 final selectableAreasProvider =
     FutureProvider<List<({String id, String name, String level})>>((ref) async {
       final me = ref.watch(sessionProvider).me;
@@ -104,11 +121,51 @@ final selectableAreasProvider =
       final national =
           me.role == 'it_admin' ||
           me.areas.any((a) => const {'country', 'national'}.contains(a.level));
+      final picked =
+          [
+            for (final u in units)
+              if (mine.contains(u.id) ||
+                  (national &&
+                      const {'district', 'region'}.contains(u.level)) ||
+                  (mine.contains(u.parentId) && u.level != 'village'))
+                u,
+          ]..sort((a, b) {
+            final r = (_levelRank[a.level] ?? 9).compareTo(
+              _levelRank[b.level] ?? 9,
+            );
+            return r != 0 ? r : a.name.compareTo(b.name);
+          });
       return [
-        for (final u in units)
-          if (mine.contains(u.id) ||
-              (national && const {'district', 'region'}.contains(u.level)) ||
-              (mine.contains(u.parentId) && u.level != 'village'))
-            (id: u.id, name: u.name, level: u.level),
-      ]..sort((a, b) => a.name.compareTo(b.name));
+        for (final u in picked) (id: u.id, name: _areaLabel(u), level: u.level),
+      ];
     });
+
+/// Where the map looks when it has no sources to fit: the chosen area, else
+/// the user's first area, else all of Uganda.
+final mapHomeProvider = FutureProvider<({double lat, double lon, double zoom})>(
+  (ref) async {
+    const uganda = (lat: 1.37, lon: 32.29, zoom: 7.0);
+    final areaId =
+        ref.watch(dashboardSettingsProvider).areaId ??
+        ref.watch(sessionProvider).me?.areas.firstOrNull?.id;
+    if (areaId == null) return uganda;
+    final units = {
+      for (final u
+          in await ref.watch(referenceDataRepositoryProvider).adminUnits())
+        u.id: u,
+    };
+    // Villages and parishes have no centre yet: use the nearest parent's.
+    var u = units[areaId];
+    while (u != null && u.lat == null) {
+      u = units[u.parentId];
+    }
+    if (u == null || u.lat == null) return uganda;
+    final zoom = switch (u.level) {
+      'country' => 7.0,
+      'region' => 8.0,
+      'district' => 10.0,
+      _ => 12.0,
+    };
+    return (lat: u.lat!, lon: u.lon!, zoom: zoom);
+  },
+);

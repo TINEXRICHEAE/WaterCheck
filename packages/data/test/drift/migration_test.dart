@@ -51,7 +51,7 @@ void main() {
       "INSERT INTO sync_state (stream, cursor) VALUES ('reference', 0)",
     );
     final db = AppDatabase(schema.newConnection());
-    await verifier.migrateAndValidate(db, 2);
+    await verifier.migrateAndValidate(db, localSchemaVersion);
     final outbox = await db.select(db.outbox).get();
     expect(outbox.single.entityId, 'src-1');
     expect(outbox.single.status, 'pending');
@@ -69,9 +69,24 @@ void main() {
       "VALUES ('scope', 0, '5.9', 0)",
     );
     final db = AppDatabase(schema.newConnection());
-    await verifier.migrateAndValidate(db, 3);
+    await verifier.migrateAndValidate(db, localSchemaVersion);
     expect((await db.select(db.syncState).getSingle()).cursorToken, '5.9');
     expect(await db.select(db.collectorMarks).get(), isEmpty);
+    await db.close();
+  });
+
+  test('v3 → v4 keeps areas and adds P-codes and centre points', () async {
+    final schema = await verifier.schemaAt(3);
+    schema.rawDatabase.execute(
+      "INSERT INTO admin_units (id, level, name, code) "
+      "VALUES ('u-1', 'district', 'Abim', 'UG-ABIM')",
+    );
+    final db = AppDatabase(schema.newConnection());
+    await verifier.migrateAndValidate(db, localSchemaVersion);
+    final unit = await db.select(db.adminUnits).getSingle();
+    expect(unit.code, 'UG-ABIM');
+    expect(unit.pcode, isNull);
+    expect(unit.centerLat, isNull);
     await db.close();
   });
 }

@@ -1,6 +1,6 @@
 # Spec errata (against SPEC v0.4)
 
-<!-- Source: plan.md §2 (kept outside the repo). Update both, or move the plan into the repo. -->
+<!-- Source: docs/PLAN.md §2. -->
 
 Each item is resolved by a spec edit or an ADR in the phase named.
 
@@ -25,3 +25,4 @@ Suggested fixes are in *italics*.
 | G13 ✅ P4 (role check + role_permission data) | §5.3 `app_user.role` | A `check` constraint hard-codes roles, but A0 says "no hard-coded roles" and §7 asks for a `role_permission` table. | *Keep the two **system** roles (`stakeholder`, `it_admin`) as a constraint; permissions come from `role_permission` data. Document this in an ADR.* |
 | G14 ✅ P8 (ADR-013: in-app + email on Windows) | P8 | FCM covers Android and web, but **not Windows desktop**. | *Windows Console relies on in-app plus email notifications; state this in the P8 tasks.* |
 | G15 | §2.1 | Collector phone numbers in snapshots are personal data that sync to the server. | *State the retention period in the privacy notice (P12) and the consent screen (P3 first launch).* |
+| G16 ✅ P9 (nationwide chain, 2026-10-11) | §4.7, F-ALR-4, P8 | The spec fixes escalation at "48 h → district level, 96 h → IT admin", and seeds only the Abim pilot. The lead's decision (docs/PLAN.md §3) is a **nationwide chain**: users at any level (village, parish, sub-county, district, region, national), linked by the IT admin, with levels that may be **skipped**. | *Done:* areas cover all of Uganda (country → 4 regions → 135 districts → 1,520 sub-counties, from OCHA COD-AB/UBOS, with P-codes and centre points; migration 0006, local schema v4). An alert first reaches the **lowest level that has someone** covering the source; each escalation reaches the **next level up that has someone**, skipping empty levels, and the chain ends at national. Step *n* is due `escalation_hours[n-1]` after opening (48, 96, then the last gap repeats). The IT admins are told only when nobody covers the source. *Still to do:* parishes and villages per district; the chain view and any-level user creation in the IT admin console (P11). |

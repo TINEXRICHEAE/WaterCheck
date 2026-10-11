@@ -13,6 +13,10 @@ typedef AdminUnit = ({
   String level,
   String name,
   String? parentId,
+
+  /// Centre point (regions, districts, sub-counties), for the map.
+  double? lat,
+  double? lon,
 });
 
 /// Read access to reference data, and the two user-created kinds of it
@@ -163,6 +167,8 @@ class DriftReferenceDataRepository implements ReferenceDataRepository {
           level: r.level,
           name: r.name,
           parentId: r.parentId,
+          lat: r.centerLat,
+          lon: r.centerLon,
         ),
     ];
   }

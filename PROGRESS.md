@@ -283,11 +283,12 @@ Tests: backend 210, data 64, Console 26.
 See ADR-014, amendment.
 
 **Next (see docs/PLAN.md §3 "Nationwide scope and the stakeholder chain" and P9 "Map update"):**
-0. **Nationwide scope first:**
-   - seed Uganda's regions, districts and sub-counties;
-   - users at any level, and visibility checked for every level;
-   - alert routing and escalation up the chain, skipping empty levels (reworks P8; spec erratum G16);
-   - chain view and any-level user creation in the IT admin console (P11).
+0. **Nationwide scope** — mostly done (2026-10-11):
+   - ✅ Uganda's 4 regions, 135 districts and 1,520 sub-counties from OCHA COD-AB/UBOS, with P-codes and centre points (`tools/import_admin_units.py`, migration 0006, local schema v4);
+   - ✅ alerts follow the chain: lowest level that has someone first, then up the levels that have someone, skipping empty ones, ending at national; IT admins only when nobody covers the source (spec erratum G16, 3 new tests);
+   - ✅ the Console area list runs from region to sub-county, and the map moves to the chosen area;
+   - ☐ parishes and villages per district;
+   - ☐ chain view and any-level user creation in the IT admin console (P11; the CLI already accepts any area code).
 1. Map, as revised by the lead (docs/PLAN.md P9 "Map update"):
    - Sources › Map stays full screen, with glowing red/tan/green dots that cluster and show details on zoom; a dot opens the source.
    - The dashboard card pulses on the latest issue and opens Sources › Map.

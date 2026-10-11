@@ -249,62 +249,108 @@ async def test_routing_follows_responsibilities(
             )
 
 
-async def test_unacknowledged_alerts_escalate_on_schedule(
+async def _told_at(
+    owner_db: Database, channels: Channels, aid: uuid.UUID, opened: datetime, hours: float
+) -> set[tuple[uuid.UUID, int]]:
+    """Runs the worker as if [hours] had passed; who has been told, at which step."""
+    w = Worker(owner_db, channels, clock=lambda: opened + timedelta(hours=hours))
+    await w.schedule_periodic()
+    async with owner_db.transaction(Principal.system()) as conn:
+        await conn.execute(
+            text(
+                "UPDATE job SET run_at = now() "
+                "WHERE kind = 'escalation_sweep' AND status = 'queued'"
+            )
+        )
+    await w.run_due(limit=1000)
+    return {
+        (r.user_id, r.escalation_level)
+        for r in await rows(
+            owner_db,
+            "SELECT user_id, escalation_level FROM notification WHERE alert_id = :a "
+            "AND channel = 'in_app'",
+            a=aid,
+        )
+    }
+
+
+async def _chain_area(owner_db: Database) -> dict[str, dict[str, Any]]:
+    """national > region > district (a village under it comes with the phone)."""
+    national = await make_area(owner_db, "country")
+    region = await make_area(owner_db, "region", parent=national["id"])
+    district = await make_area(owner_db, "district", parent=region["id"])
+    return {"national": national, "region": region, "district": district}
+
+
+async def test_unacknowledged_alerts_climb_the_chain(
     client: AsyncClient, owner_db: Database, seeded: None, channels: Channels
 ) -> None:
-    """Time travel: 48 h → level 1 (district level), 96 h → level 2 (IT admins)."""
-    district = await make_area(owner_db, "district")
-    p = await phone(client, owner_db, district)
-    village_officer, _, _ = await person(
-        client, owner_db, areas=(p.village_code,), responsibilities=("other",)
-    )
-    district_officer, _, _ = await person(
-        client, owner_db, areas=(district["code"],), responsibilities=("national",)
-    )
+    """Village first; 48 h → the next level that has someone (district);
+    96 h → region; 144 h → national; then nothing more (G16)."""
+    area = await _chain_area(owner_db)
+    p = await phone(client, owner_db, area["district"])
+    village, _, _ = await person(client, owner_db, areas=(p.village_code,))
+    district, _, _ = await person(client, owner_db, areas=(area["district"]["code"],))
+    region, _, _ = await person(client, owner_db, areas=(area["region"]["code"],))
+    national, _, _ = await person(client, owner_db, areas=(area["national"]["code"],))
     admin, _, _ = await person(client, owner_db, role="it_admin", responsibilities=())
     changes = unsafe_visit(p)
     await p.push(changes)
     aid = alert_id(changes[2]["id"], "unsafe")
     opened = (await rows(owner_db, "SELECT opened_at FROM alert WHERE id = :id", id=aid))[0][0]
 
-    async def at(hours: float) -> set[tuple[uuid.UUID, int]]:
-        w = Worker(owner_db, channels, clock=lambda: opened + timedelta(hours=hours))
-        await w.schedule_periodic()
-        async with owner_db.transaction(Principal.system()) as conn:
-            await conn.execute(
-                text(
-                    "UPDATE job SET run_at = now() "
-                    "WHERE kind = 'escalation_sweep' AND status = 'queued'"
-                )
-            )
-        await w.run_due(limit=1000)
-        return {
-            (r.user_id, r.escalation_level)
-            for r in await rows(
-                owner_db,
-                "SELECT user_id, escalation_level FROM notification WHERE alert_id = :a "
-                "AND channel = 'in_app'",
-                a=aid,
-            )
-        }
-
-    first = await at(1)
-    assert (district_officer, 1) not in first
-    level1 = await at(49)
-    assert (district_officer, 1) in level1
-    assert (admin, 2) not in level1
-    level2 = await at(97)
-    assert (admin, 2) in level2
-    assert (await rows(owner_db, "SELECT escalation_level FROM alert WHERE id = :id", id=aid))[0][
-        0
-    ] == 2
+    told = await _told_at(owner_db, channels, aid, opened, 1)
+    assert {u for u, _ in told} == {village}
+    told = await _told_at(owner_db, channels, aid, opened, 49)
+    assert (district, 1) in told and (region, 2) not in told
+    told = await _told_at(owner_db, channels, aid, opened, 97)
+    assert (region, 2) in told
+    told = await _told_at(owner_db, channels, aid, opened, 145)
+    assert (national, 3) in told
+    told = await _told_at(owner_db, channels, aid, opened, 400)
+    assert {u for u, _ in told} == {village, district, region, national}
+    assert admin not in {u for u, _ in told}
+    level = await rows(owner_db, "SELECT escalation_level FROM alert WHERE id = :id", id=aid)
+    assert level[0][0] == 3
     events = await rows(
         owner_db,
-        "SELECT note FROM alert_event WHERE alert_id = :id AND event_type = 'escalated'",
+        "SELECT note FROM alert_event WHERE alert_id = :id AND event_type = 'escalated' "
+        "ORDER BY (note::jsonb ->> 'level')::int",
         id=aid,
     )
-    assert [json.loads(e.note)["level"] for e in events] == [1, 2]
-    del village_officer
+    assert [json.loads(e.note)["to"] for e in events] == ["district", "region", "national"]
+
+
+async def test_the_chain_skips_levels_with_nobody(
+    client: AsyncClient, owner_db: Database, seeded: None, channels: Channels
+) -> None:
+    """No village or district officer: the region is first, national next."""
+    area = await _chain_area(owner_db)
+    p = await phone(client, owner_db, area["district"])
+    region, _, _ = await person(client, owner_db, areas=(area["region"]["code"],))
+    national, _, _ = await person(client, owner_db, areas=(area["national"]["code"],))
+    changes = unsafe_visit(p)
+    await p.push(changes)
+    aid = alert_id(changes[2]["id"], "unsafe")
+    opened = (await rows(owner_db, "SELECT opened_at FROM alert WHERE id = :id", id=aid))[0][0]
+    assert await _told_at(owner_db, channels, aid, opened, 1) == {(region, 0)}
+    assert (national, 1) in await _told_at(owner_db, channels, aid, opened, 49)
+
+
+async def test_it_admins_are_told_only_when_nobody_covers_the_source(
+    client: AsyncClient, owner_db: Database, seeded: None, channels: Channels
+) -> None:
+    area = await _chain_area(owner_db)
+    p = await phone(client, owner_db, area["district"])
+    admin, _, _ = await person(client, owner_db, role="it_admin", responsibilities=())
+    changes = unsafe_visit(p)
+    await p.push(changes)
+    aid = alert_id(changes[2]["id"], "unsafe")
+    opened = (await rows(owner_db, "SELECT opened_at FROM alert WHERE id = :id", id=aid))[0][0]
+    told = await _told_at(owner_db, channels, aid, opened, 1)
+    assert (admin, 0) in told
+    # Nothing to escalate to.
+    assert await _told_at(owner_db, channels, aid, opened, 200) == told
 
 
 async def test_acknowledged_alerts_do_not_escalate(

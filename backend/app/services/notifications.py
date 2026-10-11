@@ -4,10 +4,15 @@
   responsibilities match the alert's routing rules. A stakeholder with no
   responsibilities set, or an alert type with no rule, reaches everyone in
   the area (SPEC §4.7 default).
-- **Escalation:** an alert still not acknowledged after
-  `escalation_hours[n]` reaches level n+1, which re-notifies and widens the
-  circle: level 1 adds everyone at district level or above, level 2 the IT
-  admins.
+- **The chain** (docs/PLAN.md §3, spec erratum G16): stakeholders sit at
+  any level (village, parish, sub-county, district, region, national); each
+  belongs to the lowest level among their areas that covers the source. The
+  alert first reaches the lowest level that has someone; each escalation
+  step reaches the next level up that has someone, skipping empty levels,
+  and the chain ends at national. The IT admins are told only when nobody
+  covers the source at all.
+- **Escalation timing:** step n is due `escalation_hours[n-1]` after the
+  alert opened; past the list, steps keep the last gap (48, 96, 144 h...).
 - **Channels:** in-app always; email when an address is known; push to
   registered devices; SMS for severities listed in the configuration. Each
   delivery is its own job, so one failing channel never blocks the others.
@@ -55,7 +60,33 @@ async def config(conn: AsyncConnection) -> dict[str, Any]:
     return result
 
 
-async def recipients(conn: AsyncConnection, alert_id: UUID, level: int) -> list[Recipient]:
+# Lowest first; a user belongs to the lowest level among their areas.
+LEVEL_RANK = {
+    "village": 0,
+    "parish": 1,
+    "subcounty": 2,
+    "district": 3,
+    "region": 4,
+    "country": 5,
+}
+LEVEL_NAME = {
+    "village": "village",
+    "parish": "parish",
+    "subcounty": "sub-county",
+    "district": "district",
+    "region": "region",
+    "country": "national",
+}
+
+
+@dataclass(frozen=True)
+class Tier:
+    level: str
+    people: list[Recipient]
+
+
+async def chain(conn: AsyncConnection, alert_id: UUID) -> list[Tier]:
+    """The levels that have someone for this alert, lowest first."""
     rows = await conn.execute(
         text(
             """
@@ -67,40 +98,64 @@ async def recipients(conn: AsyncConnection, alert_id: UUID, level: int) -> list[
               SELECT responsibility_code FROM alert_routing_rule r, a
               WHERE r.trigger_rule = a.trigger_rule
             )
-            SELECT DISTINCT u.id, coalesce(u.email, CASE WHEN u.username LIKE '%@%'
+            SELECT u.id, coalesce(u.email, CASE WHEN u.username LIKE '%@%'
                    THEN u.username END) AS email,
                    coalesce(u.phone, CASE WHEN u.username LIKE '+%'
                    THEN u.username END) AS phone,
-                   u.notify_email, u.notify_push, u.notify_sms
-            FROM app_user u, a
-            WHERE u.is_active AND (
-              -- Level 0: stakeholders in the area with a routed responsibility.
-              (u.role = 'stakeholder'
-               AND EXISTS (SELECT 1 FROM user_scope s
-                           WHERE s.user_id = u.id AND wc_under(a.village_id, s.admin_unit_id))
-               AND (NOT EXISTS (SELECT 1 FROM routed)
-                    -- No responsibilities set: everything in the area.
-                    OR NOT EXISTS (SELECT 1 FROM user_responsibility ur0
-                                   WHERE ur0.user_id = u.id)
-                    OR EXISTS (SELECT 1 FROM user_responsibility ur JOIN routed rt
-                               ON rt.responsibility_code = ur.responsibility_code
-                               WHERE ur.user_id = u.id)))
-              -- Level 1: anyone covering it from district level or above.
-              OR (:level >= 1 AND EXISTS (
-                    SELECT 1 FROM user_scope s JOIN admin_unit au ON au.id = s.admin_unit_id
-                    WHERE s.user_id = u.id AND wc_under(a.village_id, s.admin_unit_id)
-                      AND au.level IN ('district', 'region', 'country', 'national')))
-              -- Level 2: the IT admins.
-              OR (:level >= 2 AND u.role = 'it_admin')
-            )
-            ORDER BY u.id
+                   u.notify_email, u.notify_push, u.notify_sms,
+                   min(CASE au.level WHEN 'village' THEN 0 WHEN 'parish' THEN 1
+                       WHEN 'subcounty' THEN 2 WHEN 'district' THEN 3
+                       WHEN 'region' THEN 4 ELSE 5 END) AS rank
+            FROM app_user u
+            JOIN user_scope s ON s.user_id = u.id
+            JOIN admin_unit au ON au.id = s.admin_unit_id, a
+            WHERE u.is_active AND u.role = 'stakeholder'
+              AND wc_under(a.village_id, s.admin_unit_id)
+              AND (NOT EXISTS (SELECT 1 FROM routed)
+                   -- No responsibilities set: everything in the area.
+                   OR NOT EXISTS (SELECT 1 FROM user_responsibility ur0
+                                  WHERE ur0.user_id = u.id)
+                   OR EXISTS (SELECT 1 FROM user_responsibility ur JOIN routed rt
+                              ON rt.responsibility_code = ur.responsibility_code
+                              WHERE ur.user_id = u.id))
+            GROUP BY u.id
+            ORDER BY rank, u.id
             """
         ),
-        {"id": alert_id, "level": level},
+        {"id": alert_id},
+    )
+    names = {v: k for k, v in LEVEL_RANK.items()}
+    tiers: list[Tier] = []
+    for r in rows:
+        level = names[r.rank]
+        person = Recipient(r.id, r.email, r.phone, r.notify_email, r.notify_push, r.notify_sms)
+        if tiers and tiers[-1].level == level:
+            tiers[-1].people.append(person)
+        else:
+            tiers.append(Tier(level, [person]))
+    return tiers
+
+
+async def _it_admins(conn: AsyncConnection) -> list[Recipient]:
+    rows = await conn.execute(
+        text(
+            "SELECT id, coalesce(email, CASE WHEN username LIKE '%@%' THEN username END) "
+            "AS email, phone, notify_email, notify_push, notify_sms FROM app_user "
+            "WHERE is_active AND role = 'it_admin' ORDER BY id"
+        )
     )
     return [
         Recipient(r.id, r.email, r.phone, r.notify_email, r.notify_push, r.notify_sms) for r in rows
     ]
+
+
+async def recipients(conn: AsyncConnection, alert_id: UUID, step: int) -> list[Recipient]:
+    """Who is told at escalation step [step] (0 = when the alert opens)."""
+    tiers = await chain(conn, alert_id)
+    if not tiers:
+        # Nobody covers the source: the IT admins, once, as a last resort.
+        return await _it_admins(conn) if step == 0 else []
+    return tiers[step].people if step < len(tiers) else []
 
 
 async def _message(conn: AsyncConnection, alert_id: UUID, level: int) -> tuple[str, str, str]:
@@ -117,7 +172,7 @@ async def _message(conn: AsyncConnection, alert_id: UUID, level: int) -> tuple[s
     ).one()
     what = TRIGGER_TEXT.get(a.trigger_rule, a.trigger_rule)
     where = f"{a.name} ({a.code})" if a.name else a.code
-    prefix = f"ESCALATED (level {level}): " if level else ""
+    prefix = f"ESCALATED (step {level}): " if level else ""
     title = f"{prefix}{what}: {where}, {a.village}"
     body = (
         f"{what} at {where} in {a.village}, reported {a.opened_at:%d %b %Y %H:%M}.\n"
@@ -258,41 +313,65 @@ async def mark_failed(conn: AsyncConnection, notification_id: UUID, error: str) 
     )
 
 
+def _due_after(hours: list[int], step: int) -> int:
+    """Hours after opening when escalation [step] (1-based) is due."""
+    if step <= len(hours):
+        return hours[step - 1]
+    gap = hours[-1] - (hours[-2] if len(hours) > 1 else 0)
+    return hours[-1] + gap * (step - len(hours))
+
+
 async def escalation_sweep(conn: AsyncConnection, now: datetime) -> list[UUID]:
-    """Escalates open alerts nobody acknowledged in time (F-ALR-4)."""
-    hours = [int(h) for h in (await config(conn)).get("escalation_hours", [48, 96])]
+    """Moves open alerts nobody acknowledged up the chain (F-ALR-4)."""
+    hours = [int(h) for h in (await config(conn)).get("escalation_hours", [48, 96])] or [48]
     escalated = []
-    for level, h in enumerate(hours, start=1):
-        due = await conn.execute(
+    due = await conn.execute(
+        text(
+            "SELECT id, escalation_level, opened_at FROM alert WHERE status = 'open' "
+            "AND opened_at <= :first ORDER BY opened_at FOR UPDATE SKIP LOCKED"
+        ),
+        {"first": now - timedelta(hours=hours[0])},
+    )
+    for alert_id, done, opened_at in due.all():
+        step = done + 1
+        if opened_at > now - timedelta(hours=_due_after(hours, step)):
+            continue
+        tiers = await chain(conn, alert_id)
+        if step >= len(tiers):
+            continue  # Already at the top of the chain.
+        await conn.execute(
             text(
-                "SELECT id FROM alert WHERE status = 'open' AND escalation_level = :prev "
-                "AND opened_at <= :cutoff ORDER BY opened_at FOR UPDATE SKIP LOCKED"
+                "UPDATE alert SET escalation_level = :lvl, escalated_at = :now, "
+                "version = version + 1 WHERE id = :id"
             ),
-            {"prev": level - 1, "cutoff": now - timedelta(hours=h)},
+            {"lvl": step, "now": now, "id": alert_id},
         )
-        for (alert_id,) in due.all():
-            await conn.execute(
-                text(
-                    "UPDATE alert SET escalation_level = :lvl, escalated_at = :now, "
-                    "version = version + 1 WHERE id = :id"
+        await conn.execute(
+            text(
+                "INSERT INTO alert_event (id, alert_id, event_type, note, server_seq) "
+                "VALUES (gen_random_uuid(), :id, 'escalated', :note, 0)"
+            ),
+            {
+                "id": alert_id,
+                "note": json.dumps(
+                    {
+                        "level": step,
+                        "to": LEVEL_NAME[tiers[step].level],
+                        "after_hours": _due_after(hours, step),
+                    }
                 ),
-                {"lvl": level, "now": now, "id": alert_id},
-            )
-            await conn.execute(
-                text(
-                    "INSERT INTO alert_event (id, alert_id, event_type, note, server_seq) "
-                    "VALUES (gen_random_uuid(), :id, 'escalated', :note, 0)"
-                ),
-                {"id": alert_id, "note": json.dumps({"level": level, "after_hours": h})},
-            )
-            await notify_alert(conn, alert_id, level)
-            escalated.append(alert_id)
+            },
+        )
+        await notify_alert(conn, alert_id, step)
+        escalated.append(alert_id)
     return escalated
 
 
 __all__ = [
     "ChannelError",
     "Recipient",
+    "Tier",
+    "chain",
     "config",
     "deliver",
     "escalation_sweep",

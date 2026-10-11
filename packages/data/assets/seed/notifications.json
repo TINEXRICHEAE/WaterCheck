@@ -1,16 +1,22 @@
 {
   "schema": "watercheck.notifications/1",
   "version": 1,
-  "notes": "Alert notifications and escalation (SPEC §4.7, F-ALR-4, §8.5). Hours are counted from when the alert opened; editable by the IT admin (P11).",
-  "escalation_hours": [48, 96],
+  "notes": "Alert notifications and escalation (SPEC §4.7, F-ALR-4, §8.5; erratum G16). Hours are counted from when the alert opened; editable by the IT admin (P11).",
+  "escalation_hours": [
+    48,
+    96
+  ],
   "escalation": {
-    "1": "Also tell everyone whose area covers the source at district level or above, whatever their responsibility.",
-    "2": "Also tell the IT admins."
+    "chain": "An alert first reaches the lowest level that has someone covering the source (village, parish, sub-county, district, region, national). Each step reaches the next level up that has someone, skipping empty levels; the chain ends at national.",
+    "timing": "Step n is due escalation_hours[n-1] after the alert opened; past the list, the last gap repeats (48, 96, 144 h...).",
+    "last_resort": "The IT admins are told only when nobody covers the source."
   },
   "channels": {
     "email": true,
     "push": true,
-    "sms_for_severities": ["critical"]
+    "sms_for_severities": [
+      "critical"
+    ]
   },
   "sms_fallback": {
     "after_hours": 6,
