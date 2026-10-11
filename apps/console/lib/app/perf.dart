@@ -9,6 +9,7 @@ final _marked = <String>{};
 
 /// Logs `wc-perf <name> ms=<since app start> ...` once per name.
 void perfMark(String name, [Map<String, Object> extra = const {}]) {
+  _sinceStart; // starts the clock on the first call (main)
   if (!perfEnabled || !_marked.add(name)) return;
   final details = extra.entries.map((e) => ' ${e.key}=${e.value}').join();
   debugPrint('wc-perf $name ms=${_sinceStart.elapsedMilliseconds}$details');

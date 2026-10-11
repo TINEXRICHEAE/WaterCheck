@@ -20,7 +20,9 @@ foreach ($name in $apps) {
   Write-Host "Building $name web preview..."
   Push-Location (Join-Path $root "apps\$name")
   try {
-    flutter build web --base-href "/$name/" --no-pub
+    # CanvasKit from our own server, not Google's CDN: no outside
+    # dependency on every page load (ADR-014, web gate).
+    flutter build web --base-href "/$name/" --no-pub --no-web-resources-cdn
     if ($LASTEXITCODE -ne 0) { throw "flutter build web failed for $name" }
     # Keep only build/web (what Caddy serves); intermediates fill the disk.
     Get-ChildItem build -Force | Where-Object { $_.Name -ne 'web' } |

@@ -90,3 +90,32 @@ The lead asked for a map like Google Maps or Uber: real place names when zoomed 
     - A callout card for the latest issue.
   - **Dashboard card:** only the latest issue (the newest open alert on a located source, else the newest unsafe result), pulsing. It shows the line and distance from the device, and a callout with what happened, the severity, the distance and how long ago. Tapping the card or "Open map" opens Sources › Map zoomed on that source.
   - **Without location permission,** the map works without distances and says how to turn location on.
+
+## Amendment (2026-10-11, the lead): the web dashboard shows a server summary first
+
+**Problem.** The web Console keeps no data between visits (SPEC §10.2, shared computers). Each reload therefore downloaded the whole area before showing the dashboard: **10.9 s** on Chrome's "Fast 3G" profile (1.44 Mbps, 562 ms round trip) for the gate's dataset (50 sources, 2,000 readings). The target is under 3 s.
+
+**Decision (the lead's choice):** keep the no-storage rule, and show a server summary first.
+- `GET /v1/dashboard/summary?area_id=&days=` returns the KPIs, overdue sources, collector activity, the latest tests and the latest issue, judged as collected. It uses the same rules as `DashboardQueries` (corrections replace, server classification wins, schedule as collected), limited by row-level security.
+- On the web, the dashboard shows the summary at once. It switches to the local data when the first sync has filled it, which is needed for the map, the sources and profile comparison. Windows and Android read their local data as before.
+- **Other changes on the web:**
+  - The web skips the bundled seed import (0.7 s per load, 6.5 s on a first visit), because the first sync brings the same reference data.
+  - CanvasKit is served from our own server, not Google's CDN.
+  - Caddy lets browsers cache the engine files (CanvasKit, sqlite3.wasm, fonts) for a day. The app code is re-checked on every load.
+- **Found on the way:** a page reload lost the web session, because the generated client sends `{}` and the server rejected it with 422. Fixed: a body without a token means "use the cookie".
+
+**Measured** (`tools/measure_web_dashboard.py`, headless Chrome, Fast 3G, gate dataset):
+
+| | Before | After |
+|---|---|---|
+| Reload, app cached: navigation → dashboard | 10.9 s | **4.5 s** |
+| Reload, app cached: app start → dashboard | — | **2.0 s** |
+| First visit (downloads the app) | 38.3 s | 23–27 s |
+
+The remaining 2.5 s before the app starts is the browser re-checking `index.html`, the bootstrap script and `main.dart.js` (three round trips at 562 ms) and starting the JavaScript. Restoring the session takes two more round trips.
+
+**Left for deployment (P12):**
+- content-hashed app files cached long-term, so a reload re-checks only `index.html`;
+- returning the profile with the refresh, to save one round trip.
+
+Measured from app start, the gate is met. Measured from navigation, it needs those deployment steps.

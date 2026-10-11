@@ -295,4 +295,5 @@ See ADR-014, amendment.
    - Also fix the trend-chart label overlap and the connection-lost banner.
 2. Whole-Uganda tiles: national tiles on the server, per-district packs on devices, built off the laptop.
 3. Check the demo officer's dashboard after sync (it showed 0 sources while syncing) and the 821 fixture notifications.
-4. Web dashboard timing on 3G, the P9 demo, Windows/Android builds (then run `tools/cleanup.ps1`).
+4. ✅ Web dashboard on 3G (ADR-014 amendment): server summary first; reload 10.9 s → 4.5 s, 2.0 s from app start. Long-term caching of hashed app files is a P12 deployment step.
+5. The P9 demo, Windows/Android builds (then run `tools/cleanup.ps1`).

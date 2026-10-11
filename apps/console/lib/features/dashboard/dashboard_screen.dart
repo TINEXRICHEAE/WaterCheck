@@ -8,7 +8,7 @@ import 'package:ui_kit/ui_kit.dart';
 import '../../app/console_sync.dart';
 import '../../app/session.dart';
 import '../../l10n/app_localizations.dart';
-import 'dashboard_state.dart';
+import 'dashboard_view.dart';
 import '../map/sources_map.dart';
 import 'filter_bar.dart';
 
@@ -21,7 +21,7 @@ class DashboardScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final me = ref.watch(sessionProvider).me;
-    final data = ref.watch(dashboardProvider);
+    final data = ref.watch(dashboardViewProvider);
     final sync = ref.watch(consoleSyncProvider);
     final text = Theme.of(context).textTheme;
     return ListView(
@@ -69,11 +69,11 @@ class DashboardScreen extends ConsumerWidget {
   List<Widget> _content(
     BuildContext context,
     AppLocalizations l10n,
-    DashboardData d,
+    DashboardView d,
   ) {
     final text = Theme.of(context).textTheme;
     final when = DateFormat('d MMM y');
-    final median = d.medianTimeToAcknowledge;
+    final median = d.medianAck;
     return [
       Text(
         d.profileCode == null
@@ -92,8 +92,8 @@ class DashboardScreen extends ConsumerWidget {
           final cards = [
             _Kpi(
               label: l10n.kpiTested,
-              value: '${d.testedInPeriod}',
-              hint: l10n.kpiOfSources(d.sources.length),
+              value: '${d.tested}',
+              hint: l10n.kpiOfSources(d.sources),
               icon: Icons.science_outlined,
             ),
             _Kpi(
@@ -101,7 +101,7 @@ class DashboardScreen extends ConsumerWidget {
               value: d.unsafeShare == null
                   ? '–'
                   : '${(d.unsafeShare! * 100).toStringAsFixed(0)}%',
-              hint: l10n.kpiUnsafeCount(d.unsafeInPeriod),
+              hint: l10n.kpiUnsafeCount(d.unsafe),
               icon: Icons.warning_amber_rounded,
             ),
             _Kpi(
@@ -128,7 +128,7 @@ class DashboardScreen extends ConsumerWidget {
         },
       ),
       const SizedBox(height: 16),
-      IssueMapCard(sources: d.sources),
+      IssueMapCard(issue: d.issue),
       const SizedBox(height: 16),
       Card(
         child: Column(
@@ -152,11 +152,13 @@ class DashboardScreen extends ConsumerWidget {
             for (final s in d.overdue.take(8))
               ListTile(
                 leading: StatusBadge(
-                  s.latest?.overall.display ?? SourceStatus.notTested,
+                  s.latest?.display ?? SourceStatus.notTested,
                 ),
                 title: Text(s.name ?? s.code),
                 subtitle: Text(
-                  l10n.overdueSince(when.format(s.schedule.dueDate!.toLocal())),
+                  s.dueDate == null
+                      ? l10n.overdueShort
+                      : l10n.overdueSince(when.format(s.dueDate!.toLocal())),
                 ),
                 onTap: () => context.go('/sources/${s.id}'),
               ),
@@ -196,7 +198,7 @@ class DashboardScreen extends ConsumerWidget {
         ),
       ),
       const SizedBox(height: 16),
-      _LatestTests(sources: d.sources),
+      _LatestTests(tests: d.latestTests),
     ];
   }
 
@@ -281,18 +283,14 @@ class _MarkChip extends StatelessWidget {
 
 /// The newest tests across the area (from the same dashboard data).
 class _LatestTests extends StatelessWidget {
-  const _LatestTests({required this.sources});
+  const _LatestTests({required this.tests});
 
-  final List<SourceView> sources;
+  final List<LatestTestItem> tests;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final when = DateFormat('d MMM y, HH:mm');
-    final latest = [
-      for (final s in sources)
-        for (final r in s.history.take(1)) (source: s, result: r),
-    ]..sort((a, b) => b.result.testedAt.compareTo(a.result.testedAt));
     return Card(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -303,31 +301,27 @@ class _LatestTests extends StatelessWidget {
               style: Theme.of(context).textTheme.titleMedium,
             ),
           ),
-          if (latest.isEmpty)
+          if (tests.isEmpty)
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
               child: Text(l10n.recentEmpty),
             ),
-          for (final e in latest.take(10))
+          for (final t in tests)
             ListTile(
-              leading: StatusBadge(e.result.overall.display),
-              title: Text(
-                e.source.name == null
-                    ? e.source.code
-                    : '${e.source.name} (${e.source.code})',
-              ),
+              leading: StatusBadge(t.overall.display),
+              title: Text(t.name == null ? t.code : '${t.name} (${t.code})'),
               subtitle: Text(
                 l10n.recentLine(
-                  when.format(e.result.testedAt.toLocal()),
-                  e.result.collectorName ?? l10n.recentUnknownCollector,
+                  when.format(t.testedAt.toLocal()),
+                  t.collectorName ?? l10n.recentUnknownCollector,
                 ),
               ),
-              trailing: e.result.customLimits
+              trailing: t.customLimits
                   ? Chip(
                       label: Text(UiKitLocalizations.of(context).customLimits),
                     )
                   : null,
-              onTap: () => context.go('/sources/${e.source.id}'),
+              onTap: () => context.go('/sources/${t.sourceId}'),
             ),
         ],
       ),

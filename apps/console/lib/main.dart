@@ -4,11 +4,13 @@ import 'package:flutter_riverpod/misc.dart' show Override;
 
 import 'app/app.dart';
 import 'app/bootstrap.dart';
+import 'app/perf.dart';
 import 'app/providers.dart';
 import 'app/session.dart';
 import 'app/startup_error.dart';
 
 Future<void> main() async {
+  perfMark('main');
   WidgetsFlutterBinding.ensureInitialized();
   await start();
 }

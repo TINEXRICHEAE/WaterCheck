@@ -13,6 +13,7 @@ import 'clients/attachments_client.dart';
 import 'clients/notifications_client.dart';
 import 'clients/tiles_client.dart';
 import 'clients/conflicts_client.dart';
+import 'clients/dashboard_client.dart';
 
 /// WaterCheck API `v0.1.0`
 class WaterCheckApi {
@@ -32,6 +33,7 @@ class WaterCheckApi {
   NotificationsClient? _notifications;
   TilesClient? _tiles;
   ConflictsClient? _conflicts;
+  DashboardClient? _dashboard;
 
   HealthClient get health => _health ??= HealthClient(_dio, baseUrl: _baseUrl);
 
@@ -55,4 +57,7 @@ class WaterCheckApi {
 
   ConflictsClient get conflicts =>
       _conflicts ??= ConflictsClient(_dio, baseUrl: _baseUrl);
+
+  DashboardClient get dashboard =>
+      _dashboard ??= DashboardClient(_dio, baseUrl: _baseUrl);
 }

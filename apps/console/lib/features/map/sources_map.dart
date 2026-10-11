@@ -33,58 +33,80 @@ class MapFocus extends Notifier<String?> {
 
 final mapFocusProvider = NotifierProvider<MapFocus, String?>(MapFocus.new);
 
-final _openAlertsProvider = StreamProvider<List<AlertListItem>>(
+final openAlertsProvider = StreamProvider<List<AlertListItem>>(
   (ref) => ref.watch(alertRepositoryProvider).watchList(),
 );
 
-/// Dot colours, as on any map: red unsafe, tan caution, green safe, grey
-/// not tested. The status word is always given too (label, tooltip,
-/// screen reader), so colour is never the only signal (SPEC §11).
-enum MapTone { unsafe, caution, safe, untested }
+/// What a dot says. Colours as on any map: red unsafe, tan caution
+/// (inconclusive or overdue), green safe, grey not tested. The status word
+/// is always given too (label, tooltip, screen reader), so colour is never
+/// the only signal (SPEC §11).
+enum MapStatus { unsafe, inconclusive, overdue, safe, untested }
 
-MapTone toneOf(SourceView s) => switch (s.latest?.overall) {
-  OverallStatus.unsafe => MapTone.unsafe,
-  OverallStatus.inconclusive => MapTone.caution,
+MapStatus statusOf(SourceView s) => switch (s.latest?.overall) {
+  OverallStatus.unsafe => MapStatus.unsafe,
+  OverallStatus.inconclusive => MapStatus.inconclusive,
   OverallStatus.safe when s.schedule.status == ScheduleStatus.overdue =>
-    MapTone.caution,
-  OverallStatus.safe => MapTone.safe,
-  null => MapTone.untested,
+    MapStatus.overdue,
+  OverallStatus.safe => MapStatus.safe,
+  null => MapStatus.untested,
 };
 
-Color toneColor(BuildContext context, MapTone t) {
+/// Worst first, for clusters.
+int _severityRank(MapStatus s) => switch (s) {
+  MapStatus.unsafe => 0,
+  MapStatus.inconclusive || MapStatus.overdue => 1,
+  MapStatus.safe => 2,
+  MapStatus.untested => 3,
+};
+
+Color statusColor(BuildContext context, MapStatus s) {
   final c = Theme.of(context).extension<StatusColors>()!;
-  return switch (t) {
-    MapTone.unsafe => c.unsafe,
-    MapTone.caution => c.due,
-    MapTone.safe => c.safe,
-    MapTone.untested => c.neutral,
+  return switch (s) {
+    MapStatus.unsafe => c.unsafe,
+    MapStatus.inconclusive || MapStatus.overdue => c.due,
+    MapStatus.safe => c.safe,
+    MapStatus.untested => c.neutral,
   };
 }
 
-String toneWord(AppLocalizations l10n, SourceView s) =>
-    switch (s.latest?.overall) {
-      OverallStatus.unsafe => l10n.mapUnsafe,
-      OverallStatus.inconclusive => l10n.mapInconclusive,
-      OverallStatus.safe when s.schedule.status == ScheduleStatus.overdue =>
-        l10n.mapOverdue,
-      OverallStatus.safe => l10n.mapSafe,
-      null => l10n.mapNotTested,
-    };
+String statusWord(AppLocalizations l10n, MapStatus s) => switch (s) {
+  MapStatus.unsafe => l10n.mapUnsafe,
+  MapStatus.inconclusive => l10n.mapInconclusive,
+  MapStatus.overdue => l10n.mapOverdue,
+  MapStatus.safe => l10n.mapSafe,
+  MapStatus.untested => l10n.mapNotTested,
+};
+
+/// A source as the map needs it (from local data or the server summary).
+typedef MapPoint = ({
+  String id,
+  String code,
+  String? name,
+  double lat,
+  double lon,
+  MapStatus status,
+});
+
+MapPoint pointOf(SourceView s) => (
+  id: s.id,
+  code: s.code,
+  name: s.name,
+  lat: s.lat!,
+  lon: s.lon!,
+  status: statusOf(s),
+);
 
 /// The issue a stakeholder should look at first: the newest open alert
 /// on a located source, else the newest unsafe result.
 typedef MapIssue = ({
-  SourceView source,
-  String title,
+  MapPoint point,
+  String rule,
   String severity,
   DateTime at,
 });
 
-MapIssue? latestIssue(
-  AppLocalizations l10n,
-  List<SourceView> sources,
-  List<AlertListItem> alerts,
-) {
+MapIssue? latestIssue(List<SourceView> sources, List<AlertListItem> alerts) {
   final located = {
     for (final s in sources)
       if (s.lat != null && s.lon != null) s.id: s,
@@ -94,8 +116,8 @@ MapIssue? latestIssue(
     final s = located[a.sourceId];
     if (s != null) {
       return (
-        source: s,
-        title: triggerText(l10n, a.triggerRule),
+        point: pointOf(s),
+        rule: a.triggerRule,
         severity: a.severity,
         at: a.openedAt,
       );
@@ -108,8 +130,8 @@ MapIssue? latestIssue(
   if (unsafe.isEmpty) return null;
   final s = unsafe.first;
   return (
-    source: s,
-    title: l10n.mapUnsafeResult,
+    point: pointOf(s),
+    rule: 'unsafe',
     severity: 'high',
     at: s.latest!.testedAt,
   );
@@ -147,7 +169,7 @@ class _SourcesMapState extends ConsumerState<SourcesMap> {
     final l10n = AppLocalizations.of(context);
     final tiles = ref.watch(mapTilesProvider).value ?? MapTiles.none;
     final me = ref.watch(deviceLocationProvider).value;
-    final alerts = ref.watch(_openAlertsProvider).value ?? const [];
+    final alerts = ref.watch(openAlertsProvider).value ?? const [];
     final focusId = ref.watch(mapFocusProvider);
     final home =
         ref.watch(mapHomeProvider).value ?? (lat: 1.37, lon: 32.29, zoom: 7.0);
@@ -155,22 +177,21 @@ class _SourcesMapState extends ConsumerState<SourcesMap> {
       for (final s in widget.sources)
         if (s.lat != null && s.lon != null) s,
     ];
-    final issue = latestIssue(l10n, placed, alerts);
-    final focus = placed.where((s) => s.id == focusId).firstOrNull;
-    final points = [for (final s in placed) LatLng(s.lat!, s.lon!)];
+    final issue = latestIssue(placed, alerts);
+    final dots = [for (final s in placed) pointOf(s)];
+    final focus = dots.where((d) => d.id == focusId).firstOrNull;
+    final points = [for (final d in dots) LatLng(d.lat, d.lon)];
     // Lines go from the device to the nearest points of concern.
     final concerns = me == null
-        ? const <SourceView>[]
+        ? const <MapPoint>[]
         : ([
-                for (final s in placed)
-                  if (toneOf(s) == MapTone.unsafe ||
-                      toneOf(s) == MapTone.caution)
-                    s,
+                for (final d in dots)
+                  if (_severityRank(d.status) <= 1) d,
               ]..sort(
                 (a, b) => metresBetween(
                   me,
-                  LatLng(a.lat!, a.lon!),
-                ).compareTo(metresBetween(me, LatLng(b.lat!, b.lon!))),
+                  LatLng(a.lat, a.lon),
+                ).compareTo(metresBetween(me, LatLng(b.lat, b.lon))),
               ))
               .take(5)
               .toList();
@@ -181,7 +202,7 @@ class _SourcesMapState extends ConsumerState<SourcesMap> {
           key: ValueKey(Object.hash(Object.hashAll(points), focusId, home)),
           options: MapOptions(
             initialCenter: focus != null
-                ? LatLng(focus.lat!, focus.lon!)
+                ? LatLng(focus.lat, focus.lon)
                 : points.length == 1
                 ? points.single
                 : LatLng(home.lat, home.lon),
@@ -209,9 +230,9 @@ class _SourcesMapState extends ConsumerState<SourcesMap> {
               ),
             if (_lines && me != null) _DistanceLines(from: me, to: concerns),
             _Dots(
-              sources: placed,
+              points: dots,
               labels: _labels,
-              pulseId: focus?.id ?? issue?.source.id,
+              pulseId: focus?.id ?? issue?.point.id,
             ),
             if (me != null) _YouAreHere(at: me),
           ],
@@ -280,26 +301,23 @@ class _Credit extends StatelessWidget {
 /// Dashboard card: only the latest issue, pulsing, and the line from this
 /// device to it. Tapping opens Sources › Map on that point.
 class IssueMapCard extends ConsumerWidget {
-  const IssueMapCard({super.key, required this.sources});
+  const IssueMapCard({super.key, required this.issue});
 
-  final List<SourceView> sources;
+  final MapIssue? issue;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final tiles = ref.watch(mapTilesProvider).value ?? MapTiles.none;
     final me = ref.watch(deviceLocationProvider).value;
-    final alerts = ref.watch(_openAlertsProvider).value ?? const [];
-    final issue = latestIssue(l10n, sources, alerts);
+    final issue = this.issue;
     void open() {
-      ref.read(mapFocusProvider.notifier).focus(issue?.source.id);
+      ref.read(mapFocusProvider.notifier).focus(issue?.point.id);
       ref.read(sourcesQueryProvider.notifier).map(true);
       context.go('/sources');
     }
 
-    final at = issue == null
-        ? null
-        : LatLng(issue.source.lat!, issue.source.lon!);
+    final at = issue == null ? null : LatLng(issue.point.lat, issue.point.lon);
     return Card(
       clipBehavior: Clip.antiAlias,
       child: Column(
@@ -327,7 +345,7 @@ class IssueMapCard extends ConsumerWidget {
               child: Stack(
                 children: [
                   FlutterMap(
-                    key: ValueKey(issue.source.id),
+                    key: ValueKey(issue.point.id),
                     options: MapOptions(
                       initialCameraFit: me == null
                           ? null
@@ -360,11 +378,11 @@ class IssueMapCard extends ConsumerWidget {
                           userAgentPackageName: 'org.watercheck.console',
                         ),
                       if (me != null)
-                        _DistanceLines(from: me, to: [issue.source]),
+                        _DistanceLines(from: me, to: [issue.point]),
                       _Dots(
-                        sources: [issue.source],
+                        points: [issue.point],
                         labels: true,
-                        pulseId: issue.source.id,
+                        pulseId: issue.point.id,
                         onTap: (_) => open(),
                       ),
                       if (me != null) _YouAreHere(at: me),
@@ -397,10 +415,10 @@ class IssueCallout extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final text = Theme.of(context).textTheme;
     final color = severityColor(context, issue.severity);
-    final s = issue.source;
+    final s = issue.point;
     final far = from == null
         ? null
-        : formatDistance(metresBetween(from!, LatLng(s.lat!, s.lon!)));
+        : formatDistance(metresBetween(from!, LatLng(s.lat, s.lon)));
     return Material(
       elevation: 4,
       borderRadius: BorderRadius.circular(16),
@@ -426,7 +444,7 @@ class IssueCallout extends StatelessWidget {
                       crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
                         Text(
-                          '${issue.title}: ${s.name ?? s.code}',
+                          '${triggerText(l10n, issue.rule)}: ${s.name ?? s.code}',
                           style: text.titleSmall,
                         ),
                         Container(
@@ -479,11 +497,11 @@ class _DistanceLines extends StatelessWidget {
   const _DistanceLines({required this.from, required this.to});
 
   final LatLng from;
-  final List<SourceView> to;
+  final List<MapPoint> to;
 
   @override
   Widget build(BuildContext context) {
-    final ends = [for (final s in to) (s, LatLng(s.lat!, s.lon!))];
+    final ends = [for (final s in to) (s, LatLng(s.lat, s.lon))];
     return Stack(
       children: [
         PolylineLayer(
@@ -491,7 +509,7 @@ class _DistanceLines extends StatelessWidget {
             for (final (s, p) in ends)
               Polyline(
                 points: [from, p],
-                color: toneColor(context, toneOf(s)),
+                color: statusColor(context, s.status),
                 strokeWidth: 2.5,
                 pattern: StrokePattern.dashed(segments: const [10, 8]),
               ),
@@ -558,27 +576,27 @@ class _YouAreHere extends StatelessWidget {
 /// Source dots, merged into counted clusters when zoomed out.
 class _Dots extends StatelessWidget {
   const _Dots({
-    required this.sources,
+    required this.points,
     required this.labels,
     this.pulseId,
     this.onTap,
   });
 
-  final List<SourceView> sources;
+  final List<MapPoint> points;
   final bool labels;
   final String? pulseId;
-  final void Function(SourceView)? onTap;
+  final void Function(MapPoint)? onTap;
 
   @override
   Widget build(BuildContext context) {
     final camera = MapCamera.of(context);
     final controller = MapController.maybeOf(context);
     final markers = <Marker>[];
-    if (camera.zoom < _clusterBelowZoom && sources.length > 1) {
+    if (camera.zoom < _clusterBelowZoom && points.length > 1) {
       // Group by a 64-pixel screen grid.
-      final cells = <(int, int), List<SourceView>>{};
-      for (final s in sources) {
-        final o = camera.getOffsetFromOrigin(LatLng(s.lat!, s.lon!));
+      final cells = <(int, int), List<MapPoint>>{};
+      for (final s in points) {
+        final o = camera.getOffsetFromOrigin(LatLng(s.lat, s.lon));
         (cells[(o.dx ~/ 64, o.dy ~/ 64)] ??= []).add(s);
       }
       for (final group in cells.values) {
@@ -587,9 +605,9 @@ class _Dots extends StatelessWidget {
           continue;
         }
         final worst = group
-            .map(toneOf)
-            .reduce((a, b) => a.index < b.index ? a : b);
-        final pts = [for (final s in group) LatLng(s.lat!, s.lon!)];
+            .map((s) => s.status)
+            .reduce((a, b) => _severityRank(a) <= _severityRank(b) ? a : b);
+        final pts = [for (final s in group) LatLng(s.lat, s.lon)];
         markers.add(
           Marker(
             point: LatLng(
@@ -600,7 +618,7 @@ class _Dots extends StatelessWidget {
             height: 48,
             child: _Cluster(
               count: group.length,
-              tone: worst,
+              status: worst,
               onTap: () => controller?.fitCamera(
                 CameraFit.coordinates(
                   coordinates: pts,
@@ -612,16 +630,16 @@ class _Dots extends StatelessWidget {
         );
       }
     } else {
-      markers.addAll(sources.map(_dot));
+      markers.addAll(points.map(_dot));
     }
     final showLabels = labels && camera.zoom >= _labelsFromZoom;
     return MarkerLayer(
       markers: [
         ...markers,
         if (showLabels)
-          for (final s in sources)
+          for (final s in points)
             Marker(
-              point: LatLng(s.lat!, s.lon!),
+              point: LatLng(s.lat, s.lon),
               width: 180,
               height: 80,
               alignment: Alignment.topCenter,
@@ -631,8 +649,8 @@ class _Dots extends StatelessWidget {
                   padding: const EdgeInsets.only(bottom: 18),
                   child: _Chip(
                     text:
-                        '${s.name ?? s.code} · ${toneWord(AppLocalizations.of(context), s)}',
-                    dot: toneColor(context, toneOf(s)),
+                        '${s.name ?? s.code} · ${statusWord(AppLocalizations.of(context), s.status)}',
+                    dot: statusColor(context, s.status),
                   ),
                 ),
               ),
@@ -641,20 +659,20 @@ class _Dots extends StatelessWidget {
     );
   }
 
-  Marker _dot(SourceView s) => Marker(
-    point: LatLng(s.lat!, s.lon!),
+  Marker _dot(MapPoint s) => Marker(
+    point: LatLng(s.lat, s.lon),
     width: 44,
     height: 44,
-    child: _Dot(source: s, pulse: s.id == pulseId, onTap: onTap),
+    child: _Dot(point: s, pulse: s.id == pulseId, onTap: onTap),
   );
 }
 
 class _Dot extends StatefulWidget {
-  const _Dot({required this.source, required this.pulse, this.onTap});
+  const _Dot({required this.point, required this.pulse, this.onTap});
 
-  final SourceView source;
+  final MapPoint point;
   final bool pulse;
-  final void Function(SourceView)? onTap;
+  final void Function(MapPoint)? onTap;
 
   @override
   State<_Dot> createState() => _DotState();
@@ -688,9 +706,9 @@ class _DotState extends State<_Dot> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final s = widget.source;
-    final color = toneColor(context, toneOf(s));
-    final word = toneWord(l10n, s);
+    final s = widget.point;
+    final color = statusColor(context, s.status);
+    final word = statusWord(l10n, s.status);
     return Semantics(
       button: true,
       label: '${s.name ?? s.code}, $word',
@@ -743,18 +761,18 @@ class _DotState extends State<_Dot> with SingleTickerProviderStateMixin {
 class _Cluster extends StatelessWidget {
   const _Cluster({
     required this.count,
-    required this.tone,
+    required this.status,
     required this.onTap,
   });
 
   final int count;
-  final MapTone tone;
+  final MapStatus status;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final color = toneColor(context, tone);
+    final color = statusColor(context, status);
     return Semantics(
       button: true,
       label: l10n.mapCluster(count),

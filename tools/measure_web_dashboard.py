@@ -134,9 +134,11 @@ async def run(a: argparse.Namespace) -> None:
                     await cdp.call("Network.clearBrowserCache")
                 start = time.perf_counter()
                 await cdp.call("Page.navigate", url=a.url)
-                took, line = await cdp.wait_mark("dashboard", start, a.timeout)
-                synced = [t for at, t in cdp.marks if at >= start and t.startswith("wc-perf sync")]
-                print(f"{label}: dashboard with data in {took:.1f} s  ({line}; {synced[:1]})")
+                took, line = await cdp.wait_mark(a.mark, start, a.timeout)
+                print(f"{label}: dashboard with data in {took:.1f} s  ({line})")
+                for at, t in cdp.marks:
+                    if at >= start:
+                        print(f"    +{at - start:5.1f} s  {t}")
     finally:
         chrome.terminate()
         chrome.wait(10)
@@ -149,6 +151,11 @@ def main() -> None:
     p.add_argument("--username", required=True)
     p.add_argument("--password", required=True)
     p.add_argument("--timeout", type=float, default=180)
+    p.add_argument(
+        "--mark",
+        default="dashboard_shown",
+        help="dashboard_shown (first data on screen) or dashboard (local data computed)",
+    )
     p.add_argument("--no-throttle", action="store_true", help="full speed (to check the setup)")
     asyncio.run(run(p.parse_args()))
 

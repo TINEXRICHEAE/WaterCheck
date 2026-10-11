@@ -1562,6 +1562,74 @@
           }
         }
       }
+    },
+    "/v1/dashboard/summary": {
+      "get": {
+        "tags": [
+          "dashboard"
+        ],
+        "summary": "Summary",
+        "description": "As collected, for the user's areas (or one of them). The web shows\nthis at once; the full data syncs behind it.",
+        "operationId": "summary",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "area_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Area Id"
+            }
+          },
+          {
+            "name": "days",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 366,
+              "minimum": 1,
+              "default": 30,
+              "title": "Days"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DashboardSummary"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -1906,6 +1974,48 @@
         ],
         "title": "ChangeResult"
       },
+      "CollectorLine": {
+        "properties": {
+          "collector_key": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Collector Key"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "submissions": {
+            "type": "integer",
+            "title": "Submissions"
+          },
+          "last_submission": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Last Submission"
+          },
+          "mark": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mark"
+          }
+        },
+        "type": "object",
+        "required": [
+          "collector_key",
+          "name",
+          "submissions",
+          "last_submission",
+          "mark"
+        ],
+        "title": "CollectorLine"
+      },
       "CollectorSummary": {
         "properties": {
           "collector_key": {
@@ -2007,6 +2117,81 @@
         ],
         "title": "ConflictOut"
       },
+      "DashboardSummary": {
+        "properties": {
+          "sources": {
+            "type": "integer",
+            "title": "Sources"
+          },
+          "tested_in_period": {
+            "type": "integer",
+            "title": "Tested In Period"
+          },
+          "unsafe_in_period": {
+            "type": "integer",
+            "title": "Unsafe In Period"
+          },
+          "open_alerts": {
+            "type": "integer",
+            "title": "Open Alerts"
+          },
+          "median_ack_seconds": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Median Ack Seconds"
+          },
+          "overdue": {
+            "items": {
+              "$ref": "#/components/schemas/OverdueSource"
+            },
+            "type": "array",
+            "title": "Overdue"
+          },
+          "collectors": {
+            "items": {
+              "$ref": "#/components/schemas/CollectorLine"
+            },
+            "type": "array",
+            "title": "Collectors"
+          },
+          "latest_tests": {
+            "items": {
+              "$ref": "#/components/schemas/LatestTest"
+            },
+            "type": "array",
+            "title": "Latest Tests"
+          },
+          "latest_issue": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/LatestIssue"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "sources",
+          "tested_in_period",
+          "unsafe_in_period",
+          "open_alerts",
+          "median_ack_seconds",
+          "overdue",
+          "collectors",
+          "latest_tests",
+          "latest_issue"
+        ],
+        "title": "DashboardSummary"
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -2063,6 +2248,122 @@
           "short_code"
         ],
         "title": "InstallationMe"
+      },
+      "LatestIssue": {
+        "properties": {
+          "source_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Source Id"
+          },
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "lat": {
+            "type": "number",
+            "title": "Lat"
+          },
+          "lon": {
+            "type": "number",
+            "title": "Lon"
+          },
+          "trigger_rule": {
+            "type": "string",
+            "title": "Trigger Rule"
+          },
+          "severity": {
+            "type": "string",
+            "title": "Severity"
+          },
+          "at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "source_id",
+          "code",
+          "name",
+          "lat",
+          "lon",
+          "trigger_rule",
+          "severity",
+          "at"
+        ],
+        "title": "LatestIssue"
+      },
+      "LatestTest": {
+        "properties": {
+          "source_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Source Id"
+          },
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "tested_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Tested At"
+          },
+          "overall": {
+            "type": "string",
+            "title": "Overall"
+          },
+          "collector_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Collector Name"
+          },
+          "custom_limits": {
+            "type": "boolean",
+            "title": "Custom Limits"
+          }
+        },
+        "type": "object",
+        "required": [
+          "source_id",
+          "code",
+          "name",
+          "tested_at",
+          "overall",
+          "collector_name",
+          "custom_limits"
+        ],
+        "title": "LatestTest"
       },
       "LoginRequest": {
         "properties": {
@@ -2320,6 +2621,62 @@
           "read_at"
         ],
         "title": "NotificationOut"
+      },
+      "OverdueSource": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "due_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Due Date"
+          },
+          "latest_overall": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latest Overall"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "code",
+          "name",
+          "due_date",
+          "latest_overall"
+        ],
+        "title": "OverdueSource"
       },
       "Parameter": {
         "properties": {

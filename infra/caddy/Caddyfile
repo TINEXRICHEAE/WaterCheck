@@ -28,6 +28,11 @@
 	redir /console /console/
 	# Build with: flutter build web --base-href /console/
 	handle_path /console/* {
+		# Engine files change only with a Flutter or package upgrade: cached a
+		# day, so a reload on 3G does not re-check each one (P9 web gate). The
+		# app itself (index.html, main.dart.js) is re-checked every time.
+		@engine path /canvaskit/* /sqlite3.wasm /assets/fonts/* /assets/packages/* /assets/shaders/*
+		header @engine Cache-Control "public, max-age=86400"
 		root * /srv/console
 		try_files {path} /index.html
 		file_server
