@@ -28,7 +28,8 @@ abstract class AuthClient {
 
   /// Refresh.
   ///
-  /// With a body: the token from secure storage. Without: the web cookie.
+  /// With a token in the body: from secure storage (Windows, Android).
+  /// Without one: the web cookie (a `{}` body counts as none).
   @POST('/v1/auth/refresh')
   Future<TokenResponse> refresh({
     @Header('X-CSRF-Token') String? xCsrfToken,

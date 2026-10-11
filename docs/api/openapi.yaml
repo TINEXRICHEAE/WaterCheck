@@ -60,7 +60,9 @@ paths:
       tags:
       - auth
       summary: Refresh
-      description: 'With a body: the token from secure storage. Without: the web cookie.'
+      description: 'With a token in the body: from secure storage (Windows, Android).
+
+        Without one: the web cookie (a `{}` body counts as none).'
       operationId: refresh
       parameters:
       - name: X-CSRF-Token
@@ -1685,13 +1687,13 @@ components:
     RefreshRequest:
       properties:
         refresh_token:
-          type: string
-          maxLength: 200
-          minLength: 10
+          anyOf:
+          - type: string
+            maxLength: 200
+            minLength: 10
+          - type: 'null'
           title: Refresh Token
       type: object
-      required:
-      - refresh_token
       title: RefreshRequest
     ResolveIn:
       properties:

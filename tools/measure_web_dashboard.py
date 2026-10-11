@@ -6,7 +6,9 @@ Drives headless Chrome over the DevTools protocol:
   2. with Chrome's "Fast 3G" profile on, reloads /console/ and times until
      the dashboard shows at least --sources sources (first sync included);
   3. reloads once more (app files cached) and times again.
-Flutter's accessibility tree is switched on to read the screen.
+The Console logs `wc-perf` lines to the browser console when opened with
+`?perf=1` (apps/console/lib/app/perf.dart); the time is measured from the
+navigation to the `wc-perf dashboard` line (first dashboard with data).
 
     cd backend
     uv run python ../tools/measure_web_dashboard.py --username u --password p
@@ -38,46 +40,52 @@ FAST_3G = {
     "uploadThroughput": 675e3 / 8,
 }
 
-READY = """(() => {
-  const ph = document.querySelector('flt-semantics-placeholder');
-  if (ph) ph.click();
-  const text = Array.from(document.querySelectorAll('flt-semantics, [aria-label]'))
-    .map(e => (e.getAttribute('aria-label') || '') + ' ' + (e.textContent || ''))
-    .join(' ');
-  const m = text.match(/of (\\d+) sources/);
-  return m ? Number(m[1]) : -1;
-})()"""
-
-
 class Cdp:
     def __init__(self, ws: Any) -> None:
         self.ws = ws
         self.ids = count(1)
+        self.marks: list[tuple[float, str]] = []
+        self.seen: list[str] = []  # every console line, for --no-throttle checks
 
     async def call(self, method: str, **params: Any) -> dict[str, Any]:
         i = next(self.ids)
         await self.ws.send(json.dumps({"id": i, "method": method, "params": params}))
         while True:
             msg = json.loads(await self.ws.recv())
+            self._console(msg)
             if msg.get("id") == i:
                 if "error" in msg:
                     raise RuntimeError(msg["error"])
                 result: dict[str, Any] = msg.get("result", {})
                 return result
 
+    def _console(self, msg: dict[str, Any]) -> None:
+        if msg.get("method") == "Runtime.consoleAPICalled":
+            for arg in msg["params"].get("args", []):
+                text = str(arg.get("value", ""))
+                self.seen.append(text[:160])
+                if text.startswith("wc-perf "):
+                    self.marks.append((time.perf_counter(), text))
+
+    async def wait_mark(self, name: str, since: float, timeout: float) -> tuple[float, str]:
+        """Seconds from [since] to the first `wc-perf <name>` line after it."""
+        deadline = time.perf_counter() + timeout
+        while time.perf_counter() < deadline:
+            for at, text in self.marks:
+                if at >= since and text.startswith(f"wc-perf {name} "):
+                    return at - since, text
+            try:
+                msg = json.loads(await asyncio.wait_for(self.ws.recv(), 1))
+                self._console(msg)
+            except TimeoutError:
+                pass
+        raise TimeoutError(
+            f"no 'wc-perf {name}' line within {timeout:.0f} s; console: {self.seen[-8:]}"
+        )
+
     async def eval(self, expr: str) -> Any:
         r = await self.call("Runtime.evaluate", expression=expr, awaitPromise=True)
         return r.get("result", {}).get("value")
-
-
-async def wait_dashboard(cdp: Cdp, sources: int, timeout: float) -> float:
-    start = time.perf_counter()
-    while time.perf_counter() - start < timeout:
-        n = await cdp.eval(READY)
-        if isinstance(n, int) and n >= sources:
-            return time.perf_counter() - start
-        await asyncio.sleep(0.1)
-    raise TimeoutError(f"dashboard did not show {sources} sources in {timeout:.0f} s")
 
 
 async def run(a: argparse.Namespace) -> None:
@@ -107,7 +115,8 @@ async def run(a: argparse.Namespace) -> None:
             cdp = Cdp(ws)
             await cdp.call("Network.enable")
             await cdp.call("Page.enable")
-            await cdp.call("Page.navigate", url=a.url)
+            await cdp.call("Runtime.enable")
+            await cdp.call("Page.navigate", url="http://localhost/console/")
             await asyncio.sleep(1)
             # Sign in the way the web Console does (refresh token in a cookie).
             body = json.dumps({"username": a.username, "password": a.password})
@@ -118,13 +127,16 @@ async def run(a: argparse.Namespace) -> None:
             )
             if status != 200:
                 raise SystemExit(f"sign-in failed: {status}")
-            await cdp.call("Network.emulateNetworkConditions", **FAST_3G)
+            if not a.no_throttle:
+                await cdp.call("Network.emulateNetworkConditions", **FAST_3G)
             for label in ("first visit (app download + sync)", "return visit (app cached)"):
                 if label.startswith("first"):
                     await cdp.call("Network.clearBrowserCache")
-                await cdp.call("Page.reload", ignoreCache=False)
-                took = await wait_dashboard(cdp, a.sources, a.timeout)
-                print(f"{label}: dashboard with >= {a.sources} sources in {took:.1f} s")
+                start = time.perf_counter()
+                await cdp.call("Page.navigate", url=a.url)
+                took, line = await cdp.wait_mark("dashboard", start, a.timeout)
+                synced = [t for at, t in cdp.marks if at >= start and t.startswith("wc-perf sync")]
+                print(f"{label}: dashboard with data in {took:.1f} s  ({line}; {synced[:1]})")
     finally:
         chrome.terminate()
         chrome.wait(10)
@@ -133,11 +145,11 @@ async def run(a: argparse.Namespace) -> None:
 
 def main() -> None:
     p = argparse.ArgumentParser()
-    p.add_argument("--url", default="http://localhost/console/")
+    p.add_argument("--url", default="http://localhost/console/?perf=1")
     p.add_argument("--username", required=True)
     p.add_argument("--password", required=True)
-    p.add_argument("--sources", type=int, default=50)
     p.add_argument("--timeout", type=float, default=180)
+    p.add_argument("--no-throttle", action="store_true", help="full speed (to check the setup)")
     asyncio.run(run(p.parse_args()))
 
 

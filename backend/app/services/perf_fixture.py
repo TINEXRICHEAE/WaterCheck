@@ -1,7 +1,8 @@
 """The P9 performance fixture: 50 sources x 10 tests x 4 readings (2,000).
 
 Dev and test only. Records go through the normal sync push, so the server
-classifies them and raises alerts exactly as for real submissions. Names
+classifies them and raises alerts exactly as for real submissions; those
+alerts notify nobody and never escalate. Names
 and collectors are invented ("Perf source 07", "Perf collector 3"); no
 personal data.
 """
@@ -171,6 +172,24 @@ async def load_perf_fixture(
         {"id": installation, "v": village},
     )
     outcomes = await _FixturePush(conn, now, installation).apply(changes)
+    # Test data must not notify anyone: drop the queued notices for its
+    # alerts and keep them from escalating (a step past any real chain).
+    prefix = {"prefix": f"{village_code}-P%"}
+    await conn.execute(
+        text(
+            "DELETE FROM job WHERE kind = 'notify_alert' AND status = 'queued' "
+            "AND (payload ->> 'alert_id')::uuid IN (SELECT a.id FROM alert a "
+            "JOIN water_source w ON w.id = a.source_id WHERE w.code LIKE :prefix)"
+        ),
+        prefix,
+    )
+    await conn.execute(
+        text(
+            "UPDATE alert SET escalation_level = 99 WHERE id IN (SELECT a.id FROM alert a "
+            "JOIN water_source w ON w.id = a.source_id WHERE w.code LIKE :prefix)"
+        ),
+        prefix,
+    )
     count = {"applied": 0, "duplicate": 0, "rejected": 0}
     for o in outcomes:
         count[o.status] = count.get(o.status, 0) + 1

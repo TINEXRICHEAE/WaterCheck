@@ -5,6 +5,7 @@ import 'package:data/data.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'perf.dart';
 import 'providers.dart';
 import 'session.dart';
 
@@ -109,6 +110,7 @@ class ConsoleSyncController extends Notifier<ConsoleSyncState> {
     if (ref.read(sessionProvider).phase != SessionPhase.signedIn) return null;
     state = ConsoleSyncState(running: true, last: state.last);
     final report = await ref.read(consoleSyncServiceProvider).run(force: force);
+    perfMark('sync', {'pulled': report.pulled, 'ok': report.ok});
     if (ref.mounted) {
       state = ConsoleSyncState(last: report);
       // New alerts may have brought notifications.

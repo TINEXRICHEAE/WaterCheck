@@ -100,6 +100,24 @@ async def test_cookie_refresh_needs_the_csrf_token(web: AsyncClient, owner_db: D
     assert me.status_code == 200
 
 
+async def test_web_refresh_and_logout_accept_an_empty_json_body(
+    web: AsyncClient, owner_db: Database
+) -> None:
+    """The web Console's generated client sends `{}` when there is no token
+    in the body; that must mean "use the cookie" (it was a 422, so a page
+    reload lost the session)."""
+    await _signed_in(web, owner_db)
+    csrf = web.cookies["wc_csrf"]
+    ok = await web.post("/v1/auth/refresh", json={}, headers={"X-CSRF-Token": csrf})
+    assert ok.status_code == 200
+    out = await web.post(
+        "/v1/auth/logout", json={}, headers={"X-CSRF-Token": web.cookies["wc_csrf"]}
+    )
+    assert out.status_code == 204
+    again = await web.post("/v1/auth/refresh", headers={"X-CSRF-Token": csrf})
+    assert again.status_code in (401, 403)
+
+
 async def test_a_stolen_old_cookie_ends_the_session(web: AsyncClient, owner_db: Database) -> None:
     await _signed_in(web, owner_db)
     old_refresh = web.cookies["wc_refresh"]

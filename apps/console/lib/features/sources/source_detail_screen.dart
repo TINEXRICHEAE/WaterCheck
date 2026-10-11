@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:api_client/api_client.dart';
 import 'package:data/data.dart';
 import 'package:dio/dio.dart';
+import 'package:domain/domain.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -19,6 +20,7 @@ typedef _Extras = ({
   List<PhotoSummary> photos,
   List<InspectionListItem> inspections,
   Map<String, List<TrendPoint>> trends,
+  ParameterCatalogue catalogue,
 });
 
 final _extrasProvider = FutureProvider.autoDispose.family<_Extras, String>((
@@ -31,6 +33,7 @@ final _extrasProvider = FutureProvider.autoDispose.family<_Extras, String>((
     photos: await repo.photos(sourceId),
     inspections: await repo.inspections(sourceId),
     trends: await ref.watch(testingRepositoryProvider).trends(sourceId),
+    catalogue: await ref.watch(referenceDataRepositoryProvider).catalogue(),
   );
 });
 
@@ -157,12 +160,16 @@ class SourceDetailScreen extends ConsumerWidget {
         if (extras != null)
           for (final e in extras.trends.entries)
             if (e.value.length >= 2) ...[
-              const SizedBox(height: 12),
-              Text(e.key.toUpperCase(), style: text.titleSmall),
+              const SizedBox(height: 16),
+              Text(
+                _parameterTitle(extras.catalogue[e.key], e.key),
+                style: text.titleSmall,
+              ),
+              const SizedBox(height: 8),
               SizedBox(
                 height: 180,
                 child: TrendChart(
-                  unit: '',
+                  unit: extras.catalogue[e.key]?.defaultUnit ?? '',
                   points: [
                     for (final p in e.value)
                       (at: p.at, value: p.value.toDouble(), overall: p.overall),
@@ -487,4 +494,11 @@ class _TextDialogState extends State<_TextDialog> {
       ),
     ],
   );
+}
+
+/// "Turbidity (NTU)", "pH"; the code when the catalogue does not know it.
+String _parameterTitle(ParameterDefinition? p, String code) {
+  if (p == null) return code;
+  final unit = p.defaultUnit.trim();
+  return unit.isEmpty || unit == p.name ? p.name : '${p.name} ($unit)';
 }

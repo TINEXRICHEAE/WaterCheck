@@ -38,3 +38,16 @@ async def test_fixture_loads_2000_readings_and_is_rerunnable(
         assert tuple(counts) == (50, 500, 2000, 6, 500)
         again = await load_perf_fixture(conn, village_code=village["code"])
     assert again.applied == 0 and again.rejected == 0
+    async with owner_db.transaction(Principal.system()) as conn:
+        queued = (
+            await conn.execute(
+                text(
+                    "SELECT count(*) FROM job j JOIN alert a "
+                    "ON a.id = (j.payload ->> 'alert_id')::uuid "
+                    "JOIN water_source w ON w.id = a.source_id "
+                    "WHERE j.kind = 'notify_alert' AND w.village_id = :v"
+                ),
+                {"v": village["id"]},
+            )
+        ).scalar_one()
+    assert queued == 0, "test data must not notify anyone"

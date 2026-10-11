@@ -340,6 +340,32 @@ void main() {
     expect((await db.select(db.alerts).getSingle()).id, 'a-1');
   });
 
+  test('a local error while applying a page is recorded, not thrown; the '
+      'cursor stays put', () async {
+    server.pages['scope'] = [
+      const PullPage(
+        changes: [
+          // Missing every required field.
+          IncomingChange(
+            entity: 'water_source',
+            op: 'upsert',
+            id: 'bad',
+            data: {},
+          ),
+        ],
+        nextCursor: '9.9',
+        hasMore: false,
+      ),
+    ];
+    final report = await service(streams: const ['scope']).run();
+    expect(report.failure!.code, startsWith('local_error'));
+    expect(report.failure!.kind, SyncFailureKind.server);
+    final scope = await (db.select(
+      db.syncState,
+    )..where((t) => t.stream.equals('scope'))).getSingleOrNull();
+    expect(scope?.cursorToken, isNull);
+  });
+
   test('a pull failure is recorded and retried later', () async {
     server.failPull = const SyncFailure(SyncFailureKind.offline, 'offline');
     final report = await service().run();

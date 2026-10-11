@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:drift/drift.dart';
+import 'package:flutter/foundation.dart' show debugPrint;
 
 import '../db/database.dart';
 import '../repositories/support.dart';
@@ -101,6 +102,15 @@ class SyncService {
       }
     } on SyncFailure catch (f) {
       report.failure = f;
+    } catch (e, st) {
+      // A local problem (a malformed record, a database constraint): the
+      // page was rolled back, so record it, retry with backoff and show it
+      // rather than lose it.
+      debugPrint('Sync failed locally: $e\n$st');
+      report.failure = SyncFailure(
+        SyncFailureKind.server,
+        'local_error: ${e.runtimeType}',
+      );
     } finally {
       await _record(report);
       await _release(owner);

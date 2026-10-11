@@ -3,6 +3,7 @@ import 'package:domain/domain.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/console_sync.dart';
+import '../../app/perf.dart';
 import '../../app/providers.dart';
 import '../../app/session.dart';
 
@@ -70,7 +71,8 @@ final dashboardProvider = FutureProvider<DashboardData>((ref) async {
   ref.watch(consoleSyncProvider.select((s) => s.last));
   final s = ref.watch(dashboardSettingsProvider);
   final now = DateTime.now().toUtc();
-  return ref
+  final watch = Stopwatch()..start();
+  final data = await ref
       .watch(dashboardQueriesProvider)
       .load(
         DashboardFilter(
@@ -80,6 +82,13 @@ final dashboardProvider = FutureProvider<DashboardData>((ref) async {
           profileId: s.profileId,
         ),
       );
+  if (data.sources.isNotEmpty) {
+    perfMark('dashboard', {
+      'sources': data.sources.length,
+      'compute_ms': watch.elapsedMilliseconds,
+    });
+  }
+  return data;
 });
 
 /// Published profiles to compare with (custom ones are only "as collected").

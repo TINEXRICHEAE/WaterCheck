@@ -61,8 +61,25 @@ class TrendChart extends StatelessWidget {
           titlesData: FlTitlesData(
             topTitles: const AxisTitles(),
             rightTitles: const AxisTitles(),
-            leftTitles: const AxisTitles(
-              sideTitles: SideTitles(showTitles: true, reservedSize: 44),
+            leftTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                reservedSize: 44,
+                getTitlesWidget: (value, meta) {
+                  // The range's own ends (e.g. 9.7) clash with the grid
+                  // labels and the title above: show grid values only.
+                  if (value == meta.max || value == meta.min) {
+                    return const SizedBox.shrink();
+                  }
+                  return SideTitleWidget(
+                    meta: meta,
+                    child: Text(
+                      _axis(value),
+                      style: Theme.of(context).textTheme.labelSmall,
+                    ),
+                  );
+                },
+              ),
             ),
             bottomTitles: AxisTitles(
               sideTitles: SideTitles(
@@ -123,5 +140,15 @@ class TrendChart extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  /// Compact axis numbers: 1500 → "1.5k", 0.25 → "0.25", 8.0 → "8".
+  static String _axis(double v) {
+    if (v.abs() >= 1000) {
+      final k = v / 1000;
+      return '${k == k.roundToDouble() ? k.toStringAsFixed(0) : k.toStringAsFixed(1)}k';
+    }
+    if (v == v.roundToDouble()) return v.toStringAsFixed(0);
+    return v.abs() < 1 ? v.toStringAsFixed(2) : v.toStringAsFixed(1);
   }
 }

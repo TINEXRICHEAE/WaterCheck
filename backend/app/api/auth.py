@@ -42,7 +42,8 @@ class LoginRequest(BaseModel):
 
 
 class RefreshRequest(BaseModel):
-    refresh_token: str = Field(min_length=10, max_length=200)
+    # Absent (or the body is `{}` or empty): the web cookie is used.
+    refresh_token: str | None = Field(default=None, min_length=10, max_length=200)
 
 
 class PasswordHelpRequest(BaseModel):
@@ -193,13 +194,11 @@ async def refresh(
     csrf_cookie: CsrfCookie = None,
     csrf_header: CsrfHeader = None,
 ) -> TokenResponse:
-    """With a body: the token from secure storage. Without: the web cookie."""
-    from_cookie = body is None
-    token = (
-        _cookie_token(refresh_cookie, csrf_cookie, csrf_header)
-        if body is None
-        else body.refresh_token
-    )
+    """With a token in the body: from secure storage (Windows, Android).
+    Without one: the web cookie (a `{}` body counts as none)."""
+    in_body = body.refresh_token if body else None
+    from_cookie = in_body is None
+    token = _cookie_token(refresh_cookie, csrf_cookie, csrf_header) if in_body is None else in_body
     try:
         pair = await AuthService(db, settings).refresh(token)
     except AuthError as e:
@@ -239,11 +238,12 @@ async def logout(
     csrf_cookie: CsrfCookie = None,
     csrf_header: CsrfHeader = None,
 ) -> None:
-    if body is None:
+    in_body = body.refresh_token if body else None
+    if in_body is None:
         token = _cookie_token(refresh_cookie, csrf_cookie, csrf_header)
         _clear_cookies(response, settings)
     else:
-        token = body.refresh_token
+        token = in_body
     await AuthService(db, settings).logout(token)
 
 
