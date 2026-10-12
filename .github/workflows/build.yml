@@ -17,6 +17,13 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
+      # The runner's disk (about 14 GB free) fills up during the debug
+      # build; drop preinstalled toolchains this job never uses (~20 GB).
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/share/boost /opt/ghc             /usr/local/.ghcup /opt/hostedtoolcache/CodeQL /usr/local/share/powershell             /usr/share/swift /usr/local/julia* /opt/az
+          docker system prune -af > /dev/null 2>&1 || true
+          df -h /
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v5
         with:
@@ -40,8 +47,11 @@ jobs:
           channel: stable
           cache: true
       - run: flutter pub get
-      - run: flutter build apk --debug --verbose
+      # One CPU type (most phones) keeps the CI build small; release builds
+      # for the pilot carry all of them (P12).
+      - run: flutter build apk --debug --target-platform android-arm64
         working-directory: apps/collect
+      - run: df -h /
       - uses: actions/upload-artifact@v4
         with:
           name: collect-debug-apk
