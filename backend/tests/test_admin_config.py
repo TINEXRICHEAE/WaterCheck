@@ -282,7 +282,7 @@ async def test_an_area_default_changes_only_new_tests(
                 change["data"][key] = CLASS_I
     assert {r["status"] for r in (await p.push(after))["results"]} == {"applied"}
     async with owner_db.transaction(Principal.system()) as conn:
-        used = dict(
+        used: dict[str, str] = dict(
             (
                 await conn.execute(
                     text(
