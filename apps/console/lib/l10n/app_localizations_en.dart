@@ -1381,4 +1381,65 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get chainNobody =>
       'Nobody covers this area: alerts from it go to the IT admins.';
+
+  @override
+  String get limitSetsTitle => 'Limit sets';
+
+  @override
+  String get limitSetsHint =>
+      'Published sets come from the standards. A custom set changes some limits for tests from now on; it is recorded under your name with your comment, and earlier results keep the limits they were judged under.';
+
+  @override
+  String get limitSetsHintAdmin =>
+      'Published and custom sets. Only stakeholders create custom sets (in the Console, or on a phone at calibration after signing in).';
+
+  @override
+  String get limitSetsNew => 'New custom limit set';
+
+  @override
+  String limitSetsCustomOf(String base) {
+    return 'Custom, based on $base';
+  }
+
+  @override
+  String get limitSetsProvisional =>
+      'Provisional: may change after field calibration';
+
+  @override
+  String limitSetsReason(String reason) {
+    return 'Comment: $reason';
+  }
+
+  @override
+  String get limitSetsBase => 'Based on';
+
+  @override
+  String get limitSetsMin => 'Min';
+
+  @override
+  String get limitSetsMax => 'Max';
+
+  @override
+  String get limitSetsComment => 'Your comment (why these limits)';
+
+  @override
+  String get limitSetsCommentHint => 'Required. Recorded with your name.';
+
+  @override
+  String limitSetsChanged(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n limits changed',
+      one: '1 limit changed',
+      zero: 'No limit changed yet',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get limitSetsSave => 'Create limit set';
+
+  @override
+  String get navLimitSets => 'Limit sets';
 }

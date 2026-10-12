@@ -46,6 +46,10 @@ abstract interface class ReferenceDataRepository {
     SubmissionOrigin origin,
   );
 
+  /// Stores a custom profile the server already has (a stakeholder made it
+  /// from this phone, O2); nothing is queued.
+  Future<void> storeAcceptedProfile(ReferenceProfile profile);
+
   /// Stores a user-defined parameter and queues it for sync.
   Future<void> saveCustomParameter(
     ParameterDefinition parameter,
@@ -233,6 +237,22 @@ class DriftReferenceDataRepository implements ReferenceDataRepository {
       );
     });
   }
+
+  @override
+  Future<void> storeAcceptedProfile(ReferenceProfile profile) => _db
+      .into(_db.referenceProfiles)
+      .insertOnConflictUpdate(
+        ReferenceProfilesCompanion.insert(
+          id: profile.id,
+          code: profile.code,
+          title: profile.title,
+          version: profile.version,
+          basedOnId: Value(profile.basedOnId),
+          isCustom: Value(profile.isCustom),
+          customReason: Value(profile.customReason),
+          document: jsonEncode(profile.toJson()),
+        ),
+      );
 
   @override
   Future<void> saveCustomParameter(

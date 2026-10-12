@@ -2301,6 +2301,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Nobody covers this area: alerts from it go to the IT admins.'**
   String get chainNobody;
+
+  /// No description provided for @limitSetsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Limit sets'**
+  String get limitSetsTitle;
+
+  /// No description provided for @limitSetsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Published sets come from the standards. A custom set changes some limits for tests from now on; it is recorded under your name with your comment, and earlier results keep the limits they were judged under.'**
+  String get limitSetsHint;
+
+  /// No description provided for @limitSetsHintAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'Published and custom sets. Only stakeholders create custom sets (in the Console, or on a phone at calibration after signing in).'**
+  String get limitSetsHintAdmin;
+
+  /// No description provided for @limitSetsNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New custom limit set'**
+  String get limitSetsNew;
+
+  /// No description provided for @limitSetsCustomOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom, based on {base}'**
+  String limitSetsCustomOf(String base);
+
+  /// No description provided for @limitSetsProvisional.
+  ///
+  /// In en, this message translates to:
+  /// **'Provisional: may change after field calibration'**
+  String get limitSetsProvisional;
+
+  /// No description provided for @limitSetsReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Comment: {reason}'**
+  String limitSetsReason(String reason);
+
+  /// No description provided for @limitSetsBase.
+  ///
+  /// In en, this message translates to:
+  /// **'Based on'**
+  String get limitSetsBase;
+
+  /// No description provided for @limitSetsMin.
+  ///
+  /// In en, this message translates to:
+  /// **'Min'**
+  String get limitSetsMin;
+
+  /// No description provided for @limitSetsMax.
+  ///
+  /// In en, this message translates to:
+  /// **'Max'**
+  String get limitSetsMax;
+
+  /// No description provided for @limitSetsComment.
+  ///
+  /// In en, this message translates to:
+  /// **'Your comment (why these limits)'**
+  String get limitSetsComment;
+
+  /// No description provided for @limitSetsCommentHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Required. Recorded with your name.'**
+  String get limitSetsCommentHint;
+
+  /// No description provided for @limitSetsChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =0{No limit changed yet} =1{1 limit changed} other{{n} limits changed}}'**
+  String limitSetsChanged(int n);
+
+  /// No description provided for @limitSetsSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Create limit set'**
+  String get limitSetsSave;
+
+  /// No description provided for @navLimitSets.
+  ///
+  /// In en, this message translates to:
+  /// **'Limit sets'**
+  String get navLimitSets;
 }
 
 class _AppLocalizationsDelegate

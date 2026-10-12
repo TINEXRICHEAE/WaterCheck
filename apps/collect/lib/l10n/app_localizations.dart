@@ -793,7 +793,7 @@ abstract class AppLocalizations {
   /// No description provided for @limitsIntro.
   ///
   /// In en, this message translates to:
-  /// **'Changes create custom limits for your tests. The official limits are kept and the district sees what you changed.'**
+  /// **'Changes create custom limits for tests from now on. The official limits are kept, earlier results keep the limits they were judged under, and a stakeholder must approve the change.'**
   String get limitsIntro;
 
   /// No description provided for @limitsMin.
@@ -1983,6 +1983,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This device cannot open the SMS app.'**
   String get smsOfferFailed;
+
+  /// No description provided for @limitsStakeholderTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Stakeholder approval'**
+  String get limitsStakeholderTitle;
+
+  /// No description provided for @limitsStakeholderHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Only a stakeholder can change limits. Sign in with your WaterCheck Console account: the change is recorded under your name with your reason. Needs a connection; you are signed out right after.'**
+  String get limitsStakeholderHint;
+
+  /// No description provided for @limitsStakeholderUsername.
+  ///
+  /// In en, this message translates to:
+  /// **'Stakeholder username'**
+  String get limitsStakeholderUsername;
+
+  /// No description provided for @limitsStakeholderPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get limitsStakeholderPassword;
+
+  /// No description provided for @limitsStakeholderApprove.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve and use'**
+  String get limitsStakeholderApprove;
+
+  /// No description provided for @limitsStakeholderCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get limitsStakeholderCancel;
+
+  /// No description provided for @limitsStakeholderOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'No connection. Changing limits needs the server; try again when online.'**
+  String get limitsStakeholderOffline;
+
+  /// No description provided for @limitsStakeholderWrong.
+  ///
+  /// In en, this message translates to:
+  /// **'Wrong username or password.'**
+  String get limitsStakeholderWrong;
+
+  /// No description provided for @limitsStakeholderFirstSignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to the Console once first to set your own password.'**
+  String get limitsStakeholderFirstSignIn;
+
+  /// No description provided for @limitsStakeholderNotStakeholder.
+  ///
+  /// In en, this message translates to:
+  /// **'This account is not a stakeholder account.'**
+  String get limitsStakeholderNotStakeholder;
+
+  /// No description provided for @limitsStakeholderLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'This account is locked for a while after too many attempts.'**
+  String get limitsStakeholderLocked;
+
+  /// No description provided for @limitsStakeholderFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save the limits ({code}).'**
+  String limitsStakeholderFailed(String code);
 }
 
 class _AppLocalizationsDelegate

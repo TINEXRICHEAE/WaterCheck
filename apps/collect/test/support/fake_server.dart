@@ -63,8 +63,14 @@ class FakeServer implements HttpClientAdapter {
     final path = options.uri.path.replaceFirst('/api', '');
     final signed = options.headers['X-Signature'] != null;
     final id = options.headers['X-Installation-Id'] as String?;
+    final bearer = options.headers['Authorization'] as String?;
     return switch ((options.method, path)) {
       ('POST', '/v1/installations/activate') => _activate(options),
+      ('POST', '/v1/auth/login') => _login(options),
+      ('POST', '/v1/auth/logout') => ResponseBody.fromString('', 204),
+      // A stakeholder's own push (custom limits, O2): bearer, not signed.
+      ('POST', '/v1/sync/push') when bearer == 'Bearer stakeholder-token' =>
+        _push(options, asStakeholder: true),
       _ when !signed => _json(401, {'detail': 'unsigned_request'}),
       _ when revoked.contains(id) => _json(403, {
         'detail': 'installation_revoked',
@@ -114,7 +120,27 @@ class FakeServer implements HttpClientAdapter {
     });
   }
 
-  ResponseBody _push(RequestOptions options) {
+  /// The stakeholder who may approve custom limits on a phone (O2).
+  static const stakeholder = ('officer@example.org', 'BoreholeWater2026');
+
+  /// Changes pushed by a signed-in stakeholder rather than the phone.
+  final pushedByStakeholder = <Map<String, Object?>>[];
+
+  ResponseBody _login(RequestOptions options) {
+    final body = (options.data as Map).cast<String, Object?>();
+    if ((body['username'], body['password']) != stakeholder) {
+      return _json(401, {'detail': 'invalid_credentials'});
+    }
+    return _json(200, {
+      'access_token': 'stakeholder-token',
+      'refresh_token': 'stakeholder-refresh',
+      'token_type': 'bearer',
+      'expires_in': 900,
+      'must_change_password': false,
+    });
+  }
+
+  ResponseBody _push(RequestOptions options, {bool asStakeholder = false}) {
     final data = options.data;
     final raw = switch (data) {
       final String s => s,
@@ -123,7 +149,7 @@ class FakeServer implements HttpClientAdapter {
     };
     final body = (jsonDecode(raw) as Map).cast<String, Object?>();
     final changes = (body['changes']! as List).cast<Map<String, Object?>>();
-    pushed.addAll(changes);
+    (asStakeholder ? pushedByStakeholder : pushed).addAll(changes);
     return _json(200, {
       'batch_id': body['batch_id'],
       'server_time': serverTime.toIso8601String(),

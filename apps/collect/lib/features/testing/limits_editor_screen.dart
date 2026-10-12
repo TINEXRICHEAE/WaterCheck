@@ -1,16 +1,21 @@
+import 'package:api_client/api_client.dart' show ApiFailure;
 import 'package:data/data.dart' show IdGenerator;
 import 'package:domain/domain.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../app/gate.dart' show credentialsProvider;
 import '../../app/providers.dart';
+import '../../app/services.dart' show collectApiProvider;
 import '../../l10n/app_localizations.dart';
 import 'test_draft.dart';
 
 /// Edit the safe limits at calibration (F-TST-9). Saving creates a versioned
 /// custom profile based on the selected one, with a required reason; the
-/// official profile is never changed.
+/// official profile is never changed. Only a stakeholder may do it (O2): they
+/// sign in on the phone for this one change, which is recorded under their
+/// name. Readings already taken keep the limits they were judged under.
 class LimitsEditorScreen extends ConsumerStatefulWidget {
   const LimitsEditorScreen({super.key});
 
@@ -93,9 +98,30 @@ class _LimitsEditorScreenState extends ConsumerState<LimitsEditorScreen> {
       reason: _reason.text.trim(),
       overrides: changes,
     );
+    final apiUrl = ref.read(credentialsProvider)?.apiUrl;
+    final signedIn = apiUrl == null
+        ? false
+        : await showDialog<bool>(
+            context: context,
+            barrierDismissible: false,
+            builder: (_) => _StakeholderSignIn(
+              send: (username, password) => ref
+                  .read(collectApiProvider)
+                  .createLimitSetAsStakeholder(
+                    apiUrl: apiUrl,
+                    username: username,
+                    password: password,
+                    profile: custom.toJson(),
+                  ),
+            ),
+          );
+    if (signedIn != true) {
+      if (mounted) setState(() => _saving = false);
+      return;
+    }
     await ref
         .read(referenceDataRepositoryProvider)
-        .saveCustomProfile(custom, ref.read(submissionOriginProvider)!);
+        .storeAcceptedProfile(custom);
     ref
         .read(testDraftProvider.notifier)
         .update((d) => d.copyWith(profile: custom));
@@ -221,6 +247,110 @@ class _LimitsEditorScreenState extends ConsumerState<LimitsEditorScreen> {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// A stakeholder signs in to approve and record custom limits (O2). Needs a
+/// connection; the phone keeps no stakeholder session afterwards.
+class _StakeholderSignIn extends StatefulWidget {
+  const _StakeholderSignIn({required this.send});
+
+  final Future<void> Function(String username, String password) send;
+
+  @override
+  State<_StakeholderSignIn> createState() => _StakeholderSignInState();
+}
+
+class _StakeholderSignInState extends State<_StakeholderSignIn> {
+  final _username = TextEditingController();
+  final _password = TextEditingController();
+  var _busy = false;
+  String? _error;
+
+  @override
+  void dispose() {
+    _username.dispose();
+    _password.dispose();
+    super.dispose();
+  }
+
+  Future<void> _go() async {
+    final l10n = AppLocalizations.of(context);
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
+    try {
+      await widget.send(_username.text, _password.text);
+      if (mounted) Navigator.pop(context, true);
+    } on ApiFailure catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _busy = false;
+        _error = switch (e.code) {
+          'offline' => l10n.limitsStakeholderOffline,
+          'invalid_credentials' => l10n.limitsStakeholderWrong,
+          'must_change_password' => l10n.limitsStakeholderFirstSignIn,
+          'stakeholder_required' => l10n.limitsStakeholderNotStakeholder,
+          'account_locked' => l10n.limitsStakeholderLocked,
+          final c => l10n.limitsStakeholderFailed(c),
+        };
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return AlertDialog(
+      title: Text(l10n.limitsStakeholderTitle),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(l10n.limitsStakeholderHint),
+          const SizedBox(height: 12),
+          TextField(
+            controller: _username,
+            autofillHints: const [AutofillHints.username],
+            decoration: InputDecoration(
+              labelText: l10n.limitsStakeholderUsername,
+            ),
+            onChanged: (_) => setState(() {}),
+          ),
+          TextField(
+            controller: _password,
+            obscureText: true,
+            autofillHints: const [AutofillHints.password],
+            decoration: InputDecoration(
+              labelText: l10n.limitsStakeholderPassword,
+            ),
+            onChanged: (_) => setState(() {}),
+          ),
+          if (_error != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Text(
+                _error!,
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
+              ),
+            ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: _busy ? null : () => Navigator.pop(context, false),
+          child: Text(l10n.limitsStakeholderCancel),
+        ),
+        FilledButton(
+          onPressed:
+              _busy || _username.text.trim().isEmpty || _password.text.isEmpty
+              ? null
+              : _go,
+          child: Text(l10n.limitsStakeholderApprove),
+        ),
+      ],
     );
   }
 }

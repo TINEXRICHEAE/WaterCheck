@@ -397,7 +397,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get limitsIntro =>
-      'Changes create custom limits for your tests. The official limits are kept and the district sees what you changed.';
+      'Changes create custom limits for tests from now on. The official limits are kept, earlier results keep the limits they were judged under, and a stakeholder must approve the change.';
 
   @override
   String get limitsMin => 'Min';
@@ -1092,4 +1092,47 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get smsOfferFailed => 'This device cannot open the SMS app.';
+
+  @override
+  String get limitsStakeholderTitle => 'Stakeholder approval';
+
+  @override
+  String get limitsStakeholderHint =>
+      'Only a stakeholder can change limits. Sign in with your WaterCheck Console account: the change is recorded under your name with your reason. Needs a connection; you are signed out right after.';
+
+  @override
+  String get limitsStakeholderUsername => 'Stakeholder username';
+
+  @override
+  String get limitsStakeholderPassword => 'Password';
+
+  @override
+  String get limitsStakeholderApprove => 'Approve and use';
+
+  @override
+  String get limitsStakeholderCancel => 'Cancel';
+
+  @override
+  String get limitsStakeholderOffline =>
+      'No connection. Changing limits needs the server; try again when online.';
+
+  @override
+  String get limitsStakeholderWrong => 'Wrong username or password.';
+
+  @override
+  String get limitsStakeholderFirstSignIn =>
+      'Sign in to the Console once first to set your own password.';
+
+  @override
+  String get limitsStakeholderNotStakeholder =>
+      'This account is not a stakeholder account.';
+
+  @override
+  String get limitsStakeholderLocked =>
+      'This account is locked for a while after too many attempts.';
+
+  @override
+  String limitsStakeholderFailed(String code) {
+    return 'Could not save the limits ($code).';
+  }
 }

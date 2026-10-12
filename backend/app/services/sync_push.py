@@ -54,7 +54,13 @@ ORDER = [
 ATTACHMENT_MIME = {"image/jpeg"}
 
 # What a signed-in Console user may queue (SPEC §8.4, P6).
-USER_ENTITIES = {"water_source", "alert_event", "collector_mark", "submission_flag"}
+USER_ENTITIES = {
+    "water_source",
+    "alert_event",
+    "collector_mark",
+    "submission_flag",
+    "reference_standard",
+}
 # Marks and flags are stakeholder judgements, never sent by phones.
 USER_ONLY = {"collector_mark", "submission_flag"}
 
@@ -696,12 +702,21 @@ class PushService:
         )
 
     async def reference_standard_insert(self, c: Change) -> Outcome:
-        """A custom limit set made at field calibration (D-MN)."""
+        """A custom limit set (D-MN). Only a stakeholder may make one (O2,
+        the lead, 2026-10-12): from the Console, or from Collect after the
+        stakeholder signs in on the phone. Who made it and their comment
+        (the reason) are recorded and audited; readings already taken keep
+        the limit set they were judged under."""
+        if self.p.kind != "user" or self.p.role != "stakeholder":
+            raise Rejected("stakeholder_required")
         d, o = c.data, self._origin(c.data)
+        if len(str(d.get("custom_reason") or "").strip()) < 5:
+            raise Rejected("invalid:custom_reason")
         doc = {
             k: v
             for k, v in d.items()
-            if k not in ("installation_id", "collector_key", "collector_snapshot", "created_by")
+            if k
+            not in ("installation_id", "collector_key", "collector_snapshot", "created_by", "via")
         }
         try:
             profile = ReferenceProfile.from_json(doc)
@@ -748,6 +763,26 @@ class PushService:
                         "source": limit.get("source"),
                     },
                 )
+            await self.conn.execute(
+                text(
+                    "INSERT INTO audit_log (actor_id, platform, action, entity, entity_id, after) "
+                    "VALUES (:by, :platform, 'reference_profile.created', "
+                    "'reference_standard', :id, CAST(:after AS jsonb))"
+                ),
+                {
+                    "by": self.p.user_id,
+                    "platform": "collect" if d.get("via") == "collect" else "console",
+                    "id": _uuid(c.id, "id"),
+                    "after": json.dumps(
+                        {
+                            "code": profile.code,
+                            "based_on_id": doc.get("based_on_id"),
+                            "reason": doc.get("custom_reason"),
+                            "limits": doc.get("limits", []),
+                        }
+                    ),
+                },
+            )
         return out
 
 

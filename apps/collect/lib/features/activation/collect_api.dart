@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:api_client/api_client.dart';
 import 'package:data/data.dart';
 import 'package:dio/dio.dart';
@@ -52,6 +54,17 @@ abstract interface class CollectApi {
     InstallationCredentials c,
     Duration clockOffset,
   );
+
+  /// Custom limits need a stakeholder (O2): signs the stakeholder in, sends
+  /// the limit set as them, then signs them out again. Needs a connection.
+  /// Throws [ApiFailure] (`invalid_credentials`, `must_change_password`,
+  /// `stakeholder_required`, `offline`...).
+  Future<void> createLimitSetAsStakeholder({
+    required String apiUrl,
+    required String username,
+    required String password,
+    required Map<String, Object?> profile,
+  });
 }
 
 class HttpCollectApi implements CollectApi {
@@ -180,6 +193,61 @@ class HttpCollectApi implements CollectApi {
     final date = headers.value('date');
     if (date == null) return null;
     return parseHttpDate(date)?.difference(_now());
+  }
+
+  @override
+  Future<void> createLimitSetAsStakeholder({
+    required String apiUrl,
+    required String username,
+    required String password,
+    required Map<String, Object?> profile,
+  }) async {
+    final dio = _dioFor(apiUrl);
+    try {
+      final login = await dio.post<Map<String, dynamic>>(
+        '/v1/auth/login',
+        data: {'username': username.trim(), 'password': password},
+      );
+      final tokens = login.data!;
+      final refresh = tokens['refresh_token'] as String?;
+      try {
+        if (tokens['must_change_password'] == true) {
+          throw const ApiFailure('must_change_password', status: 403);
+        }
+        final pushed = await dio.post<Map<String, dynamic>>(
+          '/v1/sync/push',
+          data: {
+            'batch_id': const IdGenerator().next(),
+            'changes': [
+              {
+                'entity': 'reference_standard',
+                'op': 'insert',
+                'id': profile['id'],
+                'data': {...profile, 'via': 'collect'},
+              },
+            ],
+          },
+          options: Options(
+            headers: {'Authorization': 'Bearer ${tokens['access_token']}'},
+          ),
+        );
+        final result = (pushed.data!['results'] as List).single as Map;
+        if (result['status'] != 'applied' && result['status'] != 'duplicate') {
+          throw ApiFailure('${result['reason'] ?? 'rejected'}', status: 422);
+        }
+      } finally {
+        // The stakeholder's session ends with this one change.
+        if (refresh != null) {
+          unawaited(
+            dio
+                .post<void>('/v1/auth/logout', data: {'refresh_token': refresh})
+                .then((_) {}, onError: (_) {}),
+          );
+        }
+      }
+    } catch (e) {
+      throw ApiFailure.from(e);
+    }
   }
 }
 

@@ -192,7 +192,7 @@
   "calibrationFail": "Failed",
   "calibrationSave": "Save calibration",
   "limitsTitle": "Edit safe limits",
-  "limitsIntro": "Changes create custom limits for your tests. The official limits are kept and the district sees what you changed.",
+  "limitsIntro": "Changes create custom limits for tests from now on. The official limits are kept, earlier results keep the limits they were judged under, and a stakeholder must approve the change.",
   "limitsMin": "Min",
   "limitsMax": "Max",
   "limitsReason": "Why are you changing the limits?",
@@ -501,5 +501,24 @@
   },
   "smsOfferBody": "The district has not heard about it yet. Send a short SMS now; the full record will follow when the phone can sync. Normal SMS charges apply.",
   "smsOfferButton": "Send by SMS",
-  "smsOfferFailed": "This device cannot open the SMS app."
+  "smsOfferFailed": "This device cannot open the SMS app.",
+  "limitsStakeholderTitle": "Stakeholder approval",
+  "limitsStakeholderHint": "Only a stakeholder can change limits. Sign in with your WaterCheck Console account: the change is recorded under your name with your reason. Needs a connection; you are signed out right after.",
+  "limitsStakeholderUsername": "Stakeholder username",
+  "limitsStakeholderPassword": "Password",
+  "limitsStakeholderApprove": "Approve and use",
+  "limitsStakeholderCancel": "Cancel",
+  "limitsStakeholderOffline": "No connection. Changing limits needs the server; try again when online.",
+  "limitsStakeholderWrong": "Wrong username or password.",
+  "limitsStakeholderFirstSignIn": "Sign in to the Console once first to set your own password.",
+  "limitsStakeholderNotStakeholder": "This account is not a stakeholder account.",
+  "limitsStakeholderLocked": "This account is locked for a while after too many attempts.",
+  "limitsStakeholderFailed": "Could not save the limits ({code}).",
+  "@limitsStakeholderFailed": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  }
 }

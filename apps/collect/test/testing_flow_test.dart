@@ -163,17 +163,43 @@ void main() {
       'District advisory for this area',
     );
     await tapAndSettle(tester, find.text('Use these limits'));
+    // Only a stakeholder may change limits (O2): they sign in here.
+    expect(find.text('Stakeholder approval'), findsOneWidget);
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Stakeholder username'),
+      'officer@example.org',
+    );
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Password'),
+      'wrong-password',
+    );
+    await tester.pump();
+    await tapAndSettle(tester, find.text('Approve and use'));
+    expect(find.text('Wrong username or password.'), findsOneWidget);
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Password'),
+      'BoreholeWater2026',
+    );
+    await tester.pump();
+    await tapAndSettle(tester, find.text('Approve and use'));
     expect(find.text('Custom limits'), findsOneWidget);
 
     await tapAndSettle(tester, find.text('Test without calibrating'));
     await tapAndSettle(tester, find.text('Continue to readings'));
     await _enter(tester, 'tds', '560');
     expect(find.text('HIGH'), findsOneWidget, reason: '560 > custom 400');
-    // The official profile is unchanged and the custom one is queued.
+    // The official profile is unchanged; the custom one went to the server
+    // as the stakeholder, not through the phone's own queue.
     final profiles = await tester.runAsync(
       () => DriftReferenceDataRepository(db).referenceProfiles(),
     );
     expect(profiles!.where((p) => p.isCustom), hasLength(1));
+    final queued = await tester.runAsync(() => db.select(db.outbox).get());
+    expect(
+      queued!.where((o) => o.entity == 'reference_standard'),
+      isEmpty,
+      reason: 'sent as the stakeholder, never by the phone itself',
+    );
     expect(
       profiles
           .firstWhere((p) => p.code == 'US201-2008-ClassII')

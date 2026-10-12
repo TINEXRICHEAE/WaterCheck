@@ -109,18 +109,19 @@ async def _test_session(
 async def test_seed_loader_is_idempotent(owner_db: Database, seeded: None) -> None:
     async with owner_db.transaction(Principal.system()) as conn:
         await load_seed(conn, SEED)
+        # Seeded rows only: other tests add custom ones to the shared database.
         counts = {
             t: (await conn.execute(text(f"SELECT count(*) FROM {t}"))).scalar_one()  # noqa: S608
             for t in [
                 "parameter_definition",
-                "reference_standard",
+                "reference_standard WHERE NOT is_custom",
                 "response_card",
                 "tester_profile",
             ]
         }
     assert counts == {
         "parameter_definition": 42,
-        "reference_standard": 2,
+        "reference_standard WHERE NOT is_custom": 2,
         "response_card": 3,
         "tester_profile": 1,
     }

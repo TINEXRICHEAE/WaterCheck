@@ -16,6 +16,7 @@ import '../features/auth/pin_screens.dart';
 import '../features/auth/sign_in_screen.dart';
 import '../features/collectors/collectors_screen.dart';
 import '../features/dashboard/dashboard_screen.dart';
+import '../features/limits/limit_sets_screen.dart';
 import '../features/profile/profile_screen.dart';
 import '../features/reports/reports_screen.dart';
 import '../features/sources/source_detail_screen.dart';
@@ -75,6 +76,10 @@ final routerProvider = Provider<GoRouter>((ref) {
                   GoRoute(
                     path: 'profile',
                     builder: (_, _) => const ProfileScreen(),
+                  ),
+                  GoRoute(
+                    path: 'limit-sets',
+                    builder: (_, _) => const LimitSetsScreen(),
                   ),
                 ],
               ),
@@ -330,6 +335,14 @@ class _AccountButton extends ConsumerWidget {
           ),
         ),
         const PopupMenuDivider(),
+        PopupMenuItem<void>(
+          onTap: () => context.go('/dashboard/limit-sets'),
+          child: ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.tune),
+            title: Text(l10n.navLimitSets),
+          ),
+        ),
         PopupMenuItem<void>(
           onTap: () => context.go('/dashboard/profile'),
           child: ListTile(
