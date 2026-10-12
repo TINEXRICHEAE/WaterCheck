@@ -7,16 +7,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'session.dart';
 
 /// Ends (web) or locks (Windows/Android) a signed-in session after
-/// [timeout] without taps, mouse or keys (F-AUTH-3).
+/// [timeout] without taps, mouse or keys (F-AUTH-3). Without [timeout], the
+/// IT admin's setting from the server applies (P11), else [idleTimeout].
 class IdleWatcher extends ConsumerStatefulWidget {
-  const IdleWatcher({
-    super.key,
-    required this.child,
-    this.timeout = idleTimeout,
-  });
+  const IdleWatcher({super.key, required this.child, this.timeout});
 
   final Widget child;
-  final Duration timeout;
+  final Duration? timeout;
 
   @override
   ConsumerState<IdleWatcher> createState() => _IdleWatcherState();
@@ -46,8 +43,10 @@ class _IdleWatcherState extends ConsumerState<IdleWatcher> {
 
   void _restart() {
     _timer?.cancel();
+    final minutes = ref.read(sessionProvider).me?.consoleIdleMinutes;
     _timer = Timer(
-      widget.timeout,
+      widget.timeout ??
+          (minutes == null ? idleTimeout : Duration(minutes: minutes)),
       () => ref.read(sessionProvider.notifier).idle(),
     );
   }

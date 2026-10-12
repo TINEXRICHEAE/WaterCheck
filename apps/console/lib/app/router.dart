@@ -5,6 +5,12 @@ import 'package:go_router/go_router.dart';
 import 'package:ui_kit/ui_kit.dart';
 
 import '../features/admin/admin_screen.dart';
+import '../features/admin/system_screen.dart';
+import '../features/admin/security_screen.dart';
+import '../features/admin/routing_screen.dart';
+import '../features/admin/places_screen.dart';
+import '../features/admin/parameters_screen.dart';
+import '../features/admin/cards_screen.dart';
 import '../features/admin/chain_screen.dart';
 import '../features/admin/phones_screen.dart';
 import '../features/admin/users_screen.dart';
@@ -154,6 +160,30 @@ final routerProvider = Provider<GoRouter>((ref) {
                   GoRoute(
                     path: 'chain',
                     builder: (_, _) => const ChainScreen(),
+                  ),
+                  GoRoute(
+                    path: 'system',
+                    builder: (_, _) => const SystemScreen(),
+                  ),
+                  GoRoute(
+                    path: 'security',
+                    builder: (_, _) => const SecurityScreen(),
+                  ),
+                  GoRoute(
+                    path: 'routing',
+                    builder: (_, _) => const RoutingScreen(),
+                  ),
+                  GoRoute(
+                    path: 'places',
+                    builder: (_, _) => const PlacesScreen(),
+                  ),
+                  GoRoute(
+                    path: 'parameters',
+                    builder: (_, _) => const ParametersScreen(),
+                  ),
+                  GoRoute(
+                    path: 'cards',
+                    builder: (_, _) => const CardsScreen(),
                   ),
                 ],
               ),

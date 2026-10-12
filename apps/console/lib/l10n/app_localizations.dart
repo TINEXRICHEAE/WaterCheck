@@ -187,7 +187,7 @@ abstract class AppLocalizations {
   /// No description provided for @adminMoreHint.
   ///
   /// In en, this message translates to:
-  /// **'Users, installations, configuration, security, system health and audit arrive in P11.'**
+  /// **'Changes here reach the phones with their next sync.'**
   String get adminMoreHint;
 
   /// No description provided for @startupFailed.
@@ -2391,6 +2391,582 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Limit sets'**
   String get navLimitSets;
+
+  /// No description provided for @adminSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'System'**
+  String get adminSystem;
+
+  /// No description provided for @adminSystemHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Health of the server and the audit log'**
+  String get adminSystemHint;
+
+  /// No description provided for @adminSecurity.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign-in security'**
+  String get adminSecurity;
+
+  /// No description provided for @adminSecurityHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Lockout, password length and idle timeout'**
+  String get adminSecurityHint;
+
+  /// No description provided for @adminRouting.
+  ///
+  /// In en, this message translates to:
+  /// **'Alert routing'**
+  String get adminRouting;
+
+  /// No description provided for @adminRoutingHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Which responsibilities each kind of alert reaches'**
+  String get adminRoutingHint;
+
+  /// No description provided for @adminPlaces.
+  ///
+  /// In en, this message translates to:
+  /// **'Places'**
+  String get adminPlaces;
+
+  /// No description provided for @adminPlacesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add parishes and villages, rename places, set default limit sets'**
+  String get adminPlacesHint;
+
+  /// No description provided for @adminParams.
+  ///
+  /// In en, this message translates to:
+  /// **'New parameters'**
+  String get adminParams;
+
+  /// No description provided for @adminParamsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve, rename, merge or reject parameters added in the field'**
+  String get adminParamsHint;
+
+  /// No description provided for @adminCards.
+  ///
+  /// In en, this message translates to:
+  /// **'Response cards'**
+  String get adminCards;
+
+  /// No description provided for @adminCardsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'What collectors are told to do after an unsafe result'**
+  String get adminCardsHint;
+
+  /// No description provided for @systemHealth.
+  ///
+  /// In en, this message translates to:
+  /// **'System health'**
+  String get systemHealth;
+
+  /// No description provided for @systemRefresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh'**
+  String get systemRefresh;
+
+  /// No description provided for @systemAudit.
+  ///
+  /// In en, this message translates to:
+  /// **'Audit log'**
+  String get systemAudit;
+
+  /// No description provided for @systemAuditHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Every change by a person or phone, newest first. Filter by action (for example user. or reference_profile.) and dates.'**
+  String get systemAuditHint;
+
+  /// No description provided for @systemAuditAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Action starts with'**
+  String get systemAuditAction;
+
+  /// No description provided for @systemAuditAnyDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Any date'**
+  String get systemAuditAnyDate;
+
+  /// No description provided for @systemAuditApply.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply'**
+  String get systemAuditApply;
+
+  /// No description provided for @systemAuditExport.
+  ///
+  /// In en, this message translates to:
+  /// **'Export CSV'**
+  String get systemAuditExport;
+
+  /// No description provided for @systemAuditEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing matches these filters.'**
+  String get systemAuditEmpty;
+
+  /// No description provided for @systemAuditSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'System'**
+  String get systemAuditSystem;
+
+  /// No description provided for @systemExported.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved {name}'**
+  String systemExported(String name);
+
+  /// No description provided for @healthDatabase.
+  ///
+  /// In en, this message translates to:
+  /// **'Database'**
+  String get healthDatabase;
+
+  /// No description provided for @healthOk.
+  ///
+  /// In en, this message translates to:
+  /// **'Working'**
+  String get healthOk;
+
+  /// No description provided for @healthDown.
+  ///
+  /// In en, this message translates to:
+  /// **'Not reachable'**
+  String get healthDown;
+
+  /// No description provided for @healthWorker.
+  ///
+  /// In en, this message translates to:
+  /// **'Last background job'**
+  String get healthWorker;
+
+  /// No description provided for @healthNever.
+  ///
+  /// In en, this message translates to:
+  /// **'None yet'**
+  String get healthNever;
+
+  /// No description provided for @healthJobs.
+  ///
+  /// In en, this message translates to:
+  /// **'Jobs waiting'**
+  String get healthJobs;
+
+  /// No description provided for @healthJobsValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{queued} ({overdue} late)'**
+  String healthJobsValue(int queued, int overdue);
+
+  /// No description provided for @healthFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failures (24 h)'**
+  String get healthFailed;
+
+  /// No description provided for @healthPhones.
+  ///
+  /// In en, this message translates to:
+  /// **'Phones active (7 days)'**
+  String get healthPhones;
+
+  /// No description provided for @healthPhonesValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{active} of {total}'**
+  String healthPhonesValue(int active, int total);
+
+  /// No description provided for @healthRecords.
+  ///
+  /// In en, this message translates to:
+  /// **'Tests received (24 h)'**
+  String get healthRecords;
+
+  /// No description provided for @healthConflicts.
+  ///
+  /// In en, this message translates to:
+  /// **'Open sync conflicts'**
+  String get healthConflicts;
+
+  /// No description provided for @healthPhotos.
+  ///
+  /// In en, this message translates to:
+  /// **'Photos'**
+  String get healthPhotos;
+
+  /// No description provided for @healthPhotosValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} ({mb} MB)'**
+  String healthPhotosValue(int count, String mb);
+
+  /// No description provided for @healthBackup.
+  ///
+  /// In en, this message translates to:
+  /// **'Last backup'**
+  String get healthBackup;
+
+  /// No description provided for @healthBackupNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Not set up yet (comes with deployment)'**
+  String get healthBackupNone;
+
+  /// No description provided for @healthVersions.
+  ///
+  /// In en, this message translates to:
+  /// **'Collect versions in use: {list}'**
+  String healthVersions(String list);
+
+  /// No description provided for @securityTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign-in security'**
+  String get securityTitle;
+
+  /// No description provided for @securityHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Applies at each person\'s next sign-in or password change. The idle timeout applies to the Console.'**
+  String get securityHint;
+
+  /// No description provided for @securityMaxFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Wrong passwords before lockout'**
+  String get securityMaxFailed;
+
+  /// No description provided for @securityLockout.
+  ///
+  /// In en, this message translates to:
+  /// **'Lockout length (minutes)'**
+  String get securityLockout;
+
+  /// No description provided for @securityPasswordLength.
+  ///
+  /// In en, this message translates to:
+  /// **'Shortest password allowed'**
+  String get securityPasswordLength;
+
+  /// No description provided for @securityIdle.
+  ///
+  /// In en, this message translates to:
+  /// **'Console idle timeout (minutes)'**
+  String get securityIdle;
+
+  /// No description provided for @securityRange.
+  ///
+  /// In en, this message translates to:
+  /// **'From {min} to {max}'**
+  String securityRange(int min, int max);
+
+  /// No description provided for @securityOutOfRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Outside the allowed range'**
+  String get securityOutOfRange;
+
+  /// No description provided for @securitySave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get securitySave;
+
+  /// No description provided for @securitySaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Security settings saved'**
+  String get securitySaved;
+
+  /// No description provided for @routingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Alert routing'**
+  String get routingTitle;
+
+  /// No description provided for @routingHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Besides the people covering the area, each kind of alert also reaches the people with the ticked responsibilities.'**
+  String get routingHint;
+
+  /// No description provided for @routingResponsibility.
+  ///
+  /// In en, this message translates to:
+  /// **'Responsibility'**
+  String get routingResponsibility;
+
+  /// No description provided for @routingTrigger.
+  ///
+  /// In en, this message translates to:
+  /// **'{rule, select, ecoli{E. coli found} unsafe{Unsafe readings} baseline_jump{Sudden change} sms{By text message} other{{rule}}}'**
+  String routingTrigger(String rule);
+
+  /// No description provided for @routingSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save routing'**
+  String get routingSave;
+
+  /// No description provided for @routingSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Alert routing saved'**
+  String get routingSaved;
+
+  /// No description provided for @routingAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'New responsibility'**
+  String get routingAdd;
+
+  /// No description provided for @routingAddName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name, for example School health'**
+  String get routingAddName;
+
+  /// No description provided for @routingAddCreate.
+  ///
+  /// In en, this message translates to:
+  /// **'Create'**
+  String get routingAddCreate;
+
+  /// No description provided for @routingExists.
+  ///
+  /// In en, this message translates to:
+  /// **'That responsibility exists already, or the server is not reachable.'**
+  String get routingExists;
+
+  /// No description provided for @placesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Places'**
+  String get placesTitle;
+
+  /// No description provided for @placesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The official list ends at sub-county. Add parishes and villages below it, fix names, and choose the limit set phones in an area start with.'**
+  String get placesHint;
+
+  /// No description provided for @placesAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a place below'**
+  String get placesAdd;
+
+  /// No description provided for @placesRename.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename'**
+  String get placesRename;
+
+  /// No description provided for @placesLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'Level'**
+  String get placesLevel;
+
+  /// No description provided for @placesName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get placesName;
+
+  /// No description provided for @placesAddSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get placesAddSave;
+
+  /// No description provided for @placesRenameSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save name'**
+  String get placesRenameSave;
+
+  /// No description provided for @placesAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} added'**
+  String placesAdded(String name);
+
+  /// No description provided for @placesRenamed.
+  ///
+  /// In en, this message translates to:
+  /// **'Renamed to {name}'**
+  String placesRenamed(String name);
+
+  /// No description provided for @placesExists.
+  ///
+  /// In en, this message translates to:
+  /// **'A place with that name is already there.'**
+  String get placesExists;
+
+  /// No description provided for @placesDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Default limit set'**
+  String get placesDefault;
+
+  /// No description provided for @placesDefaultHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Phones in this area, and the areas below it, start with this set. Tests already taken keep the set they were judged by.'**
+  String get placesDefaultHint;
+
+  /// No description provided for @placesInherit.
+  ///
+  /// In en, this message translates to:
+  /// **'Same as the area above'**
+  String get placesInherit;
+
+  /// No description provided for @placesDefaultSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Default limit set saved'**
+  String get placesDefaultSaved;
+
+  /// No description provided for @paramsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New parameters'**
+  String get paramsTitle;
+
+  /// No description provided for @paramsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Collectors can add a parameter that is not in the list. Approve it, fix its name, merge it into an existing parameter, or reject it.'**
+  String get paramsHint;
+
+  /// No description provided for @paramsNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing waiting for review.'**
+  String get paramsNone;
+
+  /// No description provided for @paramsBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Added by {name} · {count, plural, =0{no readings} =1{1 reading} other{{count} readings}}'**
+  String paramsBy(String name, int count);
+
+  /// No description provided for @paramsApprove.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve'**
+  String get paramsApprove;
+
+  /// No description provided for @paramsRename.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename'**
+  String get paramsRename;
+
+  /// No description provided for @paramsMerge.
+  ///
+  /// In en, this message translates to:
+  /// **'Merge into...'**
+  String get paramsMerge;
+
+  /// No description provided for @paramsMergeInto.
+  ///
+  /// In en, this message translates to:
+  /// **'Merge into'**
+  String get paramsMergeInto;
+
+  /// No description provided for @paramsReject.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject'**
+  String get paramsReject;
+
+  /// No description provided for @paramsSaveName.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get paramsSaveName;
+
+  /// No description provided for @paramsDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Review saved'**
+  String get paramsDone;
+
+  /// No description provided for @cardsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Response cards'**
+  String get cardsTitle;
+
+  /// No description provided for @cardsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Shown to collectors after a result. Each save makes a new version; phones get it with their next sync.'**
+  String get cardsHint;
+
+  /// No description provided for @cardsVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'version {v}'**
+  String cardsVersion(int v);
+
+  /// No description provided for @cardsEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit card'**
+  String get cardsEdit;
+
+  /// No description provided for @cardsCardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Title'**
+  String get cardsCardTitle;
+
+  /// No description provided for @cardsActions.
+  ///
+  /// In en, this message translates to:
+  /// **'What to do'**
+  String get cardsActions;
+
+  /// No description provided for @cardsActionsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'One step per line, in plain words'**
+  String get cardsActionsHint;
+
+  /// No description provided for @cardsReportNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Note on reporting'**
+  String get cardsReportNote;
+
+  /// No description provided for @cardsSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save new version'**
+  String get cardsSave;
+
+  /// No description provided for @cardsSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Card saved'**
+  String get cardsSaved;
 }
 
 class _AppLocalizationsDelegate

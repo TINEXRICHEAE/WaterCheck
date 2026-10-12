@@ -541,6 +541,19 @@ void main() {
   });
 
   group('custom reference data', () {
+    test('a new test starts with the nearest area default (D11)', () async {
+      final units = await reference.adminUnits();
+      final village = units.firstWhere((u) => u.level == 'village');
+      expect(await reference.areaDefaultProfileId(village.id), isNull);
+      final profile = (await reference.referenceProfiles()).first;
+      // Set on an area above the village: the village inherits it.
+      await db.customStatement(
+        'UPDATE admin_units SET default_standard_id = ? WHERE id = ?',
+        [profile.id, village.parentId],
+      );
+      expect(await reference.areaDefaultProfileId(village.id), profile.id);
+    });
+
     test('a custom profile from calibration is stored and queued', () async {
       final base = (await reference.referenceProfiles()).last;
       final custom = base.customize(

@@ -22,7 +22,7 @@
   "reportsHint": "Made on this device from the data synced to it; works offline on Windows and Android.",
   "adminReferenceData": "Reference data",
   "adminReferenceDataHint": "Parameters, limits, tester profiles and areas loaded on this device",
-  "adminMoreHint": "Users, installations, configuration, security, system health and audit arrive in P11.",
+  "adminMoreHint": "Changes here reach the phones with their next sync.",
   "startupFailed": "WaterCheck Console could not open its local data.",
   "startupRetry": "Try again",
   "cancel": "Cancel",
@@ -862,5 +862,193 @@
     }
   },
   "limitSetsSave": "Create limit set",
-  "navLimitSets": "Limit sets"
+  "navLimitSets": "Limit sets",
+  "adminSystem": "System",
+  "adminSystemHint": "Health of the server and the audit log",
+  "adminSecurity": "Sign-in security",
+  "adminSecurityHint": "Lockout, password length and idle timeout",
+  "adminRouting": "Alert routing",
+  "adminRoutingHint": "Which responsibilities each kind of alert reaches",
+  "adminPlaces": "Places",
+  "adminPlacesHint": "Add parishes and villages, rename places, set default limit sets",
+  "adminParams": "New parameters",
+  "adminParamsHint": "Approve, rename, merge or reject parameters added in the field",
+  "adminCards": "Response cards",
+  "adminCardsHint": "What collectors are told to do after an unsafe result",
+  "systemHealth": "System health",
+  "systemRefresh": "Refresh",
+  "systemAudit": "Audit log",
+  "systemAuditHint": "Every change by a person or phone, newest first. Filter by action (for example user. or reference_profile.) and dates.",
+  "systemAuditAction": "Action starts with",
+  "systemAuditAnyDate": "Any date",
+  "systemAuditApply": "Apply",
+  "systemAuditExport": "Export CSV",
+  "systemAuditEmpty": "Nothing matches these filters.",
+  "systemAuditSystem": "System",
+  "systemExported": "Saved {name}",
+  "@systemExported": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "healthDatabase": "Database",
+  "healthOk": "Working",
+  "healthDown": "Not reachable",
+  "healthWorker": "Last background job",
+  "healthNever": "None yet",
+  "healthJobs": "Jobs waiting",
+  "healthJobsValue": "{queued} ({overdue} late)",
+  "@healthJobsValue": {
+    "placeholders": {
+      "queued": {
+        "type": "int"
+      },
+      "overdue": {
+        "type": "int"
+      }
+    }
+  },
+  "healthFailed": "Failures (24 h)",
+  "healthPhones": "Phones active (7 days)",
+  "healthPhonesValue": "{active} of {total}",
+  "@healthPhonesValue": {
+    "placeholders": {
+      "active": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "healthRecords": "Tests received (24 h)",
+  "healthConflicts": "Open sync conflicts",
+  "healthPhotos": "Photos",
+  "healthPhotosValue": "{count} ({mb} MB)",
+  "@healthPhotosValue": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "mb": {
+        "type": "String"
+      }
+    }
+  },
+  "healthBackup": "Last backup",
+  "healthBackupNone": "Not set up yet (comes with deployment)",
+  "healthVersions": "Collect versions in use: {list}",
+  "@healthVersions": {
+    "placeholders": {
+      "list": {
+        "type": "String"
+      }
+    }
+  },
+  "securityTitle": "Sign-in security",
+  "securityHint": "Applies at each person's next sign-in or password change. The idle timeout applies to the Console.",
+  "securityMaxFailed": "Wrong passwords before lockout",
+  "securityLockout": "Lockout length (minutes)",
+  "securityPasswordLength": "Shortest password allowed",
+  "securityIdle": "Console idle timeout (minutes)",
+  "securityRange": "From {min} to {max}",
+  "@securityRange": {
+    "placeholders": {
+      "min": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "securityOutOfRange": "Outside the allowed range",
+  "securitySave": "Save",
+  "securitySaved": "Security settings saved",
+  "routingTitle": "Alert routing",
+  "routingHint": "Besides the people covering the area, each kind of alert also reaches the people with the ticked responsibilities.",
+  "routingResponsibility": "Responsibility",
+  "routingTrigger": "{rule, select, ecoli{E. coli found} unsafe{Unsafe readings} baseline_jump{Sudden change} sms{By text message} other{{rule}}}",
+  "@routingTrigger": {
+    "placeholders": {
+      "rule": {
+        "type": "String"
+      }
+    }
+  },
+  "routingSave": "Save routing",
+  "routingSaved": "Alert routing saved",
+  "routingAdd": "New responsibility",
+  "routingAddName": "Name, for example School health",
+  "routingAddCreate": "Create",
+  "routingExists": "That responsibility exists already, or the server is not reachable.",
+  "placesTitle": "Places",
+  "placesHint": "The official list ends at sub-county. Add parishes and villages below it, fix names, and choose the limit set phones in an area start with.",
+  "placesAdd": "Add a place below",
+  "placesRename": "Rename",
+  "placesLevel": "Level",
+  "placesName": "Name",
+  "placesAddSave": "Add",
+  "placesRenameSave": "Save name",
+  "placesAdded": "{name} added",
+  "@placesAdded": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "placesRenamed": "Renamed to {name}",
+  "@placesRenamed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "placesExists": "A place with that name is already there.",
+  "placesDefault": "Default limit set",
+  "placesDefaultHint": "Phones in this area, and the areas below it, start with this set. Tests already taken keep the set they were judged by.",
+  "placesInherit": "Same as the area above",
+  "placesDefaultSaved": "Default limit set saved",
+  "paramsTitle": "New parameters",
+  "paramsHint": "Collectors can add a parameter that is not in the list. Approve it, fix its name, merge it into an existing parameter, or reject it.",
+  "paramsNone": "Nothing waiting for review.",
+  "paramsBy": "Added by {name} · {count, plural, =0{no readings} =1{1 reading} other{{count} readings}}",
+  "@paramsBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "paramsApprove": "Approve",
+  "paramsRename": "Rename",
+  "paramsMerge": "Merge into...",
+  "paramsMergeInto": "Merge into",
+  "paramsReject": "Reject",
+  "paramsSaveName": "Save",
+  "paramsDone": "Review saved",
+  "cardsTitle": "Response cards",
+  "cardsHint": "Shown to collectors after a result. Each save makes a new version; phones get it with their next sync.",
+  "cardsVersion": "version {v}",
+  "@cardsVersion": {
+    "placeholders": {
+      "v": {
+        "type": "int"
+      }
+    }
+  },
+  "cardsEdit": "Edit card",
+  "cardsCardTitle": "Title",
+  "cardsActions": "What to do",
+  "cardsActionsHint": "One step per line, in plain words",
+  "cardsReportNote": "Note on reporting",
+  "cardsSave": "Save new version",
+  "cardsSaved": "Card saved"
 }

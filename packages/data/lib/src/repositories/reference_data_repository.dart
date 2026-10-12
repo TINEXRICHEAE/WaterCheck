@@ -36,6 +36,11 @@ abstract interface class ReferenceDataRepository {
   Future<List<TesterProfile>> testerProfiles();
   Future<List<AdminUnit>> adminUnits();
 
+  /// The limit set a new test in this area starts with: the nearest default
+  /// set by the IT admin up the area tree (D11, ADR-016), else null (use
+  /// the rules default).
+  Future<String?> areaDefaultProfileId(String areaId);
+
   /// The response card for an alert trigger (SPEC §6.3), as seeded JSON:
   /// `title`, `actions`, `report_to`, `report_note`.
   Future<JsonMap?> responseCard(String triggerRule);
@@ -175,6 +180,21 @@ class DriftReferenceDataRepository implements ReferenceDataRepository {
           lon: r.centerLon,
         ),
     ];
+  }
+
+  @override
+  Future<String?> areaDefaultProfileId(String areaId) async {
+    String? id = areaId;
+    // Bounded: six levels, guards against a cycle in bad data.
+    for (var i = 0; id != null && i < 8; i++) {
+      final row = await (_db.select(
+        _db.adminUnits,
+      )..where((u) => u.id.equals(id!))).getSingleOrNull();
+      if (row == null) return null;
+      if (row.defaultStandardId != null) return row.defaultStandardId;
+      id = row.parentId;
+    }
+    return null;
   }
 
   @override

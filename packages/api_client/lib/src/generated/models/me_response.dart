@@ -23,6 +23,7 @@ class MeResponse {
     this.notifyEmail = true,
     this.notifyPush = true,
     this.notifySms = true,
+    this.consoleIdleMinutes = 30,
     this.phone,
     this.email,
   });
@@ -49,6 +50,8 @@ class MeResponse {
   final bool notifyPush;
   @JsonKey(name: 'notify_sms')
   final bool notifySms;
+  @JsonKey(name: 'console_idle_minutes')
+  final int consoleIdleMinutes;
 
   Map<String, Object?> toJson() => _$MeResponseToJson(this);
 }

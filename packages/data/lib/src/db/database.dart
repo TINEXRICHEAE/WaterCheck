@@ -43,7 +43,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.executor);
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -68,6 +68,10 @@ class AppDatabase extends _$AppDatabase {
         await m.addColumn(adminUnits, adminUnits.pcode);
         await m.addColumn(adminUnits, adminUnits.centerLat);
         await m.addColumn(adminUnits, adminUnits.centerLon);
+      }
+      if (from < 5) {
+        // The area's default limit set reaches devices (P11, ADR-016).
+        await m.addColumn(adminUnits, adminUnits.defaultStandardId);
       }
     },
     beforeOpen: (details) async {

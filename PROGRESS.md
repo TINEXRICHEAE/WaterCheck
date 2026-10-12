@@ -1,7 +1,15 @@
 # Progress
 
-**Current phase:** P10 — Reports and exports: **gate passed** (2026-10-11) except printing a notice on a real printer (deferred to P12). Next: P11 (IT admin console), including users at any level and the chain view.
-**Last updated:** 2026-10-11
+**Current phase:** P11 — IT admin console: **gate passed** (2026-10-12). O2 resolved: only a stakeholder creates a custom limit set (ADR-016). Next: P12 (hardening and pilot release).
+**Last updated:** 2026-10-12
+
+## P11 gate ✅
+
+- [x] **Only Console:** create a stakeholder, who must change the password at first sign-in; issue an activation code; revoke the phone (Console and backend tests).
+- [x] **An area's default limit set affects only new tests;** past results keep theirs (backend, data and Collect tests).
+- [x] **Merging a custom parameter keeps its readings traceable** (backend test).
+- [x] Also: system health, audit log with CSV export, sign-in security, alert routing, places below sub-county, response cards; live check on the rebuilt API.
+- Demo: [docs/demos/P11.md](docs/demos/P11.md), ADR-016. Tests: backend 227 (92%), data 71 + 8 live, Collect 50, Console 34, domain 162, ui_kit 11, api_client 4.
 
 ## P10 gate ✅ (real-printer check deferred)
 
@@ -305,8 +313,8 @@ See ADR-014, amendment.
    - ✅ Uganda's 4 regions, 135 districts and 1,520 sub-counties from OCHA COD-AB/UBOS, with P-codes and centre points (`tools/import_admin_units.py`, migration 0006, local schema v4);
    - ✅ alerts follow the chain: lowest level that has someone first, then up the levels that have someone, skipping empty ones, ending at national; IT admins only when nobody covers the source (spec erratum G16, 3 new tests);
    - ✅ the Console area list runs from region to sub-county, and the map moves to the chosen area;
-   - ☐ parishes and villages per district;
-   - ☐ chain view and any-level user creation in the IT admin console (P11; the CLI already accepts any area code).
+   - ✅ parishes and villages: the IT admin adds them under Admin › Places (P11);
+   - ✅ chain view and any-level user creation in the IT admin console (P11).
 1. Map, as revised by the lead (docs/PLAN.md P9 "Map update"):
    - Sources › Map stays full screen, with glowing red/tan/green dots that cluster and show details on zoom; a dot opens the source.
    - The dashboard card pulses on the latest issue and opens Sources › Map.

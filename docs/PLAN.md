@@ -49,6 +49,8 @@ P-1 (workstation setup) was done on 2026-10-10; see the decisions log below.
 | 2026-10-10 | ADR-009 | **Database roles and signing:** the API runs as a non-owner role, so forgetting the context shows no data. Installation secrets are encrypted at rest (needed for SMS codes in P8). Signatures use server-corrected time to cope with wrong phone clocks. |
 | 2026-10-11 | P8 | **P8 gate passed** (fake push/SMS gateways): live email 3 s after an unsafe sync; acknowledge → action → close recorded; escalation at 48/96 h with a time-travel clock; SMS provisional alert reconciled with no duplicate; forged SMS refused and logged. The sandbox SMS round trip and real push wait for the lead's accounts. |
 | 2026-10-11 | P10 | **P10 gate passed** (real-printer check → P12). PDF report and readings CSV made on the device, as collected, with impact indicators defined (ADR-015); community notice A4/A5 in plain English with icons. |
+| 2026-10-12 | O2 / ADR-016 | **Lead: only a stakeholder creates a custom limit set** (one person may hold several duties; the stakeholder role counts). Recorded with who and a comment; past readings stay judged against the set used at the time, only tests from then on use the new one. On a phone, the stakeholder signs in at the save. |
+| 2026-10-12 | P11 | **P11 gate passed.** IT admin console: people, phones and activation codes, the area chain, system health, audit log with CSV export, sign-in security (applied at the next sign-in; Console idle timeout from the server), alert routing, places below sub-county, default limit set per area (now reaches phones with the area), parameter review (merge keeps readings traceable), response cards (edits survive restarts) (ADR-016). |
 | 2026-10-11 | P9 | **P9 gate passed** (two items deferred or partial). Dashboard, Sources (full-screen map of all of Uganda with labels, clustered status dots, distance lines from the device), the latest-issue card, Collectors, Profile, conflict resolution. Web: server summary first (reload on Fast 3G 10.9 s → 4.5 s, 2.0 s from app start). Real Windows click-through and long-term web caching deferred to P12. |
 | 2026-10-11 | Scope | **Lead: nationwide app.** Users at any level (village → sub-county → district → region → national), created and linked by the IT admin; alerts go to the lowest assigned level and escalate up the chain, skipping empty levels; admin units and the map cover all of Uganda. See §3 "Nationwide scope and the stakeholder chain". |
 | 2026-10-11 | P9 map | **Lead:** the map belongs on the dashboard (reference design with pins, alert callout and footer), starting with Abim pins. The app must cover the whole of Uganda: national tiles on the server, per-district packs on devices, built off the laptop. P9 implementation paused for now (session limit). |
@@ -329,7 +331,7 @@ The app serves **the whole of Uganda**, not only the Abim pilot. Users sit at an
 **Notes:**
 - Mostly CRUD on top of P4 endpoints.
 - Audit-log middleware has existed since P4, so this phase mostly adds the viewer.
-- Resolve open question **O2** (who may create custom reference profiles) before starting.
+- ~~Resolve open question **O2**~~ Resolved 2026-10-12: only a stakeholder (ADR-016).
 
 ### P12. Hardening and pilot release ⏱ 3 (+ field time)
 **Notes:**

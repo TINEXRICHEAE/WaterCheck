@@ -208,7 +208,9 @@ async def load_seed(conn: AsyncConnection, seed_dir: Path) -> list[str]:
             text(
                 "INSERT INTO response_card (id, trigger_rule, audience, version, content, "
                 "server_seq) VALUES (:id, :t, :a, :v, CAST(:c AS jsonb), 0) ON CONFLICT (id) "
-                "DO UPDATE SET content = EXCLUDED.content, version = EXCLUDED.version"
+                "DO UPDATE SET content = EXCLUDED.content, version = EXCLUDED.version "
+                # An IT admin's edit (a higher version) survives restarts.
+                "WHERE response_card.version < EXCLUDED.version"
             ),
             {
                 "id": card["id"],

@@ -64,7 +64,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get adminMoreHint =>
-      'Users, installations, configuration, security, system health and audit arrive in P11.';
+      'Changes here reach the phones with their next sync.';
 
   @override
   String get startupFailed =>
@@ -1442,4 +1442,340 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get navLimitSets => 'Limit sets';
+
+  @override
+  String get adminSystem => 'System';
+
+  @override
+  String get adminSystemHint => 'Health of the server and the audit log';
+
+  @override
+  String get adminSecurity => 'Sign-in security';
+
+  @override
+  String get adminSecurityHint => 'Lockout, password length and idle timeout';
+
+  @override
+  String get adminRouting => 'Alert routing';
+
+  @override
+  String get adminRoutingHint =>
+      'Which responsibilities each kind of alert reaches';
+
+  @override
+  String get adminPlaces => 'Places';
+
+  @override
+  String get adminPlacesHint =>
+      'Add parishes and villages, rename places, set default limit sets';
+
+  @override
+  String get adminParams => 'New parameters';
+
+  @override
+  String get adminParamsHint =>
+      'Approve, rename, merge or reject parameters added in the field';
+
+  @override
+  String get adminCards => 'Response cards';
+
+  @override
+  String get adminCardsHint =>
+      'What collectors are told to do after an unsafe result';
+
+  @override
+  String get systemHealth => 'System health';
+
+  @override
+  String get systemRefresh => 'Refresh';
+
+  @override
+  String get systemAudit => 'Audit log';
+
+  @override
+  String get systemAuditHint =>
+      'Every change by a person or phone, newest first. Filter by action (for example user. or reference_profile.) and dates.';
+
+  @override
+  String get systemAuditAction => 'Action starts with';
+
+  @override
+  String get systemAuditAnyDate => 'Any date';
+
+  @override
+  String get systemAuditApply => 'Apply';
+
+  @override
+  String get systemAuditExport => 'Export CSV';
+
+  @override
+  String get systemAuditEmpty => 'Nothing matches these filters.';
+
+  @override
+  String get systemAuditSystem => 'System';
+
+  @override
+  String systemExported(String name) {
+    return 'Saved $name';
+  }
+
+  @override
+  String get healthDatabase => 'Database';
+
+  @override
+  String get healthOk => 'Working';
+
+  @override
+  String get healthDown => 'Not reachable';
+
+  @override
+  String get healthWorker => 'Last background job';
+
+  @override
+  String get healthNever => 'None yet';
+
+  @override
+  String get healthJobs => 'Jobs waiting';
+
+  @override
+  String healthJobsValue(int queued, int overdue) {
+    return '$queued ($overdue late)';
+  }
+
+  @override
+  String get healthFailed => 'Failures (24 h)';
+
+  @override
+  String get healthPhones => 'Phones active (7 days)';
+
+  @override
+  String healthPhonesValue(int active, int total) {
+    return '$active of $total';
+  }
+
+  @override
+  String get healthRecords => 'Tests received (24 h)';
+
+  @override
+  String get healthConflicts => 'Open sync conflicts';
+
+  @override
+  String get healthPhotos => 'Photos';
+
+  @override
+  String healthPhotosValue(int count, String mb) {
+    return '$count ($mb MB)';
+  }
+
+  @override
+  String get healthBackup => 'Last backup';
+
+  @override
+  String get healthBackupNone => 'Not set up yet (comes with deployment)';
+
+  @override
+  String healthVersions(String list) {
+    return 'Collect versions in use: $list';
+  }
+
+  @override
+  String get securityTitle => 'Sign-in security';
+
+  @override
+  String get securityHint =>
+      'Applies at each person\'s next sign-in or password change. The idle timeout applies to the Console.';
+
+  @override
+  String get securityMaxFailed => 'Wrong passwords before lockout';
+
+  @override
+  String get securityLockout => 'Lockout length (minutes)';
+
+  @override
+  String get securityPasswordLength => 'Shortest password allowed';
+
+  @override
+  String get securityIdle => 'Console idle timeout (minutes)';
+
+  @override
+  String securityRange(int min, int max) {
+    return 'From $min to $max';
+  }
+
+  @override
+  String get securityOutOfRange => 'Outside the allowed range';
+
+  @override
+  String get securitySave => 'Save';
+
+  @override
+  String get securitySaved => 'Security settings saved';
+
+  @override
+  String get routingTitle => 'Alert routing';
+
+  @override
+  String get routingHint =>
+      'Besides the people covering the area, each kind of alert also reaches the people with the ticked responsibilities.';
+
+  @override
+  String get routingResponsibility => 'Responsibility';
+
+  @override
+  String routingTrigger(String rule) {
+    String _temp0 = intl.Intl.selectLogic(rule, {
+      'ecoli': 'E. coli found',
+      'unsafe': 'Unsafe readings',
+      'baseline_jump': 'Sudden change',
+      'sms': 'By text message',
+      'other': '$rule',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get routingSave => 'Save routing';
+
+  @override
+  String get routingSaved => 'Alert routing saved';
+
+  @override
+  String get routingAdd => 'New responsibility';
+
+  @override
+  String get routingAddName => 'Name, for example School health';
+
+  @override
+  String get routingAddCreate => 'Create';
+
+  @override
+  String get routingExists =>
+      'That responsibility exists already, or the server is not reachable.';
+
+  @override
+  String get placesTitle => 'Places';
+
+  @override
+  String get placesHint =>
+      'The official list ends at sub-county. Add parishes and villages below it, fix names, and choose the limit set phones in an area start with.';
+
+  @override
+  String get placesAdd => 'Add a place below';
+
+  @override
+  String get placesRename => 'Rename';
+
+  @override
+  String get placesLevel => 'Level';
+
+  @override
+  String get placesName => 'Name';
+
+  @override
+  String get placesAddSave => 'Add';
+
+  @override
+  String get placesRenameSave => 'Save name';
+
+  @override
+  String placesAdded(String name) {
+    return '$name added';
+  }
+
+  @override
+  String placesRenamed(String name) {
+    return 'Renamed to $name';
+  }
+
+  @override
+  String get placesExists => 'A place with that name is already there.';
+
+  @override
+  String get placesDefault => 'Default limit set';
+
+  @override
+  String get placesDefaultHint =>
+      'Phones in this area, and the areas below it, start with this set. Tests already taken keep the set they were judged by.';
+
+  @override
+  String get placesInherit => 'Same as the area above';
+
+  @override
+  String get placesDefaultSaved => 'Default limit set saved';
+
+  @override
+  String get paramsTitle => 'New parameters';
+
+  @override
+  String get paramsHint =>
+      'Collectors can add a parameter that is not in the list. Approve it, fix its name, merge it into an existing parameter, or reject it.';
+
+  @override
+  String get paramsNone => 'Nothing waiting for review.';
+
+  @override
+  String paramsBy(String name, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count readings',
+      one: '1 reading',
+      zero: 'no readings',
+    );
+    return 'Added by $name · $_temp0';
+  }
+
+  @override
+  String get paramsApprove => 'Approve';
+
+  @override
+  String get paramsRename => 'Rename';
+
+  @override
+  String get paramsMerge => 'Merge into...';
+
+  @override
+  String get paramsMergeInto => 'Merge into';
+
+  @override
+  String get paramsReject => 'Reject';
+
+  @override
+  String get paramsSaveName => 'Save';
+
+  @override
+  String get paramsDone => 'Review saved';
+
+  @override
+  String get cardsTitle => 'Response cards';
+
+  @override
+  String get cardsHint =>
+      'Shown to collectors after a result. Each save makes a new version; phones get it with their next sync.';
+
+  @override
+  String cardsVersion(int v) {
+    return 'version $v';
+  }
+
+  @override
+  String get cardsEdit => 'Edit card';
+
+  @override
+  String get cardsCardTitle => 'Title';
+
+  @override
+  String get cardsActions => 'What to do';
+
+  @override
+  String get cardsActionsHint => 'One step per line, in plain words';
+
+  @override
+  String get cardsReportNote => 'Note on reporting';
+
+  @override
+  String get cardsSave => 'Save new version';
+
+  @override
+  String get cardsSaved => 'Card saved';
 }

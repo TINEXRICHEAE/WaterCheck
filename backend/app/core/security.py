@@ -40,9 +40,9 @@ def temporary_password(length: int = 12) -> str:
     return "".join(secrets.choice(alphabet) for _ in range(length))
 
 
-def password_problem(password: str) -> str | None:
-    if len(password) < MIN_PASSWORD_LENGTH:
-        return f"Use at least {MIN_PASSWORD_LENGTH} characters"
+def password_problem(password: str, min_length: int = MIN_PASSWORD_LENGTH) -> str | None:
+    if len(password) < min_length:
+        return f"Use at least {min_length} characters"
     if password.isdigit() or password.isalpha():
         return "Use both letters and numbers"
     return None

@@ -113,14 +113,14 @@ async def test_seed_loader_is_idempotent(owner_db: Database, seeded: None) -> No
         counts = {
             t: (await conn.execute(text(f"SELECT count(*) FROM {t}"))).scalar_one()  # noqa: S608
             for t in [
-                "parameter_definition",
+                "parameter_definition WHERE NOT is_custom",
                 "reference_standard WHERE NOT is_custom",
                 "response_card",
                 "tester_profile",
             ]
         }
     assert counts == {
-        "parameter_definition": 42,
+        "parameter_definition WHERE NOT is_custom": 42,
         "reference_standard WHERE NOT is_custom": 2,
         "response_card": 3,
         "tester_profile": 1,

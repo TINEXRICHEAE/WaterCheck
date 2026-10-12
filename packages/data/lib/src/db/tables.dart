@@ -36,6 +36,10 @@ class AdminUnits extends Table {
   RealColumn get centerLat => real().nullable()();
   RealColumn get centerLon => real().nullable()();
 
+  /// The limit set new tests here start with (D11, set by the IT admin;
+  /// null: as the area above). Added in v5.
+  TextColumn get defaultStandardId => text().nullable()();
+
   @override
   Set<Column> get primaryKey => {id};
 }

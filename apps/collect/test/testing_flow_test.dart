@@ -60,6 +60,32 @@ Future<void> _enter(WidgetTester tester, String code, String value) async {
 }
 
 void main() {
+  testWidgets('a new test starts with the area default limit set (D11)', (
+    tester,
+  ) async {
+    final db = await pumpCollect(
+      tester,
+      size: const Size(420, 1400),
+      prepare: (db) async {
+        await _withSource(db);
+        // The IT admin set Class I on the district (it arrives with the area).
+        await db.customStatement(
+          "UPDATE admin_units SET default_standard_id = "
+          "(SELECT id FROM reference_profiles WHERE code = 'US201-2008-ClassI') "
+          "WHERE level = 'district'",
+        );
+      },
+      overrides: [
+        locationServiceProvider.overrideWithValue(
+          const _FixedLocation(_sourceAt),
+        ),
+      ],
+    );
+    await _openSetup(tester);
+    expect(find.text('US 201:2008 Class I (treated water)'), findsOneWidget);
+    await disposeApp(tester, db);
+  });
+
   testWidgets('full abnormal test: calibrate, check location, enter, submit', (
     tester,
   ) async {

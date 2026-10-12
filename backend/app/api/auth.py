@@ -20,6 +20,7 @@ from sqlalchemy import text
 from app.api.deps import AnyUserDep, DbDep, SettingsDep, UserDep
 from app.core.config import Settings
 from app.services.auth import AuthError, AuthService, TokenPair
+from app.services.policy import security_policy
 
 router = APIRouter(prefix="/v1", tags=["auth"])
 
@@ -95,6 +96,8 @@ class MeResponse(BaseModel):
     notify_email: bool = True
     notify_push: bool = True
     notify_sms: bool = True
+    # Set by the IT admin (P11); the Console signs out or locks after it.
+    console_idle_minutes: int = 30
 
 
 class PreferencesIn(BaseModel):
@@ -258,7 +261,7 @@ async def password_help(
 
 
 @router.get("/me")
-async def me(user: AnyUserDep, db: DbDep) -> MeResponse:
+async def me(user: AnyUserDep, db: DbDep, settings: SettingsDep) -> MeResponse:
     async with db.transaction(user) as conn:
         row = (
             await conn.execute(
@@ -291,6 +294,7 @@ async def me(user: AnyUserDep, db: DbDep) -> MeResponse:
                 {"id": user.user_id},
             )
         ]
+        policy = await security_policy(conn, settings)
     return MeResponse(
         id=row.id,
         username=row.username,
@@ -306,6 +310,7 @@ async def me(user: AnyUserDep, db: DbDep) -> MeResponse:
         notify_email=row.notify_email,
         notify_push=row.notify_push,
         notify_sms=row.notify_sms,
+        console_idle_minutes=policy.console_idle_minutes,
     )
 
 

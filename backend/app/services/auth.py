@@ -27,6 +27,7 @@ from app.core.security import (
     verify_password,
 )
 from app.db.database import Database, Principal
+from app.services.policy import security_policy
 
 
 class AuthError(Exception):
@@ -79,17 +80,16 @@ class AuthService:
                 await _audit(conn, user.id, "auth.login_locked", ip)
                 return "locked"
             if not verify_password(user.password_hash, password) or not user.is_active:
+                policy = await security_policy(conn, self.settings)
                 failed = user.failed_attempts + 1
-                lock = failed >= self.settings.max_failed_logins
+                lock = failed >= policy.max_failed_logins
                 await conn.execute(
                     text(
                         "UPDATE app_user SET failed_attempts = :f, locked_until = :l WHERE id = :id"
                     ),
                     {
                         "f": 0 if lock else failed,
-                        "l": now + timedelta(minutes=self.settings.lockout_minutes)
-                        if lock
-                        else None,
+                        "l": now + timedelta(minutes=policy.lockout_minutes) if lock else None,
                         "id": user.id,
                     },
                 )
@@ -145,7 +145,9 @@ class AuthService:
             return await self._issue(conn, row.user_id, family_id=row.family_id, now=now)
 
     async def change_password(self, user_id: UUID, current: str, new: str) -> TokenPair:
-        problem = password_problem(new)
+        async with self.db.transaction(Principal.auth()) as conn:
+            policy = await security_policy(conn, self.settings)
+        problem = password_problem(new, policy.password_min_length)
         if problem is not None:
             raise AuthError("weak_password")
         if current == new:

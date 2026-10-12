@@ -293,7 +293,7 @@ class _StakeholderSignInState extends State<_StakeholderSignIn> {
           'invalid_credentials' => l10n.limitsStakeholderWrong,
           'must_change_password' => l10n.limitsStakeholderFirstSignIn,
           'stakeholder_required' => l10n.limitsStakeholderNotStakeholder,
-          'account_locked' => l10n.limitsStakeholderLocked,
+          'locked' => l10n.limitsStakeholderLocked,
           final c => l10n.limitsStakeholderFailed(c),
         };
       });

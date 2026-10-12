@@ -12,6 +12,7 @@ from starlette.middleware.gzip import GZipMiddleware
 from app import __version__
 from app.api import (
     admin,
+    admin_config,
     attachments,
     auth,
     conflicts,
@@ -91,6 +92,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(conflicts.router)
     app.include_router(dashboard.router)
     app.include_router(admin.router)
+    app.include_router(admin_config.router)
     # Small links (SPEC §8.1): compressed requests in, compressed responses out.
     app.add_middleware(GZipMiddleware, minimum_size=1024)
     app.add_middleware(GzipRequestMiddleware)

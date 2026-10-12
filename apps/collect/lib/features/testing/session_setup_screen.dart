@@ -11,6 +11,14 @@ import '../sources/source_providers.dart';
 import 'calibration_dialog.dart';
 import 'test_draft.dart';
 
+/// The limit set new tests in a village start with (D11, ADR-016).
+final areaDefaultProfileProvider = FutureProvider.autoDispose
+    .family<String?, String>(
+      (ref, villageId) => ref
+          .watch(referenceDataRepositoryProvider)
+          .areaDefaultProfileId(villageId),
+    );
+
 /// Today's calibration by this installation, if any (daily prompt, §3.1).
 final todaysCalibrationProvider = FutureProvider<({String id, bool passed})?>((
   ref,
@@ -47,17 +55,20 @@ class _SessionSetupScreenState extends ConsumerState<SessionSetupScreen> {
     super.dispose();
   }
 
-  /// Picks the default tester and the area's default profile (D11).
+  /// Picks the default tester and the area's default profile (D11): the
+  /// nearest one set by the IT admin, else the rules default.
   void _applyDefaults(
     TestDraft draft,
     List<TesterProfile> testers,
     List<ReferenceProfile> profiles,
     DomainRules rules,
+    String? areaDefaultId,
   ) {
     if (_defaultsApplied) return;
     _defaultsApplied = true;
     final profile =
         draft.profile ??
+        profiles.where((p) => p.id == areaDefaultId).firstOrNull ??
         profiles
             .where((p) => p.code == rules.defaultReferenceProfile)
             .firstOrNull ??
@@ -104,13 +115,18 @@ class _SessionSetupScreenState extends ConsumerState<SessionSetupScreen> {
     final source = draft.sourceId == null
         ? null
         : ref.watch(sourceSummaryProvider(draft.sourceId!))?.source;
+    final areaDefault = source == null
+        ? null
+        : ref.watch(areaDefaultProfileProvider(source.villageId));
     if (testers == null ||
         profiles == null ||
         rules == null ||
-        source == null) {
+        source == null ||
+        areaDefault == null ||
+        areaDefault.isLoading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
-    _applyDefaults(draft, testers, profiles, rules);
+    _applyDefaults(draft, testers, profiles, rules, areaDefault.value);
     final profile = draft.profile;
     final todays = calibration.value;
     final calibrated = todays != null && todays.passed;

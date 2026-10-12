@@ -1180,6 +1180,535 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
+  /v1/admin/audit:
+    get:
+      tags:
+      - admin
+      summary: Audit
+      operationId: audit
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: action
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Action
+      - name: entity
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Entity
+      - name: actor_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Actor Id
+      - name: installation_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Installation Id
+      - name: since
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Since
+      - name: until
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Until
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 1000
+          minimum: 1
+          default: 200
+          title: Limit
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AuditEntry'
+                title: Response Audit
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/admin/audit.csv:
+    get:
+      tags:
+      - admin
+      summary: Audit Csv
+      description: The same filters as a CSV file (UTF-8, ISO dates).
+      operationId: audit_csv
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: action
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Action
+      - name: entity
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Entity
+      - name: actor_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Actor Id
+      - name: installation_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Installation Id
+      - name: since
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Since
+      - name: until
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Until
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 50000
+          minimum: 1
+          default: 10000
+          title: Limit
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            text/plain:
+              schema:
+                type: string
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/admin/health:
+    get:
+      tags:
+      - admin
+      summary: System Health
+      description: 'DevOps view (F-ADM-6). Backups come with deployment (P12); until
+
+        then `last_backup_at` stays empty.'
+      operationId: system_health
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Health'
+      security:
+      - HTTPBearer: []
+  /v1/admin/areas:
+    post:
+      tags:
+      - admin
+      summary: New Area
+      description: 'Adds a sub-county, parish or village (the official list stops
+        at
+
+        sub-counties). Its code extends the parent''s.'
+      operationId: new_area
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewAreaIn'
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlaceOut'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - HTTPBearer: []
+  /v1/admin/areas/{area_id}:
+    patch:
+      tags:
+      - admin
+      summary: Rename Area
+      operationId: rename_area
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: area_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Area Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RenameIn'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlaceOut'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/admin/areas/{area_id}/default-profile:
+    get:
+      tags:
+      - admin
+      summary: Get Default Profile
+      description: 'The limit set set on this area itself (empty: it inherits).'
+      operationId: get_default_profile
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: area_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Area Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultProfileIn'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    put:
+      tags:
+      - admin
+      summary: Default Profile
+      description: 'The limit set phones in this area start with (cleared: inherit).'
+      operationId: default_profile
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: area_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Area Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DefaultProfileIn'
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/admin/routing:
+    get:
+      tags:
+      - admin
+      summary: Routing
+      operationId: routing
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Routing'
+      security:
+      - HTTPBearer: []
+    put:
+      tags:
+      - admin
+      summary: Set Routing
+      description: 'Replaces the routing table: which alert types reach which
+
+        responsibilities (people with none get everything in their areas).'
+      operationId: set_routing
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RoutingIn'
+        required: true
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - HTTPBearer: []
+  /v1/admin/responsibilities:
+    post:
+      tags:
+      - admin
+      summary: New Responsibility
+      operationId: new_responsibility
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Responsibility'
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Responsibility'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - HTTPBearer: []
+  /v1/admin/security:
+    get:
+      tags:
+      - admin
+      summary: Get Security
+      operationId: get_security
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SecurityIn'
+      security:
+      - HTTPBearer: []
+    put:
+      tags:
+      - admin
+      summary: Set Security
+      operationId: set_security
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SecurityIn'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SecurityIn'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - HTTPBearer: []
+  /v1/admin/parameters/pending:
+    get:
+      tags:
+      - admin
+      summary: Pending Parameters
+      operationId: pending_parameters
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/PendingParameter'
+                type: array
+                title: Response Pending Parameters
+      security:
+      - HTTPBearer: []
+  /v1/admin/parameters/{code}/review:
+    post:
+      tags:
+      - admin
+      summary: Review Parameter
+      description: 'Approve, rename, merge into a catalogue parameter (readings keep
+        their
+
+        original code and stay traceable through `merged_into`) or reject.'
+      operationId: review_parameter
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: code
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Code
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewIn'
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/admin/response-cards:
+    get:
+      tags:
+      - admin
+      summary: Admin Response Cards
+      operationId: admin_response_cards
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/CardOut'
+                type: array
+                title: Response Admin Response Cards
+      security:
+      - HTTPBearer: []
+  /v1/admin/response-cards/{card_id}:
+    put:
+      tags:
+      - admin
+      summary: Edit Card
+      description: A new version of the card; phones get it with the reference data.
+      operationId: edit_card
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: card_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Card Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CardIn'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CardOut'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
     ActivateRequest:
@@ -1342,6 +1871,119 @@ components:
       - name
       - level
       title: AreaOut
+    AuditEntry:
+      properties:
+        id:
+          type: integer
+          title: Id
+        at:
+          type: string
+          format: date-time
+          title: At
+        actor_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Actor Id
+        actor_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Actor Name
+        installation_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Installation Id
+        platform:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Platform
+        action:
+          type: string
+          title: Action
+        entity:
+          type: string
+          title: Entity
+        entity_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Entity Id
+        after:
+          title: After
+      type: object
+      required:
+      - id
+      - at
+      - actor_id
+      - actor_name
+      - installation_id
+      - platform
+      - action
+      - entity
+      - entity_id
+      - after
+      title: AuditEntry
+    CardIn:
+      properties:
+        title:
+          type: string
+          maxLength: 200
+          minLength: 1
+          title: Title
+        actions:
+          items:
+            type: string
+          type: array
+          minItems: 1
+          title: Actions
+        report_to:
+          items:
+            type: string
+          type: array
+          title: Report To
+        report_note:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Report Note
+      type: object
+      required:
+      - title
+      - actions
+      title: CardIn
+    CardOut:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        trigger_rule:
+          type: string
+          title: Trigger Rule
+        audience:
+          type: string
+          title: Audience
+        version:
+          type: integer
+          title: Version
+        content:
+          additionalProperties: true
+          type: object
+          title: Content
+      type: object
+      required:
+      - id
+      - trigger_rule
+      - audience
+      - version
+      - content
+      title: CardOut
     Catalogue:
       properties:
         categories:
@@ -1690,6 +2332,18 @@ components:
       - latest_tests
       - latest_issue
       title: DashboardSummary
+    DefaultProfileIn:
+      properties:
+        standard_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Standard Id
+      type: object
+      required:
+      - standard_id
+      title: DefaultProfileIn
     HTTPValidationError:
       properties:
         detail:
@@ -1699,6 +2353,75 @@ components:
           title: Detail
       type: object
       title: HTTPValidationError
+    Health:
+      properties:
+        database:
+          type: boolean
+          title: Database
+        worker_last_job_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Worker Last Job At
+        jobs_queued:
+          type: integer
+          title: Jobs Queued
+        jobs_overdue:
+          type: integer
+          title: Jobs Overdue
+        jobs_failed_24h:
+          type: integer
+          title: Jobs Failed 24H
+        notifications_failed_24h:
+          type: integer
+          title: Notifications Failed 24H
+        phones_active_7d:
+          type: integer
+          title: Phones Active 7D
+        phones_total:
+          type: integer
+          title: Phones Total
+        app_versions:
+          additionalProperties:
+            type: integer
+          type: object
+          title: App Versions
+        records_received_24h:
+          type: integer
+          title: Records Received 24H
+        sync_conflicts_open:
+          type: integer
+          title: Sync Conflicts Open
+        photos:
+          type: integer
+          title: Photos
+        photo_bytes:
+          type: integer
+          title: Photo Bytes
+        last_backup_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Last Backup At
+      type: object
+      required:
+      - database
+      - worker_last_job_at
+      - jobs_queued
+      - jobs_overdue
+      - jobs_failed_24h
+      - notifications_failed_24h
+      - phones_active_7d
+      - phones_total
+      - app_versions
+      - records_received_24h
+      - sync_conflicts_open
+      - photos
+      - photo_bytes
+      - last_backup_at
+      title: Health
     Inbox:
       properties:
         unread:
@@ -1946,6 +2669,10 @@ components:
           type: boolean
           title: Notify Sms
           default: true
+        console_idle_minutes:
+          type: integer
+          title: Console Idle Minutes
+          default: 30
       type: object
       required:
       - id
@@ -1958,6 +2685,30 @@ components:
       - responsibilities
       - areas
       title: MeResponse
+    NewAreaIn:
+      properties:
+        parent_id:
+          type: string
+          format: uuid
+          title: Parent Id
+        level:
+          type: string
+          enum:
+          - subcounty
+          - parish
+          - village
+          title: Level
+        name:
+          type: string
+          maxLength: 120
+          minLength: 1
+          title: Name
+      type: object
+      required:
+      - parent_id
+      - level
+      - name
+      title: NewAreaIn
     NewCodeRequest:
       properties:
         area_code:
@@ -2196,6 +2947,70 @@ components:
       required:
       - username
       title: PasswordHelpRequest
+    PendingParameter:
+      properties:
+        code:
+          type: string
+          title: Code
+        name:
+          type: string
+          title: Name
+        category_code:
+          type: string
+          title: Category Code
+        default_unit:
+          type: string
+          title: Default Unit
+        value_type:
+          type: string
+          title: Value Type
+        collector_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Collector Name
+        readings:
+          type: integer
+          title: Readings
+      type: object
+      required:
+      - code
+      - name
+      - category_code
+      - default_unit
+      - value_type
+      - collector_name
+      - readings
+      title: PendingParameter
+    PlaceOut:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        code:
+          type: string
+          title: Code
+        name:
+          type: string
+          title: Name
+        level:
+          type: string
+          title: Level
+        parent_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Parent Id
+      type: object
+      required:
+      - id
+      - code
+      - name
+      - level
+      - parent_id
+      title: PlaceOut
     PreferencesIn:
       properties:
         notify_email:
@@ -2334,6 +3149,17 @@ components:
           title: Refresh Token
       type: object
       title: RefreshRequest
+    RenameIn:
+      properties:
+        name:
+          type: string
+          maxLength: 120
+          minLength: 1
+          title: Name
+      type: object
+      required:
+      - name
+      title: RenameIn
     ResolveIn:
       properties:
         keep:
@@ -2346,6 +3172,114 @@ components:
       required:
       - keep
       title: ResolveIn
+    Responsibility:
+      properties:
+        code:
+          type: string
+          pattern: ^[a-z][a-z0-9_]{1,40}$
+          title: Code
+        name:
+          type: string
+          maxLength: 80
+          minLength: 1
+          title: Name
+      type: object
+      required:
+      - code
+      - name
+      title: Responsibility
+    ReviewIn:
+      properties:
+        action:
+          type: string
+          enum:
+          - approve
+          - rename
+          - merge
+          - reject
+          title: Action
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        merge_into:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Merge Into
+      type: object
+      required:
+      - action
+      title: ReviewIn
+    Routing:
+      properties:
+        responsibilities:
+          items:
+            $ref: '#/components/schemas/Responsibility'
+          type: array
+          title: Responsibilities
+        triggers:
+          items:
+            type: string
+          type: array
+          title: Triggers
+        rules:
+          items:
+            $ref: '#/components/schemas/RoutingRule'
+          type: array
+          title: Rules
+      type: object
+      required:
+      - responsibilities
+      - triggers
+      - rules
+      title: Routing
+    RoutingIn:
+      properties:
+        rules:
+          items:
+            $ref: '#/components/schemas/RoutingRule'
+          type: array
+          title: Rules
+      type: object
+      required:
+      - rules
+      title: RoutingIn
+    RoutingRule:
+      properties:
+        trigger_rule:
+          type: string
+          title: Trigger Rule
+        responsibility_code:
+          type: string
+          title: Responsibility Code
+      type: object
+      required:
+      - trigger_rule
+      - responsibility_code
+      title: RoutingRule
+    SecurityIn:
+      properties:
+        max_failed_logins:
+          type: integer
+          title: Max Failed Logins
+        lockout_minutes:
+          type: integer
+          title: Lockout Minutes
+        password_min_length:
+          type: integer
+          title: Password Min Length
+        console_idle_minutes:
+          type: integer
+          title: Console Idle Minutes
+      type: object
+      required:
+      - max_failed_logins
+      - lockout_minutes
+      - password_min_length
+      - console_idle_minutes
+      title: SecurityIn
     SmsAck:
       properties:
         status:
