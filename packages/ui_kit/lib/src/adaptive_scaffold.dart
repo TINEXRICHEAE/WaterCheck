@@ -24,6 +24,7 @@ class AdaptiveScaffold extends StatelessWidget {
     this.title,
     this.actions = const [],
     this.railLeading,
+    this.onBack,
   });
 
   /// Width at which the rail replaces the bottom bar.
@@ -37,10 +38,18 @@ class AdaptiveScaffold extends StatelessWidget {
   final List<Widget> actions;
   final Widget? railLeading;
 
+  /// Set on pages below a destination's first page: shows a back button.
+  final VoidCallback? onBack;
+
   @override
   Widget build(BuildContext context) {
     final wide = MediaQuery.sizeOf(context).width >= railBreakpoint;
-    final appBar = AppBar(title: title, actions: actions);
+    final appBar = AppBar(
+      leading: onBack == null ? null : BackButton(onPressed: onBack),
+      automaticallyImplyLeading: false,
+      title: title,
+      actions: actions,
+    );
     if (!wide) {
       return Scaffold(
         appBar: appBar,

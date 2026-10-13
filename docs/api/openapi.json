@@ -410,6 +410,45 @@
         ]
       }
     },
+    "/v1/me/appearance": {
+      "put": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Set Appearance",
+        "operationId": "set_appearance",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AppearanceIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
     "/v1/me/preferences": {
       "put": {
         "tags": [
@@ -2975,6 +3014,27 @@
         ],
         "title": "AdminUnitOut"
       },
+      "AppearanceIn": {
+        "properties": {
+          "theme": {
+            "type": "string",
+            "pattern": "^(system|light|dark)$",
+            "title": "Theme"
+          },
+          "time_zone": {
+            "type": "string",
+            "pattern": "^(auto|Africa/Kampala|Africa/Nairobi|UTC)$",
+            "title": "Time Zone"
+          }
+        },
+        "type": "object",
+        "required": [
+          "theme",
+          "time_zone"
+        ],
+        "title": "AppearanceIn",
+        "description": "Theme and time zone; they follow the person to any device."
+      },
       "Area": {
         "properties": {
           "id": {
@@ -4206,6 +4266,16 @@
             "type": "integer",
             "title": "Console Idle Minutes",
             "default": 30
+          },
+          "theme": {
+            "type": "string",
+            "title": "Theme",
+            "default": "system"
+          },
+          "time_zone": {
+            "type": "string",
+            "title": "Time Zone",
+            "default": "Africa/Kampala"
           }
         },
         "type": "object",

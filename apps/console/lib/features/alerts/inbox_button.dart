@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ui_kit/ui_kit.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -89,7 +90,9 @@ class _InboxSheet extends ConsumerWidget {
                             ? const TextStyle(fontWeight: FontWeight.w700)
                             : null,
                       ),
-                      subtitle: Text(when.format(n.createdAt.toLocal())),
+                      subtitle: Text(
+                        when.format(WcTime.local(n.createdAt, context)),
+                      ),
                       onTap: () async {
                         await ref.read(notificationsApiProvider).markRead(n.id);
                         ref.invalidate(inboxProvider);

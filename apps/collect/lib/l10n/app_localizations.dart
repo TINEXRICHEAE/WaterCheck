@@ -2055,6 +2055,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not save the limits ({code}).'**
   String limitsStakeholderFailed(String code);
+
+  /// No description provided for @settingsAppearance.
+  ///
+  /// In en, this message translates to:
+  /// **'Appearance and time'**
+  String get settingsAppearance;
+
+  /// No description provided for @settingsAppearanceDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved on this phone.'**
+  String get settingsAppearanceDevice;
+
+  /// No description provided for @settingsAppearanceFor.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved on this phone for {name}.'**
+  String settingsAppearanceFor(String name);
+
+  /// No description provided for @pickSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by name or code'**
+  String get pickSearch;
+
+  /// No description provided for @pickNoMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'No source matches the search.'**
+  String get pickNoMatch;
+
+  /// No description provided for @resultHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to the start page'**
+  String get resultHome;
 }
 
 class _AppLocalizationsDelegate

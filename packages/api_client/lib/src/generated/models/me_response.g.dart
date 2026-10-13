@@ -24,6 +24,8 @@ MeResponse _$MeResponseFromJson(Map<String, dynamic> json) => MeResponse(
   notifyPush: json['notify_push'] as bool? ?? true,
   notifySms: json['notify_sms'] as bool? ?? true,
   consoleIdleMinutes: (json['console_idle_minutes'] as num?)?.toInt() ?? 30,
+  theme: json['theme'] as String? ?? 'system',
+  timeZone: json['time_zone'] as String? ?? 'Africa/Kampala',
   phone: json['phone'] as String?,
   email: json['email'] as String?,
 );
@@ -45,4 +47,6 @@ Map<String, dynamic> _$MeResponseToJson(MeResponse instance) =>
       'notify_push': instance.notifyPush,
       'notify_sms': instance.notifySms,
       'console_idle_minutes': instance.consoleIdleMinutes,
+      'theme': instance.theme,
+      'time_zone': instance.timeZone,
     };

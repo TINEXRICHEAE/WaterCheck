@@ -32,6 +32,9 @@ import '../l10n/app_localizations.dart';
 import 'providers.dart';
 import 'session.dart';
 
+/// Shown in "About" (pubspec version).
+const consoleVersion = '0.1.0';
+
 const _authRoutes = {'/sign-in', '/change-password', '/pin', '/unlock'};
 
 /// Where the session sends someone trying to open [location], or null.
@@ -62,6 +65,13 @@ final routerProvider = Provider<GoRouter>((ref) {
     refreshListenable: session,
     redirect: (context, state) =>
         sessionRedirect(session.value, state.matchedLocation),
+    // An unknown address (a stale bookmark, a typo): a safe page, not a crash.
+    errorBuilder: (context, state) => Scaffold(
+      body: ErrorView(
+        kind: ErrorKind.notFound,
+        onHome: () => context.go('/dashboard'),
+      ),
+    ),
     routes: [
       GoRoute(path: '/sign-in', builder: (_, _) => const SignInScreen()),
       GoRoute(
@@ -71,7 +81,8 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/pin', builder: (_, _) => const ChoosePinScreen()),
       GoRoute(path: '/unlock', builder: (_, _) => const UnlockScreen()),
       StatefulShellRoute.indexedStack(
-        builder: (context, state, shell) => _ConsoleShell(shell: shell),
+        builder: (context, state, shell) =>
+            _ConsoleShell(shell: shell, path: state.uri.path),
         branches: [
           StatefulShellBranch(
             routes: [
@@ -197,10 +208,23 @@ final routerProvider = Provider<GoRouter>((ref) {
   return router;
 });
 
+/// The page above [path] in its section ("/sources/abc" → "/sources"), or
+/// null on a section's first page. Every page below the first has a back
+/// button (2026-10-13).
+String? parentPath(String path) {
+  final parts = [
+    for (final p in path.split('/'))
+      if (p.isNotEmpty) p,
+  ];
+  if (parts.length < 2) return null;
+  return '/${parts.sublist(0, parts.length - 1).join('/')}';
+}
+
 class _ConsoleShell extends ConsumerWidget {
-  const _ConsoleShell({required this.shell});
+  const _ConsoleShell({required this.shell, required this.path});
 
   final StatefulNavigationShell shell;
+  final String path;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -212,8 +236,17 @@ class _ConsoleShell extends ConsumerWidget {
         (s) => s.last?.failure?.kind == SyncFailureKind.offline,
       ),
     );
+    final parent = parentPath(path);
     return AdaptiveScaffold(
-      title: Text(l10n.appTitle),
+      title: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const AppLogo(size: 28, decorative: true),
+          const SizedBox(width: 10),
+          Flexible(child: Text(l10n.appTitle, overflow: TextOverflow.ellipsis)),
+        ],
+      ),
+      onBack: parent == null ? null : () => context.go(parent),
       selectedIndex: shell.currentIndex,
       onDestinationSelected: (i) =>
           shell.goBranch(i, initialLocation: i == shell.currentIndex),
@@ -377,12 +410,39 @@ class _AccountButton extends ConsumerWidget {
           onTap: () => context.go('/dashboard/profile'),
           child: ListTile(
             contentPadding: EdgeInsets.zero,
-            leading: const Icon(Icons.tune),
+            leading: const Icon(Icons.manage_accounts_outlined),
             title: Text(l10n.navProfile),
           ),
         ),
         PopupMenuItem<void>(
-          onTap: () => ref.read(sessionProvider.notifier).signOut(),
+          onTap: () => showWaterCheckAbout(
+            context,
+            appName: l10n.appTitle,
+            version: consoleVersion,
+          ),
+          child: ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.info_outline),
+            title: Text(l10n.accountAbout),
+          ),
+        ),
+        const PopupMenuDivider(),
+        PopupMenuItem<void>(
+          onTap: () async {
+            // Unsent changes are lost when the web session ends.
+            final pending = ref.read(syncSummaryProvider).value?.pending ?? 0;
+            if (pending > 0 &&
+                !await confirmAction(
+                  context,
+                  title: l10n.signOutConfirmTitle,
+                  message: l10n.signOutConfirmBody(pending),
+                  confirm: l10n.accountSignOut,
+                  destructive: true,
+                )) {
+              return;
+            }
+            await ref.read(sessionProvider.notifier).signOut();
+          },
           child: ListTile(
             contentPadding: EdgeInsets.zero,
             leading: const Icon(Icons.logout),

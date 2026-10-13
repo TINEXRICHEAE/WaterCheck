@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:domain/domain.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ui_kit/ui_kit.dart';
 
 import '../../app/console_sync.dart';
 import '../../app/providers.dart';
@@ -180,7 +181,13 @@ class _PlacesScreenState extends ConsumerState<PlacesScreen> {
           const SizedBox(height: 8),
           ...?current?.when(
             loading: () => [const LinearProgressIndicator()],
-            error: (_, _) => [Text(l10n.adminNeedsConnection)],
+            error: (e, _) => [
+              ErrorView(
+                error: e,
+                compact: true,
+                onRetry: () => ref.invalidate(_defaultProvider(area.id)),
+              ),
+            ],
             data: (id) => [
               SizedBox(
                 width: 480,

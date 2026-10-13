@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ui_kit/ui_kit.dart';
 import 'package:go_router/go_router.dart';
 
 import '../features/activation/activation_screen.dart';
@@ -70,6 +71,11 @@ final routerProvider = Provider<GoRouter>((ref) {
     refreshListenable: gate,
     redirect: (context, state) =>
         gateRedirect(gate.value, state.matchedLocation),
+    // An unknown address: a safe page, not a crash.
+    errorBuilder: (context, state) => Scaffold(
+      appBar: AppBar(),
+      body: ErrorView(kind: ErrorKind.notFound, onHome: () => context.go('/')),
+    ),
     routes: [
       GoRoute(path: '/welcome', builder: (_, _) => const WelcomeScreen()),
       GoRoute(

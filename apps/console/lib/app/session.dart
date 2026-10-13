@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:api_client/api_client.dart';
 import 'package:data/data.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ui_kit/ui_kit.dart' show ThemeChoice, TimeZoneChoice;
 
 import 'auth_api.dart';
 
@@ -263,6 +264,27 @@ class SessionController extends Notifier<ConsoleSession> {
     final me = await _api.me(access);
     if (_native) await _store.save(_tokens.refresh!, me);
     state = ConsoleSession(state.phase, me: me, offline: state.offline);
+  }
+
+  /// Theme and time zone: applied and kept on this device at once, then
+  /// saved to the account. Throws [ApiFailure] when the account could not
+  /// be updated (the choice still applies here).
+  Future<void> setAppearance(ThemeChoice theme, TimeZoneChoice zone) async {
+    final current = state.me;
+    if (current == null) return;
+    // Through JSON text: toJson() leaves nested objects (areas) as is.
+    final me = MeResponse.fromJson({
+      ...(jsonDecode(jsonEncode(current)) as Map<String, Object?>),
+      'theme': theme.name,
+      'time_zone': zone.stored,
+    });
+    state = ConsoleSession(state.phase, me: me, offline: state.offline);
+    if (_native && _tokens.refresh != null) {
+      await _store.save(_tokens.refresh!, me);
+    }
+    final access = await accessToken();
+    if (access == null) throw const ApiFailure(ApiFailure.offline);
+    await _api.setAppearance(access, theme: theme.name, timeZone: zone.stored);
   }
 
   Future<String?>? _refreshing;

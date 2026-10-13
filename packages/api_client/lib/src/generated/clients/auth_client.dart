@@ -5,6 +5,7 @@
 import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
 
+import '../models/appearance_in.dart';
 import '../models/change_password_request.dart';
 import '../models/login_request.dart';
 import '../models/me_response.dart';
@@ -60,6 +61,10 @@ abstract class AuthClient {
   /// Me
   @GET('/v1/me')
   Future<MeResponse> me();
+
+  /// Set Appearance
+  @PUT('/v1/me/appearance')
+  Future<void> setAppearance({@Body() required AppearanceIn body});
 
   /// Set Preferences
   @PUT('/v1/me/preferences')

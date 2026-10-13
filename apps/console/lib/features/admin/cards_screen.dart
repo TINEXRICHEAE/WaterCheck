@@ -1,6 +1,7 @@
 import 'package:api_client/api_client.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ui_kit/ui_kit.dart';
 
 import '../../app/console_sync.dart';
 import '../../l10n/app_localizations.dart';
@@ -24,7 +25,13 @@ class CardsScreen extends ConsumerWidget {
         const SizedBox(height: 12),
         ...cards.when(
           loading: () => [const LinearProgressIndicator()],
-          error: (_, _) => [Text(l10n.adminNeedsConnection)],
+          error: (e, _) => [
+            ErrorView(
+              error: e,
+              compact: true,
+              onRetry: () => ref.invalidate(adminCardsProvider),
+            ),
+          ],
           data: (list) => [
             for (final c in list)
               Card(

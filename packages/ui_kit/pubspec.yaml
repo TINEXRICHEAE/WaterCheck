@@ -25,3 +25,6 @@ dev_dependencies:
 
 flutter:
   generate: true
+  # The WaterCheck icon (design/watercheck-icons), 1x/2x/3x.
+  assets:
+    - assets/watercheck.png

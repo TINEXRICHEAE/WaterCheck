@@ -2,6 +2,7 @@ import 'package:api_client/api_client.dart';
 import 'package:data/data.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ui_kit/ui_kit.dart';
 
 import '../../l10n/app_localizations.dart';
 import 'admin_api.dart';
@@ -54,7 +55,13 @@ class _ChainScreenState extends ConsumerState<ChainScreen> {
         if (chain != null)
           ...chain.when(
             loading: () => [const Center(child: CircularProgressIndicator())],
-            error: (_, _) => [Text(l10n.adminNeedsConnection)],
+            error: (e, _) => [
+              ErrorView(
+                error: e,
+                compact: true,
+                onRetry: () => ref.invalidate(_chainProvider(area!.id)),
+              ),
+            ],
             data: (c) => [
               if (c.firstNotice == null)
                 Card(

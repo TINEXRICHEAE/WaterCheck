@@ -28,6 +28,7 @@ class FakeUser {
   });
 
   var notify = (email: true, push: true, sms: true);
+  var appearance = (theme: 'system', zone: 'Africa/Kampala');
 
   String password;
   final String role;
@@ -147,6 +148,8 @@ class FakeAuthApi implements ConsoleAuthApi {
       notifyEmail: u.notify.email,
       notifyPush: u.notify.push,
       notifySms: u.notify.sms,
+      theme: u.appearance.theme,
+      timeZone: u.appearance.zone,
     );
   }
 
@@ -172,6 +175,16 @@ class FakeAuthApi implements ConsoleAuthApi {
   }) async {
     _online();
     users[_access[accessToken]!]!.notify = (email: email, push: push, sms: sms);
+  }
+
+  @override
+  Future<void> setAppearance(
+    String accessToken, {
+    required String theme,
+    required String timeZone,
+  }) async {
+    _online();
+    users[_access[accessToken]!]!.appearance = (theme: theme, zone: timeZone);
   }
 }
 

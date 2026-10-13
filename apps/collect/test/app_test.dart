@@ -1,3 +1,4 @@
+import 'package:data/data.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:watercheck_collect/app/gate.dart';
@@ -104,6 +105,41 @@ void main() {
     expect(find.text('Reference profiles (2)'), findsOneWidget);
     expect(find.text('Provisional limits'), findsNWidgets(2));
     expect(find.text('Required: temp, ph, ec, tds'), findsOneWidget);
+    await disposeApp(tester, db);
+  });
+
+  testWidgets('theme and time zone are kept for the collector', (tester) async {
+    final db = await pumpCollect(tester);
+    await tapAndSettle(tester, find.text('Settings'));
+    expect(find.textContaining('Saved on this phone for'), findsOneWidget);
+    await tapAndSettle(tester, find.text('Dark'));
+    expect(
+      tester.widget<MaterialApp>(find.byType(MaterialApp)).themeMode,
+      ThemeMode.dark,
+    );
+    final zone = find.text('East Africa Time, Kampala (UTC+3)');
+    await tester.dragUntilVisible(
+      zone,
+      find.byType(ListView).first,
+      const Offset(0, -200),
+    );
+    await tester.pumpAndSettle();
+    await tapAndSettle(tester, zone);
+    await tapAndSettle(tester, find.text('UTC').last);
+    final stored = await tester.runAsync(
+      () => DriftLocalSettingsRepository(db).read('appearance.device'),
+    );
+    expect(stored, 'dark|UTC');
+    // Pages below Settings have a back button.
+    await tester.dragUntilVisible(
+      find.text('Reference data'),
+      find.byType(ListView).first,
+      const Offset(0, -200),
+    );
+    await tester.pumpAndSettle();
+    await tapAndSettle(tester, find.text('Reference data'));
+    await tapAndSettle(tester, find.byType(BackButton));
+    expect(find.text('Reference data'), findsOneWidget);
     await disposeApp(tester, db);
   });
 

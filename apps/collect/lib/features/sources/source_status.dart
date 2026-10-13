@@ -6,7 +6,7 @@ import 'package:ui_kit/ui_kit.dart';
 import '../../l10n/app_localizations.dart';
 import 'source_providers.dart';
 
-String formatDate(DateTime d) => DateFormat.yMMMd('en').format(d.toLocal());
+String formatDate(DateTime d) => DateFormat.yMMMd('en').format(WcTime.local(d));
 
 /// The badge for a source: its latest result, or NOT TESTED.
 SourceStatus statusOf(SourceSummary s) =>

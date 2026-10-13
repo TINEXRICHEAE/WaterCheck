@@ -2,6 +2,7 @@ import 'package:data/data.dart';
 import 'package:domain/domain.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ui_kit/ui_kit.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../app/providers.dart';
@@ -85,8 +86,11 @@ class _ResponseCardScreenState extends ConsumerState<ResponseCardScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(l10n.alertTitle)),
       body: data.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('$e')),
+        loading: () => const PageLoading(),
+        error: (e, _) => ErrorView(
+          error: e,
+          onRetry: () => ref.invalidate(_cardProvider(widget.alertId)),
+        ),
         data: (d) {
           final card = d.card;
           final actions = ((card?['actions'] as List?) ?? const [])

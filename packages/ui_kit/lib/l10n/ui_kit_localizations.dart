@@ -339,6 +339,216 @@ abstract class UiKitLocalizations {
   /// In en, this message translates to:
   /// **'Limit'**
   String get trendLimit;
+
+  /// No description provided for @appLogo.
+  ///
+  /// In en, this message translates to:
+  /// **'WaterCheck logo'**
+  String get appLogo;
+
+  /// No description provided for @passwordShow.
+  ///
+  /// In en, this message translates to:
+  /// **'Show password'**
+  String get passwordShow;
+
+  /// No description provided for @passwordHide.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide password'**
+  String get passwordHide;
+
+  /// No description provided for @loading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading'**
+  String get loading;
+
+  /// No description provided for @errorRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get errorRetry;
+
+  /// No description provided for @errorHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to the start page'**
+  String get errorHome;
+
+  /// No description provided for @errorOfflineTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No connection'**
+  String get errorOfflineTitle;
+
+  /// No description provided for @errorOfflineBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The server cannot be reached. Check the internet connection and try again. Work saved on this device is kept.'**
+  String get errorOfflineBody;
+
+  /// No description provided for @errorTimeoutTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This is taking too long'**
+  String get errorTimeoutTitle;
+
+  /// No description provided for @errorTimeoutBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The server did not answer in time. The connection may be slow; try again in a moment.'**
+  String get errorTimeoutBody;
+
+  /// No description provided for @errorSignedOutTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Please sign in again'**
+  String get errorSignedOutTitle;
+
+  /// No description provided for @errorSignedOutBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your session has ended. Sign in again to continue.'**
+  String get errorSignedOutBody;
+
+  /// No description provided for @errorForbiddenTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Not allowed'**
+  String get errorForbiddenTitle;
+
+  /// No description provided for @errorForbiddenBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account does not have access to this. Ask the IT admin if you need it.'**
+  String get errorForbiddenBody;
+
+  /// No description provided for @errorNotFoundTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Page not found'**
+  String get errorNotFoundTitle;
+
+  /// No description provided for @errorNotFoundBody.
+  ///
+  /// In en, this message translates to:
+  /// **'What you are looking for is not here. It may have been moved or removed.'**
+  String get errorNotFoundBody;
+
+  /// No description provided for @errorServerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The server had a problem'**
+  String get errorServerTitle;
+
+  /// No description provided for @errorServerBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong on the server. Try again later; if it keeps happening, tell the IT admin.'**
+  String get errorServerBody;
+
+  /// No description provided for @errorUnknownTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong'**
+  String get errorUnknownTitle;
+
+  /// No description provided for @errorUnknownBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This could not be completed. Try again; if it keeps happening, tell the IT admin.'**
+  String get errorUnknownBody;
+
+  /// No description provided for @settingsTheme.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme'**
+  String get settingsTheme;
+
+  /// No description provided for @themeSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'System'**
+  String get themeSystem;
+
+  /// No description provided for @themeLight.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get themeLight;
+
+  /// No description provided for @themeDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get themeDark;
+
+  /// No description provided for @settingsTimeZone.
+  ///
+  /// In en, this message translates to:
+  /// **'Time zone'**
+  String get settingsTimeZone;
+
+  /// No description provided for @settingsTimeZoneNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Time now: {time}'**
+  String settingsTimeZoneNow(String time);
+
+  /// No description provided for @zoneAuto.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatic (this device\'s time zone)'**
+  String get zoneAuto;
+
+  /// No description provided for @zoneKampala.
+  ///
+  /// In en, this message translates to:
+  /// **'East Africa Time, Kampala (UTC+3)'**
+  String get zoneKampala;
+
+  /// No description provided for @zoneNairobi.
+  ///
+  /// In en, this message translates to:
+  /// **'East Africa Time, Nairobi (UTC+3)'**
+  String get zoneNairobi;
+
+  /// No description provided for @zoneUtc.
+  ///
+  /// In en, this message translates to:
+  /// **'UTC'**
+  String get zoneUtc;
+
+  /// No description provided for @filtersReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset filters'**
+  String get filtersReset;
+
+  /// No description provided for @aboutLegalese.
+  ///
+  /// In en, this message translates to:
+  /// **'Community drinking water monitoring. Licensed under the project licence; open-source components are listed under View licences.'**
+  String get aboutLegalese;
+
+  /// No description provided for @cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
+  /// No description provided for @searchClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear search'**
+  String get searchClear;
+
+  /// No description provided for @filterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get filterAll;
 }
 
 class _UiKitLocalizationsDelegate

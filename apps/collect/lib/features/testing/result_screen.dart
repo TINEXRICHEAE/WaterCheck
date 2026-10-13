@@ -71,11 +71,25 @@ class ResultScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.resultTitle),
+        // The test is saved: "back" would reopen the finished form, so the
+        // way out is home (same as Done).
         automaticallyImplyLeading: false,
+        leading: IconButton(
+          tooltip: l10n.resultHome,
+          icon: const Icon(Icons.close),
+          onPressed: () {
+            ref.read(testDraftProvider.notifier).reset();
+            context.go('/');
+          },
+        ),
       ),
       body: saved.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('$e')),
+        loading: () => const PageLoading(),
+        error: (e, _) => ErrorView(
+          error: e,
+          onRetry: () => ref.invalidate(_savedResultProvider(resultId)),
+          onHome: () => context.go('/'),
+        ),
         data: (s) {
           final c = s.classification;
           final limitation = limitationText(l10n, c.limitationCode);

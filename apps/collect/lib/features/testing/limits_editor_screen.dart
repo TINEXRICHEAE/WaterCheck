@@ -3,6 +3,7 @@ import 'package:data/data.dart' show IdGenerator;
 import 'package:domain/domain.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ui_kit/ui_kit.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../app/gate.dart' show credentialsProvider;
@@ -319,9 +320,8 @@ class _StakeholderSignInState extends State<_StakeholderSignIn> {
             ),
             onChanged: (_) => setState(() {}),
           ),
-          TextField(
+          PasswordField(
             controller: _password,
-            obscureText: true,
             autofillHints: const [AutofillHints.password],
             decoration: InputDecoration(
               labelText: l10n.limitsStakeholderPassword,
@@ -348,7 +348,10 @@ class _StakeholderSignInState extends State<_StakeholderSignIn> {
               _busy || _username.text.trim().isEmpty || _password.text.isEmpty
               ? null
               : _go,
-          child: Text(l10n.limitsStakeholderApprove),
+          child: BusyLabel(
+            busy: _busy,
+            child: Text(l10n.limitsStakeholderApprove),
+          ),
         ),
       ],
     );

@@ -293,3 +293,21 @@ async def test_an_area_default_changes_only_new_tests(
             ).all()
         )
     assert used == {before[2]["id"]: PROFILE, after[2]["id"]: CLASS_I}
+
+
+async def test_theme_and_time_zone_follow_the_user(
+    client: AsyncClient, owner_db: Database, seeded: None
+) -> None:
+    user = await signed_in(client, owner_db)
+    me = (await client.get("/v1/me", headers=user)).json()
+    assert (me["theme"], me["time_zone"]) == ("system", "Africa/Kampala")
+    put = await client.put(
+        "/v1/me/appearance", json={"theme": "dark", "time_zone": "auto"}, headers=user
+    )
+    assert put.status_code == 204
+    me = (await client.get("/v1/me", headers=user)).json()
+    assert (me["theme"], me["time_zone"]) == ("dark", "auto")
+    bad = await client.put(
+        "/v1/me/appearance", json={"theme": "dark", "time_zone": "Mars/Base"}, headers=user
+    )
+    assert bad.status_code == 422

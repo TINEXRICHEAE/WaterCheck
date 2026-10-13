@@ -28,7 +28,7 @@ final todaysCalibrationProvider = FutureProvider<({String id, bool passed})?>((
       .latestCalibration(ref.watch(installationIdProvider));
   if (latest == null) return null;
   final now = DateTime.now();
-  final at = latest.performedAt.toLocal();
+  final at = WcTime.local(latest.performedAt);
   final today =
       at.year == now.year && at.month == now.month && at.day == now.day;
   return today ? (id: latest.id, passed: latest.passed) : null;

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ui_kit/ui_kit.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../app/gate.dart';
@@ -18,8 +19,11 @@ class WhoIsTestingScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: Text(l10n.whoTitle)),
       body: profiles.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('$e')),
+        loading: () => const PageLoading(),
+        error: (e, _) => ErrorView(
+          error: e,
+          onRetry: () => ref.invalidate(collectorProfilesProvider),
+        ),
         data: (list) => ListView(
           padding: const EdgeInsets.symmetric(vertical: 8),
           children: [

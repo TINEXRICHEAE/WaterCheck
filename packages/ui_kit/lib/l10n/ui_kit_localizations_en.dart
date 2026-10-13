@@ -182,4 +182,119 @@ class UiKitLocalizationsEn extends UiKitLocalizations {
 
   @override
   String get trendLimit => 'Limit';
+
+  @override
+  String get appLogo => 'WaterCheck logo';
+
+  @override
+  String get passwordShow => 'Show password';
+
+  @override
+  String get passwordHide => 'Hide password';
+
+  @override
+  String get loading => 'Loading';
+
+  @override
+  String get errorRetry => 'Try again';
+
+  @override
+  String get errorHome => 'Go to the start page';
+
+  @override
+  String get errorOfflineTitle => 'No connection';
+
+  @override
+  String get errorOfflineBody =>
+      'The server cannot be reached. Check the internet connection and try again. Work saved on this device is kept.';
+
+  @override
+  String get errorTimeoutTitle => 'This is taking too long';
+
+  @override
+  String get errorTimeoutBody =>
+      'The server did not answer in time. The connection may be slow; try again in a moment.';
+
+  @override
+  String get errorSignedOutTitle => 'Please sign in again';
+
+  @override
+  String get errorSignedOutBody =>
+      'Your session has ended. Sign in again to continue.';
+
+  @override
+  String get errorForbiddenTitle => 'Not allowed';
+
+  @override
+  String get errorForbiddenBody =>
+      'Your account does not have access to this. Ask the IT admin if you need it.';
+
+  @override
+  String get errorNotFoundTitle => 'Page not found';
+
+  @override
+  String get errorNotFoundBody =>
+      'What you are looking for is not here. It may have been moved or removed.';
+
+  @override
+  String get errorServerTitle => 'The server had a problem';
+
+  @override
+  String get errorServerBody =>
+      'Something went wrong on the server. Try again later; if it keeps happening, tell the IT admin.';
+
+  @override
+  String get errorUnknownTitle => 'Something went wrong';
+
+  @override
+  String get errorUnknownBody =>
+      'This could not be completed. Try again; if it keeps happening, tell the IT admin.';
+
+  @override
+  String get settingsTheme => 'Theme';
+
+  @override
+  String get themeSystem => 'System';
+
+  @override
+  String get themeLight => 'Light';
+
+  @override
+  String get themeDark => 'Dark';
+
+  @override
+  String get settingsTimeZone => 'Time zone';
+
+  @override
+  String settingsTimeZoneNow(String time) {
+    return 'Time now: $time';
+  }
+
+  @override
+  String get zoneAuto => 'Automatic (this device\'s time zone)';
+
+  @override
+  String get zoneKampala => 'East Africa Time, Kampala (UTC+3)';
+
+  @override
+  String get zoneNairobi => 'East Africa Time, Nairobi (UTC+3)';
+
+  @override
+  String get zoneUtc => 'UTC';
+
+  @override
+  String get filtersReset => 'Reset filters';
+
+  @override
+  String get aboutLegalese =>
+      'Community drinking water monitoring. Licensed under the project licence; open-source components are listed under View licences.';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get searchClear => 'Clear search';
+
+  @override
+  String get filterAll => 'All';
 }

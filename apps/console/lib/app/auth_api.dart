@@ -33,6 +33,13 @@ abstract interface class ConsoleAuthApi {
     required bool push,
     required bool sms,
   });
+
+  /// Theme and time zone; they follow the user to any device.
+  Future<void> setAppearance(
+    String accessToken, {
+    required String theme,
+    required String timeZone,
+  });
 }
 
 class HttpConsoleAuthApi implements ConsoleAuthApi {
@@ -128,6 +135,17 @@ class HttpConsoleAuthApi implements ConsoleAuthApi {
   }) => _call(
     () => _client(accessToken).setPreferences(
       body: PreferencesIn(notifyEmail: email, notifyPush: push, notifySms: sms),
+    ),
+  );
+
+  @override
+  Future<void> setAppearance(
+    String accessToken, {
+    required String theme,
+    required String timeZone,
+  }) => _call(
+    () => _client(accessToken).setAppearance(
+      body: AppearanceIn(theme: theme, timeZone: timeZone),
     ),
   );
 }

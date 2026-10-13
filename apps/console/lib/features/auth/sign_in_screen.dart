@@ -1,6 +1,7 @@
 import 'package:api_client/api_client.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ui_kit/ui_kit.dart';
 
 import '../../app/session.dart';
 import '../../l10n/app_localizations.dart';
@@ -37,7 +38,9 @@ class AuthCard extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        const Icon(Icons.water_drop, size: 40),
+                        const Center(
+                          child: AppLogo(size: 72, decorative: true),
+                        ),
                         const SizedBox(height: 8),
                         Text(
                           title,
@@ -171,10 +174,9 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
           ),
         ),
         const SizedBox(height: 12),
-        TextField(
+        PasswordField(
           controller: _password,
           enabled: !_busy,
-          obscureText: true,
           autofillHints: const [AutofillHints.password],
           decoration: InputDecoration(
             labelText: l10n.signInPassword,
@@ -185,7 +187,10 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
         ErrorText(_error),
         FilledButton(
           onPressed: _busy ? null : _signIn,
-          child: Text(_busy ? l10n.signInWorking : l10n.signInGo),
+          child: BusyLabel(
+            busy: _busy,
+            child: Text(_busy ? l10n.signInWorking : l10n.signInGo),
+          ),
         ),
         const SizedBox(height: 8),
         TextButton(
@@ -299,10 +304,9 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
       children: [
         Text(l10n.passwordIntro),
         const SizedBox(height: 16),
-        TextField(
+        PasswordField(
           controller: _new,
           enabled: !_busy,
-          obscureText: true,
           autofillHints: const [AutofillHints.newPassword],
           decoration: InputDecoration(
             labelText: l10n.passwordNew,
@@ -312,10 +316,9 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
           ),
         ),
         const SizedBox(height: 12),
-        TextField(
+        PasswordField(
           controller: _again,
           enabled: !_busy,
-          obscureText: true,
           decoration: InputDecoration(
             labelText: l10n.passwordAgain,
             border: const OutlineInputBorder(),
@@ -325,7 +328,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
         ErrorText(_error),
         FilledButton(
           onPressed: _busy ? null : _save,
-          child: Text(l10n.passwordSave),
+          child: BusyLabel(busy: _busy, child: Text(l10n.passwordSave)),
         ),
         TextButton(
           onPressed: _busy

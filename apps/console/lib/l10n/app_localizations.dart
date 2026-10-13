@@ -1165,7 +1165,7 @@ abstract class AppLocalizations {
   /// No description provided for @navProfile.
   ///
   /// In en, this message translates to:
-  /// **'My profile'**
+  /// **'Profile and settings'**
   String get navProfile;
 
   /// No description provided for @profileTitle.
@@ -2967,6 +2967,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Card saved'**
   String get cardsSaved;
+
+  /// No description provided for @accountAbout.
+  ///
+  /// In en, this message translates to:
+  /// **'About WaterCheck'**
+  String get accountAbout;
+
+  /// No description provided for @appearanceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Appearance and time'**
+  String get appearanceTitle;
+
+  /// No description provided for @appearanceHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved with your account, so they follow you to any device.'**
+  String get appearanceHint;
+
+  /// No description provided for @appearanceLocalOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved on this device only: the server could not be reached.'**
+  String get appearanceLocalOnly;
+
+  /// No description provided for @signOutConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out with changes not sent?'**
+  String get signOutConfirmTitle;
+
+  /// No description provided for @signOutConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 change has not reached the server yet.} other{{count} changes have not reached the server yet.}} On the web they are lost when you sign out.'**
+  String signOutConfirmBody(int count);
+
+  /// No description provided for @alertsFilterOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get alertsFilterOpen;
+
+  /// No description provided for @alertsFilterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get alertsFilterAll;
+
+  /// No description provided for @paramsRejectTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject {name}?'**
+  String paramsRejectTitle(String name);
+
+  /// No description provided for @paramsRejectBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Collectors can no longer pick it. Readings already taken keep their values.'**
+  String get paramsRejectBody;
 }
 
 class _AppLocalizationsDelegate

@@ -1,7 +1,23 @@
 # Progress
 
-**Current phase:** P11 — IT admin console: **gate passed** (2026-10-12). O2 resolved: only a stakeholder creates a custom limit set (ADR-016). Next: P12 (hardening and pilot release).
-**Last updated:** 2026-10-12
+**Current phase:** P11 gate passed (2026-10-12); app-wide UX conventions added (2026-10-13, ADR-017). Next: P12 (hardening and pilot release).
+**Last updated:** 2026-10-13
+
+## App-wide UX conventions ✅ (2026-10-13, ADR-017)
+
+- [x] **Back button** on every page below a section's first page (Console title bar; Collect pages; result × goes home).
+- [x] **Logo** (design/watercheck-icons) on:
+  - Android launchers (adaptive icon), Windows icon and window name, web favicon and manifest;
+  - sign-in, welcome and activation, the title bar, About, PDFs.
+- [x] **Theme and time zone per user:**
+  - System/Light/Dark;
+  - East Africa Time, Kampala (default), Nairobi, Automatic or UTC;
+  - Console: saved with the account; Collect: per collector on the phone.
+- [x] **Safe error pages** with Try again / Go home; "Page not found" for unknown addresses.
+- [x] **Show/hide** on every password field.
+- [x] **Loading:** spinners on buttons that wait on the server; a top bar while changes are sent (Console).
+- [x] **Filters:** "Reset filters" and "All" on filters; searches clear with ×; search on Collect's "Which source?".
+- [x] **Also:** About; a confirmation before signing out with unsent changes; pull down to sync on Collect home; a confirmation before rejecting a parameter.
 
 ## P11 gate ✅
 

@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:api_client/api_client.dart';
 import 'package:flutter/material.dart';
+import 'package:ui_kit/ui_kit.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
@@ -32,9 +33,11 @@ class _SystemScreenState extends ConsumerState<SystemScreen> {
     final a = _action.text.trim();
     _filter = (
       action: a.isEmpty ? null : a,
-      since: _range?.start.toUtc(),
-      // The whole last day.
-      until: _range?.end.add(const Duration(days: 1)).toUtc(),
+      // Picked days are in the user's time zone; the whole last day counts.
+      since: _range == null ? null : WcTime.toUtc(_range!.start),
+      until: _range == null
+          ? null
+          : WcTime.toUtc(_range!.end.add(const Duration(days: 1))),
     );
   });
 
@@ -88,7 +91,13 @@ class _SystemScreenState extends ConsumerState<SystemScreen> {
         ),
         ...health.when(
           loading: () => [const LinearProgressIndicator()],
-          error: (_, _) => [Text(l10n.adminNeedsConnection)],
+          error: (e, _) => [
+            ErrorView(
+              error: e,
+              compact: true,
+              onRetry: () => ref.invalidate(adminHealthProvider),
+            ),
+          ],
           data: (h) => [_HealthGrid(h: h, when: when)],
         ),
         const SizedBox(height: 24),
@@ -114,7 +123,7 @@ class _SystemScreenState extends ConsumerState<SystemScreen> {
             ),
             OutlinedButton.icon(
               onPressed: () async {
-                final now = DateTime.now();
+                final now = WcTime.now();
                 final picked = await showDateRangePicker(
                   context: context,
                   firstDate: DateTime(2024),
@@ -136,17 +145,32 @@ class _SystemScreenState extends ConsumerState<SystemScreen> {
               onPressed: _apply,
               child: Text(l10n.systemAuditApply),
             ),
-            FilledButton.icon(
+            BusyButton(
               onPressed: _export,
               icon: const Icon(Icons.download),
-              label: Text(l10n.systemAuditExport),
+              child: Text(l10n.systemAuditExport),
+            ),
+            ResetFiltersButton(
+              onPressed: _range == null && _action.text.isEmpty
+                  ? null
+                  : () {
+                      _action.clear();
+                      _range = null;
+                      _apply();
+                    },
             ),
           ],
         ),
         const SizedBox(height: 8),
         ...audit.when(
           loading: () => [const LinearProgressIndicator()],
-          error: (_, _) => [Text(l10n.adminNeedsConnection)],
+          error: (e, _) => [
+            ErrorView(
+              error: e,
+              compact: true,
+              onRetry: () => ref.invalidate(adminAuditProvider(_filter)),
+            ),
+          ],
           data: (rows) => [
             if (rows.isEmpty) Text(l10n.systemAuditEmpty),
             for (final r in rows)
@@ -160,7 +184,7 @@ class _SystemScreenState extends ConsumerState<SystemScreen> {
                 title: Text('${r.action} · ${r.entity}'),
                 subtitle: Text(
                   [
-                    when.format(r.at.toLocal()),
+                    when.format(WcTime.local(r.at, context)),
                     r.actorName ?? l10n.systemAuditSystem,
                     ?r.platform,
                     if (r.after != null) _short(jsonEncode(r.after)),
@@ -218,7 +242,7 @@ class _HealthGrid extends StatelessWidget {
               l10n.healthWorker,
               h.workerLastJobAt == null
                   ? l10n.healthNever
-                  : when.format(h.workerLastJobAt!.toLocal()),
+                  : when.format(WcTime.local(h.workerLastJobAt!, context)),
             ),
             tile(
               l10n.healthJobs,
@@ -245,7 +269,7 @@ class _HealthGrid extends StatelessWidget {
               l10n.healthBackup,
               h.lastBackupAt == null
                   ? l10n.healthBackupNone
-                  : when.format(h.lastBackupAt!.toLocal()),
+                  : when.format(WcTime.local(h.lastBackupAt!, context)),
             ),
           ],
         ),

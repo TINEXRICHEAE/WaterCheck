@@ -662,7 +662,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get markAsFlagged => 'Flag collector';
 
   @override
-  String get navProfile => 'My profile';
+  String get navProfile => 'Profile and settings';
 
   @override
   String get profileTitle => 'My profile';
@@ -1778,4 +1778,47 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cardsSaved => 'Card saved';
+
+  @override
+  String get accountAbout => 'About WaterCheck';
+
+  @override
+  String get appearanceTitle => 'Appearance and time';
+
+  @override
+  String get appearanceHint =>
+      'Saved with your account, so they follow you to any device.';
+
+  @override
+  String get appearanceLocalOnly =>
+      'Saved on this device only: the server could not be reached.';
+
+  @override
+  String get signOutConfirmTitle => 'Sign out with changes not sent?';
+
+  @override
+  String signOutConfirmBody(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count changes have not reached the server yet.',
+      one: '1 change has not reached the server yet.',
+    );
+    return '$_temp0 On the web they are lost when you sign out.';
+  }
+
+  @override
+  String get alertsFilterOpen => 'Open';
+
+  @override
+  String get alertsFilterAll => 'All';
+
+  @override
+  String paramsRejectTitle(String name) {
+    return 'Reject $name?';
+  }
+
+  @override
+  String get paramsRejectBody =>
+      'Collectors can no longer pick it. Readings already taken keep their values.';
 }

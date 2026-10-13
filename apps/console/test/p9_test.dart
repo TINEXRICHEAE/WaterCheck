@@ -238,10 +238,32 @@ void main() {
     final db = await _open(tester);
     await tester.tap(find.byTooltip('Account'));
     await settle(tester);
-    await tester.tap(find.text('My profile'));
+    await tester.tap(find.text('Profile and settings'));
     await settle(tester);
     expect(find.text('How alerts reach me'), findsOneWidget);
-    await tester.tap(find.widgetWithText(SwitchListTile, 'SMS'));
+
+    // Theme and time zone follow the account (2026-10-13).
+    await tester.tap(find.text('Dark'));
+    await settle(tester);
+    expect(_env.api.users['admin@example.org']!.appearance.theme, 'dark');
+    expect(
+      tester.widget<MaterialApp>(find.byType(MaterialApp)).themeMode,
+      ThemeMode.dark,
+    );
+    await tester.tap(find.text('East Africa Time, Kampala (UTC+3)'));
+    await settle(tester);
+    await tester.tap(find.text('UTC').last);
+    await settle(tester);
+    expect(_env.api.users['admin@example.org']!.appearance.zone, 'UTC');
+
+    final sms = find.widgetWithText(SwitchListTile, 'SMS');
+    await tester.scrollUntilVisible(
+      sms,
+      200,
+      scrollable: find.byType(Scrollable).last,
+    );
+    await settle(tester);
+    await tester.tap(sms);
     await settle(tester);
     expect(_env.api.users['admin@example.org']!.notify.sms, isFalse);
     expect(
@@ -250,6 +272,12 @@ void main() {
           .value,
       isFalse,
     );
+
+    // A page below a section's first page has a way back.
+    await tester.tap(find.byType(BackButton));
+    await settle(tester);
+    expect(find.text('How alerts reach me'), findsNothing);
+    expect(find.byType(BackButton), findsNothing);
     await disposeConsole(tester, db);
   });
 

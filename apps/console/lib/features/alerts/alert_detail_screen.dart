@@ -1,7 +1,9 @@
 import 'package:data/data.dart';
 import 'package:domain/domain.dart';
 import 'package:flutter/material.dart';
+import 'package:ui_kit/ui_kit.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../app/console_sync.dart';
@@ -142,8 +144,12 @@ class _AlertDetailScreenState extends ConsumerState<AlertDetailScreen> {
     final me = ref.watch(sessionProvider).me;
     final detail = ref.watch(_detailProvider(widget.alertId));
     return detail.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, _) => Center(child: Text('$e')),
+      loading: () => const PageLoading(),
+      error: (e, _) => ErrorView(
+        error: e,
+        onRetry: () => ref.invalidate(_detailProvider(widget.alertId)),
+        onHome: () => context.go('/alerts'),
+      ),
       data: (d) {
         if (d == null) return Center(child: Text(l10n.alertNotFound));
         final a = d.alert;
@@ -176,7 +182,9 @@ class _AlertDetailScreenState extends ConsumerState<AlertDetailScreen> {
                 Chip(label: Text(a.sourceCode)),
               ],
             ),
-            Text(l10n.alertOpened(when.format(a.openedAt.toLocal()))),
+            Text(
+              l10n.alertOpened(when.format(WcTime.local(a.openedAt, context))),
+            ),
             if (d.readings.isNotEmpty) ...[
               const SizedBox(height: 16),
               Text(l10n.alertReadings, style: text.titleMedium),
@@ -198,6 +206,10 @@ class _AlertDetailScreenState extends ConsumerState<AlertDetailScreen> {
             if (!a.status.isTerminal) ...[
               Text(l10n.alertActions, style: text.titleMedium),
               const SizedBox(height: 8),
+              if (_busy) ...[
+                const LinearProgressIndicator(),
+                const SizedBox(height: 8),
+              ],
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
@@ -238,7 +250,7 @@ class _AlertDetailScreenState extends ConsumerState<AlertDetailScreen> {
                 title: Text(_eventText(l10n, e)),
                 subtitle: Text(
                   [
-                    when.format(e.occurredAt.toLocal()),
+                    when.format(WcTime.local(e.occurredAt, context)),
                     e.byName ??
                         (e.actorId == null
                             ? l10n.alertBySystem

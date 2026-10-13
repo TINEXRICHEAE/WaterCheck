@@ -81,6 +81,12 @@ class Area(BaseModel):
     code: str
 
 
+# How times are shown; stored per user (UTC underneath). Plain strings in
+# the API so clients get readable values.
+THEME = r"^(system|light|dark)$"
+TIME_ZONE = r"^(auto|Africa/Kampala|Africa/Nairobi|UTC)$"
+
+
 class MeResponse(BaseModel):
     id: UUID
     username: str
@@ -98,6 +104,16 @@ class MeResponse(BaseModel):
     notify_sms: bool = True
     # Set by the IT admin (P11); the Console signs out or locks after it.
     console_idle_minutes: int = 30
+    # How this person sees the apps (2026-10-13).
+    theme: str = "system"
+    time_zone: str = "Africa/Kampala"
+
+
+class AppearanceIn(BaseModel):
+    """Theme and time zone; they follow the person to any device."""
+
+    theme: str = Field(pattern=THEME)
+    time_zone: str = Field(pattern=TIME_ZONE)
 
 
 class PreferencesIn(BaseModel):
@@ -267,7 +283,8 @@ async def me(user: AnyUserDep, db: DbDep, settings: SettingsDep) -> MeResponse:
             await conn.execute(
                 text(
                     "SELECT id, username, full_name, organisation, position, role, "
-                    "must_change_password, phone, email, notify_email, notify_push, notify_sms "
+                    "must_change_password, phone, email, notify_email, notify_push, notify_sms, "
+                    "theme, time_zone "
                     "FROM app_user WHERE id = :id"
                 ),
                 {"id": user.user_id},
@@ -310,8 +327,19 @@ async def me(user: AnyUserDep, db: DbDep, settings: SettingsDep) -> MeResponse:
         notify_email=row.notify_email,
         notify_push=row.notify_push,
         notify_sms=row.notify_sms,
+        theme=row.theme,
+        time_zone=row.time_zone,
         console_idle_minutes=policy.console_idle_minutes,
     )
+
+
+@router.put("/me/appearance", status_code=status.HTTP_204_NO_CONTENT)
+async def set_appearance(body: AppearanceIn, user: UserDep, db: DbDep) -> None:
+    async with db.transaction(user) as conn:
+        await conn.execute(
+            text("UPDATE app_user SET theme = :t, time_zone = :z WHERE id = :id"),
+            {"t": body.theme, "z": body.time_zone, "id": user.user_id},
+        )
 
 
 @router.put("/me/preferences", status_code=status.HTTP_204_NO_CONTENT)

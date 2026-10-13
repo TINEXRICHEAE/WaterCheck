@@ -1,6 +1,7 @@
 import 'package:api_client/api_client.dart';
 import 'package:data/data.dart';
 import 'package:flutter/material.dart';
+import 'package:ui_kit/ui_kit.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -36,7 +37,15 @@ class PhonesScreen extends ConsumerWidget {
           const SizedBox(height: 8),
           ...phones.when(
             loading: () => [const Center(child: CircularProgressIndicator())],
-            error: (_, _) => [Text(l10n.adminNeedsConnection)],
+            error: (e, _) => [
+              ErrorView(
+                error: e,
+                compact: true,
+                onRetry: () => ref
+                  ..invalidate(adminInstallationsProvider)
+                  ..invalidate(adminCodesProvider),
+              ),
+            ],
             data: (list) => [
               if (list.isEmpty) Text(l10n.phonesNone),
               for (final p in list)
@@ -58,11 +67,13 @@ class PhonesScreen extends ConsumerWidget {
                         p.lastSeenAt == null
                             ? l10n.phonesNeverSynced
                             : l10n.phonesLastSeen(
-                                when.format(p.lastSeenAt!.toLocal()),
+                                when.format(
+                                  WcTime.local(p.lastSeenAt!, context),
+                                ),
                               ),
                         if (p.revokedAt != null)
                           l10n.phonesRevokedAt(
-                            when.format(p.revokedAt!.toLocal()),
+                            when.format(WcTime.local(p.revokedAt!, context)),
                           ),
                       ].where((s) => s.isNotEmpty).join('\n'),
                     ),
@@ -96,7 +107,7 @@ class PhonesScreen extends ConsumerWidget {
                     l10n.phonesCodeLine(
                       c.usedCount,
                       c.maxInstallations,
-                      when.format(c.expiresAt.toLocal()),
+                      when.format(WcTime.local(c.expiresAt, context)),
                     ),
                   ),
                 ),
@@ -271,7 +282,8 @@ class _CodeShown extends StatelessWidget {
             l10n.phonesCodeLine(
               0,
               issued.maxInstallations,
-              DateFormat('d MMM y, HH:mm').format(issued.expiresAt.toLocal()),
+              DateFormat('d MMM y, HH:mm')
+                  .format(WcTime.local(issued.expiresAt, context)),
             ),
           ),
         ],

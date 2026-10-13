@@ -59,7 +59,13 @@ class DashboardScreen extends ConsumerWidget {
         const SizedBox(height: 16),
         ...data.when(
           loading: () => [const Center(child: CircularProgressIndicator())],
-          error: (e, _) => [Text('$e')],
+          error: (e, _) => [
+            ErrorView(
+              error: e,
+              compact: true,
+              onRetry: () => ref.invalidate(dashboardViewProvider),
+            ),
+          ],
           data: (d) => _content(context, l10n, d),
         ),
       ],
@@ -158,7 +164,9 @@ class DashboardScreen extends ConsumerWidget {
                 subtitle: Text(
                   s.dueDate == null
                       ? l10n.overdueShort
-                      : l10n.overdueSince(when.format(s.dueDate!.toLocal())),
+                      : l10n.overdueSince(
+                          when.format(WcTime.local(s.dueDate!, context)),
+                        ),
                 ),
                 onTap: () => context.go('/sources/${s.id}'),
               ),
@@ -189,7 +197,7 @@ class DashboardScreen extends ConsumerWidget {
                 subtitle: Text(
                   l10n.collectorLine(
                     c.submissions,
-                    when.format(c.lastSubmission.toLocal()),
+                    when.format(WcTime.local(c.lastSubmission, context)),
                   ),
                 ),
                 trailing: c.mark == null ? null : _MarkChip(mark: c.mark!),
@@ -312,7 +320,7 @@ class _LatestTests extends StatelessWidget {
               title: Text(t.name == null ? t.code : '${t.name} (${t.code})'),
               subtitle: Text(
                 l10n.recentLine(
-                  when.format(t.testedAt.toLocal()),
+                  when.format(WcTime.local(t.testedAt, context)),
                   t.collectorName ?? l10n.recentUnknownCollector,
                 ),
               ),

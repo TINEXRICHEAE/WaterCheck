@@ -8,6 +8,7 @@ import '../../l10n/app_localizations.dart';
 import '../collectors/active_collector_chip.dart';
 import '../sources/source_providers.dart';
 import '../sources/source_status.dart';
+import '../sync/collect_sync.dart';
 
 /// Home: the village's sources with status, due/overdue, sync state and
 /// "Test a source" (SPEC §3.1 step 2).
@@ -47,8 +48,11 @@ class HomeScreen extends ConsumerWidget {
         ),
       ),
       body: summaries.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('$e')),
+        loading: () => const PageLoading(),
+        error: (e, _) => ErrorView(
+          error: e,
+          onRetry: () => ref.invalidate(sourceSummariesProvider),
+        ),
         data: (list) => list.isEmpty
             ? Center(
                 child: Padding(
@@ -67,29 +71,35 @@ class HomeScreen extends ConsumerWidget {
                   ),
                 ),
               )
-            : ListView.separated(
-                padding: const EdgeInsets.only(bottom: 96),
-                itemCount: list.length,
-                separatorBuilder: (_, _) => const Divider(height: 1),
-                itemBuilder: (context, i) {
-                  final s = list[i];
-                  return ListTile(
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    title: Text(s.source.name ?? s.source.code),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (s.source.name != null) Text(s.source.code),
-                        SourceScheduleText(s),
-                      ],
-                    ),
-                    trailing: StatusBadge(statusOf(s)),
-                    onTap: () => context.push('/sources/${s.source.id}'),
-                  );
-                },
+            // Pull down to sync now.
+            : RefreshIndicator(
+                onRefresh: () =>
+                    ref.read(syncControllerProvider.notifier).run(force: true),
+                child: ListView.separated(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.only(bottom: 96),
+                  itemCount: list.length,
+                  separatorBuilder: (_, _) => const Divider(height: 1),
+                  itemBuilder: (context, i) {
+                    final s = list[i];
+                    return ListTile(
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
+                      title: Text(s.source.name ?? s.source.code),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (s.source.name != null) Text(s.source.code),
+                          SourceScheduleText(s),
+                        ],
+                      ),
+                      trailing: StatusBadge(statusOf(s)),
+                      onTap: () => context.push('/sources/${s.source.id}'),
+                    );
+                  },
+                ),
               ),
       ),
       floatingActionButton: FloatingActionButton.extended(

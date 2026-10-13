@@ -139,7 +139,7 @@ class SourceDetailScreen extends ConsumerWidget {
           ListTile(
             contentPadding: EdgeInsets.zero,
             leading: StatusBadge(h.overall.display),
-            title: Text(when.format(h.testedAt.toLocal())),
+            title: Text(when.format(WcTime.local(h.testedAt, context))),
             subtitle: Text(
               [
                 h.collectorName ?? l10n.recentUnknownCollector,
@@ -205,7 +205,7 @@ class SourceDetailScreen extends ConsumerWidget {
           ListTile(
             contentPadding: EdgeInsets.zero,
             leading: const Icon(Icons.fact_check_outlined),
-            title: Text(when.format(i.inspectedAt.toLocal())),
+            title: Text(when.format(WcTime.local(i.inspectedAt, context))),
             subtitle: Text(l10n.inspectionRisks(i.risks, i.answered)),
           ),
         const Divider(height: 32),

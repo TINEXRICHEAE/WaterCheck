@@ -520,5 +520,18 @@
         "type": "String"
       }
     }
-  }
+  },
+  "settingsAppearance": "Appearance and time",
+  "settingsAppearanceDevice": "Saved on this phone.",
+  "settingsAppearanceFor": "Saved on this phone for {name}.",
+  "@settingsAppearanceFor": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "pickSearch": "Search by name or code",
+  "pickNoMatch": "No source matches the search.",
+  "resultHome": "Back to the start page"
 }

@@ -24,6 +24,8 @@ class MeResponse {
     this.notifyPush = true,
     this.notifySms = true,
     this.consoleIdleMinutes = 30,
+    this.theme = 'system',
+    this.timeZone = 'Africa/Kampala',
     this.phone,
     this.email,
   });
@@ -52,6 +54,9 @@ class MeResponse {
   final bool notifySms;
   @JsonKey(name: 'console_idle_minutes')
   final int consoleIdleMinutes;
+  final String theme;
+  @JsonKey(name: 'time_zone')
+  final String timeZone;
 
   Map<String, Object?> toJson() => _$MeResponseToJson(this);
 }

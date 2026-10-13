@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ui_kit/ui_kit.dart';
 
 import '../../l10n/app_localizations.dart';
 import 'dashboard_state.dart';
@@ -58,6 +59,7 @@ class FilterBar extends ConsumerWidget {
             ],
             onChanged: n.profile,
           ),
+        ResetFiltersButton(onPressed: s.isDefault ? null : n.reset),
       ],
     );
   }
@@ -80,6 +82,8 @@ class _Dropdown<T> extends StatelessWidget {
   Widget build(BuildContext context) => ConstrainedBox(
     constraints: const BoxConstraints(minWidth: 160, maxWidth: 320),
     child: DropdownButtonFormField<T>(
+      // Keyed by value: "Reset filters" must redraw the choice.
+      key: ValueKey(value),
       initialValue: value,
       isExpanded: true,
       decoration: InputDecoration(

@@ -35,8 +35,11 @@ class ReferenceDataScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final data = ref.watch(_referenceDataProvider);
     return data.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, _) => Center(child: Text('$e')),
+      loading: () => const PageLoading(),
+      error: (e, _) => ErrorView(
+        error: e,
+        onRetry: () => ref.invalidate(_referenceDataProvider),
+      ),
       data: (d) => Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 900),

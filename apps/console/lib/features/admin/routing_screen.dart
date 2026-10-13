@@ -1,6 +1,7 @@
 import 'package:api_client/api_client.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ui_kit/ui_kit.dart';
 
 import '../../app/console_sync.dart';
 import '../../l10n/app_localizations.dart';
@@ -86,7 +87,13 @@ class _RoutingScreenState extends ConsumerState<RoutingScreen> {
         const SizedBox(height: 12),
         ...routing.when(
           loading: () => [const LinearProgressIndicator()],
-          error: (_, _) => [Text(l10n.adminNeedsConnection)],
+          error: (e, _) => [
+            ErrorView(
+              error: e,
+              compact: true,
+              onRetry: () => ref.invalidate(adminRoutingProvider),
+            ),
+          ],
           data: (r) {
             final rules = _rules ??= {
               for (final x in r.rules) (x.triggerRule, x.responsibilityCode),
@@ -127,7 +134,7 @@ class _RoutingScreenState extends ConsumerState<RoutingScreen> {
               Wrap(
                 spacing: 8,
                 children: [
-                  FilledButton(
+                  BusyButton(
                     onPressed: _dirty ? _save : null,
                     child: Text(l10n.routingSave),
                   ),

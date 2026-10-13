@@ -51,7 +51,7 @@ class SyncScreen extends ConsumerWidget {
     final time = DateFormat.Hm();
     final day = DateFormat.MMMd();
     String when(DateTime t) {
-      final local = t.toLocal();
+      final local = WcTime.local(t);
       final today = DateTime.now();
       return local.year == today.year &&
               local.month == today.month &&

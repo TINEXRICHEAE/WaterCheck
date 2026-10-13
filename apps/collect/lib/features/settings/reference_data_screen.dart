@@ -37,8 +37,11 @@ class ReferenceDataScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: Text(UiKitLocalizations.of(context).refDataTitle)),
       body: data.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('$e')),
+        loading: () => const PageLoading(),
+        error: (e, _) => ErrorView(
+          error: e,
+          onRetry: () => ref.invalidate(_referenceDataProvider),
+        ),
         data: (d) => ReferenceDataView(
           catalogue: d.catalogue,
           profiles: d.profiles,

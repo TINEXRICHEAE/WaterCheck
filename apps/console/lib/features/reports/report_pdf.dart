@@ -1,3 +1,5 @@
+import 'package:ui_kit/ui_kit.dart';
+
 import 'dart:typed_data';
 
 import 'package:data/data.dart';
@@ -70,7 +72,7 @@ Future<Uint8List> reportPdf({
         build: (_) => [
           pw.Row(
             children: [
-              PdfKit.icon(PdfKit.waterDrop, size: 22, color: PdfKit.neutral),
+              pw.Image(kit.logo, width: 26, height: 26),
               pw.SizedBox(width: 6),
               pw.Text(
                 l10n.reportTitle,
@@ -85,12 +87,12 @@ Future<Uint8List> reportPdf({
           pw.Text(l10n.reportArea(r.areaName)),
           pw.Text(
             l10n.reportPeriod(
-              day.format(r.filter.from.toLocal()),
-              day.format(r.filter.to.toLocal()),
+              day.format(WcTime.local(r.filter.from)),
+              day.format(WcTime.local(r.filter.to)),
             ),
           ),
           pw.Text(
-            l10n.reportGenerated(when.format(r.generatedAt.toLocal())),
+            l10n.reportGenerated(when.format(WcTime.local(r.generatedAt))),
             style: const pw.TextStyle(color: PdfKit.neutral, fontSize: 9),
           ),
 
@@ -169,7 +171,9 @@ Future<Uint8List> reportPdf({
                 [
                   s.name == null ? s.code : '${s.name}\n${s.code}',
                   s.village,
-                  s.testedAt == null ? '-' : day.format(s.testedAt!.toLocal()),
+                  s.testedAt == null
+                      ? '-'
+                      : day.format(WcTime.local(s.testedAt!)),
                   l10n.statusWord(s.overall?.name ?? 'none'),
                   s.readings
                       .map(
@@ -212,7 +216,7 @@ Future<Uint8List> reportPdf({
               data: [
                 for (final a in r.alerts)
                   [
-                    when.format(a.openedAt.toLocal()),
+                    when.format(WcTime.local(a.openedAt)),
                     a.sourceName == null
                         ? a.sourceCode
                         : '${a.sourceName}\n${a.sourceCode}',

@@ -2,8 +2,11 @@ import 'package:data/data.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:ui_kit/ui_kit.dart';
 
+import '../../app/appearance.dart';
 import '../../app/gate.dart';
+import '../../app/providers.dart';
 import '../../app/services.dart';
 import '../../l10n/app_localizations.dart';
 import '../lock/lock_screens.dart' show confirmLockOff;
@@ -31,6 +34,8 @@ class SettingsScreen extends ConsumerWidget {
     final credentials = ref.watch(credentialsProvider);
     final lock = ref.watch(_lockStateProvider).value;
     final config = lock?.$1;
+    final look = ref.watch(appearanceProvider).value;
+    final collector = ref.watch(activeCollectorProvider);
     return Scaffold(
       appBar: AppBar(title: Text(l10n.settingsTitle)),
       body: ListView(
@@ -92,6 +97,35 @@ class SettingsScreen extends ConsumerWidget {
                 ref.read(photosOnMobileDataProvider.notifier).set(on),
           ),
           const Divider(),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+            child: Text(
+              l10n.settingsAppearance,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Text(
+              collector == null
+                  ? l10n.settingsAppearanceDevice
+                  : l10n.settingsAppearanceFor(collector.fullName),
+            ),
+          ),
+          if (look != null)
+            AppearanceSettings(
+              theme: look.theme,
+              zone: look.zone,
+              onTheme: (t) => ref.read(appearanceProvider.notifier).set((
+                theme: t,
+                zone: look.zone,
+              )),
+              onZone: (z) => ref.read(appearanceProvider.notifier).set((
+                theme: look.theme,
+                zone: z,
+              )),
+            ),
+          const Divider(height: 32),
           ListTile(
             leading: const Icon(Icons.dataset_outlined),
             title: Text(l10n.settingsReferenceData),
@@ -103,13 +137,19 @@ class SettingsScreen extends ConsumerWidget {
             leading: const Icon(Icons.restart_alt),
             title: Text(l10n.settingsReset),
             subtitle: Text(l10n.settingsResetHint),
-            onTap: () => context.go('/reset'),
+            onTap: () => context.push('/reset'),
           ),
           const Divider(),
           ListTile(
-            leading: const Icon(Icons.info_outline),
+            leading: const AppLogo(size: 32, decorative: true),
             title: Text(l10n.settingsAbout),
             subtitle: Text(l10n.settingsAboutBody(appVersion)),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => showWaterCheckAbout(
+              context,
+              appName: l10n.appTitle,
+              version: appVersion,
+            ),
           ),
         ],
       ),

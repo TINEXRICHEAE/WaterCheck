@@ -1,6 +1,7 @@
 import 'package:api_client/api_client.dart';
 import 'package:data/data.dart';
 import 'package:flutter/material.dart';
+import 'package:ui_kit/ui_kit.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -20,6 +21,7 @@ class UsersScreen extends ConsumerStatefulWidget {
 
 class _UsersScreenState extends ConsumerState<UsersScreen> {
   var _query = '';
+  var _raw = '';
 
   @override
   Widget build(BuildContext context) {
@@ -40,19 +42,24 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
             style: Theme.of(context).textTheme.headlineSmall,
           ),
           const SizedBox(height: 8),
-          TextField(
-            decoration: InputDecoration(
-              prefixIcon: const Icon(Icons.search),
-              labelText: l10n.usersSearch,
-              border: const OutlineInputBorder(),
-              isDense: true,
-            ),
-            onChanged: (v) => setState(() => _query = v.trim().toLowerCase()),
+          SearchField(
+            value: _raw,
+            label: l10n.usersSearch,
+            onChanged: (v) => setState(() {
+              _raw = v;
+              _query = v.trim().toLowerCase();
+            }),
           ),
           const SizedBox(height: 8),
           ...users.when(
             loading: () => [const Center(child: CircularProgressIndicator())],
-            error: (e, _) => [Text(l10n.adminNeedsConnection)],
+            error: (e, _) => [
+              ErrorView(
+                error: e,
+                compact: true,
+                onRetry: () => ref.invalidate(adminUsersProvider),
+              ),
+            ],
             data: (list) => [
               for (final u in list)
                 if (_query.isEmpty ||
@@ -80,7 +87,9 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
                           u.lastSignInAt == null
                               ? l10n.usersNeverSignedIn
                               : l10n.usersLastSignIn(
-                                  when.format(u.lastSignInAt!.toLocal()),
+                                  when.format(
+                                    WcTime.local(u.lastSignInAt!, context),
+                                  ),
                                 ),
                         ].join('\n'),
                       ),
@@ -426,7 +435,10 @@ class _UserDialogState extends ConsumerState<_UserDialog> {
         ),
         FilledButton(
           onPressed: _saving || !valid ? null : _save,
-          child: Text(u == null ? l10n.usersCreate : l10n.alertSave),
+          child: BusyLabel(
+            busy: _saving,
+            child: Text(u == null ? l10n.usersCreate : l10n.alertSave),
+          ),
         ),
       ],
     );

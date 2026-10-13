@@ -93,7 +93,15 @@ class _ResetScreenState extends ConsumerState<ResetScreen> {
     final unsent = _unsent;
     return Scaffold(
       appBar: AppBar(
+        // A revoked phone has nowhere to go back to.
         automaticallyImplyLeading: false,
+        leading: revoked
+            ? null
+            : BackButton(
+                onPressed: _busy
+                    ? null
+                    : () => context.canPop() ? context.pop() : context.go('/'),
+              ),
         title: Text(revoked ? l10n.revokedTitle : l10n.resetTitle),
         actions: [
           if (!revoked)

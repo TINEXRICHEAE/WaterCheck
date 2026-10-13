@@ -3,6 +3,7 @@ import 'package:data/data.dart' show defaultApiUrl;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ui_kit/ui_kit.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../l10n/app_localizations.dart';
@@ -94,7 +95,7 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen> {
         child: ListView(
           padding: const EdgeInsets.all(24),
           children: [
-            const Icon(Icons.phonelink_lock_outlined, size: 48),
+            const Center(child: AppLogo(size: 72, decorative: true)),
             const SizedBox(height: 12),
             Text(l10n.activationIntro, style: text.bodyLarge),
             const SizedBox(height: 24),

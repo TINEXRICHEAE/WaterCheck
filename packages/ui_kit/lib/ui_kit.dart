@@ -4,10 +4,17 @@ library;
 
 export 'l10n/ui_kit_localizations.dart';
 export 'src/adaptive_scaffold.dart';
+export 'src/app_logo.dart';
+export 'src/appearance_settings.dart';
+export 'src/busy_button.dart';
+export 'src/error_view.dart';
+export 'src/password_field.dart';
 export 'src/pin_pad.dart';
 export 'src/pin_screens.dart';
 export 'src/placeholder_home.dart';
+export 'src/preferences.dart';
 export 'src/reference_data_view.dart';
+export 'src/search_field.dart';
 export 'src/status_badge.dart';
 export 'src/sync_indicator.dart';
 export 'src/theme.dart';

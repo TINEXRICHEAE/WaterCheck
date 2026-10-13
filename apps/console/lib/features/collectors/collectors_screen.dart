@@ -1,5 +1,6 @@
 import 'package:data/data.dart';
 import 'package:flutter/material.dart';
+import 'package:ui_kit/ui_kit.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
@@ -47,7 +48,7 @@ class CollectorsScreen extends ConsumerWidget {
                 [
                   l10n.collectorLine(
                     c.submissions,
-                    when.format(c.lastSubmission.toLocal()),
+                    when.format(WcTime.local(c.lastSubmission, context)),
                   ),
                   if (c.collectorType != null)
                     l10n.collectorType(c.collectorType!),

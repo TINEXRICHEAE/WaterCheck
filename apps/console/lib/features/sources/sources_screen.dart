@@ -35,6 +35,9 @@ class SourcesQueryNotifier extends Notifier<SourcesQuery> {
   void filter(SourceFilter f) =>
       state = SourcesQuery(text: state.text, filter: f, map: state.map);
 
+  /// Clears the search and shows all sources (keeps list or map).
+  void reset() => state = SourcesQuery(map: state.map);
+
   void map(bool m) =>
       state = SourcesQuery(text: state.text, filter: state.filter, map: m);
 }
@@ -102,13 +105,9 @@ class SourcesScreen extends ConsumerWidget {
       const SizedBox(height: 12),
       const FilterBar(showPeriod: false),
       const SizedBox(height: 12),
-      TextField(
-        decoration: InputDecoration(
-          prefixIcon: const Icon(Icons.search),
-          labelText: l10n.sourcesSearch,
-          border: const OutlineInputBorder(),
-          isDense: true,
-        ),
+      SearchField(
+        value: q.text,
+        label: l10n.sourcesSearch,
         onChanged: ref.read(sourcesQueryProvider.notifier).text,
       ),
       const SizedBox(height: 8),
@@ -127,6 +126,11 @@ class SourcesScreen extends ConsumerWidget {
               onSelected: (_) =>
                   ref.read(sourcesQueryProvider.notifier).filter(f),
             ),
+          ResetFiltersButton(
+            onPressed: q.text.isEmpty && q.filter == SourceFilter.all
+                ? null
+                : ref.read(sourcesQueryProvider.notifier).reset,
+          ),
         ],
       ),
       const SizedBox(height: 8),
@@ -148,7 +152,9 @@ class SourcesScreen extends ConsumerWidget {
                   s.latest == null
                       ? l10n.neverTested
                       : l10n.lastTested(
-                          when.format(s.latest!.testedAt.toLocal()),
+                          when.format(
+                            WcTime.local(s.latest!.testedAt, context),
+                          ),
                         ),
                   if (s.schedule.status == ScheduleStatus.overdue)
                     l10n.overdueShort,

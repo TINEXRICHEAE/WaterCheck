@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../l10n/ui_kit_localizations.dart';
+import 'preferences.dart';
 import 'theme.dart';
 
 /// A parameter over time with its limit(s) as dashed lines. Points are
@@ -46,7 +47,7 @@ class TrendChart extends StatelessWidget {
     return Semantics(
       label:
           '${l10n.trendTitle}: '
-          '${points.map((p) => '${DateFormat.yMMMd('en').format(p.at.toLocal())} ${p.value} $unit').join(', ')}',
+          '${points.map((p) => '${DateFormat.yMMMd('en').format(WcTime.local(p.at))} ${p.value} $unit').join(', ')}',
       child: LineChart(
         LineChartData(
           minY: lo - pad,
@@ -91,7 +92,7 @@ class TrendChart extends StatelessWidget {
                   if (i < 0 || i >= points.length || value != i.toDouble()) {
                     return const SizedBox.shrink();
                   }
-                  final d = points[i].at.toLocal();
+                  final d = WcTime.local(points[i].at);
                   return SideTitleWidget(
                     meta: meta,
                     child: Text('${d.day}/${d.month}'),

@@ -1,11 +1,11 @@
 {
-    "name": "watercheck_console",
-    "short_name": "watercheck_console",
+    "name": "WaterCheck Console",
+    "short_name": "Console",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#0F172A",
+    "theme_color": "#0F172A",
+    "description": "Water quality dashboard, alerts and administration.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

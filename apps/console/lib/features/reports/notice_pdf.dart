@@ -1,3 +1,5 @@
+import 'package:ui_kit/ui_kit.dart';
+
 import 'dart:typed_data';
 
 import 'package:data/data.dart';
@@ -69,11 +71,7 @@ Future<Uint8List> noticePdf({
           children: [
             pw.Row(
               children: [
-                PdfKit.icon(
-                  PdfKit.waterDrop,
-                  size: pt(28),
-                  color: PdfKit.neutral,
-                ),
+                pw.Image(kit.logo, width: pt(32), height: pt(32)),
                 pw.SizedBox(width: pt(8)),
                 pw.Text(
                   l10n.noticeTitle.toUpperCase(),
@@ -129,7 +127,7 @@ Future<Uint8List> noticePdf({
               pw.Padding(
                 padding: pw.EdgeInsets.only(top: pt(6)),
                 child: pw.Text(
-                  l10n.noticeTested(day.format(at.toLocal())),
+                  l10n.noticeTested(day.format(WcTime.local(at))),
                   style: pw.TextStyle(fontSize: pt(16)),
                 ),
               ),
@@ -197,7 +195,7 @@ Future<Uint8List> noticePdf({
             pw.Text(l10n.noticeContact, style: pw.TextStyle(fontSize: pt(14))),
             pw.SizedBox(height: pt(4)),
             pw.Text(
-              l10n.noticePrinted(day.format(printedAt.toLocal())),
+              l10n.noticePrinted(day.format(WcTime.local(printedAt))),
               style: pw.TextStyle(fontSize: pt(10), color: PdfKit.neutral),
             ),
           ],

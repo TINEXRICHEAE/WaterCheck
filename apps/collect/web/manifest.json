@@ -1,11 +1,11 @@
 {
-    "name": "watercheck_collect",
-    "short_name": "watercheck_collect",
+    "name": "WaterCheck Collect",
+    "short_name": "Collect",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#0F172A",
+    "theme_color": "#0F172A",
+    "description": "Record water tests in the field, offline.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

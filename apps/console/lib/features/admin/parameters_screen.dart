@@ -2,6 +2,7 @@ import 'package:api_client/api_client.dart';
 import 'package:domain/domain.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ui_kit/ui_kit.dart';
 
 import '../../app/console_sync.dart';
 import '../../app/providers.dart';
@@ -55,7 +56,13 @@ class ParametersScreen extends ConsumerWidget {
         const SizedBox(height: 12),
         ...pending.when(
           loading: () => [const LinearProgressIndicator()],
-          error: (_, _) => [Text(l10n.adminNeedsConnection)],
+          error: (e, _) => [
+            ErrorView(
+              error: e,
+              compact: true,
+              onRetry: () => ref.invalidate(adminPendingParametersProvider),
+            ),
+          ],
           data: (list) => [
             if (list.isEmpty) Text(l10n.paramsNone),
             for (final p in list)
@@ -79,7 +86,8 @@ class ParametersScreen extends ConsumerWidget {
                       Wrap(
                         spacing: 8,
                         children: [
-                          FilledButton.tonal(
+                          BusyButton(
+                            kind: BusyButtonKind.tonal,
                             onPressed: () => _review(
                               context,
                               ref,
@@ -144,13 +152,26 @@ class ParametersScreen extends ConsumerWidget {
                                   },
                             child: Text(l10n.paramsMerge),
                           ),
-                          TextButton(
-                            onPressed: () => _review(
-                              context,
-                              ref,
-                              p,
-                              const ReviewIn(action: ReviewInAction.reject),
-                            ),
+                          BusyButton(
+                            kind: BusyButtonKind.text,
+                            onPressed: () async {
+                              final l10n = AppLocalizations.of(context);
+                              if (await confirmAction(
+                                    context,
+                                    title: l10n.paramsRejectTitle(p.name),
+                                    message: l10n.paramsRejectBody,
+                                    confirm: l10n.paramsReject,
+                                    destructive: true,
+                                  ) &&
+                                  context.mounted) {
+                                await _review(
+                                  context,
+                                  ref,
+                                  p,
+                                  const ReviewIn(action: ReviewInAction.reject),
+                                );
+                              }
+                            },
                             child: Text(l10n.paramsReject),
                           ),
                         ],

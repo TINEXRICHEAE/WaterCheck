@@ -19,6 +19,9 @@ class DashboardSettings {
   /// Null: each result under the profile used at collection (F-RPT-7).
   final String? profileId;
 
+  /// All areas, 30 days, as collected.
+  bool get isDefault => areaId == null && days == 30 && profileId == null;
+
   DashboardSettings copyWith({
     String? areaId,
     int? days,
@@ -45,6 +48,8 @@ class DashboardSettingsNotifier extends Notifier<DashboardSettings> {
   void profile(String? id) => state = id == null
       ? state.copyWith(asCollected: true)
       : state.copyWith(profileId: id);
+
+  void reset() => state = const DashboardSettings();
 }
 
 final dashboardSettingsProvider =

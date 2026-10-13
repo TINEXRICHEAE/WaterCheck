@@ -1,6 +1,7 @@
 import 'package:api_client/api_client.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ui_kit/ui_kit.dart';
 
 import '../../app/session.dart';
 import '../../l10n/app_localizations.dart';
@@ -48,6 +49,16 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     }
   }
 
+  Future<void> _appearance(ThemeChoice theme, TimeZoneChoice zone) async {
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      await ref.read(sessionProvider.notifier).setAppearance(theme, zone);
+    } on ApiFailure {
+      messenger.showSnackBar(SnackBar(content: Text(l10n.appearanceLocalOnly)));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -90,6 +101,15 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           subtitle: Text(
             [?me.email, ?me.phone].join(' · ').ifEmpty(l10n.profileNoContacts),
           ),
+        ),
+        const Divider(height: 32),
+        Text(l10n.appearanceTitle, style: text.titleMedium),
+        Text(l10n.appearanceHint),
+        AppearanceSettings(
+          theme: ThemeChoice.parse(me.theme),
+          zone: TimeZoneChoice.parse(me.timeZone),
+          onTheme: (t) => _appearance(t, TimeZoneChoice.parse(me.timeZone)),
+          onZone: (z) => _appearance(ThemeChoice.parse(me.theme), z),
         ),
         const Divider(height: 32),
         Text(l10n.notifyTitle, style: text.titleMedium),

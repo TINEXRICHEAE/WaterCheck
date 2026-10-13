@@ -1,6 +1,7 @@
 import 'package:data/data.dart';
 import 'package:domain/domain.dart';
 import 'package:flutter/material.dart';
+import 'package:ui_kit/ui_kit.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -70,10 +71,15 @@ class AlertsScreen extends ConsumerWidget {
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
             ),
-            FilterChip(
-              label: Text(l10n.alertsShowClosed),
-              selected: showClosed,
-              onSelected: ref.read(_showClosedProvider.notifier).set,
+            SegmentedButton<bool>(
+              showSelectedIcon: false,
+              segments: [
+                ButtonSegment(value: false, label: Text(l10n.alertsFilterOpen)),
+                ButtonSegment(value: true, label: Text(l10n.alertsFilterAll)),
+              ],
+              selected: {showClosed},
+              onSelectionChanged: (v) =>
+                  ref.read(_showClosedProvider.notifier).set(v.single),
             ),
           ],
         ),
@@ -97,7 +103,7 @@ class AlertsScreen extends ConsumerWidget {
                 '${a.sourceName ?? a.sourceCode}',
               ),
               subtitle: Text(
-                '${a.sourceCode} · ${when.format(a.openedAt.toLocal())} · '
+                '${a.sourceCode} · ${when.format(WcTime.local(a.openedAt, context))} · '
                 '${statusText(l10n, a.status)}',
               ),
               trailing: const Icon(Icons.chevron_right),

@@ -1,6 +1,7 @@
 import 'package:api_client/api_client.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ui_kit/ui_kit.dart';
 
 import '../../l10n/app_localizations.dart';
 import 'admin_api.dart';
@@ -125,7 +126,7 @@ class _SecurityScreenState extends ConsumerState<SecurityScreen> {
             alignment: Alignment.centerLeft,
             child: FilledButton(
               onPressed: valid && !_saving ? _save : null,
-              child: Text(l10n.securitySave),
+              child: BusyLabel(busy: _saving, child: Text(l10n.securitySave)),
             ),
           ),
         ],

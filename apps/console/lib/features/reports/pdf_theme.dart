@@ -5,9 +5,12 @@ import 'package:pdf/widgets.dart' as pw;
 /// Fonts, colours and icons for the PDFs (P10). The text font is embedded,
 /// so a report renders the same on every device and works offline.
 class PdfKit {
-  PdfKit._(this.theme);
+  PdfKit._(this.theme, this.logo);
 
   final pw.ThemeData theme;
+
+  /// The WaterCheck icon (design/watercheck-icons), from ui_kit's assets.
+  final pw.ImageProvider logo;
 
   static PdfKit? _cached;
 
@@ -19,7 +22,15 @@ class PdfKit {
     final bold = pw.Font.ttf(
       await rootBundle.load('assets/fonts/Roboto-Bold.ttf'),
     );
-    return _cached = PdfKit._(pw.ThemeData.withFont(base: regular, bold: bold));
+    final logo = pw.MemoryImage(
+      (await rootBundle.load(
+        'packages/ui_kit/assets/2.0x/watercheck.png',
+      )).buffer.asUint8List(),
+    );
+    return _cached = PdfKit._(
+      pw.ThemeData.withFont(base: regular, bold: bold),
+      logo,
+    );
   }
 
   // Status colours (as in the apps); the word is always printed too.

@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'perf.dart';
 import 'providers.dart';
+import 'request_activity.dart';
 import 'session.dart';
 
 /// Adds the signed-in user's access token, refreshing it when needed, and
@@ -77,6 +78,7 @@ final consoleDioProvider = Provider<Dio>((ref) {
   dio.interceptors.addAll([
     BearerInterceptor(session.accessToken, dio),
     GzipRequestInterceptor(),
+    RequestActivityInterceptor(),
   ]);
   return dio;
 });

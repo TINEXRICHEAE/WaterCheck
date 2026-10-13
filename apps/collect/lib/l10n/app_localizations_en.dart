@@ -1135,4 +1135,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String limitsStakeholderFailed(String code) {
     return 'Could not save the limits ($code).';
   }
+
+  @override
+  String get settingsAppearance => 'Appearance and time';
+
+  @override
+  String get settingsAppearanceDevice => 'Saved on this phone.';
+
+  @override
+  String settingsAppearanceFor(String name) {
+    return 'Saved on this phone for $name.';
+  }
+
+  @override
+  String get pickSearch => 'Search by name or code';
+
+  @override
+  String get pickNoMatch => 'No source matches the search.';
+
+  @override
+  String get resultHome => 'Back to the start page';
 }

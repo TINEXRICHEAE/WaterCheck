@@ -19,6 +19,7 @@ export 'models/activate_request.dart';
 export 'models/activate_response.dart';
 export 'models/activation_code_out.dart';
 export 'models/admin_unit_out.dart';
+export 'models/appearance_in.dart';
 export 'models/area.dart';
 export 'models/area_out.dart';
 export 'models/audit_entry.dart';

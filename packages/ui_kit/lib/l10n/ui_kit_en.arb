@@ -147,5 +147,47 @@
     }
   },
   "trendTitle": "Trend",
-  "trendLimit": "Limit"
+  "trendLimit": "Limit",
+  "appLogo": "WaterCheck logo",
+  "passwordShow": "Show password",
+  "passwordHide": "Hide password",
+  "loading": "Loading",
+  "errorRetry": "Try again",
+  "errorHome": "Go to the start page",
+  "errorOfflineTitle": "No connection",
+  "errorOfflineBody": "The server cannot be reached. Check the internet connection and try again. Work saved on this device is kept.",
+  "errorTimeoutTitle": "This is taking too long",
+  "errorTimeoutBody": "The server did not answer in time. The connection may be slow; try again in a moment.",
+  "errorSignedOutTitle": "Please sign in again",
+  "errorSignedOutBody": "Your session has ended. Sign in again to continue.",
+  "errorForbiddenTitle": "Not allowed",
+  "errorForbiddenBody": "Your account does not have access to this. Ask the IT admin if you need it.",
+  "errorNotFoundTitle": "Page not found",
+  "errorNotFoundBody": "What you are looking for is not here. It may have been moved or removed.",
+  "errorServerTitle": "The server had a problem",
+  "errorServerBody": "Something went wrong on the server. Try again later; if it keeps happening, tell the IT admin.",
+  "errorUnknownTitle": "Something went wrong",
+  "errorUnknownBody": "This could not be completed. Try again; if it keeps happening, tell the IT admin.",
+  "settingsTheme": "Theme",
+  "themeSystem": "System",
+  "themeLight": "Light",
+  "themeDark": "Dark",
+  "settingsTimeZone": "Time zone",
+  "settingsTimeZoneNow": "Time now: {time}",
+  "@settingsTimeZoneNow": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "zoneAuto": "Automatic (this device's time zone)",
+  "zoneKampala": "East Africa Time, Kampala (UTC+3)",
+  "zoneNairobi": "East Africa Time, Nairobi (UTC+3)",
+  "zoneUtc": "UTC",
+  "filtersReset": "Reset filters",
+  "aboutLegalese": "Community drinking water monitoring. Licensed under the project licence; open-source components are listed under View licences.",
+  "cancel": "Cancel",
+  "searchClear": "Clear search",
+  "filterAll": "All"
 }
