@@ -23,9 +23,9 @@ class PdfKit {
       await rootBundle.load('assets/fonts/Roboto-Bold.ttf'),
     );
     final logo = pw.MemoryImage(
-      (await rootBundle.load(
-        'packages/ui_kit/assets/2.0x/watercheck.png',
-      )).buffer.asUint8List(),
+      (await rootBundle.load('packages/ui_kit/assets/2.0x/watercheck.png'))
+          .buffer
+          .asUint8List(),
     );
     return _cached = PdfKit._(
       pw.ThemeData.withFont(base: regular, bold: bold),

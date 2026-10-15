@@ -35,8 +35,7 @@ enum TimeZoneChoice {
 
   static TimeZoneChoice parse(String? s) => s == 'auto'
       ? TimeZoneChoice.auto
-      : values.where((v) => v.id != null && v.id == s).firstOrNull ??
-            fallback;
+      : values.where((v) => v.id != null && v.id == s).firstOrNull ?? fallback;
 
   String get stored => id ?? 'auto';
 }
