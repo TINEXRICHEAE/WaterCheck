@@ -38,6 +38,11 @@ The development deployment procedure is maintained separately in
 fixture loading, all client platforms, and building a Collect Android APK
 against production without adding a production Collect web route.
 
+Repeated Android builds exposed a workstation resource issue: Gradle had been
+configured for an 8 GiB heap on a 7 GiB Windows host. The project now caps the
+Gradle heap at 2 GiB and the cleanup script removes reproducible Android
+intermediates and crash reports while preserving required source and data.
+
 ---
 
 ## 0. Where we are today (2026-10-09)

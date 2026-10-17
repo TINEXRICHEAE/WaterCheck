@@ -39,6 +39,10 @@
 - [ ] Add a production Collect web route if browser-based Collect is required;
   currently production web serves Console only, so collectors should use the
   Android/Windows Collect client.
+- [x] Android APK build failure diagnosed: Gradle requested an 8 GiB heap on a
+  7 GiB Windows host and the JVM ran out of native memory. Project Gradle
+  memory is capped at 2 GiB and cleanup now removes reproducible Android
+  intermediates and crash reports.
 
 The supported environment model is now:
 

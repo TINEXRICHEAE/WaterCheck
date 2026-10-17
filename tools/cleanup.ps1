@@ -5,7 +5,10 @@
 #
 #   .\tools\cleanup.ps1             # routine
 #   .\tools\cleanup.ps1 -Previews   # also delete the web previews
-param([switch]$Previews)
+param(
+  [switch]$Previews,
+  [switch]$Caches
+)
 $root = Split-Path -Parent $PSScriptRoot
 $before = (Get-PSDrive C).Free
 
@@ -20,6 +23,20 @@ foreach ($app in 'console', 'collect') {
       Where-Object { $Previews -or $_.Name -ne 'web' } |
       ForEach-Object { cmd /c rd /s /q "\\?\$($_.FullName)" 2>$null }
   }
+
+  # Android/Gradle intermediates live outside Flutter's app build directory.
+  # They are reproducible and can be large after failed or repeated builds.
+  foreach ($generated in 'android\app\build', 'android\build', 'android\.gradle') {
+    $path = Join-Path $root "apps\$app\$generated"
+    if (Test-Path $path) {
+      cmd /c rd /s /q "\\?\$path" 2>$null
+    }
+  }
+
+  # A crashed Gradle JVM can leave a large diagnostic report beside the
+  # Android project. It is useful during diagnosis, but not after review.
+  Get-ChildItem (Join-Path $root "apps\$app\android") -Filter 'hs_err_pid*.log' -File -ErrorAction SilentlyContinue |
+    Remove-Item -Force -ErrorAction SilentlyContinue
 }
 Get-ChildItem (Join-Path $root 'packages') -Directory | ForEach-Object {
   Remove-Item -Recurse -Force (Join-Path $_.FullName 'build') -ErrorAction SilentlyContinue
@@ -33,6 +50,14 @@ Get-ChildItem $env:TEMP -Directory -Filter 'flutter_tools.*' -ErrorAction Silent
 # (database, photos) are never touched.
 docker image prune -f | Out-Null
 docker builder prune -af | Out-Null
+
+# Gradle caches are safe to regenerate but can grow after repeated Android
+# builds. Keep the wrapper distributions so the next build does not need to
+# download Gradle itself again. Do this only when disk space is constrained.
+if ($Caches) {
+  Remove-Item -Recurse -Force (Join-Path $env:USERPROFILE '.gradle\caches') -ErrorAction SilentlyContinue
+  Remove-Item -Recurse -Force (Join-Path $env:USERPROFILE '.gradle\.tmp') -ErrorAction SilentlyContinue
+}
 
 # Map tile work files, if a build was interrupted.
 Remove-Item -Recurse -Force (Join-Path $root 'infra\tiles\work') -ErrorAction SilentlyContinue

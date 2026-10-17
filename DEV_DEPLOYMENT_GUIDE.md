@@ -354,6 +354,81 @@ local port.
 Confirm the environment is `dev` or `test`. Never change production to `dev`
 just to load synthetic data.
 
+### Android Gradle daemon disappears or JVM crash log is created
+
+The project caps Gradle at `-Xmx2G` because a typical development laptop may
+have only 8 GiB RAM. An older checkout or a manually overridden
+`GRADLE_OPTS`/`org.gradle.jvmargs` setting may still request too much memory.
+Check `apps/collect/android/gradle.properties` and keep the project value at
+the documented limit.
+
+Run from `.\WaterCheck\apps\collect\android` on Windows or
+`./WaterCheck/apps/collect/android` on Linux:
+
+```sh
+./gradlew --stop
+```
+
+On Windows PowerShell use:
+
+```powershell
+.\gradlew.bat --stop
+```
+
+Then run the cleanup script from the repository root. It removes reproducible
+Flutter and Android build outputs, stale Docker build cache, interrupted tile
+work and JVM crash reports, but preserves source, dependency caches, Docker
+volumes and the generated web preview unless `-Previews` is supplied.
+
+Windows, from `.\WaterCheck`:
+
+```powershell
+.\tools\cleanup.ps1
+```
+
+Linux with PowerShell installed, from `./WaterCheck`:
+
+```bash
+pwsh ./tools/cleanup.ps1
+```
+
+If more space is needed, add `-Caches`. This removes regenerable Gradle
+caches and temporary files but preserves the Gradle wrapper distributions,
+Android SDK, Pub cache, Docker volumes and source code.
+
+Windows, from `.\WaterCheck`:
+
+```powershell
+.\tools\cleanup.ps1 -Caches
+```
+
+Linux with PowerShell installed, from `./WaterCheck`:
+
+```bash
+pwsh ./tools/cleanup.ps1 -Caches
+```
+
+Retry the production-API APK build from the Collect app directory:
+
+Windows, from `.\WaterCheck\apps\collect`:
+
+```powershell
+flutter build apk --release `
+  --dart-define=WC_API_URL=https://api.watercheck.cooptconnect.app/api
+```
+
+Linux, from `./WaterCheck/apps/collect`:
+
+```bash
+flutter build apk --release \
+  --dart-define=WC_API_URL=https://api.watercheck.cooptconnect.app/api
+```
+
+The `java.lang.System::load`, SDK XML version, deprecated Java source and
+Kotlin built-in plugin messages are warnings. The fatal message is
+`There is insufficient memory for the Java Runtime Environment` or
+`Gradle build daemon disappeared unexpectedly`.
+
 ### Migration or API starts before PostgreSQL
 
 Run:

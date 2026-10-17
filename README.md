@@ -557,6 +557,39 @@ flutter devices
 flutter install -d <android-device-id>
 ```
 
+If repeated Android builds fill the SSD or Gradle crashes, stop Gradle and run
+the repository cleanup script. It removes reproducible Flutter/Android build
+outputs and stale build caches but does not remove source or Docker data.
+
+Run from `.\WaterCheck` on Windows:
+
+```powershell
+.\tools\cleanup.ps1
+```
+
+Run from `./WaterCheck` on Linux with PowerShell installed:
+
+```bash
+pwsh ./tools/cleanup.ps1
+```
+
+If more space is needed, use `-Caches` to remove regenerable Gradle caches.
+This keeps the Android SDK, Pub cache, source and Docker volumes:
+
+Run from `.\WaterCheck` on Windows or `./WaterCheck` on Linux:
+
+Windows PowerShell:
+
+```powershell
+.\tools\cleanup.ps1 -Caches
+```
+
+Linux Bash with PowerShell installed:
+
+```bash
+pwsh ./tools/cleanup.ps1 -Caches
+```
+
 Use a dedicated production test account and test data. Do not use the
 production IT-admin account for ordinary field-device testing. Native
 production clients should be released only after the API health check,
@@ -799,7 +832,7 @@ documents for section-specific detail:
   repository workflow and development conventions;
 - [DEV_DEPLOYMENT_GUIDE.md](DEV_DEPLOYMENT_GUIDE.md): complete local Windows
   and Linux Docker deployment, demo data, platform testing and production-API
-  Android APK testing;
+  Android APK testing, Gradle memory failures and disk cleanup;
 - [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md): Azure, Docker, DNS, HTTPS,
   production environment, first admin, updates and troubleshooting;
 - [PROGRESS.md](PROGRESS.md): phase gates, completed work, evidence and
