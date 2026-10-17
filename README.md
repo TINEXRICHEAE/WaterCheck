@@ -590,6 +590,23 @@ Linux Bash with PowerShell installed:
 pwsh ./tools/cleanup.ps1 -Caches
 ```
 
+This is intentionally a tiered cleanup. The routine script may free less than
+the repository's total disk footprint because it preserves reusable global
+caches. The approximate 5 GB Gradle cache is the largest safe global cleanup.
+Use Android Studio's SDK Manager to remove unused Android platforms or emulator
+images; do not delete the entire Android SDK. The Pub cache can be removed
+only when necessary:
+
+Run from any directory after closing Flutter/Dart processes:
+
+```powershell
+dart pub cache clean
+```
+
+The next dependency restore downloads the packages again. For directory size
+inspection and a complete cleanup decision tree, see
+[DEV_DEPLOYMENT_GUIDE.md](DEV_DEPLOYMENT_GUIDE.md#additional-disk-cleanup-choices).
+
 Use a dedicated production test account and test data. Do not use the
 production IT-admin account for ordinary field-device testing. Native
 production clients should be released only after the API health check,

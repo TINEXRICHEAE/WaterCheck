@@ -408,6 +408,67 @@ Linux with PowerShell installed, from `./WaterCheck`:
 pwsh ./tools/cleanup.ps1 -Caches
 ```
 
+### Additional disk cleanup choices
+
+The routine cleanup intentionally does not delete global SDK and package
+caches. Use the following order when more space is required:
+
+1. Run `cleanup.ps1 -Caches` to remove the approximately 5 GB Gradle cache.
+2. Inspect and remove unused Android SDK platforms/system images through
+   Android Studio's SDK Manager. Do not delete the entire SDK directory.
+3. Delete and regenerate the Dart/Flutter Pub cache only when necessary.
+   This cache is smaller but all packages will be downloaded again.
+4. Inspect the repository's remaining generated directories before deleting
+   anything manually. Never delete `infra/.env`, Docker volumes, source files,
+   or the generated production tile artifact without a replacement.
+
+Inspect the largest repository directories from `.\WaterCheck` on Windows:
+
+```powershell
+Get-ChildItem . -Directory -Force | ForEach-Object {
+  $size = (Get-ChildItem $_.FullName -Recurse -File -ErrorAction SilentlyContinue |
+    Measure-Object Length -Sum).Sum
+  [PSCustomObject]@{Path = $_.FullName; GB = [math]::Round($size / 1GB, 2)}
+} | Sort-Object GB -Descending
+```
+
+Inspect the largest global caches from any directory:
+
+```powershell
+$paths = @(
+  "$env:USERPROFILE\.gradle",
+  "$env:LOCALAPPDATA\Android\Sdk",
+  "$env:LOCALAPPDATA\Pub\Cache"
+)
+$results = @()
+foreach ($path in $paths) {
+  $size = (Get-ChildItem $path -Recurse -File -ErrorAction SilentlyContinue |
+    Measure-Object Length -Sum).Sum
+  $results += [PSCustomObject]@{
+    Path = $path
+    GB = [math]::Round($size / 1GB, 2)
+  }
+}
+$results | Sort-Object GB -Descending
+```
+
+To remove the entire Pub cache, first ensure no Flutter or Dart command is
+running, then run from any directory:
+
+```powershell
+dart pub cache clean
+```
+
+Confirm the prompt. The next `flutter pub get` from `.\WaterCheck` and the
+next `uv sync` from `.\WaterCheck\backend` will repopulate their respective
+dependency caches. Do not use this command as routine cleanup.
+
+To remove individual unused Android SDK components, use Android Studio's
+**SDK Manager** from the **SDK Platforms** and **SDK Tools** tabs. Keep the
+Android platform and build-tools versions required by the current Flutter
+doctor output. Removing emulator system images is safe only if those emulator
+images are no longer used.
+
 Retry the production-API APK build from the Collect app directory:
 
 Windows, from `.\WaterCheck\apps\collect`:
