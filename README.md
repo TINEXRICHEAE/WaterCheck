@@ -741,6 +741,14 @@ The local/test account commands are in
 account creation should be performed on the VM using the protected deployment
 procedure in [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md).
 
+Production onboarding is intentionally separate from reference-data seeding:
+the deployment seed does not create people, collector phones, sources or test
+history. Run the first-admin, stakeholder and collector activation commands
+from `~/WaterCheck/infra` on the VM, as documented in
+[DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md#15a-production-accounts-and-collector-activation).
+The performance/demo fixture is dev/test-only and must not be forced into
+production.
+
 ## Upcoming work
 
 The next milestone is **P12: hardening and pilot release**. Remaining or

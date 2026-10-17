@@ -28,6 +28,11 @@
   `https://watercheck.cooptconnect.app/api/health`, and the Console root.
 - [x] Browser confirmation passed: the Console sign-in page loads over HTTPS
   and the API health endpoint returns `{"status":"ok"}`.
+- [ ] Production onboarding: create the first IT admin, stakeholder and
+  collector activation code, then complete one online/offline smoke test.
+- [ ] Decide whether production remains clean (recommended) or create a
+  separate staging environment for synthetic demo/performance data. The
+  `seed-perf-fixture` command must remain dev/test-only.
 
 The supported environment model is now:
 

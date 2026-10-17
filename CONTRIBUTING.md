@@ -45,14 +45,24 @@ Backend tests start a PostGIS container (testcontainers), so Docker must be runn
 
 ### Database, seed and admin CLI
 
+Run from `./WaterCheck/infra` on Linux/macOS, or from `.\WaterCheck\infra` on
+Windows PowerShell:
+
 ```sh
-cd infra && docker compose up -d --build     # migrate service: alembic + API role + seed
-docker compose run --rm migrate python -m app.cli create-admin --username you@example.org --full-name "IT Admin"
-docker compose run --rm migrate python -m app.cli create-activation-code --area ABIM-ENT
-python tools/smoke_api.py --username you@example.org --password <temporary password>
-docker compose run --rm migrate python -m app.cli create-stakeholder --username officer@example.org --full-name "Officer" --area UG-ABIM
-python tools/smoke_web_session.py --username officer@example.org --password <temporary password>
+docker compose up -d --build
+docker compose run --rm migrate python -m app.cli create-admin \
+  --username you@example.org --full-name "IT Admin"
+docker compose run --rm migrate python -m app.cli create-activation-code \
+  --area ABIM-ENT
+docker compose run --rm migrate python -m app.cli create-stakeholder \
+  --username officer@example.org --full-name "Officer" --area UG-ABIM
 ```
+
+Temporary passwords and activation codes are printed once. The versioned seed
+loaded by Compose is reference data; it does not create user accounts or demo
+history. `seed-perf-fixture` is restricted to `dev` and `test` and must not be
+forced into production. For live onboarding, use the VM procedure in
+[DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md).
 
 Live client tests against the running stack (as an IT admin; skipped otherwise):
 

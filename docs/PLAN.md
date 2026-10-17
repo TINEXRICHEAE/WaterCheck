@@ -27,6 +27,12 @@ stack. When introduced, staging must be isolated by host or by a larger VM,
 Compose project, secrets, volumes, database, object storage, certificates and
 DNS names.
 
+Production onboarding is now an explicit P12 operations task: create the first
+IT admin, create area-scoped stakeholders, issue collector activation codes and
+complete online/offline smoke tests. The normal reference seed is safe for
+production, but the synthetic performance fixture remains restricted to
+`dev`/`test`; it must not be loaded by bypassing the `prod` environment guard.
+
 ---
 
 ## 0. Where we are today (2026-10-09)

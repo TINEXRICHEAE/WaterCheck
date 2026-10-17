@@ -541,6 +541,109 @@ https://api.watercheck.cooptconnect.app/api
 The Collect application generally receives its API URL during activation or
 setup and persists it with its installation credentials.
 
+## 15a. Production accounts and collector activation
+
+The deployment seed loads reference data only. It does not create login
+accounts, collector installations, sources, or test history. Create the first
+production admin manually, then use the Console for normal onboarding.
+
+SSH to the VM from the Windows development computer:
+
+```powershell
+# Run from any directory on the Windows development computer.
+ssh -o IdentitiesOnly=yes `
+  -i "C:\Users\ocenr\.ssh\watercheck-VM_key.pem" `
+  azureuser@20.164.216.195
+```
+
+Run all production account commands on the VM from `~/WaterCheck/infra`:
+
+```bash
+cd ~/WaterCheck/infra
+docker compose ps
+```
+
+Create the first IT administrator. Replace the username and full name:
+
+```bash
+docker compose run --rm migrate \
+  python -m app.cli create-admin \
+  --username admin@example.com \
+  --full-name "Production IT Administrator"
+```
+
+The temporary password is printed once. Use it at
+`https://watercheck.cooptconnect.app/#/sign-in`; the first sign-in requires a
+password change. Do not put the password in Git, `.env`, screenshots, logs or
+chat messages.
+
+After signing in, create stakeholders through **Admin → People**. A
+stakeholder can also be created from the VM:
+
+```bash
+docker compose run --rm migrate \
+  python -m app.cli create-stakeholder \
+  --username stakeholder@example.com \
+  --full-name "Water Officer" \
+  --area UG-ABIM
+```
+
+Repeat `--area` for additional areas and add responsibilities when needed:
+
+```bash
+docker compose run --rm migrate \
+  python -m app.cli create-stakeholder \
+  --username stakeholder@example.com \
+  --full-name "Water Officer" \
+  --area UG-ABIM \
+  --responsibility water
+```
+
+The admin issues collector activation codes from **Admin → Collect phones**.
+The CLI equivalent is:
+
+```bash
+docker compose run --rm migrate \
+  python -m app.cli create-activation-code \
+  --area ABIM-ENT \
+  --max 5 \
+  --days 30
+```
+
+Give the one-time code to the collector. The collector opens Collect, enters
+or scans the code, enters identification details, sets the local PIN and
+performs an initial online sync. Revoke an installation later from
+**Admin → Collect phones**.
+
+### Production onboarding checks
+
+Use this order for a controlled smoke test:
+
+1. Create the IT admin and change the temporary password.
+2. Create a stakeholder and verify area scoping in a separate browser session.
+3. Issue an activation code for a test area.
+4. Activate one Collect Android or Windows device.
+5. Submit one online and one offline test, then reconnect and sync.
+6. Review the result and any alert as the stakeholder and admin.
+
+The temporary password and activation code are one-time display values. If
+they are lost, reset the password or issue a new activation code rather than
+recovering them from the database.
+
+### Demo data boundary
+
+The normal deployment seed is safe and expected in production because it
+contains versioned reference data without personal data. The performance
+fixture is different: `seed-perf-fixture` is explicitly restricted to `dev`
+and `test` and refuses to run with `WC_ENVIRONMENT=prod`.
+
+Do not bypass that guard or load the full performance fixture into the live
+database. It creates synthetic source and test history for load testing. Keep
+production clean, or use a future isolated staging environment with its own
+database, storage, credentials and Compose project. For a production smoke
+test, create only a clearly identified test record and remove or archive it
+according to the data policy.
+
 ## 16. Email configuration
 
 The initial Compose setup uses Mailpit:
@@ -647,6 +750,25 @@ remote `build/web` directory and use the archive transfer procedure above.
 The tile directory may have been created by `root` during an earlier setup
 step. Use `sudo chown azureuser:azureuser ~/WaterCheck/infra/tiles` and retry
 the upload. Keep the generated MBTiles file out of Git.
+
+### Account command says the service is unavailable
+
+Run the account command from `~/WaterCheck/infra`, not from `~/WaterCheck` or
+the home directory. Confirm `docker compose ps` shows the database and
+migration dependencies available. The account commands use the migration
+container's owner database connection and do not run through the public API.
+
+### Temporary password or activation code was lost
+
+These values are intentionally printed once and are not stored in plain text.
+Create a password reset or issue a new activation code. Do not inspect or edit
+database password hashes.
+
+### Performance fixture refuses to run in production
+
+This is intentional. The command is dev/test-only and the environment guard
+protects production from synthetic load data. Do not change
+`WC_ENVIRONMENT=prod` merely to bypass the guard.
 
 ### Flutter cannot find `lib/main.dart`
 
