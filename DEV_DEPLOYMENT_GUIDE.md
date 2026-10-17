@@ -469,6 +469,102 @@ Android platform and build-tools versions required by the current Flutter
 doctor output. Removing emulator system images is safe only if those emulator
 images are no longer used.
 
+### Why an Android build can consume 10 GB
+
+Android builds use several independent storage areas. A successful or failed
+build can leave files in all of them:
+
+| Location | Purpose | Safe action |
+| --- | --- | --- |
+| `apps/*/build` | APK, intermediates and native outputs | Delete; rebuilt automatically |
+| `apps/*/.dart_tool` and root `.dart_tool` | Dart/Flutter package and tool state | Delete; run `flutter pub get` again |
+| `%USERPROFILE%\.gradle\caches` | Gradle dependencies and transforms | Delete; dependencies redownload |
+| `%USERPROFILE%\.gradle\wrapper` | Gradle distributions | Keep unless critically short of space |
+| `%TEMP%\flutter_tools.*` | Flutter build temporary files | Delete after Flutter exits |
+| `%TEMP%\hsperfdata_*` and `hs_err_pid*.log` | Java diagnostics after a crash | Delete after reviewing the crash |
+| Android SDK | Platforms, NDKs, emulator images and tools | Remove individual unused items in SDK Manager |
+| Docker Desktop disk image | Images, layers, builder cache and volumes | Inspect with Docker; volumes contain local data |
+
+The Gradle cache is reusable, not a reservation of build memory. Gradle still
+needs temporary working space and Java heap while transforming dependencies and
+assembling the APK. If the same dependency is present in multiple Android/Gradle
+versions, Gradle may retain multiple copies. A failed build can also leave
+partial transforms until cleanup.
+
+The project now caps Gradle at `-Xmx2G`; this limits Java heap but does not
+limit native memory, Android tooling, Flutter, the IDE, Docker Desktop or
+emulators. Keep at least 15–20% of the system drive free before starting a
+release build. Stop the build if free space approaches 10 GB.
+
+Inspect temporary files from any PowerShell directory:
+
+```powershell
+$tempPaths = @($env:TEMP, $env:TMP)
+foreach ($path in ($tempPaths | Select-Object -Unique)) {
+  $size = (Get-ChildItem $path -Recurse -File -ErrorAction SilentlyContinue |
+    Measure-Object Length -Sum).Sum
+  [PSCustomObject]@{Path = $path; GB = [math]::Round($size / 1GB, 2)}
+}
+```
+
+Inspect Docker storage from any directory:
+
+```powershell
+docker system df
+docker builder prune -af
+docker image prune -af
+```
+
+Do not run `docker volume prune` unless you intentionally want to delete local
+database and object-storage data. The production database is on the VM, but
+local development volumes may contain useful test state.
+
+### Full local development reset
+
+Deleting and recloning the repository is valid, but it only removes files
+inside the repository. It does not remove Gradle caches, the Android SDK, Pub
+cache, temporary files, Android emulator images, Docker Desktop's disk image,
+or Docker volumes.
+
+Use this reset only when local development data can be discarded. First stop
+Flutter, Android Studio, VS Code tasks and Docker Compose. From
+`.\WaterCheck\infra` on Windows or `./WaterCheck/infra` on Linux:
+
+```sh
+docker compose down
+```
+
+If local database, storage and Caddy data can be discarded too:
+
+```sh
+docker compose down -v
+```
+
+Then remove the repository directory and clone it again. On Windows, use
+File Explorer or a specifically named PowerShell path; do not delete a
+wildcard or an unresolved variable:
+
+```powershell
+Remove-Item -Recurse -Force .\WaterCheck
+git clone https://github.com/TINEXRICHEAE/WaterCheck.git
+```
+
+On Linux, from the parent directory of the repository:
+
+```bash
+rm -rf ./WaterCheck
+git clone https://github.com/TINEXRICHEAE/WaterCheck.git
+```
+
+After recloning, reinstall dependencies and recreate only local development
+data. This does not affect the remote production VM, but a local `.env`,
+generated tiles, local accounts, local volumes and local build outputs will be
+gone unless backed up separately.
+
+For a lower-risk reset, run `cleanup.ps1 -Caches`, remove the two app
+`.dart_tool` directories, prune Docker builder/images, and keep the repository
+and Docker volumes intact.
+
 Retry the production-API APK build from the Collect app directory:
 
 Windows, from `.\WaterCheck\apps\collect`:

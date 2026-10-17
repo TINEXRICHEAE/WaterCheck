@@ -607,6 +607,19 @@ The next dependency restore downloads the packages again. For directory size
 inspection and a complete cleanup decision tree, see
 [DEV_DEPLOYMENT_GUIDE.md](DEV_DEPLOYMENT_GUIDE.md#additional-disk-cleanup-choices).
 
+An Android build can temporarily consume several gigabytes outside the
+repository: Gradle transforms, Flutter temporary directories, Java crash
+reports, Android SDK components, emulator images and Docker Desktop's virtual
+disk are separate from the project cache. Reusable caches reduce download
+time; they do not prevent memory use or temporary expansion during a build.
+Keep at least 15–20% of the system drive free before release builds.
+
+Deleting and recloning `WaterCheck` removes only repository files. It does not
+remove `%USERPROFILE%\.gradle`, the Android SDK, Pub cache, temporary files,
+emulator images, Docker images, Docker builder cache or Docker volumes. A full
+local reset and the safe Docker-volume distinction are documented in
+[DEV_DEPLOYMENT_GUIDE.md](DEV_DEPLOYMENT_GUIDE.md#full-local-development-reset).
+
 Use a dedicated production test account and test data. Do not use the
 production IT-admin account for ordinary field-device testing. Native
 production clients should be released only after the API health check,
