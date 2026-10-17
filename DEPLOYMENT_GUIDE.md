@@ -359,6 +359,19 @@ Verify it on the VM:
 ls -lh ~/WaterCheck/infra/tiles/area.mbtiles
 ```
 
+The destination directory must be writable by `azureuser`. If `scp` reports
+`Permission denied`, repair only this deployment directory and retry:
+
+```powershell
+ssh -o IdentitiesOnly=yes `
+  -i "C:\Users\ocenr\.ssh\watercheck-VM_key.pem" `
+  azureuser@<VM_PUBLIC_IP> `
+  "sudo chown azureuser:azureuser ~/WaterCheck/infra/tiles"
+```
+
+Do not use `chmod 777`. The directory only needs to be writable by the
+deployment user.
+
 The API can run without map tiles, but the tile-server container will restart
 continuously and map requests will fail until this file exists. Do not add the
 generated MBTiles file to Git.
@@ -469,9 +482,10 @@ The first start builds the API image, runs migrations and seed data, starts
 PostgreSQL and SeaweedFS, and then starts the API, worker, tile server, and
 Caddy.
 
-The migration command includes a small PostgreSQL connection retry. This is
-intentional because a database container can pass its healthcheck just before
-it is ready to accept the migration connection.
+The migration command includes a small PostgreSQL connection retry using
+SQLAlchemy, which understands the `postgresql+psycopg://` URL used by
+Alembic. This is intentional because a database container can pass its
+healthcheck just before it is ready to accept the migration connection.
 
 ## 14. Inspect startup and health
 
@@ -627,6 +641,12 @@ output.
 
 If `scp -r` disconnects before `index.html` arrives, remove the incomplete
 remote `build/web` directory and use the archive transfer procedure above.
+
+### Tile upload permission denied
+
+The tile directory may have been created by `root` during an earlier setup
+step. Use `sudo chown azureuser:azureuser ~/WaterCheck/infra/tiles` and retry
+the upload. Keep the generated MBTiles file out of Git.
 
 ### Flutter cannot find `lib/main.dart`
 

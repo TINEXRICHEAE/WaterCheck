@@ -48,7 +48,7 @@ services:
       - sh
       - -c
       - >-
-        until python -c "import os, psycopg; psycopg.connect(os.environ['WC_MIGRATION_DATABASE_URL']).close()";
+        until python -c "import os; from sqlalchemy import create_engine; engine = create_engine(os.environ['WC_MIGRATION_DATABASE_URL']); connection = engine.connect(); connection.close(); engine.dispose()";
         do echo "Waiting for PostgreSQL to accept connections..."; sleep 2; done &&
         alembic upgrade head &&
         python -m app.cli create-api-role --password "$${API_DB_PASSWORD}" &&
