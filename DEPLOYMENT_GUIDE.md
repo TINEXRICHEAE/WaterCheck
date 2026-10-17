@@ -4,6 +4,9 @@ This guide documents the WaterCheck deployment from local development to an
 Azure VM. It is intended as a learning reference and as a repeatable procedure
 when moving the project to another VM, host, region, or domain.
 
+For a complete local Windows/Linux Docker setup, demo-data workflow and
+platform testing guide, see [DEV_DEPLOYMENT_GUIDE.md](DEV_DEPLOYMENT_GUIDE.md).
+
 ## 1. Deployment architecture
 
 The deployment uses one Ubuntu Azure VM running the complete Docker Compose
@@ -27,6 +30,17 @@ https://api.watercheck.cooptconnect.app
 The Console web application uses the first URL. Browser API requests use the
 same-origin path `/api`; Android and Windows clients can use the API hostname
 with the `/api` path.
+
+The current production web deployment serves Console only. There is no
+production `/collect/` browser route yet. Collectors should use the Android or
+Windows Collect application, configured with:
+
+```text
+https://api.watercheck.cooptconnect.app/api
+```
+
+The Android APK procedure is documented in
+[DEV_DEPLOYMENT_GUIDE.md](DEV_DEPLOYMENT_GUIDE.md#8-android-apk-using-the-production-api).
 
 ## 2. Azure subscription and region
 

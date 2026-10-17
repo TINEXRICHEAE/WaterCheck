@@ -33,6 +33,12 @@
 - [ ] Decide whether production remains clean (recommended) or create a
   separate staging environment for synthetic demo/performance data. The
   `seed-perf-fixture` command must remain dev/test-only.
+- [x] Development deployment procedure separated into
+  `DEV_DEPLOYMENT_GUIDE.md`, including local demo data and production-API APK
+  testing.
+- [ ] Add a production Collect web route if browser-based Collect is required;
+  currently production web serves Console only, so collectors should use the
+  Android/Windows Collect client.
 
 The supported environment model is now:
 

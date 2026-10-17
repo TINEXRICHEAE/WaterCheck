@@ -33,6 +33,11 @@ complete online/offline smoke tests. The normal reference seed is safe for
 production, but the synthetic performance fixture remains restricted to
 `dev`/`test`; it must not be loaded by bypassing the `prod` environment guard.
 
+The development deployment procedure is maintained separately in
+`DEV_DEPLOYMENT_GUIDE.md`. It covers local Windows/Linux Compose setup, demo
+fixture loading, all client platforms, and building a Collect Android APK
+against production without adding a production Collect web route.
+
 ---
 
 ## 0. Where we are today (2026-10-09)

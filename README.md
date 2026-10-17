@@ -797,6 +797,9 @@ documents for section-specific detail:
 
 - [CONTRIBUTING.md](CONTRIBUTING.md): workstation setup, commands, tests,
   repository workflow and development conventions;
+- [DEV_DEPLOYMENT_GUIDE.md](DEV_DEPLOYMENT_GUIDE.md): complete local Windows
+  and Linux Docker deployment, demo data, platform testing and production-API
+  Android APK testing;
 - [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md): Azure, Docker, DNS, HTTPS,
   production environment, first admin, updates and troubleshooting;
 - [PROGRESS.md](PROGRESS.md): phase gates, completed work, evidence and
