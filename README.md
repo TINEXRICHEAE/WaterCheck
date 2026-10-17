@@ -500,6 +500,50 @@ to download application files from the internet. This is different from
 its Flutter runtime files beside it after installation. The installer is not
 yet configured in this repository.
 
+Installer definitions are in
+[`tools/windows/`](tools/windows/). After installing Inno Setup, build both
+offline installers from the repository root, `.\WaterCheck`:
+
+```powershell
+.\tools\windows\build-installers.ps1 `
+  -VcRedist "C:\Path\To\vc_redist.x64.exe"
+```
+
+Passing the official x64 Visual C++ redistributable embeds it in both
+installers. The resulting files are written to `.\dist\windows\`. Do not
+distribute an installer built without the runtime unless every target
+computer is already known to have the compatible runtime.
+
+### Application updates
+
+The offline installer is the initial installation and recovery package; it
+is not itself an update service. Each client platform has different update
+rules:
+
+- **Windows:** publish a signed newer installer and have the app check a
+  version manifest on the API. It can notify the user and launch the installer
+  after the app closes. A running Windows process cannot safely replace its
+  own executable.
+- **Android through Google Play:** publish an AAB and use Play's in-app update
+  flow. Play handles download, signature and installation.
+- **Android sideloaded APK:** the app may check the API, notify the user and
+  download a signed APK, but Android requires the user to approve
+  installation. It cannot silently replace itself.
+- **Web Console:** users receive the latest deployed web assets after the VPS
+  deployment; cache headers and service-worker versioning must prevent stale
+  assets.
+
+The current code does not yet implement a version manifest, Windows updater,
+or sideloaded Android update flow. These should be added as a signed,
+versioned release channel rather than allowing clients to download arbitrary
+executables from the API.
+
+The first locally generated offline installer sizes were approximately
+30.33 MB for Collect and 32.71 MB for Console, including the x64 Visual C++
+redistributable. Sizes vary with application assets and compression. Generated
+installers are local release artifacts under `.\dist\windows\` and are
+intentionally excluded from Git.
+
 The target computer also needs Microsoft's x64 Visual C++ runtime. The
 installer can include the official x64 redistributable, so a non-technical
 user does not need a separate prerequisite step. Expect roughly 25–30 MB of

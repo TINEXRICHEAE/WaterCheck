@@ -261,6 +261,44 @@ internet access during installation, so it is not suitable for offline field
 deployment. The final installer should verify or install the runtime before
 launching WaterCheck.
 
+Build both installers from the repository root, `.\WaterCheck`, after
+building the two Windows release bundles:
+
+```powershell
+.\tools\windows\build-installers.ps1 `
+  -VcRedist "C:\Path\To\vc_redist.x64.exe"
+```
+
+This requires Inno Setup (`iscc.exe`). The script fails rather than producing
+an incomplete offline installer when a release bundle or supplied Visual C++
+redistributable is missing. Outputs are written to
+`.\WaterCheck\dist\windows\`.
+
+### Updating installed clients
+
+The installer is for initial installation and recovery. The recommended
+update design is:
+
+1. Publish a signed version manifest and release artifacts on the VPS.
+2. Windows checks the manifest when online, prompts the user, closes, and
+   launches the signed newer installer. It must not overwrite a running
+   executable.
+3. Android distributed through Google Play uses Play in-app updates.
+4. Android distributed as a copied APK can check and download a signed APK,
+   but Android requires user approval before installation.
+5. The web Console updates through the VPS deployment, with cache-busting
+   assets and service-worker versioning.
+
+Offline clients continue using their installed version and synchronize when
+connectivity returns. The current repository does not yet implement the
+manifest, updater, or sideloaded APK update flow; those are a separate
+release-channel feature requiring signing, rollback and downgrade policy.
+
+The first locally generated installers were approximately 30.33 MB for
+Collect and 32.71 MB for Console, including the x64 Visual C++ runtime.
+Generated installers are written to `.\WaterCheck\dist\windows\` and are
+excluded from Git.
+
 ### Console Linux
 
 Enable Linux desktop once, from any directory:

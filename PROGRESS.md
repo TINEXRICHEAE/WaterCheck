@@ -1,6 +1,14 @@
 # Progress
 
 **Current phase:** P11 gate passed (2026-10-12); app-wide UX conventions added (2026-10-13, ADR-017). Production deployment completed (2026-10-17). Next: P12 (hardening and pilot release).
+
+Windows release bundles now build for both apps. Offline single-file
+installer definitions were added under `tools/windows/`; Inno Setup and an
+official x64 Visual C++ redistributable are still required to produce the
+installer artifacts. Automatic update delivery is not implemented yet:
+Windows needs a signed installer/update channel, Android needs Play
+distribution or a user-approved sideload update, and web updates use the VPS
+deployment and cache versioning.
 **Last updated:** 2026-10-17
 
 ## Production deployment ✅ (2026-10-17)
