@@ -500,6 +500,15 @@ to download application files from the internet. This is different from
 its Flutter runtime files beside it after installation. The installer is not
 yet configured in this repository.
 
+The target computer also needs Microsoft's x64 Visual C++ runtime. The
+installer can include the official x64 redistributable, so a non-technical
+user does not need a separate prerequisite step. Expect roughly 25–30 MB of
+additional installer size for the current x64 runtime, subject to Microsoft's
+current release size. A web/bootstrapper installer can be much smaller, but
+would require internet access during installation. Bundling the runtime is
+therefore the appropriate choice for offline or unreliable-connectivity
+deployment.
+
 To make a local production-API Collect bundle, run from
 `C:\Users\ocenr\Desktop\Research\app\watercheck\apps\collect`:
 

@@ -253,6 +253,14 @@ configuration. Any wider distribution should sign the installer and test
 login, synchronization, offline operation and photo uploads on the target
 computer.
 
+The installer should also bundle Microsoft's official x64 Visual C++
+redistributable. Without it, a clean Windows computer may require a separate
+runtime installation before the app starts. Bundling it adds approximately
+25–30 MB to the installer. A web/bootstrapper variant is smaller but requires
+internet access during installation, so it is not suitable for offline field
+deployment. The final installer should verify or install the runtime before
+launching WaterCheck.
+
 ### Console Linux
 
 Enable Linux desktop once, from any directory:
