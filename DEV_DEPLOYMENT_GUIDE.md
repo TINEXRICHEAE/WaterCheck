@@ -213,6 +213,40 @@ Run from `.\WaterCheck\apps\console` on Windows:
 flutter run -d windows --dart-define=WC_API_URL=http://localhost/api
 ```
 
+### Windows release bundle
+
+The Windows target currently produces a portable release directory, not an
+MSI or MSIX installer. Copy the complete directory because the executable
+depends on its adjacent `data` directory and runtime/plugin files.
+
+For Collect, run from `.\WaterCheck\apps\collect`:
+
+```powershell
+flutter build windows --release `
+  --dart-define=WC_API_URL=https://api.watercheck.cooptconnect.app/api
+```
+
+The executable and required files are in:
+
+```text
+.\WaterCheck\apps\collect\build\windows\x64\runner\Release
+```
+
+Start it from that directory:
+
+```powershell
+.\watercheck_collect.exe
+```
+
+For Console, run the equivalent command from
+`.\WaterCheck\apps\console`; its executable is `watercheck_console.exe`.
+For a pilot, distribute the complete `Release` directory as a ZIP. The
+current project does not generate MSI or MSIX packages. MSIX is the preferred
+future package for managed Windows 10/11 installation; MSI would require a
+separate installer tool and configuration. Any wider distribution should
+sign the package and test login, synchronization, offline operation and photo
+uploads on the target computer.
+
 ### Console Linux
 
 Enable Linux desktop once, from any directory:
