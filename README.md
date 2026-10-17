@@ -10,6 +10,187 @@ The pilot started in Abim District, but the data model, area hierarchy and map
 scope support Uganda-wide operation: regions, districts, sub-counties,
 parishes and villages.
 
+## Quick start for a new computer
+
+This is the shortest reliable path for a new Windows developer or a future
+maintainer. These commands assume PowerShell and a fresh clone.
+
+### 1. Install the prerequisites
+
+Install the following before cloning or building:
+
+- Git;
+- Docker Desktop with Linux containers and WSL2 enabled;
+- Flutter at the version pinned in [.fvmrc](.fvmrc), using
+  [FVM](https://fvm.app/) or a matching global Flutter installation;
+- Android Studio and an Android SDK if Android testing is needed;
+- Visual Studio with **Desktop development with C++** if Windows apps are
+  needed;
+- Chrome if running the web apps;
+- [uv](https://docs.astral.sh/uv/) for backend development.
+
+After installation, verify the tools:
+
+```powershell
+git --version
+docker --version
+docker compose version
+flutter doctor -v
+uv --version
+```
+
+Windows Developer Mode should be enabled for Flutter plugins and symlinks.
+Docker Desktop must be running before starting the backend or running backend
+tests.
+
+### 2. Clone and install project dependencies
+
+```powershell
+git clone https://github.com/TINEXRICHEAE/WaterCheck.git
+Set-Location WaterCheck
+
+# Use "fvm flutter" instead of "flutter" when FVM is installed.
+flutter pub get
+
+Set-Location backend
+uv sync
+Set-Location ..
+```
+
+The repository is a Dart workspace, so the root `flutter pub get` resolves the
+apps and shared packages. Do not run Flutter commands from a parent directory;
+run app commands from `apps\collect` or `apps\console`.
+
+### 3. Create the local development environment
+
+Copy the safe development template. Never copy production secrets from the
+Azure VM and never commit the resulting `.env` file.
+
+```powershell
+Copy-Item infra\.env.example infra\.env
+Set-Location infra
+docker compose up -d --build
+```
+
+The first build downloads Docker images, runs database migrations, creates the
+restricted API role and loads seed data. It can take several minutes. Check
+the stack and API:
+
+```powershell
+docker compose ps
+curl.exe http://localhost/health
+```
+
+The health request should return:
+
+```json
+{"status":"ok"}
+```
+
+Development email is captured by Mailpit at
+[http://localhost:8025](http://localhost:8025). The database and object
+storage are local Docker volumes. To stop the stack without deleting data:
+
+```powershell
+docker compose down
+```
+
+### 4. Prepare map and web assets
+
+The map artifact is generated and ignored by Git. Build it when the map is
+needed on a fresh machine:
+
+```powershell
+Set-Location ..
+.\tools\build_tiles.ps1
+```
+
+For the Console web files served through local Caddy, build the Console from
+its own directory:
+
+```powershell
+Set-Location apps\console
+flutter build web --debug --base-href /
+Set-Location ..\..
+```
+
+The Collect web build is optional for normal Android/Windows development. If
+you need it:
+
+```powershell
+Set-Location apps\collect
+flutter build web --debug --base-href /
+Set-Location ..\..
+```
+
+Recreate Caddy after adding or replacing web assets:
+
+```powershell
+Set-Location infra
+docker compose up -d --force-recreate caddy
+```
+
+### 5. Create a local admin and run an app
+
+Create a throwaway local IT-admin account inside the migration container:
+
+```powershell
+docker compose run --rm migrate python -m app.cli create-admin `
+  --username you@example.org `
+  --full-name "IT Admin"
+```
+
+Use the temporary password printed by the command to sign in to the Console.
+An admin can then create stakeholders under **Admin → People** and create
+collector activation codes under **Admin → Collect phones**. For a complete
+user workflow, see [Users and access model](#users-and-access-model) and
+[docs/demos/P11.md](docs/demos/P11.md).
+
+Run the Console directly in Chrome:
+
+```powershell
+Set-Location ..\apps\console
+flutter run -d chrome
+```
+
+Run Collect on Windows:
+
+```powershell
+Set-Location ..\collect
+flutter run -d windows
+```
+
+Or start an Android emulator first and replace `windows` with the emulator
+device ID. The Android emulator reaches the local API through
+`http://10.0.2.2/api`; a physical phone needs the computer's LAN address.
+
+### 6. Confirm the installation
+
+From the repository root, run the focused checks:
+
+```powershell
+dart run melos run format:check
+dart run melos run analyze
+dart run melos run test:dart
+dart run melos run test:flutter
+```
+
+For backend checks:
+
+```powershell
+Set-Location backend
+uv run ruff format --check .
+uv run ruff check .
+uv run mypy
+uv run pytest
+```
+
+If a command fails, first confirm that Docker Desktop is running, the command
+is being run from the directory shown above, and the Flutter version matches
+[.fvmrc](.fvmrc). More complete troubleshooting and deployment instructions
+are in [CONTRIBUTING.md](CONTRIBUTING.md) and
+[DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md).
+
 ## Applications and services
 
 | Component | Purpose | Platforms |
