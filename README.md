@@ -12,20 +12,23 @@ parishes and villages.
 
 ## Quick start for a new computer
 
-This is the shortest reliable path for a new Windows developer or a future
-maintainer. These commands assume PowerShell and a fresh clone.
+This is the shortest reliable path for a new Windows or Linux developer or a
+future maintainer. Every command below states the directory where it must be
+run. Windows examples use PowerShell; Linux examples use Bash. Windows users
+may also use Git Bash or WSL, but must use the matching shell syntax.
 
 ### 1. Install the prerequisites
 
 Install the following before cloning or building:
 
 - Git;
-- Docker Desktop with Linux containers and WSL2 enabled;
+- Docker Engine and Docker Compose on Linux, or Docker Desktop with Linux
+  containers and WSL2 enabled on Windows;
 - Flutter at the version pinned in [.fvmrc](.fvmrc), using
   [FVM](https://fvm.app/) or a matching global Flutter installation;
 - Android Studio and an Android SDK if Android testing is needed;
 - Visual Studio with **Desktop development with C++** if Windows apps are
-  needed;
+  needed (Windows only);
 - Chrome if running the web apps;
 - [uv](https://docs.astral.sh/uv/) for backend development.
 
@@ -41,9 +44,32 @@ flutter doctor -v
 uv --version
 ```
 
+On Linux, run the same checks from any directory in Bash:
+
+```bash
+git --version
+docker --version
+docker compose version
+flutter doctor -v
+uv --version
+```
+
+For Linux desktop builds, also enable the Linux desktop target:
+
+Run from any directory:
+
+```bash
+flutter config --enable-linux-desktop
+```
+
+For Windows desktop builds, use Windows with Visual Studio. Linux cannot
+produce a Windows desktop executable without a separate Windows build
+environment.
+
 Windows Developer Mode should be enabled for Flutter plugins and symlinks.
-Docker Desktop must be running before starting the backend or running backend
-tests.
+On Linux, install the distribution's required Flutter desktop libraries if
+building Linux desktop apps. Docker must be running before starting the
+backend or running backend tests.
 
 ### 2. Clone and install project dependencies
 
@@ -52,6 +78,14 @@ Run from the directory where you keep projects, before the repository exists:
 ```powershell
 git clone https://github.com/TINEXRICHEAE/WaterCheck.git
 Set-Location .\WaterCheck
+```
+
+Run from the directory where you keep projects, before the repository exists,
+in Linux Bash:
+
+```bash
+git clone https://github.com/TINEXRICHEAE/WaterCheck.git
+cd ./WaterCheck
 ```
 
 Run from the repository root, `.\WaterCheck`:
@@ -68,6 +102,12 @@ Set-Location .\backend
 uv sync
 ```
 
+Run from `./WaterCheck/backend` in Linux Bash:
+
+```bash
+uv sync
+```
+
 The repository is a Dart workspace, so the root `flutter pub get` resolves the
 apps and shared packages. Do not run Flutter commands from a parent directory;
 run app commands from `apps\collect` or `apps\console`.
@@ -79,6 +119,12 @@ Azure VM and never commit the resulting `.env` file.
 
 ```powershell
 Copy-Item infra\.env.example infra\.env
+```
+
+Run from the repository root, `./WaterCheck`, in Linux Bash:
+
+```bash
+cp ./infra/.env.example ./infra/.env
 ```
 
 Run from the repository root, `.\WaterCheck`:
@@ -122,6 +168,13 @@ Run from the repository root, `.\WaterCheck`:
 
 ```powershell
 .\tools\build_tiles.ps1
+```
+
+The tile builder is a PowerShell script. On Linux, install PowerShell and run
+it from `./WaterCheck`:
+
+```bash
+pwsh ./tools/build_tiles.ps1
 ```
 
 For the Console web files served through local Caddy, build the Console from
@@ -221,6 +274,58 @@ flutter run -d <android-device-id> `
   --dart-define=WC_API_URL=http://<computer-lan-ip>/api
 ```
 
+### Linux Bash equivalents
+
+Run these from the repository root, `./WaterCheck`, unless another directory
+is shown:
+
+```bash
+# Run from ./WaterCheck/infra
+cd ./infra
+docker compose up -d --build
+docker compose ps
+curl http://localhost/health
+```
+
+Run from `./WaterCheck/infra`:
+
+```bash
+docker compose run --rm migrate python -m app.cli create-admin \
+  --username you@example.org \
+  --full-name "IT Admin"
+```
+
+Run from `./WaterCheck/apps/console`:
+
+```bash
+flutter run -d chrome --dart-define=WC_API_URL=http://localhost/api
+```
+
+Run from `./WaterCheck/apps/collect`:
+
+```bash
+flutter run -d chrome --dart-define=WC_API_URL=http://localhost/api
+```
+
+Run from `./WaterCheck/apps/collect`:
+
+```bash
+flutter run -d linux --dart-define=WC_API_URL=http://localhost/api
+```
+
+Run from `./WaterCheck/apps/console` or `./WaterCheck/apps/collect` for an
+Android emulator:
+
+```bash
+flutter devices
+flutter run -d <android-device-id> \
+  --dart-define=WC_API_URL=http://10.0.2.2/api
+```
+
+Linux does not build Windows desktop binaries. Build those on Windows or in a
+dedicated Windows CI runner. Linux can build Android and web artifacts when
+the Android SDK and Chrome are installed.
+
 ### 6. Confirm the installation
 
 Run from the repository root, `.\WaterCheck`:
@@ -238,6 +343,24 @@ Run from the repository root, `.\WaterCheck`:
 
 ```powershell
 Set-Location backend
+uv run ruff format --check .
+uv run ruff check .
+uv run mypy
+uv run pytest
+```
+
+Run from `./WaterCheck` in Linux Bash:
+
+```bash
+dart run melos run format:check
+dart run melos run analyze
+dart run melos run test:dart
+dart run melos run test:flutter
+```
+
+Run from `./WaterCheck/backend` in Linux Bash:
+
+```bash
 uv run ruff format --check .
 uv run ruff check .
 uv run mypy
@@ -322,6 +445,16 @@ Transfer `.\apps\console\build\web` to the production host and recreate Caddy
 as described in [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md). Do not commit the
 build output or transfer the production `.env` to the development computer.
 
+On Linux, run the equivalent build from `./WaterCheck/apps/console`:
+
+```bash
+flutter build web --release \
+  --base-href / \
+  --dart-define=WC_API_URL=https://watercheck.cooptconnect.app/api \
+  --no-web-resources-cdn \
+  --no-pub
+```
+
 ### Production Windows Console or Collect
 
 Build a signed or otherwise controlled Windows release that talks to the
@@ -349,6 +482,9 @@ The resulting executables are under
 distribution and test sign-in, synchronization, offline behavior and photo
 uploads against production before giving them to users. Windows releases do
 not get installed inside the web/API Docker stack.
+
+Run the Windows builds on Windows from the indicated app directories. A Linux
+machine cannot produce these Windows binaries directly.
 
 ### Production Android Console or Collect
 
@@ -379,6 +515,28 @@ Run from the repository root, `.\WaterCheck`:
 ```powershell
 Set-Location .\apps\console
 flutter build appbundle --release `
+  --dart-define=WC_API_URL=https://api.watercheck.cooptconnect.app/api
+```
+
+On Linux, run the Android Console build from `./WaterCheck/apps/console`:
+
+```bash
+flutter build apk --release \
+  --dart-define=WC_API_URL=https://api.watercheck.cooptconnect.app/api
+```
+
+On Linux, run the Android Collect build from `./WaterCheck/apps/collect`:
+
+```bash
+flutter build apk --release \
+  --dart-define=WC_API_URL=https://api.watercheck.cooptconnect.app/api
+```
+
+For Linux app bundles, run from `./WaterCheck/apps/console` or
+`./WaterCheck/apps/collect`:
+
+```bash
+flutter build appbundle --release \
   --dart-define=WC_API_URL=https://api.watercheck.cooptconnect.app/api
 ```
 
