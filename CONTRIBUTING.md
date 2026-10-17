@@ -99,6 +99,51 @@ docker compose up -d --build
 curl http://localhost/health       # {"status":"ok"} through Caddy
 ```
 
+Development uses the local Compose stack and must not reuse production
+secrets, volumes, or hostnames. The production deployment uses a VM-only
+`infra/.env`, a generated Flutter web build, Caddy-managed HTTPS, and the
+procedure in [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md).
+
+## Environment workflow
+
+The supported workflow is:
+
+```text
+dev     local workstation and local Compose
+test    GitHub Actions and local targeted test commands
+prod    Azure VM, protected production secrets and persistent volumes
+```
+
+Before merging or deploying:
+
+```powershell
+dart run melos run format:check
+dart run melos run analyze
+dart run melos run test:dart
+dart run melos run test:flutter
+```
+
+Production source changes are deployed by pushing reviewed changes to `main`,
+pulling them on the VM, validating with `docker compose config --quiet`, and
+recreating only the affected services. Never commit `infra/.env`, private keys,
+generated MBTiles, or Flutter build archives.
+
+### Future staging environment
+
+Staging is not currently deployed because the production VM has 4 GiB RAM and
+the full stack already includes PostgreSQL/PostGIS, SeaweedFS, a worker, Caddy,
+and a tile server. When staging is added, it must use a separate host or a
+larger VM, and separate:
+
+- `staging.watercheck.cooptconnect.app` and `api-staging.watercheck.cooptconnect.app`;
+- Compose project name, network, containers and ports;
+- `.env` and all database, storage and Caddy certificate volumes;
+- Flutter build with the staging API URL;
+- non-production email provider and test data.
+
+Staging must be smoke-tested before production and must never share production
+database or object-storage credentials.
+
 ## Viewing the frontend in a browser (no emulator)
 
 With the dev stack running, rebuild the web previews and open them:

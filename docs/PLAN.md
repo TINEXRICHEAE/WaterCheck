@@ -4,6 +4,29 @@ Derived from `water-monitoring-app-SPEC.md` (v0.4). The spec is the source of tr
 
 > Legend: **[DECIDE]** = a choice to make before or during that phase · ★ = recommended option · ⏱ = rough effort in *focused developer-weeks* for one developer (part-time work stretches these).
 
+## Current implementation and deployment baseline
+
+The implementation has progressed beyond the original planning snapshot:
+
+- P0–P11 automated gates are implemented, with the remaining human/device
+  checks tracked for P12.
+- The repository is hosted on GitHub and is deployed from `main`.
+- Development runs on the Windows workstation with local Docker Compose.
+- Test checks run through GitHub Actions and the documented local commands.
+- Production runs on an Azure Ubuntu VM in South Africa North using the
+  `Standard_B2als_v2` size.
+- Production is live at `watercheck.cooptconnect.app` and
+  `api.watercheck.cooptconnect.app`, with Caddy-managed HTTPS, PostgreSQL/
+  PostGIS, SeaweedFS, worker, tile server and the Flutter Console.
+- The repeatable deployment procedure is maintained in the root
+  [DEPLOYMENT_GUIDE.md](../DEPLOYMENT_GUIDE.md).
+
+The current environment policy is `dev → test → prod`. Staging is intentionally
+future work because the current 4 GiB VM should not run a second complete
+stack. When introduced, staging must be isolated by host or by a larger VM,
+Compose project, secrets, volumes, database, object storage, certificates and
+DNS names.
+
 ---
 
 ## 0. Where we are today (2026-10-09)
@@ -11,9 +34,9 @@ Derived from `water-monitoring-app-SPEC.md` (v0.4). The spec is the source of tr
 | Item | Status |
 |------|--------|
 | Spec | v0.4 complete; phases P0–P13 defined with exit gates |
-| Code | None yet; `app/` is not a git repo |
+| Code | P0–P11 implementation complete; P12 hardening and pilot release remains |
 | Python | 3.12.10 ✅ |
-| Git | ✅ |
+| Git/GitHub | ✅ repository hosted and deployment source |
 | Flutter / FVM / Dart | ✅ (2026-10-10) |
 | Android SDK + emulator | ✅ |
 | Visual Studio C++ (needed for Flutter Windows builds) | ✅ |
@@ -30,11 +53,11 @@ P-1 (workstation setup) was done on 2026-10-10; see the decisions log below.
 | 2026-10-10 | D-B | **Option 2: strict order, soft human gates.** |
 | 2026-10-10 | D-C | Solo developer (P4 after P3). |
 | 2026-10-10 | Scope | **Full plan** (not the MVP cut). This plan is edited as we go. |
-| — | D-D | Pending: GitHub repo (private recommended); `gh auth login` needed before the P0 CI gate. |
+| 2026-10-17 | D-D | GitHub repository and Actions are active; `main` is the production deployment source. |
 | 2026-10-10 | ADR-003 | **SeaweedFS replaces MinIO.** MinIO no longer publishes free Docker images. SeaweedFS has an S3 API, is Apache-2.0, and its image is pinned to 4.48. |
 | 2026-10-10 | ADR-004 | Pub workspaces + **Melos 8** (Melos 7 is outdated; in Melos 8, `run` and `exec` are mutually exclusive). `.fvmrc` pins Flutter 3.47.6, which is the global install, so no second SDK is downloaded. |
 | 2026-10-10 | Backend | The test client uses `httpx2`, because Starlette deprecated `httpx` for its test client. |
-| 2026-10-10 | Git | **All git and GitHub work is on hold** until the project lead says to start; we build first. |
+| 2026-10-17 | Git | GitHub is active. Reviewed changes are pushed to `main`; production is updated from that branch. |
 | 2026-10-10 | P1 | **P1 gate passed.** 104 classification and 16 schedule vectors pass in Dart (97.9% coverage) and Python (98.4%). |
 | 2026-10-10 | ADR-005 | **Result model:** each result owns a full set of readings, and amendments are new results (G1). Server and alternative-profile results go in a `classification` table (G2). Flags, `is_derived` and `limitation_code` are columns (G3). |
 | 2026-10-10 | ADR-005 | **Classification details:** a value equal to a limit is `ok`; an implausible value is `invalid` even without a limit (a deviation from §6.2); `ppm` is accepted as `mg/L`; a baseline needs 3 earlier safe values; comparisons use exact decimals. |

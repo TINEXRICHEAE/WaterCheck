@@ -6,3 +6,7 @@
 4. Follow SPEC §A0 (working protocol): one phase at a time, gates are cumulative, decisions become ADRs in [docs/adr/](docs/adr/).
 5. Human-dependent gate items (field walkthroughs, physical devices, printing) may be deferred to P12 and logged in PROGRESS.md (decision D-B, 2026-10-10). Automated gates may not.
 6. Commands: see [CONTRIBUTING.md](CONTRIBUTING.md).
+7. The current deployment baseline and reproducible Azure procedure are in
+   [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md). Keep it updated when deployment
+   behavior, hostnames, ports, secrets handling, or environment separation
+   changes.

@@ -654,7 +654,7 @@ Run Flutter from `apps\console`, not from the repository root.
 
 ## 20. Current deployment status
 
-At the time this guide was written:
+Current status (2026-10-17):
 
 - Azure VM is provisioned and reachable.
 - DNS records resolve to the VM.
@@ -666,8 +666,40 @@ At the time this guide was written:
 - Compose publishes Caddy on HTTP port `80` and HTTPS port `443` (TCP and UDP).
 - The Console web build succeeded locally with the production API URL.
 - The complete Console web build was transferred and verified on the VM.
-- No Git commit or push has been performed for the Caddy change yet.
-- The full Compose stack has not yet been started on this deployment.
+- The full Compose stack is running and healthy.
+- Database migrations and seed data completed successfully.
+- The generated `area.mbtiles` file is present and the tile server is healthy.
+- Caddy obtained working HTTPS certificates for both production hostnames.
+- Public smoke checks passed for the API hostname, same-origin API routes and
+  the Console root.
+- Browser confirmation passed: the Console sign-in page loads over HTTPS and
+  `/api/health` returns `{"status":"ok"}`.
+
+The supported environment model is:
+
+```text
+dev     local Windows workstation and local Compose
+test    GitHub Actions and targeted local checks
+prod    Azure VM and protected production data
+```
+
+Staging is future work and is not running on this VM. When added, use
+`staging.watercheck.cooptconnect.app` and
+`api-staging.watercheck.cooptconnect.app` on a separate host or a larger VM.
+Staging must have its own Compose project, network, `.env`, database, object
+storage, Caddy certificate volume, test data and SMTP configuration. Never
+reuse production credentials or persistent volumes.
+
+Before a future staging deployment:
+
+1. Add the staging DNS records.
+2. Create a separate deployment directory and Compose project name.
+3. Create a separate staging `.env` with non-production secrets.
+4. Build the Console with the staging API URL.
+5. Transfer staging web assets and any generated map artifact separately.
+6. Validate `docker compose config --quiet`.
+7. Run migrations and seed test data.
+8. Smoke-test staging before promoting changes to production.
 
 Before starting Compose, confirm:
 

@@ -1,7 +1,47 @@
 # Progress
 
-**Current phase:** P11 gate passed (2026-10-12); app-wide UX conventions added (2026-10-13, ADR-017). Next: P12 (hardening and pilot release).
-**Last updated:** 2026-10-13
+**Current phase:** P11 gate passed (2026-10-12); app-wide UX conventions added (2026-10-13, ADR-017). Production deployment completed (2026-10-17). Next: P12 (hardening and pilot release).
+**Last updated:** 2026-10-17
+
+## Production deployment ✅ (2026-10-17)
+
+- [x] Azure for Students VM provisioned in South Africa North:
+  Ubuntu 24.04, `Standard_B2als_v2`, 2 vCPU, 4 GiB RAM, 30 GiB Standard
+  SSD, static public IP.
+- [x] DNS configured:
+  `watercheck.cooptconnect.app` and `api.watercheck.cooptconnect.app`.
+- [x] Docker Engine and Compose installed and verified with `hello-world`.
+- [x] Repository deployed at `~/WaterCheck`; production `.env` remains VM-only
+  with mode `600`.
+- [x] Flutter Console built on Windows with
+  `WC_API_URL=https://watercheck.cooptconnect.app/api` and transferred to the
+  VM as a compressed archive.
+- [x] Abim map tiles generated on Windows and transferred as
+  `infra/tiles/area.mbtiles`; generated tile files remain outside Git.
+- [x] Production Caddy routing, HTTPS ports and migration readiness were
+  validated and deployed.
+- [x] Full Compose stack is healthy: database, migration/seed, API, worker,
+  SeaweedFS, tile server and Caddy.
+- [x] Public smoke checks passed:
+  `https://api.watercheck.cooptconnect.app/health`,
+  `https://watercheck.cooptconnect.app/health`,
+  `https://watercheck.cooptconnect.app/api/health`, and the Console root.
+- [x] Browser confirmation passed: the Console sign-in page loads over HTTPS
+  and the API health endpoint returns `{"status":"ok"}`.
+
+The supported environment model is now:
+
+```text
+dev     local Windows workstation and local Compose
+test    GitHub Actions and targeted local checks
+prod    Azure VM and protected production data
+```
+
+Staging is documented as future work only. The current VM should not run a
+second full stack because its 4 GiB memory limit leaves little headroom. A
+future staging deployment must use isolated domains, credentials, Compose
+project, volumes, database, storage and Caddy data; see
+[DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md).
 
 ## App-wide UX conventions ✅ (2026-10-13, ADR-017)
 
