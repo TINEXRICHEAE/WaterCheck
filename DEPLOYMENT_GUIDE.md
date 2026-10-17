@@ -189,7 +189,7 @@ API_DB_PASSWORD=<different-random-password>
 WC_JWT_SECRET=<random-token>
 WC_SECRET_KEY=<Fernet-key>
 
-WC_ENVIRONMENT=production
+WC_ENVIRONMENT=prod
 WC_LOG_LEVEL=INFO
 HTTP_PORT=80
 HTTPS_PORT=443
@@ -224,6 +224,9 @@ ls -l .env
 ```
 
 The `3` in `WC_S3_*` is why the pattern includes `0-9`.
+
+The backend environment setting is an enum. Use `prod`, not `production`;
+`production` causes the API container to exit during settings validation.
 
 For this learning deployment, Mailpit is acceptable for testing. It does not
 deliver mail to real recipients. Before production use, replace it with an
@@ -326,6 +329,39 @@ Built build\web
 The web build is normally ignored by Git, so transfer it separately to the
 VM. A recursive `scp` can be interrupted on large files such as
 `canvaskit.wasm`. A compressed archive is more reliable.
+
+Map tiles are handled separately. The repository intentionally ignores
+`infra/tiles/` and `*.mbtiles` because the generated map can be hundreds of
+megabytes and is rebuilt from OpenStreetMap data. Before starting the tile
+server, create `infra/tiles/area.mbtiles` on a machine with Docker and the
+required map-build tools:
+
+```powershell
+cd C:\Users\ocenr\Desktop\Research\app\watercheck
+.\tools\build_tiles.ps1
+```
+
+Transfer the generated file to the VM:
+
+```powershell
+scp -C `
+  -o IdentitiesOnly=yes `
+  -o ServerAliveInterval=30 `
+  -o ServerAliveCountMax=6 `
+  -i "C:\Users\ocenr\.ssh\watercheck-VM_key.pem" `
+  ".\infra\tiles\area.mbtiles" `
+  azureuser@<VM_PUBLIC_IP>:~/WaterCheck/infra/tiles/area.mbtiles
+```
+
+Verify it on the VM:
+
+```bash
+ls -lh ~/WaterCheck/infra/tiles/area.mbtiles
+```
+
+The API can run without map tiles, but the tile-server container will restart
+continuously and map requests will fail until this file exists. Do not add the
+generated MBTiles file to Git.
 
 From the repository root on Windows:
 
@@ -432,6 +468,10 @@ docker compose up -d --build
 The first start builds the API image, runs migrations and seed data, starts
 PostgreSQL and SeaweedFS, and then starts the API, worker, tile server, and
 Caddy.
+
+The migration command includes a small PostgreSQL connection retry. This is
+intentional because a database container can pass its healthcheck just before
+it is ready to accept the migration connection.
 
 ## 14. Inspect startup and health
 
