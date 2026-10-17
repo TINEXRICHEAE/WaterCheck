@@ -31,6 +31,8 @@ Install the following before cloning or building:
 
 After installation, verify the tools:
 
+Run from any directory:
+
 ```powershell
 git --version
 docker --version
@@ -45,16 +47,25 @@ tests.
 
 ### 2. Clone and install project dependencies
 
+Run from the directory where you keep projects, before the repository exists:
+
 ```powershell
 git clone https://github.com/TINEXRICHEAE/WaterCheck.git
-Set-Location WaterCheck
+Set-Location .\WaterCheck
+```
 
+Run from the repository root, `.\WaterCheck`:
+
+```powershell
 # Use "fvm flutter" instead of "flutter" when FVM is installed.
 flutter pub get
+```
 
-Set-Location backend
+Run from the repository root, `.\WaterCheck`:
+
+```powershell
+Set-Location .\backend
 uv sync
-Set-Location ..
 ```
 
 The repository is a Dart workspace, so the root `flutter pub get` resolves the
@@ -68,7 +79,12 @@ Azure VM and never commit the resulting `.env` file.
 
 ```powershell
 Copy-Item infra\.env.example infra\.env
-Set-Location infra
+```
+
+Run from the repository root, `.\WaterCheck`:
+
+```powershell
+Set-Location .\infra
 docker compose up -d --build
 ```
 
@@ -77,6 +93,7 @@ restricted API role and loads seed data. It can take several minutes. Check
 the stack and API:
 
 ```powershell
+Set-Location .\infra
 docker compose ps
 curl.exe http://localhost/health
 ```
@@ -92,6 +109,7 @@ Development email is captured by Mailpit at
 storage are local Docker volumes. To stop the stack without deleting data:
 
 ```powershell
+Set-Location .\infra
 docker compose down
 ```
 
@@ -100,33 +118,38 @@ docker compose down
 The map artifact is generated and ignored by Git. Build it when the map is
 needed on a fresh machine:
 
+Run from the repository root, `.\WaterCheck`:
+
 ```powershell
-Set-Location ..
 .\tools\build_tiles.ps1
 ```
 
 For the Console web files served through local Caddy, build the Console from
 its own directory:
 
+Run from the repository root, `.\WaterCheck`:
+
 ```powershell
-Set-Location apps\console
+Set-Location .\apps\console
 flutter build web --debug --base-href /
-Set-Location ..\..
 ```
 
 The Collect web build is optional for normal Android/Windows development. If
 you need it:
 
+Run from the repository root, `.\WaterCheck`:
+
 ```powershell
-Set-Location apps\collect
+Set-Location .\apps\collect
 flutter build web --debug --base-href /
-Set-Location ..\..
 ```
 
 Recreate Caddy after adding or replacing web assets:
 
+Run from the repository root, `.\WaterCheck`:
+
 ```powershell
-Set-Location infra
+Set-Location .\infra
 docker compose up -d --force-recreate caddy
 ```
 
@@ -134,7 +157,10 @@ docker compose up -d --force-recreate caddy
 
 Create a throwaway local IT-admin account inside the migration container:
 
+Run from the repository root, `.\WaterCheck`:
+
 ```powershell
+Set-Location .\infra
 docker compose run --rm migrate python -m app.cli create-admin `
   --username you@example.org `
   --full-name "IT Admin"
@@ -148,25 +174,56 @@ user workflow, see [Users and access model](#users-and-access-model) and
 
 Run the Console directly in Chrome:
 
+Run from the repository root, `.\WaterCheck`:
+
 ```powershell
-Set-Location ..\apps\console
-flutter run -d chrome
+Set-Location .\apps\console
+flutter run -d chrome --dart-define=WC_API_URL=http://localhost/api
 ```
 
 Run Collect on Windows:
 
+Run from the repository root, `.\WaterCheck`:
+
 ```powershell
-Set-Location ..\collect
-flutter run -d windows
+Set-Location .\apps\collect
+flutter run -d windows --dart-define=WC_API_URL=http://localhost/api
 ```
 
-Or start an Android emulator first and replace `windows` with the emulator
-device ID. The Android emulator reaches the local API through
-`http://10.0.2.2/api`; a physical phone needs the computer's LAN address.
+Start an Android emulator first and identify its device ID.
+
+Run from the repository root, `.\WaterCheck`:
+
+```powershell
+Set-Location .\apps\console
+flutter devices
+flutter run -d <android-device-id> `
+  --dart-define=WC_API_URL=http://10.0.2.2/api
+```
+
+Run from the repository root, `.\WaterCheck`:
+
+```powershell
+Set-Location .\apps\collect
+flutter devices
+flutter run -d <android-device-id> `
+  --dart-define=WC_API_URL=http://10.0.2.2/api
+```
+
+The Android emulator reaches the local API through `http://10.0.2.2/api`.
+A physical phone needs the computer's LAN address:
+
+Run from the repository root, `.\WaterCheck`:
+
+```powershell
+Set-Location .\apps\collect
+flutter run -d <android-device-id> `
+  --dart-define=WC_API_URL=http://<computer-lan-ip>/api
+```
 
 ### 6. Confirm the installation
 
-From the repository root, run the focused checks:
+Run from the repository root, `.\WaterCheck`:
 
 ```powershell
 dart run melos run format:check
@@ -176,6 +233,8 @@ dart run melos run test:flutter
 ```
 
 For backend checks:
+
+Run from the repository root, `.\WaterCheck`:
 
 ```powershell
 Set-Location backend
@@ -190,6 +249,160 @@ is being run from the directory shown above, and the Flutter version matches
 [.fvmrc](.fvmrc). More complete troubleshooting and deployment instructions
 are in [CONTRIBUTING.md](CONTRIBUTING.md) and
 [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md).
+
+## VPS setup relationship
+
+The local Docker setup is deliberately close to the production VPS setup. A
+new Ubuntu VPS needs the same repository, Docker Engine/Compose, production
+`.env`, generated web build and `area.mbtiles` artifact. The differences are
+the hostname, DNS records, HTTPS certificate, firewall rules, persistent
+production secrets and production data. Do not copy the local development
+`.env` or local Docker volumes to production.
+
+On a fresh VPS, after Docker and DNS/firewall setup, the operational sequence
+is:
+
+Run from the VPS home directory, before the repository exists:
+
+```bash
+git clone https://github.com/TINEXRICHEAE/WaterCheck.git
+cd WaterCheck
+```
+
+Run from `~/WaterCheck/infra`:
+
+```bash
+cp .env.example .env
+chmod 600 .env
+docker compose config --quiet
+docker compose up -d --build
+curl -k -i https://<production-api-host>/health
+```
+
+The `.env` values, Caddy hostnames, Flutter artifact transfer, tile
+generation/transfer, migrations, HTTPS verification, backups, updates and
+cost controls are intentionally covered in
+[DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md). Use that guide rather than
+inventing production values from this README.
+
+## Platform build and production API options
+
+The same backend can serve the web, Windows and Android clients. The
+`WC_API_URL` Dart define selects the API endpoint at build/run time:
+
+| Client | Local development | Production |
+| --- | --- | --- |
+| Console web | `http://localhost/api` through local Caddy | `https://watercheck.cooptconnect.app/api` |
+| Console Windows | `http://localhost/api` or the computer LAN URL | `https://api.watercheck.cooptconnect.app/api` |
+| Console Android | `http://10.0.2.2/api` on an emulator | `https://api.watercheck.cooptconnect.app/api` |
+| Collect Windows | `http://localhost/api` or the computer LAN URL | `https://api.watercheck.cooptconnect.app/api` |
+| Collect Android | `http://10.0.2.2/api` on an emulator | `https://api.watercheck.cooptconnect.app/api` |
+
+Native clients use the API hostname because they are not served from the web
+hostname and therefore cannot rely on same-origin `/api` routing. Production
+native clients need Internet access and a valid HTTPS certificate; they do not
+need Docker, Caddy or the production VM installed locally.
+
+### Production web Console
+
+Build the release web files with the web hostname API path.
+
+Run from the repository root, `.\WaterCheck`:
+
+```powershell
+Set-Location .\apps\console
+flutter build web --release `
+  --base-href / `
+  --dart-define=WC_API_URL=https://watercheck.cooptconnect.app/api `
+  --no-web-resources-cdn `
+  --no-pub
+```
+
+Transfer `.\apps\console\build\web` to the production host and recreate Caddy
+as described in [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md). Do not commit the
+build output or transfer the production `.env` to the development computer.
+
+### Production Windows Console or Collect
+
+Build a signed or otherwise controlled Windows release that talks to the
+public API.
+
+Run from the repository root, `.\WaterCheck`:
+
+```powershell
+Set-Location .\apps\console
+flutter build windows --release `
+  --dart-define=WC_API_URL=https://api.watercheck.cooptconnect.app/api
+```
+
+Run from the repository root, `.\WaterCheck`:
+
+```powershell
+Set-Location .\apps\collect
+flutter build windows --release `
+  --dart-define=WC_API_URL=https://api.watercheck.cooptconnect.app/api
+```
+
+The resulting executables are under
+`apps\console\build\windows\x64\runner\Release` and
+`apps\collect\build\windows\x64\runner\Release`. Package them for Windows
+distribution and test sign-in, synchronization, offline behavior and photo
+uploads against production before giving them to users. Windows releases do
+not get installed inside the web/API Docker stack.
+
+### Production Android Console or Collect
+
+Build an Android release using the API hostname. Android signing, keystore
+storage and Play/internal distribution are separate from the web deployment.
+
+Run from the repository root, `.\WaterCheck`:
+
+```powershell
+Set-Location .\apps\console
+flutter build apk --release `
+  --dart-define=WC_API_URL=https://api.watercheck.cooptconnect.app/api
+```
+
+Run from the repository root, `.\WaterCheck`:
+
+```powershell
+Set-Location .\apps\collect
+flutter build apk --release `
+  --dart-define=WC_API_URL=https://api.watercheck.cooptconnect.app/api
+```
+
+The APKs are under each app's `build\app\outputs\flutter-apk` directory.
+For release distribution, prefer an app bundle where supported:
+
+Run from the repository root, `.\WaterCheck`:
+
+```powershell
+Set-Location .\apps\console
+flutter build appbundle --release `
+  --dart-define=WC_API_URL=https://api.watercheck.cooptconnect.app/api
+```
+
+Run from the repository root, `.\WaterCheck`:
+
+```powershell
+Set-Location .\apps\collect
+flutter build appbundle --release `
+  --dart-define=WC_API_URL=https://api.watercheck.cooptconnect.app/api
+```
+
+Install a test APK directly on a connected device:
+
+Run from `.\WaterCheck\apps\console` or `.\WaterCheck\apps\collect`:
+
+```powershell
+flutter devices
+flutter install -d <android-device-id>
+```
+
+Use a dedicated production test account and test data. Do not use the
+production IT-admin account for ordinary field-device testing. Native
+production clients should be released only after the API health check,
+authentication, area scoping, offline sync and revocation workflows pass.
 
 ## Applications and services
 
