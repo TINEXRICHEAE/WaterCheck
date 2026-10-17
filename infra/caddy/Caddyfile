@@ -1,6 +1,6 @@
-# Dev Caddyfile: plain HTTP on :80. Staging/prod add the domain (automatic TLS)
-# and HSTS in P12.
-:80 {
+# Production Caddyfile. Caddy obtains and renews certificates automatically
+# for both hostnames once DNS points to this VM and ports 80/443 are reachable.
+watercheck.cooptconnect.app {
 	encode zstd gzip
 
 	header {
@@ -25,31 +25,33 @@
 		reverse_proxy tiles:8080
 	}
 
-	redir /console /console/
-	# Build with: flutter build web --base-href /console/
-	handle_path /console/* {
-		# Engine files change only with a Flutter or package upgrade: cached a
-		# day, so a reload on 3G does not re-check each one (P9 web gate). The
-		# app itself (index.html, main.dart.js) is re-checked every time.
-		@engine path /canvaskit/* /sqlite3.wasm /assets/fonts/* /assets/packages/* /assets/shaders/*
-		header @engine Cache-Control "public, max-age=86400"
-		root * /srv/console
-		try_files {path} /index.html
-		file_server
+	# Engine files change only with a Flutter or package upgrade: cache them
+	# for a day, while the app shell is re-checked on every request.
+	@engine path /canvaskit/* /sqlite3.wasm /assets/fonts/* /assets/packages/* /assets/shaders/*
+	header @engine Cache-Control "public, max-age=86400"
+	root * /srv/console
+	try_files {path} /index.html
+	file_server
+}
+
+api.watercheck.cooptconnect.app {
+	encode zstd gzip
+
+	header {
+		X-Content-Type-Options nosniff
+		Referrer-Policy no-referrer
+		-Server
 	}
 
-	# Dev-only web preview of the field app (ADR-006). Not shipped:
-	# Collect targets Android and Windows. Build: tools/preview.ps1
-	redir /collect /collect/
-	handle_path /collect/* {
-		root * /srv/collect
-		try_files {path} /index.html
-		file_server
+	handle /health {
+		reverse_proxy api:8000
 	}
 
-	redir / /console/
+	handle_path /api/* {
+		reverse_proxy api:8000
+	}
 
 	handle {
-		respond "Not found" 404
+		reverse_proxy api:8000
 	}
 }
