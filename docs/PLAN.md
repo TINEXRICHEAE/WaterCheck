@@ -43,6 +43,68 @@ configured for an 8 GiB heap on a 7 GiB Windows host. The project now caps the
 Gradle heap at 2 GiB and the cleanup script removes reproducible Android
 intermediates and crash reports while preserving required source and data.
 
+Windows production release bundles and fully offline installers are now
+available for Collect and Console. After building both Windows release
+bundles, rebuild the installers from the repository root,
+`C:\Users\ocenr\Desktop\Research\app\watercheck`:
+
+```powershell
+.\tools\windows\build-installers.ps1 `
+  -VcRedist ".\tools\windows\prerequisites\Microsoft Visual C++ v14 Redistributable (x64)_14.51.36247.0_Machine_X64_burn_en-US.exe"
+```
+
+The command embeds the official x64 Visual C++ redistributable in each
+installer, so a non-technical end user does not need a separate prerequisite
+installation. The generated installers are written to `dist\windows\` and
+are local release artifacts, not Git-tracked files.
+
+### Future automatic update channel
+
+The offline installers are for initial installation and recovery. They do not
+currently update installed clients automatically. The planned release channel
+is:
+
+**Windows**
+
+1. Host a signed version manifest and signed installer artifacts on the VPS.
+2. Have the Windows app check the manifest whenever internet access is
+   available.
+3. Notify the user when an update is available.
+4. Obtain user approval.
+5. Close the running application.
+6. Launch the newer signed installer to replace the old installation.
+
+The application must not overwrite its own running executable. The updater
+must verify signatures, preserve user data, support rollback, and define a
+downgrade policy.
+
+**Android distributed through Google Play**
+
+1. Publish an Android App Bundle.
+2. Use Google Play in-app updates.
+3. Let Google Play download, verify and install the update.
+
+**Android distributed as a copied APK**
+
+1. Have the app check the VPS for a newer signed APK when online.
+2. Notify the user.
+3. Download the signed APK.
+4. Request Android's user-approved installation flow.
+
+An ordinary sideloaded Android app cannot silently replace itself. The APK
+must remain signed consistently, and the app must continue to work offline
+until the user approves the update.
+
+**Offline behavior**
+
+When a Windows or Android client is offline, the installed version continues
+to run, local data remains available, synchronization waits, and the client
+checks for updates and synchronizes when internet connectivity returns.
+
+The version manifest, Windows updater and sideloaded Android update flow are
+not implemented yet. They are a separate P12/P13 release-channel feature,
+not a reason for clients to download arbitrary executables from the API.
+
 ---
 
 ## 0. Where we are today (2026-10-09)
