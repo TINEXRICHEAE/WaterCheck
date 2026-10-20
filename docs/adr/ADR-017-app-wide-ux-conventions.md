@@ -70,6 +70,15 @@ The lead asked for these to be consistent everywhere.
 - **Confirmation:** rejecting a field parameter asks first.
 - **Collect home:** pull down to sync now.
 
+## Amendment (2026-10-20): "today" in the chosen zone
+
+`WcTime.local` returns a wall-clock time in the chosen zone. Comparing it with
+the device's `DateTime.now()` is wrong whenever the device's zone differs. On
+a UTC computer between 21:00 and 24:00, a Kampala time is already tomorrow,
+so a calibration made minutes earlier did not count as "today" (CI failure,
+2026-10-20). `WcTime.isToday` converts both sides, and all date-only
+comparisons use it. Regression test: `packages/ui_kit/test/conventions_test.dart`.
+
 ## Consequences
 
 - New screens use these pieces. A raw `Text('$e')` or a bare `obscureText: true` is a review finding.

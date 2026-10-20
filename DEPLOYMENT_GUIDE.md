@@ -339,6 +339,11 @@ flutter build web `
 The API URL is a compile-time Flutter define. It is read by the shared data
 package and embedded in the generated JavaScript.
 
+To keep the local `/console/` preview (built by `tools\preview.ps1` into
+`build\web`) intact, a release build can write elsewhere with
+`-o C:\Users\ocenr\Desktop\Research\app\watercheck\apps\console\build\web-prod`
+and be archived from there (see §17a).
+
 Verify the local build:
 
 ```powershell
@@ -456,14 +461,27 @@ scp -C `
   azureuser@<VM_PUBLIC_IP>:~/console-web.tar.gz
 ```
 
-Extract it on the VM, replacing any incomplete previous transfer:
+Extract it on the VM beside the live files, then swap the folders and
+recreate Caddy. Run on the VM:
 
-```powershell
-ssh -o IdentitiesOnly=yes `
-  -i "C:\Users\ocenr\.ssh\watercheck-VM_key.pem" `
-  azureuser@<VM_PUBLIC_IP> `
-  "mkdir -p ~/WaterCheck/apps/console/build && rm -rf ~/WaterCheck/apps/console/build/web && tar -xzf ~/console-web.tar.gz -C ~/WaterCheck/apps/console/build"
+```bash
+sha256sum ~/console-web.tar.gz        # compare with the checksum from the build
+cd ~/WaterCheck/apps/console/build
+rm -rf web.new && mkdir web.new && tar -xzf ~/console-web.tar.gz -C web.new
+ls web.new/index.html web.new/main.dart.js
+rm -rf web.old && mv web web.old && mv web.new web
+cd ~/WaterCheck/infra && docker compose up -d --force-recreate caddy
 ```
+
+This expects an archive with the files at its top level, as made in §17a
+(`tar -czf … -C build\web-prod .`). An archive made with `-C apps\console\build web`
+holds a `web/` folder instead: extract it into `~/WaterCheck/apps/console/build`
+directly, then recreate Caddy.
+
+Caddy must be recreated after the swap: its bind mount keeps the folder it
+started with, so it would keep serving the old (renamed) files. Recreating it
+keeps the certificates (they live in the `caddy-data` volume). To roll back:
+`mv web web.bad && mv web.old web`, then recreate Caddy again.
 
 Verify the important artifacts:
 
@@ -750,12 +768,113 @@ docker compose up -d --build
 docker compose ps
 ```
 
-For a new web build, rebuild from `apps\console`, archive it, transfer it,
-extract it over the old `build/web`, and then restart or recreate Caddy:
+A plain `docker compose up -d` only recreates services whose Compose
+settings changed. Two services read files that Git updates without changing
+their settings, so recreate them explicitly after such a pull:
 
 ```bash
-docker compose up -d --force-recreate caddy
+docker compose up -d --force-recreate tiles    # after map style or .mbtiles changes
+docker compose up -d --force-recreate caddy    # after a Caddyfile or web-build change
 ```
+
+Rebuild the API and worker images after a backend or `uv.lock` change (for
+example a security update): `docker compose up -d --build api worker`.
+
+For new client builds (web, Windows installers, Android APK) follow §17a.
+
+## 17a. Releasing a client version
+
+The 0.1.1 release (2026-10-21) followed this procedure.
+
+### 1. Set the version
+
+Change it in all six places so the About boxes, the server's app-version
+counts and the installers agree:
+
+| File | Value |
+|------|-------|
+| `apps/console/pubspec.yaml`, `apps/collect/pubspec.yaml` | `version: 0.1.1+2`; raise the build number (`+N`) every release, because Android refuses an update with a lower one |
+| `apps/console/lib/app/router.dart` | `consoleVersion` |
+| `apps/collect/lib/features/settings/settings_screen.dart` | `appVersion` |
+| `tools/windows/WaterCheck-Console.iss`, `WaterCheck-Collect.iss` | `#define AppVersion` |
+
+### 2. Build against production
+
+Run from `C:\Users\ocenr\Desktop\Research\app\watercheck`. The web Console
+uses the same-origin API; Windows and Android use the API hostname.
+
+```powershell
+# Web Console (a separate output keeps the local /console/ preview intact)
+Set-Location .\apps\console
+flutter build web --release --base-href / --no-web-resources-cdn `
+  --dart-define=WC_API_URL=https://watercheck.cooptconnect.app/api `
+  -o "C:\Users\ocenr\Desktop\Research\app\watercheck\apps\console\build\web-prod"
+New-Item -ItemType Directory -Force ..\..\dist\web | Out-Null
+tar -czf ..\..\dist\web\console-web.tar.gz -C build\web-prod .
+
+# Windows bundles
+flutter build windows --release `
+  --dart-define=WC_API_URL=https://api.watercheck.cooptconnect.app/api
+Set-Location ..\collect
+flutter build windows --release `
+  --dart-define=WC_API_URL=https://api.watercheck.cooptconnect.app/api
+
+# Offline installers (Visual C++ runtime bundled)
+Set-Location ..\..
+.\tools\windows\build-installers.ps1 `
+  -VcRedist ".\tools\windows\prerequisites\Microsoft Visual C++ v14 Redistributable (x64)_14.51.36247.0_Machine_X64_burn_en-US.exe"
+
+# Android APK
+Set-Location .\apps\collect
+flutter build apk --release `
+  --dart-define=WC_API_URL=https://api.watercheck.cooptconnect.app/api
+New-Item -ItemType Directory -Force ..\..\dist\android | Out-Null
+Copy-Item build\app\outputs\flutter-apk\app-release.apk ..\..\dist\android\WaterCheck-Collect-0.1.1.apk
+```
+
+Windows PowerShell 5.1 reports Flutter's informational stderr notes (for
+example "Wasm dry run succeeded") as errors under
+`$ErrorActionPreference = "Stop"`. In a build script, judge each step by
+`$LASTEXITCODE` instead.
+
+Record a checksum for every file and keep it with the release notes:
+
+```powershell
+Get-ChildItem .\dist -Recurse -File | ForEach-Object {
+  "{0}  {1}" -f $_.Name, (Get-FileHash $_.FullName -Algorithm SHA256).Hash }
+```
+
+Before shipping, check that the builds point at production:
+
+- `main.dart.js` contains `https://watercheck.cooptconnect.app/api`;
+- the Windows `data\app.so` and the APK's `lib/arm64-v8a/libapp.so` contain
+  `api.watercheck.cooptconnect.app/api`;
+- `aapt dump badging` on the APK shows the new `versionName`.
+
+Then run `.\tools\cleanup.ps1`; it keeps `dist\`.
+
+### 3. Ship, in this order
+
+1. **Server configuration:** push, then on the VM `git pull` and recreate
+   `tiles` and/or `caddy` as above.
+2. **Web Console:** copy `dist\web\console-web.tar.gz`, check its SHA-256 on
+   the VM, swap the folders and recreate Caddy (§11). Reload the browser with
+   Ctrl+F5.
+3. **Windows:** run the two `dist\windows\*-Setup.exe` files. They upgrade
+   the previous version in place and keep its data. The Visual C++ step is
+   skipped when the runtime is already installed.
+4. **Android:** install `dist\android\WaterCheck-Collect-<version>.apk` over
+   the old app. It updates in place only when signed with the same key and
+   its build number is higher.
+
+### Map style changes
+
+Browsers and apps cache map tiles for a week (`Cache-Control` in the
+Caddyfiles). When `infra/tiles-config/watercheck.json` changes, also change
+the style id in `infra/tiles-config/config.json` (for example
+`watercheck-v2` → `watercheck-v3`). The apps read the id from
+`/tiles/styles.json`, so the new id makes them fetch fresh tiles without an
+app rebuild.
 
 ## 18. Stop the deployment and control cost
 
@@ -835,7 +954,53 @@ protects production from synthetic load data. Do not change
 
 Run Flutter from `apps\console`, not from the repository root.
 
+### Map tiles return 500 after a map change (2026-10-20)
+
+`git pull` changed `tiles-config/` and a new `uganda.mbtiles` was copied, but
+the tile server kept running with its old configuration. Recreate it:
+`docker compose up -d --force-recreate tiles`.
+
+### Map shows only a plain background (2026-10-20)
+
+Three causes were found and fixed:
+
+1. `tiles-config/config.json` pointed the vector WaterCheck style at the
+   raster `area.mbtiles`, which it cannot draw. It must name `uganda.mbtiles`.
+2. Windows and Android request `https://api.watercheck.cooptconnect.app/tiles/`,
+   which the API hostname did not route. `Caddyfile.prod` now sends `/tiles/*`
+   on that hostname to the tile server.
+3. In rural areas at zoom 14 the old style's thin white roads disappeared on
+   the beige land. The style now draws outlined, coloured roads
+   (`watercheck-v2`), and single sources open at zoom 13.
+
+A grey background means no tiles loaded; a beige one means tiles loaded.
+
+### Installer stops at "Installing Microsoft Visual C++ runtime" (2026-10-20)
+
+"Unable to execute file … vc_redist.x64.exe, CreateProcess failed: code 2":
+the 0.1.0 installers bundled the runtime under its long downloaded name but
+ran `vc_redist.x64.exe`. Fixed in 0.1.1 (`DestName: "vc_redist.x64.exe"`).
+The step is also skipped when the runtime is already installed.
+
+### CI security check fails on an unchanged dependency (2026-10-20)
+
+`osv-scanner` failed on a newly published critical advisory for `certifi`
+(GHSA-6q48-6c7w-9gw2) with no code change. Upgrade the package in the
+lockfile (`uv lock --upgrade-package certifi` in `backend`), confirm with
+`uvx pip-audit`, push, and rebuild the API and worker on the VM.
+
 ## 20. Current deployment status
+
+Update (2026-10-21), release 0.1.1:
+
+- `WC_CADDYFILE=Caddyfile.prod` is set in the VM `.env`; local machines use
+  `Caddyfile.dev` by default.
+- `uganda.mbtiles` (248 MB, SHA-256 checked) is on the VM. The tile server uses
+  it with the `watercheck-v2` style, and map tiles answer `200 image/png` on
+  both hostnames.
+- The API and worker are rebuilt with `certifi` 2026.10.19.
+- The 0.1.1 web Console, Windows installers and Android APK are built into
+  `dist\` (§17a) for shipping.
 
 Current status (2026-10-17):
 

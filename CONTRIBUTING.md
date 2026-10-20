@@ -177,3 +177,16 @@ Refresh the tab after each rebuild. For hot reload while editing, run `flutter r
 - Before committing: `gitleaks git --staged` (or `gitleaks protect --staged` on older versions).
 - Definition of Done: formatted, analysed with no warnings, tests passing, docs/ADR updated, acceptance checks for the touched requirement IDs pass (SPEC §A0.7).
 - No secrets, and no personal data in seeds, logs or test fixtures.
+- Before pushing, run the same commands as CI (`.github/workflows/`), not
+  narrower ones. `uv run mypy` also checks the tests (`mypy app` once missed
+  an error), and `dart run melos run format:check` is the Flutter format gate.
+- A failing `osv-scanner` with no code change is usually a newly published
+  advisory. Upgrade the package in the lockfile (`uv lock --upgrade-package
+  <name>`), check with `uvx pip-audit`, and rebuild the API image on the VM.
+- UX conventions (ADR-017): use the `ui_kit` pieces. Show times with
+  `WcTime.local`. Decide "today" with `WcTime.isToday`, never by comparing a
+  converted time with `DateTime.now()`: CI runs in UTC, and East Africa Time
+  is UTC+3.
+- Map style: when `infra/tiles-config/watercheck.json` changes, also change
+  the style id in `infra/tiles-config/config.json`; otherwise cached tiles
+  stay for a week. See DEPLOYMENT_GUIDE.md §17a.

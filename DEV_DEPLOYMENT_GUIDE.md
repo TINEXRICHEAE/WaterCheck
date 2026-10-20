@@ -213,6 +213,23 @@ Run from `.\WaterCheck\apps\console` on Windows:
 flutter run -d windows --dart-define=WC_API_URL=http://localhost/api
 ```
 
+### Development and production builds share one data folder
+
+A Windows Console build, whether a development build or the installed
+production app, keeps its local database, session and map pack in
+`%APPDATA%\ug.watercheck\watercheck_console` (Collect: `watercheck_collect`).
+Before running a development build on a computer that also has the
+production app, close the production app and set its data aside. Restore it
+afterwards:
+
+```powershell
+# Run from any directory
+Rename-Item "$env:APPDATA\ug.watercheck\watercheck_console" "watercheck_console.prod-backup"
+# ... test the development build ...
+Remove-Item "$env:APPDATA\ug.watercheck\watercheck_console" -Recurse -Force
+Rename-Item "$env:APPDATA\ug.watercheck\watercheck_console.prod-backup" "watercheck_console"
+```
+
 ### Windows release bundle
 
 The Windows target currently produces a portable release directory, not an
@@ -271,7 +288,14 @@ building the two Windows release bundles:
 
 This requires Inno Setup (`iscc.exe`). The script fails rather than producing
 an incomplete offline installer when a release bundle or supplied Visual C++
-redistributable is missing. Outputs are written to
+redistributable is missing.
+
+The installers copy the redistributable under the fixed name
+`vc_redist.x64.exe`, which is the name their run step starts. The 0.1.0
+installers failed with "CreateProcess failed: code 2" because of this. They
+also skip the runtime when it is already installed. The full release
+procedure, including version numbers and checksums, is in
+DEPLOYMENT_GUIDE.md §17a. Outputs are written to
 `.\WaterCheck\dist\windows\`.
 
 ### Updating installed clients
@@ -416,6 +440,21 @@ Use a dedicated production test device and clearly identified test records.
 Do not use an administrator's credentials in the Collect app.
 
 ## 9. Common development errors
+
+### `http://localhost/console/` does not load
+
+The local stack must use `infra/caddy/Caddyfile.dev`, which is the default. Do
+not set `WC_CADDYFILE=Caddyfile.prod` in a local `.env`: that file only serves
+the production HTTPS hostnames. After changing it, run
+`docker compose up -d --force-recreate caddy` from `infra`.
+
+### The local map is blank or tiles return 500
+
+The labelled map needs `infra/tiles/uganda.mbtiles`: all of Uganda as vector
+data, about 259 MB, built by `tools/build_map.ps1 -Vector`.
+`infra/tiles/area.mbtiles` is only the offline pack the API gives Windows and
+Android. After copying a map file or changing `infra/tiles-config/`, recreate
+the tile server from `infra`: `docker compose up -d --force-recreate tiles`.
 
 ### `no configuration file provided`
 

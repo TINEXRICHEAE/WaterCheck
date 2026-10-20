@@ -9,4 +9,9 @@
 7. The current deployment baseline and reproducible Azure procedure are in
    [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md). Keep it updated when deployment
    behavior, hostnames, ports, secrets handling, or environment separation
-   changes.
+   changes. Client releases follow its §17a (versions, builds, checksums,
+   shipping order).
+8. Before committing, run the exact commands of `.github/workflows/` for the
+   areas touched (for example `uv run mypy`, not `mypy app`). Local
+   development uses `infra/caddy/Caddyfile.dev`; never point a local `.env` at
+   `Caddyfile.prod`.

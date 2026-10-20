@@ -442,7 +442,11 @@ flutter build web --release `
 ```
 
 Transfer `.\apps\console\build\web` to the production host and recreate Caddy
-as described in [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md). Do not commit the
+as described in [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md). For a release,
+add `-o <absolute path>\apps\console\build\web-prod` so the local `/console/`
+preview is not overwritten. The complete release procedure (versions, web,
+Windows installers, APK, checksums, shipping order) is in
+[DEPLOYMENT_GUIDE.md §17a](DEPLOYMENT_GUIDE.md#17a-releasing-a-client-version). Do not commit the
 build output or transfer the production `.env` to the development computer.
 
 On Linux, run the equivalent build from `./WaterCheck/apps/console`:
@@ -510,7 +514,9 @@ offline installers from the repository root, `.\WaterCheck`:
 ```
 
 Passing the official x64 Visual C++ redistributable embeds it in both
-installers. The resulting files are written to `.\dist\windows\`. Do not
+installers. The installers copy it as `vc_redist.x64.exe` and skip it when the
+runtime is already installed. The 0.1.0 installers stopped with
+"CreateProcess failed: code 2"; this is fixed in 0.1.1. The resulting files are written to `.\dist\windows\`. Do not
 distribute an installer built without the runtime unless every target
 computer is already known to have the compatible runtime.
 
@@ -884,7 +890,17 @@ capabilities include:
   administration;
 - accessible UX conventions, safe error pages, password visibility controls,
   loading states, filters, themes and time-zone preferences;
-- web Console deployment with HTTPS and same-origin API routing.
+- web Console deployment with HTTPS and same-origin API routing;
+- the labelled map of all of Uganda on the web, Windows and Android in
+  production (release 0.1.1, 2026-10-21): outlined, coloured roads, tracks
+  and village names. Windows and Android reach the map through the API
+  hostname.
+
+The current client release is **0.1.1**: the web Console, Windows installers
+for Console and Collect, and the Android Collect APK. Local development uses
+`infra/caddy/Caddyfile.dev` (`http://localhost/console/`, `/collect/`);
+production uses `Caddyfile.prod`, selected by `WC_CADDYFILE` in the VM's
+`.env`.
 
 The current production smoke checks pass:
 

@@ -1,6 +1,6 @@
 # Progress
 
-**Current phase:** P11 gate passed (2026-10-12); app-wide UX conventions added (2026-10-13, ADR-017). Production deployment completed (2026-10-17). Next: P12 (hardening and pilot release).
+**Current phase:** P11 gate passed (2026-10-12); app-wide UX conventions (2026-10-13, ADR-017); production on Azure (2026-10-17); client release 0.1.1 with the working production map (2026-10-21). Next: P12 (hardening and pilot release).
 
 Windows release bundles now build for both apps. Offline single-file
 installer definitions were added under `tools/windows/`; Inno Setup and an
@@ -9,7 +9,24 @@ installer artifacts. Automatic update delivery is not implemented yet:
 Windows needs a signed installer/update channel, Android needs Play
 distribution or a user-approved sideload update, and web updates use the VPS
 deployment and cache versioning.
-**Last updated:** 2026-10-20
+**Last updated:** 2026-10-21
+
+## Release 0.1.1 (2026-10-21)
+
+- [x] **Readable map:** roads have grey edges (main roads amber, secondary pale yellow), minor roads show from zoom 11, tracks are brown dashes. The style id is now `watercheck-v2`, so week-old cached tiles are dropped. A single source or issue opens at zoom 13. Confirmed by the lead on the local dev stack.
+- [x] **"Today" in the chosen time zone:** calibration-today and the sync screen compared a Kampala time with the device clock. They failed on UTC machines between 21:00 and 24:00 (CI, 2026-10-20). `WcTime.isToday` converts both sides (ADR-017 amendment, regression test).
+- [x] **Security:** `certifi` updated to 2026.10.19 (GHSA-6q48-6c7w-9gw2, critical). `pip-audit` is clean; the API and worker are rebuilt on the VM.
+- [x] **Installers:** the bundled Visual C++ runtime is now copied as `vc_redist.x64.exe`; 0.1.0 failed with "CreateProcess failed: code 2". The step is skipped when the runtime is already installed.
+- [x] **Version 0.1.1** (build 2) in the pubspecs, About boxes and installers.
+- [x] **Built against production into `dist\`:**
+  - web Console 15.3 MB;
+  - Console installer 32.7 MB;
+  - Collect installer 30.3 MB;
+  - Android APK 72.2 MB.
+
+  Each has a SHA-256 checksum. Each was checked for the production API address and the version.
+- [x] **Release procedure** documented: DEPLOYMENT_GUIDE.md §17a (versions, builds, checks, shipping order, map style ids).
+- [ ] **Shipped and confirmed by the lead:** web Console on the VM; Windows installers on a PC; APK on a phone.
 
 ## Dev/prod routing split and production map fix (2026-10-20)
 
