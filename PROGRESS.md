@@ -16,7 +16,7 @@ deployment and cache versioning.
 - [x] `infra/caddy/Caddyfile.dev` (default) keeps local `http://localhost/console/` and `/collect/` working; `Caddyfile.prod` serves the HTTPS hostnames. `WC_CADDYFILE` in `infra/.env` chooses; the VM sets `Caddyfile.prod`.
 - [x] Map: the tile server is back on the vector `uganda.mbtiles` (the WaterCheck style cannot draw the raster `area.mbtiles`, which stays the API's offline pack). The API hostname now also routes `/tiles/*`, used by Windows and Android.
 - [x] Verified locally: both Caddy files validate; dev routes, map tiles and both prod hostnames (tested as `web.localhost` / `api.localhost`) answer.
-- [ ] On the VM: set `WC_CADDYFILE=Caddyfile.prod`, ship `uganda.mbtiles` (~259 MB), pull and restart `caddy` and `tiles`.
+- [x] On the VM (2026-10-20): `WC_CADDYFILE=Caddyfile.prod` set, `uganda.mbtiles` shipped (SHA-256 checked), API/worker rebuilt (certifi 2026.10.19), `tiles` force-recreated. Public checks: health ok; map tiles `200 image/png` on both hostnames.
 
 ## Production deployment ✅ (2026-10-17)
 

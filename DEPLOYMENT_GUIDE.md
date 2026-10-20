@@ -379,8 +379,20 @@ copy. Transfer it with the same `scp` pattern as below, to
 
 ```bash
 cd ~/WaterCheck/infra
-docker compose up -d tiles
+docker compose up -d --force-recreate tiles
 ```
+
+`--force-recreate` is required. The tile server reads `tiles-config/` and the
+`.mbtiles` files only when it starts; when only those files change, a plain
+`docker compose up -d` leaves the old process running (tiles then answer
+`500`). Check a tile afterwards:
+
+```bash
+curl -s -o /dev/null -w "%{http_code} %{content_type}\n" \
+  https://watercheck.cooptconnect.app/tiles/styles/watercheck/256/10/607/504.png
+```
+
+Expect `200 image/png`.
 
 Create `infra/tiles/area.mbtiles` on a machine with Docker and the required
 map-build tools:
