@@ -389,7 +389,7 @@ docker compose up -d --force-recreate tiles
 
 ```bash
 curl -s -o /dev/null -w "%{http_code} %{content_type}\n" \
-  https://watercheck.cooptconnect.app/tiles/styles/watercheck/256/10/607/504.png
+  https://watercheck.cooptconnect.app/tiles/styles/watercheck-v2/256/10/607/504.png
 ```
 
 Expect `200 image/png`.

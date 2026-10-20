@@ -206,12 +206,14 @@ class _SourcesMapState extends ConsumerState<SourcesMap> {
                 : points.length == 1
                 ? points.single
                 : LatLng(home.lat, home.lon),
-            initialZoom: focus != null || points.length == 1 ? 14 : home.zoom,
+            // 13: close enough for the source, wide enough for nearby
+            // village names and roads (rural areas look empty at 14).
+            initialZoom: focus != null || points.length == 1 ? 13 : home.zoom,
             initialCameraFit: focus == null && points.length > 1
                 ? CameraFit.coordinates(
                     coordinates: points,
                     padding: const EdgeInsets.fromLTRB(48, 80, 48, 110),
-                    maxZoom: 15,
+                    maxZoom: 14,
                   )
                 : null,
             minZoom: 5,
@@ -360,7 +362,7 @@ class IssueMapCard extends ConsumerWidget {
                               maxZoom: 14,
                             ),
                       initialCenter: at!,
-                      initialZoom: 14,
+                      initialZoom: 13,
                       interactionOptions: const InteractionOptions(
                         flags: InteractiveFlag.none,
                       ),
