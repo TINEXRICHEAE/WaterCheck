@@ -1,6 +1,9 @@
-# Production Caddyfile. Caddy obtains and renews certificates automatically
-# for both hostnames once DNS points to this VM and ports 80/443 are reachable.
-watercheck.cooptconnect.app {
+# Production Caddyfile (Azure VM): selected with WC_CADDYFILE=Caddyfile.prod
+# in infra/.env. Caddy obtains and renews certificates automatically for both
+# hostnames once DNS points to the VM and ports 80/443 are reachable.
+# Hostnames come from WC_WEB_HOST / WC_API_HOST (defaults: the live names),
+# so a future staging stack can reuse this file with its own names.
+{$WC_WEB_HOST:watercheck.cooptconnect.app} {
 	encode zstd gzip
 
 	header {
@@ -36,7 +39,7 @@ watercheck.cooptconnect.app {
 	}
 }
 
-api.watercheck.cooptconnect.app {
+{$WC_API_HOST:api.watercheck.cooptconnect.app} {
 	encode zstd gzip
 
 	header {
@@ -52,6 +55,13 @@ api.watercheck.cooptconnect.app {
 
 		handle_path /api/* {
 			reverse_proxy api:8000
+		}
+
+		# Windows and Android derive the map address from their API address
+		# (…/api → …/tiles), so the API hostname serves the map too.
+		handle_path /tiles/* {
+			header Cache-Control "public, max-age=604800"
+			reverse_proxy tiles:8080
 		}
 
 		handle {

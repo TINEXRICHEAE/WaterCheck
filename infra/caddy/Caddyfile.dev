@@ -1,0 +1,56 @@
+# Dev Caddyfile (local workstation): plain HTTP on :80, Console at /console/
+# and the dev-only Collect preview at /collect/. Selected by default; the
+# production VM sets WC_CADDYFILE=Caddyfile.prod in infra/.env.
+:80 {
+	encode zstd gzip
+
+	header {
+		X-Content-Type-Options nosniff
+		X-Frame-Options DENY
+		Referrer-Policy no-referrer
+		-Server
+	}
+
+	handle /health {
+		reverse_proxy api:8000
+	}
+
+	# API lives under /api on the same origin as the web Console (plan D-H).
+	handle_path /api/* {
+		reverse_proxy api:8000
+	}
+
+	# Map images (tileserver-gl). Cached by browsers for a week.
+	handle_path /tiles/* {
+		header Cache-Control "public, max-age=604800"
+		reverse_proxy tiles:8080
+	}
+
+	redir /console /console/
+	# Build with: flutter build web --base-href /console/
+	handle_path /console/* {
+		# Engine files change only with a Flutter or package upgrade: cached a
+		# day, so a reload on 3G does not re-check each one (P9 web gate). The
+		# app itself (index.html, main.dart.js) is re-checked every time.
+		@engine path /canvaskit/* /sqlite3.wasm /assets/fonts/* /assets/packages/* /assets/shaders/*
+		header @engine Cache-Control "public, max-age=86400"
+		root * /srv/console
+		try_files {path} /index.html
+		file_server
+	}
+
+	# Dev-only web preview of the field app (ADR-006). Not shipped:
+	# Collect targets Android and Windows. Build: tools/preview.ps1
+	redir /collect /collect/
+	handle_path /collect/* {
+		root * /srv/collect
+		try_files {path} /index.html
+		file_server
+	}
+
+	redir / /console/
+
+	handle {
+		respond "Not found" 404
+	}
+}

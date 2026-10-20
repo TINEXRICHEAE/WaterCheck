@@ -252,34 +252,48 @@ expands and prints secrets.
 
 ## 8. Production Caddy configuration
 
-The production configuration is:
+Caddy has one file per environment, and `infra/.env` chooses it:
 
-```text
-infra/caddy/Caddyfile
+| File | Used by | Routing |
+|------|---------|---------|
+| `infra/caddy/Caddyfile.dev` | local workstations (the default) | plain HTTP on `localhost`: `/console/`, `/collect/`, `/api/`, `/tiles/` |
+| `infra/caddy/Caddyfile.prod` | the Azure VM | HTTPS for the two hostnames below |
+
+On the VM, `infra/.env` must contain:
+
+```dotenv
+WC_CADDYFILE=Caddyfile.prod
 ```
+
+Without it, Compose falls back to the dev file and the public HTTPS sites stop
+answering. The hostnames default to the live names; set `WC_WEB_HOST` and
+`WC_API_HOST` only for another deployment (for example a future staging VM).
 
 It provides:
 
 - Flutter Console at `watercheck.cooptconnect.app`.
 - `/api/*` routed to `api:8000`.
 - `/tiles/*` routed to `tiles:8080`.
-- API hostname routed to `api:8000`.
+- API hostname routed to `api:8000`, except `/tiles/*`: Windows and Android
+  derive the map address from their API address (`…/api` → `…/tiles`).
 - Automatic HTTPS and HTTP-to-HTTPS redirects.
 - Security headers.
 - Flutter history fallback to `/index.html`.
 - One-day caching for stable Flutter engine assets.
 
-The development `/console/` and `/collect/` routes are not used by the
-production Console deployment.
+The development `/console/` and `/collect/` routes live only in
+`Caddyfile.dev`.
 
 Validate Caddy locally from the `infra` directory:
 
 ```powershell
 docker run --rm `
-  -v "${PWD}\caddy\Caddyfile:/etc/caddy/Caddyfile:ro" `
+  -v "${PWD}\caddy:/cfg:ro" `
   caddy:2.11 `
-  caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile
+  caddy validate --config /cfg/Caddyfile.prod --adapter caddyfile
 ```
+
+Repeat with `Caddyfile.dev` after changing the dev file.
 
 Expected result:
 
@@ -345,10 +359,31 @@ VM. A recursive `scp` can be interrupted on large files such as
 `canvaskit.wasm`. A compressed archive is more reliable.
 
 Map tiles are handled separately. The repository intentionally ignores
-`infra/tiles/` and `*.mbtiles` because the generated map can be hundreds of
-megabytes and is rebuilt from OpenStreetMap data. Before starting the tile
-server, create `infra/tiles/area.mbtiles` on a machine with Docker and the
-required map-build tools:
+`infra/tiles/` and `*.mbtiles` because the generated maps can be hundreds of
+megabytes and are rebuilt from OpenStreetMap data. Production needs **two**
+files in `~/WaterCheck/infra/tiles/`:
+
+| File | Size | Served by | Purpose |
+|------|------|-----------|---------|
+| `uganda.mbtiles` | ~259 MB | `tiles` service at `/tiles/` | the labelled map of all of Uganda (vector data, drawn by the WaterCheck style) |
+| `area.mbtiles` | ~8–106 MB | the API at `/api/v1/tiles` | the offline pack Windows and Android download for their area (map images) |
+
+`infra/tiles-config/config.json` must name `uganda.mbtiles`: the style reads
+vector data, so pointing it at the image-only `area.mbtiles` leaves the map
+blank.
+
+Build `uganda.mbtiles` on a machine with Docker and about 20 GB free
+(`.\tools\build_map.ps1 -Vector`; it takes a long time) or reuse an existing
+copy. Transfer it with the same `scp` pattern as below, to
+`~/WaterCheck/infra/tiles/uganda.mbtiles`, then restart the tile server:
+
+```bash
+cd ~/WaterCheck/infra
+docker compose up -d tiles
+```
+
+Create `infra/tiles/area.mbtiles` on a machine with Docker and the required
+map-build tools:
 
 ```powershell
 cd C:\Users\ocenr\Desktop\Research\app\watercheck
@@ -452,7 +487,7 @@ git diff
 Commit only the intended source/configuration files:
 
 ```powershell
-git add infra/caddy/Caddyfile
+git add infra/caddy/Caddyfile.prod
 git commit -m "Configure production Caddy routing"
 git push origin main
 ```
@@ -804,7 +839,8 @@ Current status (2026-10-17):
 - The complete Console web build was transferred and verified on the VM.
 - The full Compose stack is running and healthy.
 - Database migrations and seed data completed successfully.
-- The generated `area.mbtiles` file is present and the tile server is healthy.
+- The generated `uganda.mbtiles` (map) and `area.mbtiles` (offline pack) files
+  are present and the tile server is healthy.
 - Caddy obtained working HTTPS certificates for both production hostnames.
 - Public smoke checks passed for the API hostname, same-origin API routes and
   the Console root.

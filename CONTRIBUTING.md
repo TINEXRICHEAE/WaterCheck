@@ -165,6 +165,10 @@ With the dev stack running, rebuild the web previews and open them:
 - Console: http://localhost/console/
 - Collect (dev-only preview, ADR-006): http://localhost/collect/
 
+These routes come from `infra/caddy/Caddyfile.dev`, the default. Do not set
+`WC_CADDYFILE=Caddyfile.prod` locally: that file serves only the production
+HTTPS hostnames (see DEPLOYMENT_GUIDE.md §8).
+
 Refresh the tab after each rebuild. For hot reload while editing, run `flutter run -d chrome` in `apps/collect` or `apps/console`.
 
 ## Workflow

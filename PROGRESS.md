@@ -9,7 +9,14 @@ installer artifacts. Automatic update delivery is not implemented yet:
 Windows needs a signed installer/update channel, Android needs Play
 distribution or a user-approved sideload update, and web updates use the VPS
 deployment and cache versioning.
-**Last updated:** 2026-10-17
+**Last updated:** 2026-10-20
+
+## Dev/prod routing split and production map fix (2026-10-20)
+
+- [x] `infra/caddy/Caddyfile.dev` (default) keeps local `http://localhost/console/` and `/collect/` working; `Caddyfile.prod` serves the HTTPS hostnames. `WC_CADDYFILE` in `infra/.env` chooses; the VM sets `Caddyfile.prod`.
+- [x] Map: the tile server is back on the vector `uganda.mbtiles` (the WaterCheck style cannot draw the raster `area.mbtiles`, which stays the API's offline pack). The API hostname now also routes `/tiles/*`, used by Windows and Android.
+- [x] Verified locally: both Caddy files validate; dev routes, map tiles and both prod hostnames (tested as `web.localhost` / `api.localhost`) answer.
+- [ ] On the VM: set `WC_CADDYFILE=Caddyfile.prod`, ship `uganda.mbtiles` (~259 MB), pull and restart `caddy` and `tiles`.
 
 ## Production deployment ✅ (2026-10-17)
 
