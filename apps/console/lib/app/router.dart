@@ -33,7 +33,7 @@ import 'providers.dart';
 import 'session.dart';
 
 /// Shown in "About" (pubspec version).
-const consoleVersion = '0.1.0';
+const consoleVersion = '0.1.1';
 
 const _authRoutes = {'/sign-in', '/change-password', '/pin', '/unlock'};
 

@@ -1,7 +1,7 @@
 name: watercheck_console
 description: "WaterCheck Console: stakeholder and IT admin app (Web, Windows, Android)."
 publish_to: none
-version: 0.1.0+1
+version: 0.1.1+2
 resolution: workspace
 
 environment:

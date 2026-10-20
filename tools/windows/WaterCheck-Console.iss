@@ -1,5 +1,5 @@
 #define AppName "WaterCheck Console"
-#define AppVersion "0.1.0"
+#define AppVersion "0.1.1"
 #define AppPublisher "WaterCheck"
 #define AppExeName "watercheck_console.exe"
 
