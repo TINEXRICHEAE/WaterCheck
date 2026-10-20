@@ -39,6 +39,23 @@ void main() {
       expect(WcTime.local(utc).hour, 22);
     });
 
+    test('"today" is judged in the chosen zone on both sides', () {
+      // 21:10 UTC is 00:10 the next day in Kampala (the CI failure,
+      // 2026-10-20): a calibration done then is today, not yesterday.
+      final now = DateTime.utc(2026, 10, 20, 21, 10);
+      final done = DateTime.utc(2026, 10, 20, 21, 5);
+      for (final z in [TimeZoneChoice.kampala, TimeZoneChoice.utc]) {
+        WcTime.zone = z;
+        expect(WcTime.isToday(done, now: now), isTrue, reason: z.name);
+      }
+      WcTime.zone = TimeZoneChoice.kampala;
+      // 20:59 UTC on the 20th is 23:59 in Kampala: before midnight there.
+      expect(
+        WcTime.isToday(DateTime.utc(2026, 10, 20, 20, 59), now: now),
+        isFalse,
+      );
+    });
+
     test('themes parse, defaulting to the device', () {
       expect(ThemeChoice.parse('dark').mode, ThemeMode.dark);
       expect(ThemeChoice.parse(null).mode, ThemeMode.system);

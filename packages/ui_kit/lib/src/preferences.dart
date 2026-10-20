@@ -81,6 +81,16 @@ abstract final class WcTime {
   /// Now, as a wall-clock time in the chosen zone.
   static DateTime now() => local(DateTime.now());
 
+  /// Whether [t] falls on today's date in the chosen zone. Both sides are
+  /// converted: comparing a converted time with the device's `DateTime.now()`
+  /// is wrong whenever the device's zone differs (a UTC server at 21:00 is
+  /// already tomorrow in Kampala).
+  static bool isToday(DateTime t, {DateTime? now}) {
+    final a = local(t);
+    final n = local(now ?? DateTime.now());
+    return a.year == n.year && a.month == n.month && a.day == n.day;
+  }
+
   /// "EAT (UTC+3)", "UTC" or the device's zone name.
   static String label() {
     final offset = zone.offset;

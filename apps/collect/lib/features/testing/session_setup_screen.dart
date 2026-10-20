@@ -27,11 +27,9 @@ final todaysCalibrationProvider = FutureProvider<({String id, bool passed})?>((
       .watch(testingRepositoryProvider)
       .latestCalibration(ref.watch(installationIdProvider));
   if (latest == null) return null;
-  final now = DateTime.now();
-  final at = WcTime.local(latest.performedAt);
-  final today =
-      at.year == now.year && at.month == now.month && at.day == now.day;
-  return today ? (id: latest.id, passed: latest.passed) : null;
+  return WcTime.isToday(latest.performedAt)
+      ? (id: latest.id, passed: latest.passed)
+      : null;
 });
 
 /// Calibration, tester and limits, and the proximity check (§3.1 steps 3–4).
