@@ -313,4 +313,51 @@ class UiKitLocalizationsEn extends UiKitLocalizations {
   String refAreasMore(int shown, int count) {
     return 'Showing $shown of $count. Type in the search box to narrow the list.';
   }
+
+  @override
+  String get refOpenDetails => 'Details and actions';
+
+  @override
+  String get mapSearchHint => 'Search a place or a source';
+
+  @override
+  String get mapLayers => 'Map layers';
+
+  @override
+  String get mapLabels => 'Source names';
+
+  @override
+  String get mapStraight => 'Straight-line distance';
+
+  @override
+  String get mapStraightHint => 'From where you are, as the crow flies';
+
+  @override
+  String get mapRoute => 'Route by road';
+
+  @override
+  String get mapRouteHint =>
+      'To the chosen source, with distance and travel time';
+
+  @override
+  String get mapVehicle => 'Motorbike/car';
+
+  @override
+  String get mapWalking => 'Walking';
+
+  @override
+  String mapStraightLine(String distance) {
+    return '$distance straight';
+  }
+
+  @override
+  String mapByRoad(String distance, String time, String mode) {
+    return '$distance by road, about $time ($mode)';
+  }
+
+  @override
+  String get mapRouteLoading => 'finding the route…';
+
+  @override
+  String get mapRouteNone => 'no route found (or routing is off)';
 }

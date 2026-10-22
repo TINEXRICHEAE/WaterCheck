@@ -3,8 +3,11 @@ import 'package:flutter/material.dart';
 
 import '../l10n/ui_kit_localizations.dart';
 
-/// Read-only view of the seeded reference data (P2 gate "debug screen").
-/// One search box filters every group (2026-10-22).
+/// The reference data (P2 gate "debug screen"). One search box filters
+/// every group (2026-10-22). With the `on…` callbacks each item opens its
+/// own page (Collect, ADR-019 slice B); without them the view is read-only.
+typedef RefArea = ({String id, String level, String name});
+
 class ReferenceDataView extends StatefulWidget {
   const ReferenceDataView({
     super.key,
@@ -13,6 +16,10 @@ class ReferenceDataView extends StatefulWidget {
     required this.testerProfiles,
     required this.rules,
     required this.areas,
+    this.onRules,
+    this.onProfile,
+    this.onParameter,
+    this.onArea,
   });
 
   final ParameterCatalogue catalogue;
@@ -20,8 +27,13 @@ class ReferenceDataView extends StatefulWidget {
   final List<TesterProfile> testerProfiles;
   final DomainRules rules;
 
-  /// `(level, name)` pairs, top of the hierarchy first.
-  final List<(String, String)> areas;
+  /// Top of the hierarchy first.
+  final List<RefArea> areas;
+
+  final VoidCallback? onRules;
+  final void Function(ReferenceProfile)? onProfile;
+  final void Function(ParameterDefinition)? onParameter;
+  final void Function(RefArea)? onArea;
 
   @override
   State<ReferenceDataView> createState() => _ReferenceDataViewState();
@@ -90,7 +102,7 @@ class _ReferenceDataViewState extends State<ReferenceDataView> {
     ];
     final areas = [
       for (final a in widget.areas)
-        if (_hit(a.$2) || _hit(a.$1)) a,
+        if (_hit(a.name) || _hit(a.level)) a,
     ];
     final anyParameter =
         core.isNotEmpty || categories.any((c) => c.$2.isNotEmpty);
@@ -131,6 +143,10 @@ class _ReferenceDataViewState extends State<ReferenceDataView> {
           Text(l10n.refRules, style: text.titleMedium),
           ListTile(
             contentPadding: EdgeInsets.zero,
+            onTap: widget.onRules,
+            trailing: widget.onRules == null
+                ? null
+                : const Icon(Icons.chevron_right),
             title: Text(l10n.refRequired(rules.requiredParameters.join(', '))),
             subtitle: Text(
               l10n.refSchedule(
@@ -161,12 +177,22 @@ class _ReferenceDataViewState extends State<ReferenceDataView> {
                 ],
               ),
               children: [
+                if (widget.onProfile != null)
+                  ListTile(
+                    dense: true,
+                    leading: const Icon(Icons.open_in_new),
+                    title: Text(l10n.refOpenDetails),
+                    onTap: () => widget.onProfile!(p),
+                  ),
                 for (final def in catalogue.core)
                   if (_hit(p.title) || _paramHit(def))
                     ListTile(
                       dense: true,
                       title: Text(def.name),
                       trailing: Text(limitText(p.limitFor(def.code))),
+                      onTap: widget.onParameter == null
+                          ? null
+                          : () => widget.onParameter!(def),
                     ),
               ],
             ),
@@ -189,6 +215,9 @@ class _ReferenceDataViewState extends State<ReferenceDataView> {
                     dense: true,
                     title: Text(p.name),
                     trailing: Text(p.defaultUnit),
+                    onTap: widget.onParameter == null
+                        ? null
+                        : () => widget.onParameter!(p),
                   ),
               ],
             ),
@@ -205,6 +234,9 @@ class _ReferenceDataViewState extends State<ReferenceDataView> {
                       dense: true,
                       title: Text(p.name),
                       trailing: Text(p.defaultUnit),
+                      onTap: widget.onParameter == null
+                          ? null
+                          : () => widget.onParameter!(p),
                     ),
                 ],
               ),
@@ -224,13 +256,18 @@ class _ReferenceDataViewState extends State<ReferenceDataView> {
         ],
         if (areas.isNotEmpty) ...[
           Text('${l10n.refAreas} (${areas.length})', style: text.titleMedium),
-          for (final (level, name) in areas.take(_areaCap))
+          for (final a in areas.take(_areaCap))
             ListTile(
               contentPadding: EdgeInsets.zero,
               dense: true,
-              leading: const Icon(Icons.place_outlined),
-              title: Text(name),
-              trailing: Text(level),
+              leading: Icon(
+                widget.onArea == null
+                    ? Icons.place_outlined
+                    : Icons.map_outlined,
+              ),
+              title: Text(a.name),
+              trailing: Text(a.level),
+              onTap: widget.onArea == null ? null : () => widget.onArea!(a),
             ),
           if (areas.length > _areaCap)
             Padding(

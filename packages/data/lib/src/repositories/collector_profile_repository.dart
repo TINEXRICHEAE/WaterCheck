@@ -12,6 +12,10 @@ abstract interface class CollectorProfileRepository {
   /// Creates a profile (new `collector_key`) or saves an edit, which keeps
   /// the key and bumps `profile_version`.
   Future<CollectorSnapshot> save(CollectorProfileInput input, {String? key});
+
+  /// Brings back a collector known to the server (a recovery code, ADR-020):
+  /// same key, the server's details, at least the server's version.
+  Future<CollectorSnapshot> restore(CollectorSnapshot snapshot);
   Future<void> deactivate(String collectorKey);
 }
 
@@ -98,6 +102,43 @@ class DriftCollectorProfileRepository implements CollectorProfileRepository {
         return _snapshot(
           await (_db.select(_db.collectorProfiles)
                 ..where((t) => t.collectorKey.equals(row.collectorKey.value)))
+              .getSingle(),
+        );
+      });
+
+  @override
+  Future<CollectorSnapshot> restore(CollectorSnapshot snapshot) =>
+      _db.transaction(() async {
+        final existing =
+            await (_db.select(_db.collectorProfiles)
+                  ..where((t) => t.collectorKey.equals(snapshot.collectorKey)))
+                .getSingleOrNull();
+        final version = existing == null
+            ? snapshot.profileVersion
+            : (existing.profileVersion > snapshot.profileVersion
+                  ? existing.profileVersion
+                  : snapshot.profileVersion);
+        await _db
+            .into(_db.collectorProfiles)
+            .insertOnConflictUpdate(
+              CollectorProfilesCompanion.insert(
+                collectorKey: snapshot.collectorKey,
+                profileVersion: version,
+                fullName: snapshot.fullName,
+                phone: snapshot.phone,
+                collectorType: snapshot.collectorType,
+                village: snapshot.village,
+                parish: snapshot.parish,
+                subcounty: snapshot.subcounty,
+                district: snapshot.district,
+                organisation: Value(snapshot.organisation),
+                isActive: const Value(true),
+                updatedAt: clock(),
+              ),
+            );
+        return _snapshot(
+          await (_db.select(_db.collectorProfiles)
+                ..where((t) => t.collectorKey.equals(snapshot.collectorKey)))
               .getSingle(),
         );
       });

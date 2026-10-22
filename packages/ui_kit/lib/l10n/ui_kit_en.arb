@@ -210,5 +210,39 @@
         "type": "int"
       }
     }
-  }
+  },
+  "refOpenDetails": "Details and actions",
+  "mapSearchHint": "Search a place or a source",
+  "mapLayers": "Map layers",
+  "mapLabels": "Source names",
+  "mapStraight": "Straight-line distance",
+  "mapStraightHint": "From where you are, as the crow flies",
+  "mapRoute": "Route by road",
+  "mapRouteHint": "To the chosen source, with distance and travel time",
+  "mapVehicle": "Motorbike/car",
+  "mapWalking": "Walking",
+  "mapStraightLine": "{distance} straight",
+  "@mapStraightLine": {
+    "placeholders": {
+      "distance": {
+        "type": "String"
+      }
+    }
+  },
+  "mapByRoad": "{distance} by road, about {time} ({mode})",
+  "@mapByRoad": {
+    "placeholders": {
+      "distance": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      },
+      "mode": {
+        "type": "String"
+      }
+    }
+  },
+  "mapRouteLoading": "finding the route…",
+  "mapRouteNone": "no route found (or routing is off)"
 }

@@ -20,6 +20,7 @@ export 'src/db/key_store.dart';
 export 'src/reports/report_queries.dart';
 export 'src/repositories/activity_queries.dart';
 export 'src/repositories/alert_repository.dart';
+export 'src/repositories/area_tree.dart';
 export 'src/repositories/collector_profile_repository.dart';
 export 'src/repositories/inspection_repository.dart';
 export 'src/repositories/local_settings_repository.dart';

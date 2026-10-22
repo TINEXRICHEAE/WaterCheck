@@ -573,6 +573,90 @@ abstract class UiKitLocalizations {
   /// In en, this message translates to:
   /// **'Showing {shown} of {count}. Type in the search box to narrow the list.'**
   String refAreasMore(int shown, int count);
+
+  /// No description provided for @refOpenDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Details and actions'**
+  String get refOpenDetails;
+
+  /// No description provided for @mapSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search a place or a source'**
+  String get mapSearchHint;
+
+  /// No description provided for @mapLayers.
+  ///
+  /// In en, this message translates to:
+  /// **'Map layers'**
+  String get mapLayers;
+
+  /// No description provided for @mapLabels.
+  ///
+  /// In en, this message translates to:
+  /// **'Source names'**
+  String get mapLabels;
+
+  /// No description provided for @mapStraight.
+  ///
+  /// In en, this message translates to:
+  /// **'Straight-line distance'**
+  String get mapStraight;
+
+  /// No description provided for @mapStraightHint.
+  ///
+  /// In en, this message translates to:
+  /// **'From where you are, as the crow flies'**
+  String get mapStraightHint;
+
+  /// No description provided for @mapRoute.
+  ///
+  /// In en, this message translates to:
+  /// **'Route by road'**
+  String get mapRoute;
+
+  /// No description provided for @mapRouteHint.
+  ///
+  /// In en, this message translates to:
+  /// **'To the chosen source, with distance and travel time'**
+  String get mapRouteHint;
+
+  /// No description provided for @mapVehicle.
+  ///
+  /// In en, this message translates to:
+  /// **'Motorbike/car'**
+  String get mapVehicle;
+
+  /// No description provided for @mapWalking.
+  ///
+  /// In en, this message translates to:
+  /// **'Walking'**
+  String get mapWalking;
+
+  /// No description provided for @mapStraightLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{distance} straight'**
+  String mapStraightLine(String distance);
+
+  /// No description provided for @mapByRoad.
+  ///
+  /// In en, this message translates to:
+  /// **'{distance} by road, about {time} ({mode})'**
+  String mapByRoad(String distance, String time, String mode);
+
+  /// No description provided for @mapRouteLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'finding the route…'**
+  String get mapRouteLoading;
+
+  /// No description provided for @mapRouteNone.
+  ///
+  /// In en, this message translates to:
+  /// **'no route found (or routing is off)'**
+  String get mapRouteNone;
 }
 
 class _UiKitLocalizationsDelegate
