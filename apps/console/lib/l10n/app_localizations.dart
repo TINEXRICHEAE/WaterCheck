@@ -3303,6 +3303,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Close'**
   String get kpiListClose;
+
+  /// No description provided for @pinSkip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip: no PIN on this device'**
+  String get pinSkip;
+
+  /// No description provided for @lockTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'App lock'**
+  String get lockTitle;
+
+  /// No description provided for @lockSwitch.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask for a PIN on this device'**
+  String get lockSwitch;
+
+  /// No description provided for @lockHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional. Turn it off on an office computer shared with colleagues; anyone using this device then sees your areas.'**
+  String get lockHint;
+
+  /// No description provided for @lockAdminRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Required for IT admins, who can change people, phones and records.'**
+  String get lockAdminRequired;
+
+  /// No description provided for @lockOffTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn off the PIN?'**
+  String get lockOffTitle;
+
+  /// No description provided for @lockOffBody.
+  ///
+  /// In en, this message translates to:
+  /// **'WaterCheck will open on this device without a PIN, and stay open when no one is using it. Sign out when you leave a shared computer.'**
+  String get lockOffBody;
+
+  /// No description provided for @lockOffConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn off'**
+  String get lockOffConfirm;
 }
 
 class _AppLocalizationsDelegate

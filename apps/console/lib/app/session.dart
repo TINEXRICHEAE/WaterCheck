@@ -51,7 +51,15 @@ class SessionStore {
   SessionStore(this._values);
 
   static const _key = 'watercheck.console.session.v1';
+  static const _noLockKey = 'watercheck.console.nolock.v1';
   final SecureValues _values;
+
+  /// A stakeholder chose no PIN on this device (2026-10-22). IT admins
+  /// always have one.
+  Future<bool> noLock() async => await _values.read(_noLockKey) == 'true';
+
+  Future<void> setNoLock(bool on) =>
+      on ? _values.write(_noLockKey, 'true') : _values.delete(_noLockKey);
 
   Future<({String refreshToken, MeResponse me})?> read() async {
     final raw = await _values.read(_key);
@@ -68,7 +76,10 @@ class SessionStore {
     jsonEncode({'refresh_token': refreshToken, 'me': me.toJson()}),
   );
 
-  Future<void> clear() => _values.delete(_key);
+  Future<void> clear() async {
+    await _values.delete(_key);
+    await _values.delete(_noLockKey);
+  }
 }
 
 /// Access token kept in memory only.
@@ -94,10 +105,14 @@ class _Tokens {
 
 /// Startup result: the session plus any tokens obtained while restoring.
 class RestoredSession {
-  const RestoredSession(this.session, {this.tokens});
+  const RestoredSession(this.session, {this.tokens, this.refreshToken});
 
   final ConsoleSession session;
   final TokenResponse? tokens;
+
+  /// Windows/Android without a PIN: the saved token, used on the first
+  /// call to the server.
+  final String? refreshToken;
 }
 
 /// Restores the session at startup (before the first frame).
@@ -128,6 +143,13 @@ Future<RestoredSession> restoreSession({
   if (saved != null && (await lock.config()).enabled) {
     return RestoredSession(ConsoleSession(SessionPhase.locked, me: saved.me));
   }
+  // A stakeholder who chose no PIN opens straight in (never an IT admin).
+  if (saved != null && !_isAdmin(saved.me) && await store.noLock()) {
+    return RestoredSession(
+      ConsoleSession(SessionPhase.signedIn, me: saved.me),
+      refreshToken: saved.refreshToken,
+    );
+  }
   // A half-finished first sign-in (no PIN chosen) is not kept.
   await store.clear();
   return const RestoredSession(ConsoleSession.signedOut);
@@ -147,10 +169,14 @@ class SessionController extends Notifier<ConsoleSession> {
   /// The PIN and saved session apply to Windows and Android only.
   bool get _native => !_api.cookieMode;
 
+  /// Whether this device keeps a session (and so may have an app lock).
+  bool get keepsSession => _native;
+
   @override
   ConsoleSession build() {
     final t = _restored.tokens;
     if (t != null) _tokens.accept(t, clock());
+    _tokens.refresh ??= _restored.refreshToken;
     return _restored.session;
   }
 
@@ -186,17 +212,44 @@ class SessionController extends Notifier<ConsoleSession> {
       return;
     }
     await _store.save(_tokens.refresh!, me);
+    final ready =
+        (await _lock.config()).enabled ||
+        (!_isAdmin(me) && await _store.noLock());
     state = ConsoleSession(
-      (await _lock.config()).enabled
-          ? SessionPhase.signedIn
-          : SessionPhase.choosePin,
+      ready ? SessionPhase.signedIn : SessionPhase.choosePin,
       me: me,
     );
   }
 
   Future<void> choosePin(String pin) async {
     await _lock.setPin(pin);
+    await _store.setNoLock(false);
     state = ConsoleSession(SessionPhase.signedIn, me: state.me);
+  }
+
+  /// A stakeholder goes on without a PIN (2026-10-22): an office device
+  /// shared with colleagues who see the same areas. IT admins cannot.
+  Future<void> skipPin() async {
+    if (_isAdmin(state.me)) return;
+    await _lock.disable();
+    await _store.setNoLock(true);
+    state = ConsoleSession(
+      SessionPhase.signedIn,
+      me: state.me,
+      offline: state.offline,
+    );
+  }
+
+  /// Whether a PIN protects this device now.
+  Future<bool> lockOn() async => (await _lock.config()).enabled;
+
+  /// From the profile: turning the lock on asks for a new PIN.
+  Future<void> turnLockOn() async {
+    state = ConsoleSession(
+      SessionPhase.choosePin,
+      me: state.me,
+      offline: state.offline,
+    );
   }
 
   /// Windows/Android: checks the PIN, then reconnects if it can.
@@ -349,6 +402,8 @@ class SessionController extends Notifier<ConsoleSession> {
   Future<void> idle() async {
     if (state.phase != SessionPhase.signedIn) return;
     if (_native) {
+      // No PIN chosen (a stakeholder): nothing to lock with.
+      if (!(await _lock.config()).enabled) return;
       _tokens
         ..access = null
         ..expires = null;
@@ -364,6 +419,8 @@ class SessionController extends Notifier<ConsoleSession> {
 }
 
 const consoleLockKey = 'watercheck.console.lock.v1';
+
+bool _isAdmin(MeResponse? me) => me?.role == 'it_admin';
 
 final consoleAuthApiProvider = Provider<ConsoleAuthApi>(
   (ref) =>

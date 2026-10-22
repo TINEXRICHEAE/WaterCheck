@@ -71,7 +71,8 @@ class TrailQueries {
     for (final r in results) {
       final before = r.amendmentOf == null ? null : byId[r.amendmentOf];
       if (before == null) continue;
-      final who = _name(r.collectorSnapshot) ?? _name(session?.collectorSnapshot);
+      final who =
+          _name(r.collectorSnapshot) ?? _name(session?.collectorSnapshot);
       final old = await _readings(before.id);
       final now = await _readings(r.id);
       if (before.overall != r.overall) {

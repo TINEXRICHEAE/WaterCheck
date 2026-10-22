@@ -568,5 +568,29 @@
       }
     }
   },
-  "refresh": "Refresh"
+  "refresh": "Refresh",
+  "areaVillageHint": "Type your village; known ones are suggested",
+  "areaParishHint": "Search known parishes, or type a new one",
+  "areaSubcountyHint": "Search sub-counties (or their district)",
+  "areaDistrictHint": "Search districts",
+  "areaFilledIn": "Filled in from the sub-county",
+  "areaRegion": "Region: {name}",
+  "@areaRegion": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "areaOther": "Other: \"{name}\"",
+  "@areaOther": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "areaOtherHint": "Not in the list (a new place)",
+  "areaPickOrOther": "Pick a sub-county from the list, or choose Other",
+  "areaPickDistrict": "Pick the district from the list"
 }

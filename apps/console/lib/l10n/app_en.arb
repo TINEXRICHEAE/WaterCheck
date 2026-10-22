@@ -1202,5 +1202,13 @@
   },
   "kpiListAfterSync": "The list appears once this device has finished its first sync.",
   "kpiListEmpty": "Nothing to show for this period.",
-  "kpiListClose": "Close"
+  "kpiListClose": "Close",
+  "pinSkip": "Skip: no PIN on this device",
+  "lockTitle": "App lock",
+  "lockSwitch": "Ask for a PIN on this device",
+  "lockHint": "Optional. Turn it off on an office computer shared with colleagues; anyone using this device then sees your areas.",
+  "lockAdminRequired": "Required for IT admins, who can change people, phones and records.",
+  "lockOffTitle": "Turn off the PIN?",
+  "lockOffBody": "WaterCheck will open on this device without a PIN, and stay open when no one is using it. Sign out when you leave a shared computer.",
+  "lockOffConfirm": "Turn off"
 }

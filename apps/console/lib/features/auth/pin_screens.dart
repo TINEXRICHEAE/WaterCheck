@@ -7,17 +7,24 @@ import '../../app/session.dart';
 import '../../l10n/app_localizations.dart';
 
 /// Windows/Android, after the first sign-in: a PIN protects the data kept on
-/// this device and unlocks it offline (F-AUTH-2).
+/// this device and unlocks it offline (F-AUTH-2). Optional for stakeholders,
+/// required for IT admins (2026-10-22).
 class ChoosePinScreen extends ConsumerWidget {
   const ChoosePinScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
+    final admin = ref.watch(sessionProvider).isAdmin;
     return PinSetupScreen(
       title: l10n.pinChooseTitle,
       onDone: (pin) => ref.read(sessionProvider.notifier).choosePin(pin),
       actions: [
+        if (!admin)
+          TextButton(
+            onPressed: () => ref.read(sessionProvider.notifier).skipPin(),
+            child: Text(l10n.pinSkip),
+          ),
         TextButton(
           onPressed: () => ref.read(sessionProvider.notifier).signOut(),
           child: Text(l10n.accountSignOut),

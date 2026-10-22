@@ -98,6 +98,31 @@ void main() {
     await disposeApp(tester, db);
   });
 
+  testWidgets('area fields: search a sub-county, the district fills in; '
+      'Other takes a new one', (tester) async {
+    final db = await pumpCollect(tester, onboarded: false);
+    await tapAndSettle(tester, find.text('I understand and agree'));
+    await tapAndSettle(tester, find.text('Add a person'));
+    final subcounty = find.widgetWithText(TextFormField, 'Sub-county');
+    final district = find.widgetWithText(TextFormField, 'District');
+
+    await tester.enterText(subcounty, 'kiruh');
+    await tester.pumpAndSettle();
+    await tapAndSettle(tester, find.text('Kiruhura Town Council'));
+    expect(tester.widget<TextFormField>(district).controller!.text, 'Kiruhura');
+    expect(find.text('Region: Western Region'), findsOneWidget);
+
+    // A sub-county not in the list: Other, then its district is picked.
+    await tester.enterText(subcounty, 'Newplace');
+    await tester.pumpAndSettle();
+    await tapAndSettle(tester, find.text('Other: "Newplace"'));
+    await tester.enterText(district, 'Kiruh');
+    await tester.pumpAndSettle();
+    await tapAndSettle(tester, find.text('Kiruhura').last);
+    expect(find.text('Region: Western Region'), findsOneWidget);
+    await disposeApp(tester, db);
+  });
+
   testWidgets('settings opens the seeded reference data', (tester) async {
     final db = await pumpCollect(tester);
     await tapAndSettle(tester, find.text('Settings'));

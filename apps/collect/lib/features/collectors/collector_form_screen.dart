@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import '../../app/gate.dart';
 import '../../app/providers.dart';
 import '../../l10n/app_localizations.dart';
+import 'area_fields.dart';
 
 /// Create or edit a collector profile (SPEC §2.1). Editing keeps the
 /// collector key and stores a new profile version.
@@ -121,8 +122,6 @@ class _CollectorFormScreenState extends ConsumerState<CollectorFormScreen> {
     _prefill(profiles, units);
     final types = (lists['collector_types']! as List)
         .cast<Map<String, Object?>>();
-    final villages = units.where((u) => u.level == 'village').toList();
-
     String? required(String? v) =>
         (v == null || v.trim().isEmpty) ? l10n.fieldRequired : null;
 
@@ -172,36 +171,12 @@ class _CollectorFormScreenState extends ConsumerState<CollectorFormScreen> {
               validator: required,
             ),
             const SizedBox(height: 12),
-            if (villages.length > 1)
-              DropdownButtonFormField<AdminUnit>(
-                decoration: InputDecoration(labelText: l10n.profileVillage),
-                items: [
-                  for (final v in villages)
-                    DropdownMenuItem(value: v, child: Text(v.name)),
-                ],
-                onChanged: (v) {
-                  if (v != null) setState(() => _applyVillage(v, units));
-                },
-              ),
-            TextFormField(
-              controller: _village,
-              decoration: InputDecoration(labelText: l10n.profileVillage),
-              validator: required,
-            ),
-            TextFormField(
-              controller: _parish,
-              decoration: InputDecoration(labelText: l10n.profileParish),
-              validator: required,
-            ),
-            TextFormField(
-              controller: _subcounty,
-              decoration: InputDecoration(labelText: l10n.profileSubcounty),
-              validator: required,
-            ),
-            TextFormField(
-              controller: _district,
-              decoration: InputDecoration(labelText: l10n.profileDistrict),
-              validator: required,
+            AreaFields(
+              units: units,
+              village: _village,
+              parish: _parish,
+              subcounty: _subcounty,
+              district: _district,
             ),
             const SizedBox(height: 12),
             TextFormField(

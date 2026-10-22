@@ -145,6 +145,57 @@ void main() {
     await disposeConsole(tester, db);
   });
 
+  testWidgets('a stakeholder may skip the PIN; an IT admin may not', (
+    tester,
+  ) async {
+    final env = ConsoleTestEnv();
+    env.api.users['officer@example.org']!.mustChange = false;
+    env.api.users['officer@example.org']!.password = newPassword;
+    var db = await pumpConsole(tester, env: env);
+    await signIn(tester, 'officer@example.org', newPassword);
+    expect(find.text('Choose a PIN for this device'), findsOneWidget);
+    await tester.tap(find.text('Skip: no PIN on this device'));
+    await settle(tester);
+    expect(find.text('Your areas: Abim'), findsOneWidget);
+
+    // Next start: straight in, no PIN.
+    await disposeConsole(tester, db);
+    db = await pumpConsole(tester, env: env);
+    expect(find.text('Your areas: Abim'), findsOneWidget);
+
+    // The profile turns it back on: a PIN is chosen.
+    await tester.tap(find.byTooltip('Account'));
+    await settle(tester);
+    await tester.tap(find.text('Profile and settings'));
+    await settle(tester);
+    final lock = find.widgetWithText(
+      SwitchListTile,
+      'Ask for a PIN on this device',
+    );
+    await tester.scrollUntilVisible(
+      lock,
+      200,
+      scrollable: find.byType(Scrollable).last,
+    );
+    await tester.drag(find.byType(Scrollable).last, const Offset(0, -200));
+    await settle(tester);
+    expect(tester.widget<SwitchListTile>(lock).value, isFalse);
+    await tester.tap(find.descendant(of: lock, matching: find.byType(Switch)));
+    await settle(tester);
+    await enterPin(tester, '1357');
+    await enterPin(tester, '1357');
+    expect(await tester.runAsync(env.store.noLock), isFalse);
+    await disposeConsole(tester, db);
+
+    // An IT admin is not offered the skip.
+    final admin = ConsoleTestEnv();
+    db = await pumpConsole(tester, env: admin);
+    await signIn(tester, 'admin@example.org', newPassword);
+    expect(find.text('Choose a PIN for this device'), findsOneWidget);
+    expect(find.text('Skip: no PIN on this device'), findsNothing);
+    await disposeConsole(tester, db);
+  });
+
   testWidgets('IT admin sees the admin console', (tester) async {
     final env = ConsoleTestEnv(cookieMode: true);
     final db = await pumpConsole(tester, env: env);

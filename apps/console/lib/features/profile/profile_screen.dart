@@ -12,6 +12,10 @@ extension on String {
   String ifEmpty(String other) => isEmpty ? other : this;
 }
 
+final _lockOnProvider = FutureProvider.autoDispose<bool>(
+  (ref) => ref.watch(sessionProvider.notifier).lockOn(),
+);
+
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
 
@@ -59,11 +63,41 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     }
   }
 
+  /// Stakeholders may turn the PIN off (a shared office device).
+  Future<void> _lock(bool on) async {
+    final session = ref.read(sessionProvider.notifier);
+    if (on) return session.turnLockOn();
+    final l10n = AppLocalizations.of(context);
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.lockOffTitle),
+        content: Text(l10n.lockOffBody),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(l10n.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(l10n.lockOffConfirm),
+          ),
+        ],
+      ),
+    );
+    if (ok != true) return;
+    await session.skipPin();
+    ref.invalidate(_lockOnProvider);
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final text = Theme.of(context).textTheme;
     final me = ref.watch(sessionProvider).me;
+    final admin = ref.watch(sessionProvider).isAdmin;
+    final keeps = ref.read(sessionProvider.notifier).keepsSession;
+    final lockOn = keeps ? ref.watch(_lockOnProvider).value : null;
     if (me == null) return const SizedBox.shrink();
     return ListView(
       padding: const EdgeInsets.all(16),
@@ -147,6 +181,17 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             _error!,
             style: TextStyle(color: Theme.of(context).colorScheme.error),
           ),
+        if (lockOn != null) ...[
+          const Divider(height: 32),
+          Text(l10n.lockTitle, style: text.titleMedium),
+          SwitchListTile(
+            contentPadding: EdgeInsets.zero,
+            value: admin || lockOn,
+            onChanged: admin ? null : _lock,
+            title: Text(l10n.lockSwitch),
+            subtitle: Text(admin ? l10n.lockAdminRequired : l10n.lockHint),
+          ),
+        ],
       ],
     );
   }

@@ -2139,6 +2139,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Refresh'**
   String get refresh;
+
+  /// No description provided for @areaVillageHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Type your village; known ones are suggested'**
+  String get areaVillageHint;
+
+  /// No description provided for @areaParishHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search known parishes, or type a new one'**
+  String get areaParishHint;
+
+  /// No description provided for @areaSubcountyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search sub-counties (or their district)'**
+  String get areaSubcountyHint;
+
+  /// No description provided for @areaDistrictHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search districts'**
+  String get areaDistrictHint;
+
+  /// No description provided for @areaFilledIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Filled in from the sub-county'**
+  String get areaFilledIn;
+
+  /// No description provided for @areaRegion.
+  ///
+  /// In en, this message translates to:
+  /// **'Region: {name}'**
+  String areaRegion(String name);
+
+  /// No description provided for @areaOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other: \"{name}\"'**
+  String areaOther(String name);
+
+  /// No description provided for @areaOtherHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Not in the list (a new place)'**
+  String get areaOtherHint;
+
+  /// No description provided for @areaPickOrOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a sub-county from the list, or choose Other'**
+  String get areaPickOrOther;
+
+  /// No description provided for @areaPickDistrict.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick the district from the list'**
+  String get areaPickDistrict;
 }
 
 class _AppLocalizationsDelegate

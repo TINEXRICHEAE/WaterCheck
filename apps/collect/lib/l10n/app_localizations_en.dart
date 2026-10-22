@@ -1206,4 +1206,39 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get refresh => 'Refresh';
+
+  @override
+  String get areaVillageHint => 'Type your village; known ones are suggested';
+
+  @override
+  String get areaParishHint => 'Search known parishes, or type a new one';
+
+  @override
+  String get areaSubcountyHint => 'Search sub-counties (or their district)';
+
+  @override
+  String get areaDistrictHint => 'Search districts';
+
+  @override
+  String get areaFilledIn => 'Filled in from the sub-county';
+
+  @override
+  String areaRegion(String name) {
+    return 'Region: $name';
+  }
+
+  @override
+  String areaOther(String name) {
+    return 'Other: \"$name\"';
+  }
+
+  @override
+  String get areaOtherHint => 'Not in the list (a new place)';
+
+  @override
+  String get areaPickOrOther =>
+      'Pick a sub-county from the list, or choose Other';
+
+  @override
+  String get areaPickDistrict => 'Pick the district from the list';
 }

@@ -2039,4 +2039,31 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get kpiListClose => 'Close';
+
+  @override
+  String get pinSkip => 'Skip: no PIN on this device';
+
+  @override
+  String get lockTitle => 'App lock';
+
+  @override
+  String get lockSwitch => 'Ask for a PIN on this device';
+
+  @override
+  String get lockHint =>
+      'Optional. Turn it off on an office computer shared with colleagues; anyone using this device then sees your areas.';
+
+  @override
+  String get lockAdminRequired =>
+      'Required for IT admins, who can change people, phones and records.';
+
+  @override
+  String get lockOffTitle => 'Turn off the PIN?';
+
+  @override
+  String get lockOffBody =>
+      'WaterCheck will open on this device without a PIN, and stay open when no one is using it. Sign out when you leave a shared computer.';
+
+  @override
+  String get lockOffConfirm => 'Turn off';
 }
