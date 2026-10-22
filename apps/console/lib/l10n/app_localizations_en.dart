@@ -1821,4 +1821,184 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get paramsRejectBody =>
       'Collectors can no longer pick it. Readings already taken keep their values.';
+
+  @override
+  String get adminArchived => 'Archived';
+
+  @override
+  String get adminArchivedHint =>
+      'Phones, collectors, sources and tests that were archived; restore them here';
+
+  @override
+  String get archiveAction => 'Archive…';
+
+  @override
+  String get archiveSource => 'Archive this source';
+
+  @override
+  String get archiveTest => 'Archive this test';
+
+  @override
+  String get archivedTag => 'archived';
+
+  @override
+  String archiveTitle(String label) {
+    return 'Archive $label?';
+  }
+
+  @override
+  String archiveCascade(String entity) {
+    String _temp0 = intl.Intl.selectLogic(entity, {
+      'installation': 'The phone is revoked, and its collectors, their tests and the sources only they used are archived too.',
+      'collector': 'Their tests and the sources only they used are archived too. Sources others have tested stay.',
+      'water_source': 'Its tests and alerts are archived too.',
+      'test_session': 'Its results and alerts are archived too.',
+      'other': 'Related records are archived too.',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get archiveRestorable =>
+      'Archived records disappear from lists, maps, dashboards, reports and phones. Nothing is deleted: Admin › Archived can restore them.';
+
+  @override
+  String get archiveReason => 'Reason';
+
+  @override
+  String get archiveReasonHint => 'At least 5 characters, e.g. \"test data\"';
+
+  @override
+  String get archiveConfirm => 'Archive';
+
+  @override
+  String archiveDone(String counts) {
+    return 'Archived: $counts';
+  }
+
+  @override
+  String get archiveUndo => 'Undo';
+
+  @override
+  String get archiveAlready => 'This is already archived.';
+
+  @override
+  String archiveCount(String entity, int n) {
+    String _temp0 = intl.Intl.selectLogic(entity, {
+      'installation': 'phone',
+      'collector': 'collector',
+      'water_source': 'source',
+      'test_session': 'test',
+      'alert': 'alert',
+      'other': '$entity',
+    });
+    String _temp1 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 's',
+      one: '',
+    );
+    return '$n $_temp0$_temp1';
+  }
+
+  @override
+  String archiveEntity(String entity) {
+    String _temp0 = intl.Intl.selectLogic(entity, {
+      'installation': 'Phone',
+      'collector': 'Collector',
+      'water_source': 'Source',
+      'test_session': 'Test',
+      'other': '$entity',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String archiveBy(String name, String when) {
+    return 'Archived by $name, $when';
+  }
+
+  @override
+  String get archiveListTitle => 'Archived';
+
+  @override
+  String get archiveListHint =>
+      'Each line is one archive action and everything it took with it. Restoring brings all of it back.';
+
+  @override
+  String get archiveListNone => 'Nothing is archived.';
+
+  @override
+  String get archiveRestore => 'Restore';
+
+  @override
+  String archiveRestoreTitle(String label) {
+    return 'Restore $label?';
+  }
+
+  @override
+  String get archiveRestoreBody =>
+      'Everything this action archived comes back to lists, dashboards, reports and phones.';
+
+  @override
+  String get archiveRestorePhone =>
+      'Its records come back. The phone itself stays revoked: issue a new activation code to use it again.';
+
+  @override
+  String get archiveRestored => 'Restored';
+
+  @override
+  String get moreActions => 'More actions';
+
+  @override
+  String get phonesName => 'Name this phone';
+
+  @override
+  String get phonesNameHint => 'e.g. Nalongo\'s phone';
+
+  @override
+  String get trailTitle => 'Edit history';
+
+  @override
+  String get trailCorrections => 'Corrections of this test';
+
+  @override
+  String get trailNone => 'No changes recorded.';
+
+  @override
+  String get trailUnknown => 'Unknown';
+
+  @override
+  String trailChange(String field, String before, String after) {
+    return '$field: $before → $after';
+  }
+
+  @override
+  String trailField(String field) {
+    String _temp0 = intl.Intl.selectLogic(field, {
+      'name': 'Name',
+      'households_served': 'Households',
+      'functional_status': 'Working',
+      'is_active': 'In use',
+      'source_type': 'Type',
+      'lat': 'Latitude',
+      'lon': 'Longitude',
+      'location_accuracy_m': 'GPS accuracy',
+      'label': 'Phone name',
+      'full_name': 'Full name',
+      'phone': 'Phone',
+      'collector_type': 'Role',
+      'village': 'Village',
+      'parish': 'Parish',
+      'subcounty': 'Sub-county',
+      'district': 'District',
+      'organisation': 'Organisation',
+      'overall': 'Result',
+      'other': '$field',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get refresh => 'Refresh';
 }

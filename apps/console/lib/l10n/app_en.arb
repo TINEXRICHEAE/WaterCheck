@@ -1074,5 +1074,116 @@
       }
     }
   },
-  "paramsRejectBody": "Collectors can no longer pick it. Readings already taken keep their values."
+  "paramsRejectBody": "Collectors can no longer pick it. Readings already taken keep their values.",
+  "adminArchived": "Archived",
+  "adminArchivedHint": "Phones, collectors, sources and tests that were archived; restore them here",
+  "archiveAction": "Archive…",
+  "archiveSource": "Archive this source",
+  "archiveTest": "Archive this test",
+  "archivedTag": "archived",
+  "archiveTitle": "Archive {label}?",
+  "@archiveTitle": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "archiveCascade": "{entity, select, installation{The phone is revoked, and its collectors, their tests and the sources only they used are archived too.} collector{Their tests and the sources only they used are archived too. Sources others have tested stay.} water_source{Its tests and alerts are archived too.} test_session{Its results and alerts are archived too.} other{Related records are archived too.}}",
+  "@archiveCascade": {
+    "placeholders": {
+      "entity": {
+        "type": "String"
+      }
+    }
+  },
+  "archiveRestorable": "Archived records disappear from lists, maps, dashboards, reports and phones. Nothing is deleted: Admin › Archived can restore them.",
+  "archiveReason": "Reason",
+  "archiveReasonHint": "At least 5 characters, e.g. \"test data\"",
+  "archiveConfirm": "Archive",
+  "archiveDone": "Archived: {counts}",
+  "@archiveDone": {
+    "placeholders": {
+      "counts": {
+        "type": "String"
+      }
+    }
+  },
+  "archiveUndo": "Undo",
+  "archiveAlready": "This is already archived.",
+  "archiveCount": "{n} {entity, select, installation{phone} collector{collector} water_source{source} test_session{test} alert{alert} other{{entity}}}{n, plural, =1{} other{s}}",
+  "@archiveCount": {
+    "placeholders": {
+      "entity": {
+        "type": "String"
+      },
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "archiveEntity": "{entity, select, installation{Phone} collector{Collector} water_source{Source} test_session{Test} other{{entity}}}",
+  "@archiveEntity": {
+    "placeholders": {
+      "entity": {
+        "type": "String"
+      }
+    }
+  },
+  "archiveBy": "Archived by {name}, {when}",
+  "@archiveBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "archiveListTitle": "Archived",
+  "archiveListHint": "Each line is one archive action and everything it took with it. Restoring brings all of it back.",
+  "archiveListNone": "Nothing is archived.",
+  "archiveRestore": "Restore",
+  "archiveRestoreTitle": "Restore {label}?",
+  "@archiveRestoreTitle": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "archiveRestoreBody": "Everything this action archived comes back to lists, dashboards, reports and phones.",
+  "archiveRestorePhone": "Its records come back. The phone itself stays revoked: issue a new activation code to use it again.",
+  "archiveRestored": "Restored",
+  "moreActions": "More actions",
+  "phonesName": "Name this phone",
+  "phonesNameHint": "e.g. Nalongo's phone",
+  "trailTitle": "Edit history",
+  "trailCorrections": "Corrections of this test",
+  "trailNone": "No changes recorded.",
+  "trailUnknown": "Unknown",
+  "trailChange": "{field}: {before} → {after}",
+  "@trailChange": {
+    "placeholders": {
+      "field": {
+        "type": "String"
+      },
+      "before": {
+        "type": "String"
+      },
+      "after": {
+        "type": "String"
+      }
+    }
+  },
+  "trailField": "{field, select, name{Name} households_served{Households} functional_status{Working} is_active{In use} source_type{Type} lat{Latitude} lon{Longitude} location_accuracy_m{GPS accuracy} label{Phone name} full_name{Full name} phone{Phone} collector_type{Role} village{Village} parish{Parish} subcounty{Sub-county} district{District} organisation{Organisation} overall{Result} other{{field}}}",
+  "@trailField": {
+    "placeholders": {
+      "field": {
+        "type": "String"
+      }
+    }
+  },
+  "refresh": "Refresh"
 }

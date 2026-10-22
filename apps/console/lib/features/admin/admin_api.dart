@@ -63,3 +63,8 @@ final adminAuditProvider = FutureProvider.autoDispose
           .admin
           .audit(action: f.action, since: f.since, until: f.until),
     );
+
+/// Archive actions that can still be restored (ADR-018).
+final adminArchivedProvider = FutureProvider.autoDispose<List<ArchivedItem>>(
+  (ref) => ref.watch(adminApiProvider).admin.archived(),
+);

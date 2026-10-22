@@ -533,5 +533,39 @@
   },
   "pickSearch": "Search by name or code",
   "pickNoMatch": "No source matches the search.",
-  "resultHome": "Back to the start page"
+  "resultHome": "Back to the start page",
+  "trailTitle": "Edit history",
+  "trailCorrections": "Corrections of this test",
+  "trailNone": "No changes recorded.",
+  "trailUnknown": "Unknown",
+  "trailField": "{field, select, name{Name} households_served{Households} functional_status{Working} is_active{In use} source_type{Type} lat{Latitude} lon{Longitude} location_accuracy_m{GPS accuracy} label{Phone name} full_name{Full name} phone{Phone} collector_type{Role} village{Village} parish{Parish} subcounty{Sub-county} district{District} organisation{Organisation} overall{Result} other{{field}}}",
+  "@trailField": {
+    "placeholders": {
+      "field": {
+        "type": "String"
+      }
+    }
+  },
+  "trailChange": "{field}: {before} → {after}",
+  "@trailChange": {
+    "placeholders": {
+      "field": {
+        "type": "String"
+      },
+      "before": {
+        "type": "String"
+      },
+      "after": {
+        "type": "String"
+      }
+    }
+  },
+  "amendNotYours": "Only {name}, who made this test, can correct it.",
+  "@amendNotYours": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  }
 }

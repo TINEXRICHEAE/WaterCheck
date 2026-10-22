@@ -6,6 +6,7 @@ import 'package:dio/dio.dart';
 import 'package:domain/domain.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:ui_kit/ui_kit.dart';
 
@@ -15,6 +16,7 @@ import '../../app/session.dart';
 import '../../l10n/app_localizations.dart';
 import '../dashboard/dashboard_state.dart';
 import '../dashboard/filter_bar.dart';
+import '../admin/archive_actions.dart';
 import '../reports/notice_button.dart';
 
 typedef _Extras = ({
@@ -88,6 +90,7 @@ class SourceDetailScreen extends ConsumerWidget {
     }
     final extras = ref.watch(_extrasProvider(sourceId)).value;
     final when = DateFormat('d MMM y, HH:mm');
+    final admin = ref.watch(sessionProvider).isAdmin;
     final collectors = {
       for (final h in s.history)
         if (h.collectorName != null) h.collectorName!,
@@ -115,6 +118,25 @@ class SourceDetailScreen extends ConsumerWidget {
             ),
             const SizedBox(width: 8),
             NoticeButton(sourceId: s.id),
+            if (admin) ...[
+              const SizedBox(width: 8),
+              IconButton(
+                tooltip: l10n.archiveSource,
+                icon: const Icon(Icons.archive_outlined),
+                onPressed: () async {
+                  if (await archiveRecord(
+                        context,
+                        ref,
+                        entity: ArchiveInEntity.waterSource,
+                        recordId: s.id,
+                        label: s.name ?? s.code,
+                      ) &&
+                      context.mounted) {
+                    context.go('/sources');
+                  }
+                },
+              ),
+            ],
           ],
         ),
         const SizedBox(height: 8),
@@ -138,6 +160,13 @@ class SourceDetailScreen extends ConsumerWidget {
         for (final h in s.history)
           ListTile(
             contentPadding: EdgeInsets.zero,
+            // Tap: the corrections of this test, old → new (ADR-018).
+            onTap: () => showTrail(
+              context,
+              title: l10n.trailCorrections,
+              entity: 'test',
+              id: h.sessionId,
+            ),
             leading: StatusBadge(h.overall.display),
             title: Text(when.format(WcTime.local(h.testedAt, context))),
             subtitle: Text(
@@ -149,16 +178,34 @@ class SourceDetailScreen extends ConsumerWidget {
                 if (h.customLimits) UiKitLocalizations.of(context).customLimits,
               ].join(' · '),
             ),
-            trailing: h.flagged
-                ? Tooltip(
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (h.flagged)
+                  Tooltip(
                     message: l10n.submissionFlagged,
                     child: const Icon(Icons.flag),
                   )
-                : IconButton(
+                else
+                  IconButton(
                     tooltip: l10n.flagSubmission,
                     icon: const Icon(Icons.outlined_flag),
                     onPressed: () => _flag(context, ref, h),
                   ),
+                if (admin)
+                  IconButton(
+                    tooltip: l10n.archiveTest,
+                    icon: const Icon(Icons.archive_outlined),
+                    onPressed: () => archiveRecord(
+                      context,
+                      ref,
+                      entity: ArchiveInEntity.testSession,
+                      recordId: h.sessionId,
+                      label: when.format(WcTime.local(h.testedAt, context)),
+                    ),
+                  ),
+              ],
+            ),
           ),
         if (extras != null)
           for (final e in extras.trends.entries)
@@ -208,6 +255,9 @@ class SourceDetailScreen extends ConsumerWidget {
             title: Text(when.format(WcTime.local(i.inspectedAt, context))),
             subtitle: Text(l10n.inspectionRisks(i.risks, i.answered)),
           ),
+        const Divider(height: 32),
+        Text(l10n.trailTitle, style: text.titleMedium),
+        TrailList(entity: 'water_source', id: s.id),
         const Divider(height: 32),
         Text(l10n.submittedBy, style: text.titleMedium),
         if (collectors.isEmpty) Text(l10n.collectorsNone),

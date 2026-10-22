@@ -1155,4 +1155,52 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get resultHome => 'Back to the start page';
+
+  @override
+  String get trailTitle => 'Edit history';
+
+  @override
+  String get trailCorrections => 'Corrections of this test';
+
+  @override
+  String get trailNone => 'No changes recorded.';
+
+  @override
+  String get trailUnknown => 'Unknown';
+
+  @override
+  String trailField(String field) {
+    String _temp0 = intl.Intl.selectLogic(field, {
+      'name': 'Name',
+      'households_served': 'Households',
+      'functional_status': 'Working',
+      'is_active': 'In use',
+      'source_type': 'Type',
+      'lat': 'Latitude',
+      'lon': 'Longitude',
+      'location_accuracy_m': 'GPS accuracy',
+      'label': 'Phone name',
+      'full_name': 'Full name',
+      'phone': 'Phone',
+      'collector_type': 'Role',
+      'village': 'Village',
+      'parish': 'Parish',
+      'subcounty': 'Sub-county',
+      'district': 'District',
+      'organisation': 'Organisation',
+      'overall': 'Result',
+      'other': '$field',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String trailChange(String field, String before, String after) {
+    return '$field: $before → $after';
+  }
+
+  @override
+  String amendNotYours(String name) {
+    return 'Only $name, who made this test, can correct it.';
+  }
 }

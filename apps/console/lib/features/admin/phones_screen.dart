@@ -9,6 +9,7 @@ import 'package:qr/qr.dart';
 
 import '../../l10n/app_localizations.dart';
 import 'admin_api.dart';
+import 'archive_actions.dart';
 import 'area_picker.dart';
 
 /// Collect phones (F-ADM-2): activation codes for an area (typed or QR),
@@ -57,8 +58,12 @@ class PhonesScreen extends ConsumerWidget {
                           : Icons.phonelink_erase,
                     ),
                     title: Text(
-                      '${p.area.name} (${l10n.areaLevel(p.area.level)})'
-                      '${p.shortCode == null ? '' : ' · ${p.shortCode}'}',
+                      [
+                        ?p.label,
+                        '${p.area.name} (${l10n.areaLevel(p.area.level)})',
+                        ?p.shortCode,
+                        if (p.archived) l10n.archivedTag,
+                      ].join(' · '),
                     ),
                     subtitle: Text(
                       [
@@ -78,13 +83,46 @@ class PhonesScreen extends ConsumerWidget {
                       ].where((s) => s.isNotEmpty).join('\n'),
                     ),
                     isThreeLine: true,
-                    trailing: p.revokedAt != null
-                        ? null
-                        : TextButton.icon(
-                            onPressed: () => _revoke(context, ref, p),
-                            icon: const Icon(Icons.block),
-                            label: Text(l10n.phonesRevoke),
+                    trailing: PopupMenuButton<String>(
+                      tooltip: l10n.moreActions,
+                      onSelected: (a) => switch (a) {
+                        'name' => _name(context, ref, p),
+                        'trail' => showTrail(
+                          context,
+                          title: l10n.trailTitle,
+                          entity: 'installation',
+                          id: p.id,
+                        ),
+                        'revoke' => _revoke(context, ref, p),
+                        _ => archiveRecord(
+                          context,
+                          ref,
+                          entity: ArchiveInEntity.installation,
+                          recordId: p.id,
+                          label: p.label ?? p.shortCode ?? p.area.name,
+                        ),
+                      },
+                      itemBuilder: (_) => [
+                        PopupMenuItem(
+                          value: 'name',
+                          child: Text(l10n.phonesName),
+                        ),
+                        PopupMenuItem(
+                          value: 'trail',
+                          child: Text(l10n.trailTitle),
+                        ),
+                        if (p.revokedAt == null)
+                          PopupMenuItem(
+                            value: 'revoke',
+                            child: Text(l10n.phonesRevoke),
                           ),
+                        if (!p.archived)
+                          PopupMenuItem(
+                            value: 'archive',
+                            child: Text(l10n.archiveAction),
+                          ),
+                      ],
+                    ),
                   ),
                 ),
             ],
@@ -116,6 +154,53 @@ class PhonesScreen extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  /// A name for the phone ("Nalongo's phone"); kept in its trail.
+  Future<void> _name(
+    BuildContext context,
+    WidgetRef ref,
+    InstallationOut p,
+  ) async {
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final c = TextEditingController(text: p.label);
+    final label = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.phonesName),
+        content: TextField(
+          controller: c,
+          autofocus: true,
+          decoration: InputDecoration(hintText: l10n.phonesNameHint),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(l10n.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, c.text.trim()),
+            child: Text(l10n.alertSave),
+          ),
+        ],
+      ),
+    );
+    if (label == null) return;
+    try {
+      await ref
+          .read(adminApiProvider)
+          .admin
+          .nameInstallation(
+            installationId: p.id,
+            body: LabelIn(label: label),
+          );
+      ref.invalidate(adminInstallationsProvider);
+    } on Object {
+      messenger.showSnackBar(
+        SnackBar(content: Text(l10n.adminNeedsConnection)),
+      );
+    }
   }
 
   Future<void> _revoke(

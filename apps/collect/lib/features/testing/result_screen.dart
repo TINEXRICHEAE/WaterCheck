@@ -9,6 +9,7 @@ import '../../app/providers.dart';
 import '../../l10n/app_localizations.dart';
 import '../alerts/response_card_screen.dart';
 import '../photos/photo_strip.dart';
+import '../sources/trail_view.dart';
 import 'result_labels.dart';
 import 'test_draft.dart';
 
@@ -22,6 +23,8 @@ typedef _SavedResult = ({
   List<AlertSummary> alerts,
   bool calibrated,
   bool corrected,
+  String? collectorKey,
+  String? collectorName,
 });
 
 /// Re-classifies a saved result from its stored readings and profile, so the
@@ -51,6 +54,8 @@ final _savedResultProvider = FutureProvider.family<_SavedResult, String>((
     sessionId: detail.sessionId,
     alerts: await ref.watch(alertRepositoryProvider).forResult(resultId),
     calibrated: detail.calibrated,
+    collectorKey: detail.collectorKey,
+    collectorName: detail.collectorName,
     corrected:
         (await ref.watch(testingRepositoryProvider).history(detail.sourceId))
             .any((h) => h.amendmentOf == resultId),
@@ -179,6 +184,12 @@ class ResultScreen extends ConsumerWidget {
                   ),
                 ),
               const Divider(height: 32),
+              Text(
+                l10n.trailCorrections,
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              TrailView(entity: 'test', id: s.sessionId, rev: resultId),
+              const Divider(height: 32),
               PhotoStrip(
                 owner: PhotoOwner.test,
                 ownerId: s.sessionId,
@@ -187,6 +198,11 @@ class ResultScreen extends ConsumerWidget {
               const SizedBox(height: 24),
               if (s.corrected)
                 Text(l10n.amendSuperseded)
+              // Only the person who made the test corrects it (ADR-018).
+              else if (s.collectorKey != null &&
+                  s.collectorKey !=
+                      ref.watch(activeCollectorProvider)?.collectorKey)
+                Text(l10n.amendNotYours(s.collectorName ?? '?'))
               else
                 TextButton.icon(
                   onPressed: () {

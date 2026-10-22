@@ -14,6 +14,7 @@ class _AdminServer implements HttpClientAdapter {
   final requests = <(String, String, Object?)>[];
   final users = <Map<String, Object?>>[];
   var revoked = false;
+  var archived = false;
 
   Map<String, Object?> _area(String level, String name) => {
     'id': 'a-$level',
@@ -63,6 +64,8 @@ class _AdminServer implements HttpClientAdapter {
             'revoked_at': revoked ? '2026-10-12T08:00:00Z' : null,
             'collectors_seen': 2,
             'tests': 14,
+            'label': null,
+            'archived': archived,
           },
         ];
       case ('GET', '/v1/admin/activation-codes'):
@@ -70,6 +73,29 @@ class _AdminServer implements HttpClientAdapter {
       case ('POST', '/v1/admin/installations/i-1/revoke'):
         revoked = true;
         return null;
+      case ('POST', '/v1/admin/archive'):
+        archived = true;
+        return {
+          'batch_id': 'b-1',
+          'counts': {'installation': 1, 'collector': 2, 'test_session': 14},
+        };
+      case ('GET', '/v1/admin/archive'):
+        return [
+          if (archived)
+            {
+              'batch_id': 'b-1',
+              'entity': 'installation',
+              'record_id': 'i-1',
+              'label': 'K7QM',
+              'reason': 'test phone',
+              'archived_by': 'Example Admin',
+              'archived_at': '2026-10-22T08:00:00Z',
+              'counts': {'installation': 1, 'test_session': 14},
+            },
+        ];
+      case ('POST', '/v1/admin/archive/b-1/restore'):
+        archived = false;
+        return {'installation': 1, 'test_session': 14};
       case ('GET', final p) when p.endsWith('/chain'):
         return {
           'levels': [
@@ -169,7 +195,9 @@ void main() {
     await tester.tap(find.text('Collect phones'));
     await settle(tester);
     expect(find.textContaining('2 collectors, 14 tests'), findsOneWidget);
-    await tester.tap(find.widgetWithText(TextButton, 'Revoke'));
+    await tester.tap(find.byTooltip('More actions'));
+    await settle(tester);
+    await tester.tap(find.text('Revoke').last);
     await settle(tester);
     await tester.tap(find.widgetWithText(FilledButton, 'Revoke'));
     await settle(tester);
@@ -178,6 +206,44 @@ void main() {
       isTrue,
     );
     expect(find.textContaining('Revoked'), findsOneWidget);
+
+    // Archive the phone (ADR-018): a reason, then everything it took.
+    await tester.tap(find.byTooltip('More actions'));
+    await settle(tester);
+    await tester.tap(find.text('Archive…'));
+    await settle(tester);
+    expect(find.textContaining('The phone is revoked'), findsOneWidget);
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Reason'),
+      'test phone',
+    );
+    await tester.pump();
+    await tester.tap(find.widgetWithText(FilledButton, 'Archive'));
+    await settle(tester);
+    expect(
+      find.textContaining('Archived: 1 phone, 2 collectors, 14 tests'),
+      findsOneWidget,
+    );
+    final sent = server.requests.lastWhere((r) => r.$2 == '/v1/admin/archive');
+    expect((sent.$3! as Map)['reason'], 'test phone');
+    expect(find.textContaining('archived'), findsWidgets);
+
+    // Admin › Archived lists it; Restore brings it back.
+    await tester.tap(find.text('Admin').last);
+    await settle(tester);
+    await tester.scrollUntilVisible(find.text('Archived'), 100);
+    await tester.tap(find.text('Archived'));
+    await settle(tester);
+    expect(find.text('K7QM'), findsOneWidget);
+    await tester.tap(find.widgetWithText(TextButton, 'Restore'));
+    await settle(tester);
+    await tester.tap(find.widgetWithText(FilledButton, 'Restore'));
+    await settle(tester);
+    expect(
+      server.requests.any((r) => r.$2 == '/v1/admin/archive/b-1/restore'),
+      isTrue,
+    );
+    expect(find.text('Nothing is archived.'), findsOneWidget);
     await disposeConsole(tester, db);
   });
 }

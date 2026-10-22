@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:ui_kit/ui_kit.dart';
 
 import '../features/admin/admin_screen.dart';
+import '../features/admin/archived_screen.dart';
 import '../features/admin/system_screen.dart';
 import '../features/admin/security_screen.dart';
 import '../features/admin/routing_screen.dart';
@@ -195,6 +196,10 @@ final routerProvider = Provider<GoRouter>((ref) {
                   GoRoute(
                     path: 'cards',
                     builder: (_, _) => const CardsScreen(),
+                  ),
+                  GoRoute(
+                    path: 'archived',
+                    builder: (_, _) => const ArchivedScreen(),
                   ),
                 ],
               ),

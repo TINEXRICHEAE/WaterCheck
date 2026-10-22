@@ -1,3 +1,4 @@
+import 'package:api_client/api_client.dart' show ArchiveInEntity;
 import 'package:data/data.dart';
 import 'package:flutter/material.dart';
 import 'package:ui_kit/ui_kit.dart';
@@ -8,6 +9,7 @@ import '../../app/console_sync.dart';
 import '../../app/providers.dart';
 import '../../app/session.dart';
 import '../../l10n/app_localizations.dart';
+import '../admin/archive_actions.dart';
 import '../dashboard/dashboard_state.dart';
 import '../dashboard/filter_bar.dart';
 
@@ -22,6 +24,7 @@ class CollectorsScreen extends ConsumerWidget {
     final data = ref.watch(dashboardProvider).value;
     final rows = data?.collectors ?? const <CollectorActivity>[];
     final when = DateFormat('d MMM y');
+    final admin = ref.watch(sessionProvider).isAdmin;
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
@@ -61,7 +64,22 @@ class CollectorsScreen extends ConsumerWidget {
               trailing: PopupMenuButton<String>(
                 tooltip: l10n.markCollector,
                 icon: const Icon(Icons.more_vert),
-                onSelected: (status) => _mark(ref, c, status),
+                onSelected: (action) => switch (action) {
+                  'trail' => showTrail(
+                    context,
+                    title: l10n.trailTitle,
+                    entity: 'collector',
+                    id: c.collectorKey,
+                  ),
+                  'archive' => archiveRecord(
+                    context,
+                    ref,
+                    entity: ArchiveInEntity.collector,
+                    recordId: c.collectorKey,
+                    label: c.name,
+                  ),
+                  _ => _mark(ref, c, action),
+                },
                 itemBuilder: (_) => [
                   PopupMenuItem(
                     value: 'known',
@@ -73,6 +91,12 @@ class CollectorsScreen extends ConsumerWidget {
                     enabled: c.mark != 'flagged',
                     child: Text(l10n.markAsFlagged),
                   ),
+                  PopupMenuItem(value: 'trail', child: Text(l10n.trailTitle)),
+                  if (admin)
+                    PopupMenuItem(
+                      value: 'archive',
+                      child: Text(l10n.archiveAction),
+                    ),
                 ],
               ),
             ),

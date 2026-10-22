@@ -3027,6 +3027,222 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Collectors can no longer pick it. Readings already taken keep their values.'**
   String get paramsRejectBody;
+
+  /// No description provided for @adminArchived.
+  ///
+  /// In en, this message translates to:
+  /// **'Archived'**
+  String get adminArchived;
+
+  /// No description provided for @adminArchivedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Phones, collectors, sources and tests that were archived; restore them here'**
+  String get adminArchivedHint;
+
+  /// No description provided for @archiveAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Archive…'**
+  String get archiveAction;
+
+  /// No description provided for @archiveSource.
+  ///
+  /// In en, this message translates to:
+  /// **'Archive this source'**
+  String get archiveSource;
+
+  /// No description provided for @archiveTest.
+  ///
+  /// In en, this message translates to:
+  /// **'Archive this test'**
+  String get archiveTest;
+
+  /// No description provided for @archivedTag.
+  ///
+  /// In en, this message translates to:
+  /// **'archived'**
+  String get archivedTag;
+
+  /// No description provided for @archiveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Archive {label}?'**
+  String archiveTitle(String label);
+
+  /// No description provided for @archiveCascade.
+  ///
+  /// In en, this message translates to:
+  /// **'{entity, select, installation{The phone is revoked, and its collectors, their tests and the sources only they used are archived too.} collector{Their tests and the sources only they used are archived too. Sources others have tested stay.} water_source{Its tests and alerts are archived too.} test_session{Its results and alerts are archived too.} other{Related records are archived too.}}'**
+  String archiveCascade(String entity);
+
+  /// No description provided for @archiveRestorable.
+  ///
+  /// In en, this message translates to:
+  /// **'Archived records disappear from lists, maps, dashboards, reports and phones. Nothing is deleted: Admin › Archived can restore them.'**
+  String get archiveRestorable;
+
+  /// No description provided for @archiveReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason'**
+  String get archiveReason;
+
+  /// No description provided for @archiveReasonHint.
+  ///
+  /// In en, this message translates to:
+  /// **'At least 5 characters, e.g. \"test data\"'**
+  String get archiveReasonHint;
+
+  /// No description provided for @archiveConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Archive'**
+  String get archiveConfirm;
+
+  /// No description provided for @archiveDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Archived: {counts}'**
+  String archiveDone(String counts);
+
+  /// No description provided for @archiveUndo.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get archiveUndo;
+
+  /// No description provided for @archiveAlready.
+  ///
+  /// In en, this message translates to:
+  /// **'This is already archived.'**
+  String get archiveAlready;
+
+  /// No description provided for @archiveCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{n} {entity, select, installation{phone} collector{collector} water_source{source} test_session{test} alert{alert} other{{entity}}}{n, plural, =1{} other{s}}'**
+  String archiveCount(String entity, int n);
+
+  /// No description provided for @archiveEntity.
+  ///
+  /// In en, this message translates to:
+  /// **'{entity, select, installation{Phone} collector{Collector} water_source{Source} test_session{Test} other{{entity}}}'**
+  String archiveEntity(String entity);
+
+  /// No description provided for @archiveBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Archived by {name}, {when}'**
+  String archiveBy(String name, String when);
+
+  /// No description provided for @archiveListTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Archived'**
+  String get archiveListTitle;
+
+  /// No description provided for @archiveListHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Each line is one archive action and everything it took with it. Restoring brings all of it back.'**
+  String get archiveListHint;
+
+  /// No description provided for @archiveListNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing is archived.'**
+  String get archiveListNone;
+
+  /// No description provided for @archiveRestore.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore'**
+  String get archiveRestore;
+
+  /// No description provided for @archiveRestoreTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore {label}?'**
+  String archiveRestoreTitle(String label);
+
+  /// No description provided for @archiveRestoreBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything this action archived comes back to lists, dashboards, reports and phones.'**
+  String get archiveRestoreBody;
+
+  /// No description provided for @archiveRestorePhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Its records come back. The phone itself stays revoked: issue a new activation code to use it again.'**
+  String get archiveRestorePhone;
+
+  /// No description provided for @archiveRestored.
+  ///
+  /// In en, this message translates to:
+  /// **'Restored'**
+  String get archiveRestored;
+
+  /// No description provided for @moreActions.
+  ///
+  /// In en, this message translates to:
+  /// **'More actions'**
+  String get moreActions;
+
+  /// No description provided for @phonesName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name this phone'**
+  String get phonesName;
+
+  /// No description provided for @phonesNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Nalongo\'s phone'**
+  String get phonesNameHint;
+
+  /// No description provided for @trailTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit history'**
+  String get trailTitle;
+
+  /// No description provided for @trailCorrections.
+  ///
+  /// In en, this message translates to:
+  /// **'Corrections of this test'**
+  String get trailCorrections;
+
+  /// No description provided for @trailNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No changes recorded.'**
+  String get trailNone;
+
+  /// No description provided for @trailUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown'**
+  String get trailUnknown;
+
+  /// No description provided for @trailChange.
+  ///
+  /// In en, this message translates to:
+  /// **'{field}: {before} → {after}'**
+  String trailChange(String field, String before, String after);
+
+  /// No description provided for @trailField.
+  ///
+  /// In en, this message translates to:
+  /// **'{field, select, name{Name} households_served{Households} functional_status{Working} is_active{In use} source_type{Type} lat{Latitude} lon{Longitude} location_accuracy_m{GPS accuracy} label{Phone name} full_name{Full name} phone{Phone} collector_type{Role} village{Village} parish{Parish} subcounty{Sub-county} district{District} organisation{Organisation} overall{Result} other{{field}}}'**
+  String trailField(String field);
+
+  /// No description provided for @refresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh'**
+  String get refresh;
 }
 
 class _AppLocalizationsDelegate

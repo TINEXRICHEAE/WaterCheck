@@ -79,6 +79,10 @@ typedef ResultDetail = ({
   DateTime testedAt,
   String? amendmentOf,
   List<ReadingInput> readings,
+
+  /// Who made the test; only they may correct it (ADR-018).
+  String? collectorKey,
+  String? collectorName,
 });
 
 typedef CalibrationSummary = ({
@@ -516,6 +520,8 @@ class DriftTestingRepository implements TestingRepository {
       testedAt: s.testedAtDevice,
       amendmentOf: r.amendmentOf,
       readings: await readingsOf(r.id),
+      collectorKey: s.collectorKey,
+      collectorName: _snapshotName(s.collectorSnapshot),
     );
   }
 
@@ -536,5 +542,15 @@ class DriftTestingRepository implements TestingRepository {
           isDerived: r.isDerived,
         ),
     ];
+  }
+}
+
+String? _snapshotName(String? snapshot) {
+  if (snapshot == null) return null;
+  try {
+    final j = jsonDecode(snapshot);
+    return j is Map ? j['full_name'] as String? : null;
+  } on FormatException {
+    return null;
   }
 }

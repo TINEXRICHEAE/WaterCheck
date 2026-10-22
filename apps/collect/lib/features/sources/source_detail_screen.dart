@@ -12,6 +12,7 @@ import '../testing/test_draft.dart';
 import '../photos/photo_strip.dart';
 import 'inspection_screen.dart';
 import 'source_history.dart';
+import 'trail_view.dart';
 import 'source_providers.dart';
 import 'source_status.dart';
 
@@ -172,6 +173,9 @@ class SourceDetailScreen extends ConsumerWidget {
           },
           const Divider(height: 32),
           SourceHistory(sourceId: sourceId),
+          const Divider(height: 32),
+          Text(l10n.trailTitle, style: text.titleMedium),
+          TrailView(entity: 'water_source', id: sourceId),
           const SizedBox(height: 32),
           OutlinedButton.icon(
             onPressed: () => _deactivate(context, ref),

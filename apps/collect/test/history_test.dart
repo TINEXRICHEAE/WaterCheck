@@ -125,6 +125,16 @@ void main() {
     await tester.pump();
     await tapAndSettle(tester, save);
     expect(find.text('UNSAFE'), findsOneWidget);
+    // The correction's trail: what changed, from what to what, why
+    // (ADR-018).
+    expect(find.text('Corrections of this test'), findsOneWidget);
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 200)),
+    );
+    await tester.pump();
+    final change = find.text('Total dissolved solids: 610 → 1610');
+    expect(change, findsOneWidget);
+    expect(find.textContaining('Typed 610 instead of 1610'), findsWidgets);
 
     await tapAndSettle(tester, find.text('Done'));
     await tapAndSettle(tester, find.text('Church borehole'));
@@ -132,6 +142,35 @@ void main() {
     expect(find.text('Correction'), findsOneWidget);
     // The home list now reflects the correction.
     expect(find.text('UNSAFE'), findsWidgets);
+    await disposeApp(tester, db);
+  });
+
+  testWidgets('only the person who made a test can correct it', (tester) async {
+    final db = await pumpCollect(
+      tester,
+      size: const Size(420, 1600),
+      prepare: _withTwoTests,
+    );
+    await tapAndSettle(tester, find.text('Testing now: Example Collector'));
+    await tapAndSettle(tester, find.text('Add a person'));
+    await tester.enterText(
+      find.widgetWithText(TextFormField, 'Full name'),
+      'Second Collector',
+    );
+    await tester.enterText(
+      find.widgetWithText(TextFormField, 'Phone number'),
+      '0701 000111',
+    );
+    await tapAndSettle(tester, find.text('I am a…'));
+    await tapAndSettle(tester, find.text('Student').last);
+    await tapAndSettle(tester, find.text('Save'));
+    await tapAndSettle(tester, find.text('Church borehole'));
+    await tapAndSettle(tester, find.text('Sep 15, 2026'));
+    expect(find.text('Correct a mistake'), findsNothing);
+    expect(
+      find.text('Only Example Collector, who made this test, can correct it.'),
+      findsOneWidget,
+    );
     await disposeApp(tester, db);
   });
 

@@ -2091,6 +2091,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Back to the start page'**
   String get resultHome;
+
+  /// No description provided for @trailTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit history'**
+  String get trailTitle;
+
+  /// No description provided for @trailCorrections.
+  ///
+  /// In en, this message translates to:
+  /// **'Corrections of this test'**
+  String get trailCorrections;
+
+  /// No description provided for @trailNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No changes recorded.'**
+  String get trailNone;
+
+  /// No description provided for @trailUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown'**
+  String get trailUnknown;
+
+  /// No description provided for @trailField.
+  ///
+  /// In en, this message translates to:
+  /// **'{field, select, name{Name} households_served{Households} functional_status{Working} is_active{In use} source_type{Type} lat{Latitude} lon{Longitude} location_accuracy_m{GPS accuracy} label{Phone name} full_name{Full name} phone{Phone} collector_type{Role} village{Village} parish{Parish} subcounty{Sub-county} district{District} organisation{Organisation} overall{Result} other{{field}}}'**
+  String trailField(String field);
+
+  /// No description provided for @trailChange.
+  ///
+  /// In en, this message translates to:
+  /// **'{field}: {before} → {after}'**
+  String trailChange(String field, String before, String after);
+
+  /// No description provided for @amendNotYours.
+  ///
+  /// In en, this message translates to:
+  /// **'Only {name}, who made this test, can correct it.'**
+  String amendNotYours(String name);
 }
 
 class _AppLocalizationsDelegate
