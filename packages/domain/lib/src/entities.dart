@@ -79,13 +79,18 @@ class WaterSource {
     this.householdsServed,
     this.functionalStatus = 'functional',
     this.isActive = true,
+    this.collectorKey,
   });
 
   final String id;
   final String villageId;
 
-  /// `VILLAGECODE-NNN`, editable (F-SRC-1).
+  /// A short code such as `WC-7Q2K9` (older sources: `VILLAGECODE-NNN`),
+  /// editable (F-SRC-1).
   final String code;
+
+  /// The collector who added it (null: added in the Console).
+  final String? collectorKey;
   final String? name;
 
   /// borehole, protected_spring, shallow_well, tap, rain_tank, other.

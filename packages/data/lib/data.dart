@@ -24,6 +24,7 @@ export 'src/repositories/collector_profile_repository.dart';
 export 'src/repositories/inspection_repository.dart';
 export 'src/repositories/local_settings_repository.dart';
 export 'src/repositories/outbox_repository.dart';
+export 'src/repositories/place_repository.dart';
 export 'src/repositories/reference_data_repository.dart';
 export 'src/repositories/source_repository.dart';
 export 'src/repositories/stakeholder_repository.dart';

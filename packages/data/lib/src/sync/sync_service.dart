@@ -48,6 +48,7 @@ class SyncService {
     this._db,
     this._transport, {
     required this.streams,
+    this.moreStreams,
     this.clock = systemClock,
     this.ids = const IdGenerator(),
     this.maxRecords = 50,
@@ -66,6 +67,10 @@ class SyncService {
   /// Pull streams, e.g. `reference` and `area:<village id>` (Collect) or
   /// `reference` and `scope` (Console).
   final List<String> streams;
+
+  /// Streams worked out when each sync starts (Collect: the districts of
+  /// the people using the phone, ADR-019), pulled after [streams].
+  final Future<List<String>> Function()? moreStreams;
   final Clock clock;
   final IdGenerator ids;
   final int maxRecords;
@@ -96,7 +101,8 @@ class SyncService {
       // Push before pull (SPEC §8.1): never overwrite local edits that the
       // server has not seen yet.
       if (report.failure == null) {
-        for (final stream in streams) {
+        final extra = await moreStreams?.call() ?? const <String>[];
+        for (final stream in {...streams, ...extra}) {
           await _pull(stream, report);
         }
       }

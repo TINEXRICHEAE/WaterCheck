@@ -509,22 +509,49 @@ void main() {
   });
 
   group('sources', () {
-    test('codes follow VILLAGECODE-NNN', () async {
-      expect(
-        await sources.suggestCode(
-          villageId: 'village-1',
-          villageCode: 'ABIM-ENT',
-        ),
-        'ABIM-ENT-001',
+    test('a typed village is added below the official sub-county, once, '
+        'and queued for the server', () async {
+      final places = PlaceRepository(db, clock: fixedClock);
+      const area = (
+        district: 'Jinja',
+        subcounty: 'Butagaya',
+        parish: 'Nawangoma',
+        village: 'Kitanaba',
       );
-      await borehole();
+      expect(await places.findVillage(area), isNull);
+      final village = await places.ensureVillage(area, origin);
+      expect(village.level, 'village');
+      expect(village.name, 'Kitanaba');
+      // Same names again (any spacing or case): the same place.
+      final again = await places.ensureVillage((
+        district: 'jinja',
+        subcounty: 'butagaya ',
+        parish: 'NAWANGOMA',
+        village: ' kitanaba',
+      ), origin);
+      expect(again.id, village.id);
+      final queued = await (db.select(
+        db.outbox,
+      )..where((o) => o.entity.equals('admin_unit'))).get();
+      // The parish and the village; the sub-county is official.
+      expect(queued, hasLength(2));
+      expect(await places.findVillage(area), isNotNull);
       expect(
-        await sources.suggestCode(
-          villageId: 'village-1',
-          villageCode: 'ABIM-ENT',
-        ),
-        'ABIM-ENT-002',
+        () => places.ensureVillage((
+          district: 'Nowhere',
+          subcounty: 'x',
+          parish: 'y',
+          village: 'z',
+        ), origin),
+        throwsArgumentError,
       );
+    });
+
+    test('codes are short and random, and never one already used', () async {
+      final code = await sources.suggestCode();
+      expect(code, matches(RegExp(r'^WC-[2-9A-HJ-NP-Z]{5}$')));
+      final codes = {for (var i = 0; i < 50; i++) await sources.suggestCode()};
+      expect(codes.length, greaterThan(45));
     });
 
     test('edits are versioned and only changed fields are queued', () async {

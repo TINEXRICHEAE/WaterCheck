@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:domain/domain.dart';
 import 'package:drift/drift.dart';
 
@@ -17,7 +19,7 @@ class NewSource {
 
   final String villageId;
 
-  /// `VILLAGECODE-NNN`; see [SourceRepository.suggestCode].
+  /// For example `WC-7Q2K9`; see [SourceRepository.suggestCode].
   final String code;
   final String sourceType;
   final String? name;
@@ -46,11 +48,10 @@ abstract interface class SourceRepository {
   });
   Future<WaterSource?> source(String id);
 
-  /// Next free `VILLAGECODE-NNN` code in the village (F-SRC-1).
-  Future<String> suggestCode({
-    required String villageId,
-    required String villageCode,
-  });
+  /// A short random code, `WC-` and five letters or digits, not used on
+  /// this device (ADR-019: sources are anywhere in Uganda, so the code no
+  /// longer names a village).
+  Future<String> suggestCode();
   Future<WaterSource> create(NewSource source, SubmissionOrigin origin);
   Future<WaterSource> update(
     String id,
@@ -67,14 +68,17 @@ class DriftSourceRepository implements SourceRepository {
     this._db, {
     this.clock = systemClock,
     this.ids = const IdGenerator(),
-  });
+    Random? random,
+  }) : random = random ?? Random.secure();
 
   final AppDatabase _db;
   final Clock clock;
   final IdGenerator ids;
+  final Random random;
 
   static WaterSource toDomain(WaterSourceRow r) => WaterSource(
     id: r.id,
+    collectorKey: r.collectorKey,
     villageId: r.villageId,
     code: r.code,
     name: r.name,
@@ -111,20 +115,19 @@ class DriftSourceRepository implements SourceRepository {
   }
 
   @override
-  Future<String> suggestCode({
-    required String villageId,
-    required String villageCode,
-  }) async {
-    final rows = await (_db.select(
-      _db.waterSources,
-    )..where((t) => t.villageId.equals(villageId))).get();
-    final pattern = RegExp('^${RegExp.escape(villageCode)}-(\\d+)\$');
-    var highest = 0;
-    for (final r in rows) {
-      final n = int.tryParse(pattern.firstMatch(r.code)?.group(1) ?? '');
-      if (n != null && n > highest) highest = n;
+  Future<String> suggestCode() async {
+    // No 0/O or 1/I: codes are read aloud and typed by hand.
+    const alphabet = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
+    while (true) {
+      final letters = [
+        for (var i = 0; i < 5; i++) alphabet[random.nextInt(alphabet.length)],
+      ].join();
+      final code = 'WC-$letters';
+      final taken = await (_db.select(
+        _db.waterSources,
+      )..where((t) => t.code.equals(code))).getSingleOrNull();
+      if (taken == null) return code;
     }
-    return '$villageCode-${(highest + 1).toString().padLeft(3, '0')}';
   }
 
   @override
