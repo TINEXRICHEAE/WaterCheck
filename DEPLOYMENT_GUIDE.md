@@ -774,6 +774,7 @@ their settings, so recreate them explicitly after such a pull:
 
 ```bash
 docker compose up -d --force-recreate tiles    # after map style or .mbtiles changes
+docker compose --profile routing up -d --force-recreate routing  # after new routing data
 docker compose up -d --force-recreate caddy    # after a Caddyfile or web-build change
 ```
 
@@ -805,6 +806,33 @@ check what phones have added with:
 ```bash
 docker compose exec db sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c   "SELECT level, name, added_at FROM admin_unit WHERE review_status = '"'"'new'"'"' ORDER BY added_at DESC LIMIT 20;"'
 ```
+
+**Road routes (ADR-021).** The maps' "Route by road" layer needs the
+`routing` service (Valhalla). Its data (`infra/routing/valhalla/`, about 260 MB,
+git-ignored) is built from the Uganda OpenStreetMap extract. Build it on the
+dev machine with `.	oolsuild_routes.ps1` (a few minutes; Docker needs about
+2 GB free memory), then copy it to the VM like the map file:
+
+```powershell
+scp -r infraoutingalhalla azureuser@20.164.216.195:~/WaterCheck/infra/routing/
+```
+
+On the VM, start it (it uses about 60 MB of memory, limited to 512 MB) and
+recreate Caddy so `/route/` is routed:
+
+```bash
+cd ~/WaterCheck/infra
+docker compose --profile routing up -d routing
+docker compose up -d --force-recreate caddy
+curl -s "https://api.watercheck.cooptconnect.app/route/status"
+```
+
+Without the service, routes show "no route found"; straight-line distances
+still work. Rebuild and copy the data again after a map update.
+
+**Migration 0011 (ADR-020)** adds `collector_recovery_code` and lets any
+phone update a collector's server details. It needs nothing by hand; codes
+are issued in the Console (Collectors › ⋮ › "Sign-in code for another phone").
 
 Archive and restore are done in the Console (Admin › Archived), not on the
 VM. Nothing is deleted from the database: an archived record is hidden by an

@@ -456,6 +456,13 @@ data, about 259 MB, built by `tools/build_map.ps1 -Vector`.
 Android. After copying a map file or changing `infra/tiles-config/`, recreate
 the tile server from `infra`: `docker compose up -d --force-recreate tiles`.
 
+Road routes on the maps (ADR-021) need the Valhalla `routing` service. Build
+its data once with `.	oolsuild_routes.ps1` (downloads the Uganda extract,
+a few minutes, about 260 MB kept in the git-ignored `infra/routing/`), then
+`docker compose --profile routing up -d routing` and
+`docker compose up -d --force-recreate caddy`. Check:
+`curl "http://localhost/route/status"`.
+
 ### `no configuration file provided`
 
 Run Compose from `.\WaterCheck\infra` or `./WaterCheck/infra`, not the

@@ -11,7 +11,7 @@ Derived from `water-monitoring-app-SPEC.md` (v0.4). The spec is the source of tr
 | P0–P11 automated gates | ✅ done; human/device checks deferred to P12 | §3, PROGRESS.md |
 | Production on Azure (live) | ✅ since 2026-10-17; release 0.1.1 on 2026-10-21 | DEPLOYMENT_GUIDE.md |
 | Refinements round 1: archive, trails, UX (ADR-018) | ✅ built and committed locally; **not yet deployed** (migration 0009) | §3a |
-| Refinements round 2: anywhere in Uganda, sources, location, map, links (ADR-019) | 🔄 slice A built, waiting for the lead's check on dev; slices B–D to come | §3a |
+| Refinements round 2: anywhere in Uganda, sources, location, map, links (ADR-019) | 🔄 slice A committed; slice B built, waiting for the lead's check on dev; slices C–D to come | §3a |
 | Open discussions with the lead | ⏳ email/phone/SMS settings, password reset, updates without new installers, notifications | §3a |
 | P12 hardening and pilot release | ⏳ not started (operations items listed in §3 P12) | §3 |
 
@@ -190,6 +190,8 @@ P-1 (workstation setup) was done on 2026-10-10; see the decisions log below.
 | 2026-10-21 | Release 0.1.1 | **Map readable and working in production.** Roads outlined and coloured, tracks dashed, minor roads from zoom 11; style id `watercheck-v2` (change the id whenever the style changes: tiles are cached a week); single sources open at zoom 13. Installers fixed (Visual C++ runtime as `vc_redist.x64.exe`, skipped when present). Version 0.1.1+2. Web, Windows installers and APK built against production into `dist\` with SHA-256 checksums; release procedure in DEPLOYMENT_GUIDE.md §17a. |
 | 2026-10-22 | ADR-018 | **Lead: archive, trails and UX refinements.** IT admins archive phones, collectors, sources and tests with a reason; what hangs below goes too (a source another collector used is kept); one batch, restorable, audited; devices drop archived rows (migration 0009). Edits keep a field-level trail (old → new, who, when, why); a test is corrected as a new version, only by the person who made it. Refresh buttons in both apps; dashboard figures open lists that lead to the item; reference data searchable; area entry searches the official list to sub-county and fills the levels above, "Other" for new places, only villages typed. Console PIN optional for stakeholders (Windows/Android), required for IT admins. |
 | 2026-10-22 | ADR-019 | **Lead: anywhere in Uganda (refinements round 2).** Nothing in the apps points to Abim/Entebbe any more. Choices: **source codes are short random codes** (`WC-7Q2K9`, not place codes); **a typed village/parish/sub-county is added at once, marked new**, and the IT admin reviews it; **a phone syncs the whole district** of each person using it and searches further online; **the location is checked for every test**, and a reason is needed beyond **100 m plus the GPS error** or with no fix. Phones may record anywhere in Uganda (scope = the country). Sources list: own first, then nearby, sub-county, elsewhere; search and filters. Slices B–D to follow (§3a). |
+| 2026-10-22 | ADR-021 | **Lead: interactive maps in both apps.** One search for areas and sources; the map flies to the choice; the path runs down to the source; layers for source names, straight-line distance and road route with distance and time, motorbike/car by default with walking as a switch. **Routes are self-hosted:** the lead chose OSRM, which ran Docker out of memory (3.8 GB) and would need about 3 GB of the 4 GB VM, so the lead then chose **Valhalla** (one service for both modes, tiles read from disk, 512 MB limit). |
+| 2026-10-22 | ADR-020 | **Lead: recovery codes.** A collector gets back in as the same person on any phone (lost phone, second device) with a one-time code, valid 24 hours, issued in the Console by an IT admin or by a stakeholder for collectors in their areas. It is passed on by other means for now, and by email or SMS later. Several people, new and recovered, per phone. |
 | 2026-10-22 | Process | **Lead:** commit only after a confirmation on dev; log every prompt and outcome in `docs/DEVLOG.md`; `app/plan.md` frozen, `docs/PLAN.md` is the plan. |
 | 2026-10-11 | P9 | **P9 gate passed** (two items deferred or partial). Dashboard, Sources (full-screen map of all of Uganda with labels, clustered status dots, distance lines from the device), the latest-issue card, Collectors, Profile, conflict resolution. Web: server summary first (reload on Fast 3G 10.9 s → 4.5 s, 2.0 s from app start). Real Windows click-through and long-term web caching deferred to P12. |
 | 2026-10-11 | Scope | **Lead: nationwide app.** Users at any level (village → sub-county → district → region → national), created and linked by the IT admin; alerts go to the lowest assigned level and escalate up the chain, skipping empty levels; admin units and the map cover all of Uganda. See §3 "Nationwide scope and the stakeholder chain". |
@@ -492,7 +494,7 @@ These came from the lead trying the apps. They sit between P11 and P12. Each rou
 
 #### Round 2: anywhere in Uganda (ADR-019), 🔄 in progress
 
-**Slice A: Collect sources and location.** 🔄 Built; waiting for the lead's check on dev; not committed.
+**Slice A: Collect sources and location.** ✅ Committed 2026-10-22 (243bebc, bbf5467, a341df6).
 
 | # | Item | State |
 |---|------|-------|
@@ -505,14 +507,26 @@ These came from the lead trying the apps. They sit between P11 and P12. Each rou
 | A7 | Location check before every test, automatic; reason needed beyond 100 m + GPS error, or with no fix | ✅ built |
 | A8 | Retire the seeded pilot placeholder (the "TODO-verify" sub-county and parish in Abim, village Entebbe), still in the official list and used by tests | ⏳ needs a decision (rename or archive via Places once review exists, slice C) |
 
-**Slice B: Collect map and reference data.** ⏳ Next, after slice A is confirmed.
+**Slice B: Collect map and reference data.** 🔄 Built; waiting for the lead's check on dev; not committed.
 
-| # | Item |
-|---|------|
-| B1 | A map in Collect: sources by status, area labels, the device's position |
-| B2 | Reference data items clickable: a rule, limit set or parameter opens its detail page with its actions (edit limits, calibrate, where it is used per area) |
-| B3 | An area opens the map zoomed to it, with that area's sources as a list and on the map, and the labels around it |
-| B4 | Search for sources beyond the synced districts, online |
+| # | Item | State |
+|---|------|-------|
+| B1 | A **Map tab** in Collect: sources coloured by status over the labelled map of Uganda (the same tile server as the Console, online), "My location", "Find an area" | ✅ built |
+| B2 | Reference data items clickable: **Testing rules** (required readings, schedule, proximity, default limits), **limit set** (limits, where it is the area default, tests on this phone, "Calibrate with these limits", "Test a source with these limits"), **parameter** (code, unit, category, plausible range, its limit in each set, recent readings with their sources) | ✅ built |
+| B3 | An area opens the map on that area: its path (Uganda › district › …), the areas within it, its sources on the map and as a list | ✅ built |
+| B4 | **"Search all of Uganda"** from the sources list (online, `GET /v1/sources/search`); **"Get this district"** adds it to what the phone syncs | ✅ built |
+| B5 | Offline map pack for Collect (today the background needs internet; sources still show) | ⏳ later (the pack must be per district, not the pilot area) |
+| B6 | Lead's refinements (ADR-021): one search for areas (including places from phones) and sources; the map flies to the choice; the path runs down to the source; layers for names, straight-line distance and road route (motorbike/car default, walking); the same on the Console map | ✅ built |
+| B7 | Self-hosted road routes: Valhalla (`routing` service, `tools/build_routes.ps1`); OSRM was tried and ran out of memory | 🔄 data building on dev |
+
+**Recovery codes (ADR-020), added 2026-10-22 at the lead's request.** 🔄 Built; waiting for the lead's check on dev; not committed.
+
+| # | Item | State |
+|---|------|-------|
+| R1 | Console: Collectors › ⋮ › "Sign-in code for another phone" (IT admin; stakeholder for collectors in their areas): one-time code, 24 h, audited | ✅ built |
+| R2 | Collect: "Who is testing?" › "I already have a profile" › code: the same person (same key, server details) on any phone; several people per phone | ✅ built |
+| R3 | Any phone keeps a collector's server details current (migration 0011) | ✅ built |
+| R4 | Send the code by email or SMS | ⏳ with slice D |
 
 **Slice C: Console linking and profile.** ⏳
 

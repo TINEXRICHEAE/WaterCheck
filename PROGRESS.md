@@ -33,9 +33,29 @@ deployment and cache versioning.
   - Collect: no fix needs a reason; sources filtering and search.
 
   All Collect (55), data and backend sync tests pass; ruff and mypy are clean.
-- [ ] **The lead's check on dev**, then commit.
+- [x] **The lead's check on dev, then commit:** done 2026-10-22 (243bebc, bbf5467, a341df6, bf722cd).
 - [ ] **Retire the pilot placeholder** (the "TODO-verify" sub-county and parish in Abim, village Entebbe; PLAN §3a A8).
-- [ ] **Slice B:** Collect map; clickable reference data; areas open the map; online search.
+- [x] **Slice B built** (on dev, waiting for the lead's check, not committed):
+  - a Map tab (sources by status, find an area, my location);
+  - reference data opens Testing rules, limit-set and parameter pages, each with its links and actions;
+  - an area opens the map with its path, the areas within it and its sources;
+  - "Search all of Uganda" online with "Get this district".
+
+  Tests: `map_and_reference_test.dart` (3), and the backend search in `test_a_phone_works_anywhere_in_uganda_and_adds_new_places`. Collect 58, Console 39 and ui_kit 20 tests pass.
+- [ ] **Offline map pack per district for Collect** (later).
+- [x] **Interactive maps built (ADR-021)** (on dev, not committed):
+  - one search for areas and sources in Collect and the Console;
+  - the map flies to the choice, and the path runs down to the source;
+  - layers: names, straight-line distance, road route (motorbike/car or walking).
+
+  Tests: Collect map search, and the ui_kit route helpers (3).
+- [ ] **Road routes:** the Valhalla data is building on dev (`tools/build_routes.ps1`), then `docker compose --profile routing up -d`. OSRM was tried and ran out of memory.
+- [x] **Recovery codes built (ADR-020)** (on dev, waiting for the lead's check, not committed):
+  - Console: Collectors › ⋮ › "Sign-in code for another phone";
+  - Collect: "Who is testing?" › "I already have a profile";
+  - migration 0011.
+
+  Tests: backend `test_a_collector_gets_back_in_on_another_phone_with_a_code`, Console p9 "a sign-in code for another phone", Collect "a lost phone". Collect 59, Console 40, data 73 and ui_kit 20 pass.
 - [ ] **Slice C:** Console collector page, links everywhere, editable profile, places review, test distance and reason.
 - [ ] **Slice D:** notifications (Collect inbox, browser and desktop, push, real email and SMS), after agreeing with the lead.
 

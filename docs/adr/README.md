@@ -22,4 +22,6 @@ Format: context → decision → consequences. Number them sequentially. Never r
 | [016](ADR-016-admin-console-and-custom-limit-sets.md) | IT admin console and who changes limit sets (O2) | Accepted |
 | [017](ADR-017-app-wide-ux-conventions.md) | App-wide UX conventions: back, errors, settings, loading, filters, icons | Accepted |
 | [018](ADR-018-archive-and-edit-trail.md) | Archive with cascade (restorable), edit trails, refresh, clickable dashboard, area search, optional Console PIN | Accepted |
+| [021](ADR-021-interactive-maps-and-routes.md) | Interactive maps (one search, fly-to, layers) and self-hosted road routes (Valhalla) | Accepted (on dev) |
+| [020](ADR-020-collector-recovery-codes.md) | Collector recovery codes: the same person on any phone | Accepted (on dev) |
 | [019](ADR-019-anywhere-in-uganda.md) | Anywhere in Uganda: random source codes, places added from phones, district sync, required location check | Accepted (in progress) |

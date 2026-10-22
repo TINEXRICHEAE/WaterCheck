@@ -1,6 +1,6 @@
 # ADR-019: Anywhere in Uganda: place-free codes, places from phones, district sync, location check
 
-- Status: Accepted (2026-10-22); slice A built, waiting for the lead's check on dev; slices B–D to follow
+- Status: Accepted (2026-10-22); slice A committed; slice B built (waiting for the lead's check on dev); slices C–D to follow
 - Covers: the lead's round-2 request of 2026-10-22 (DEVLOG entry 12)
 - Amends:
   - ADR-009 (a phone's scope is no longer its activation area);
@@ -37,6 +37,21 @@ The app started as an Abim pilot. Three behaviours still tied it there:
    - groups: Added by you → Nearby → In your sub-county → Elsewhere.
 6. **New sources say where they are** ("Where is it?"), starting with the collector's own area.
 7. **No Abim/Entebbe wording** in the apps: About, the privacy notice and the code hint are national.
+
+## Slice B (2026-10-22)
+
+8. **Collect has a map.**
+   - A Map tab shows the phone's sources by status over the labelled tile map of Uganda (the Console's tile server; online only for now).
+   - "Find an area" searches the whole area list.
+   - `/map?area=<id>` opens an area with its path, the areas within it, and its sources on the map and as a list.
+9. **Reference data leads somewhere:**
+   - the rules open a page with each required reading, the schedule, the proximity limit and the default limit set;
+   - a limit set opens its limits, the areas where it is the default, the tests on this phone that used it, and the actions "Calibrate with these limits" and "Test a source with these limits" (the next test starts with that set, once);
+   - a parameter opens its details, its limit in every set and its recent readings, which link to their sources;
+   - an area opens the map. The shared view in `ui_kit` takes optional callbacks, so the Console view stays read-only until slice C.
+10. **Online search beyond the phone's districts:**
+    - `GET /v1/sources/search?q=` (signed phone or signed-in user, at least 2 characters, matched literally, at most 100 results) returns each source with its village, district and latest overall result;
+    - "Get this district" saves the district (`sync.extra_districts` on the device), and the next sync pulls it.
 
 ## Consequences
 

@@ -198,3 +198,111 @@ Decisions are also recorded in [PLAN.md](PLAN.md) (decisions log and §3a), the 
 
   Format, analyze, ruff and mypy were clean before committing.
 - **Commits:** see `git log` after 2bfc75a.
+
+### 17. Slice B: Collect map and reference data (continuing entry 16)
+- **Asked:** continue with slice B after the commit (entry 16).
+- **Outcome (built, on dev, not committed):**
+  - **Backend:** `GET /v1/sources/search` (signed phone or user; literal match on code, name or village; returns village, district and latest result).
+  - **Collect:**
+    - a Map tab with the tile map, status-coloured sources, "Find an area" and "My location";
+    - `/map?area=` with the path, the areas within and the sources;
+    - the reference data detail pages (rules, limit set, parameter) with links and actions;
+    - "Search all of Uganda" in the sources list with "Get this district" (`sync.extra_districts`, read at each sync);
+    - `collectApiDioProvider` for signed non-sync requests.
+  - **ui_kit:** `ReferenceDataView` takes optional `onRules`, `onProfile`, `onParameter` and `onArea` callbacks; areas carry their id.
+  - **Tests:** `map_and_reference_test.dart` (3) and the backend search assertions; all Collect, Console, ui_kit and backend sync tests pass.
+  - **Dev:** the API was rebuilt and the Collect preview rebuilt; tiles and search answer.
+- **Decisions taken while building (for the lead to confirm):**
+  - The Collect map background is online only for now. The existing offline pack is the pilot-area file, so a per-district pack is listed as B5 for later.
+  - "Test a source with these limits" applies to the next test only.
+- **Watch:**
+  - The map needs internet for the background; sources still show without it.
+  - The sideways "areas within" list is lazy, and long lists need scrolling.
+  - "Get this district" adds a whole district to the phone (size).
+  - Online search results are read-only until their district is synced.
+
+### 18. Recovery codes: an existing person on any phone (ADR-020)
+- **Asked:**
+  - "Who is testing?" keeps asking for a new person; add an option for an existing person (a lost phone);
+  - a confirmation code that the admin generates on request and shares by other channels for now (email or SMS later);
+  - on dev: open a collector in the Console, generate the code, and get back into Collect as "Baluku Joseph";
+  - the code also lets a collector into any other device, with their details downloaded from the server;
+  - several collectors, new and existing, per device;
+  - more than one admin or stakeholder able to let someone back in from anywhere; collectors and stakeholders both test at the source.
+- **Found:** the screenshot was again an InPrivate window, which is why the earlier person was gone. The lead was told again.
+- **Decisions taken while building (for the lead to confirm):**
+  - The code is one-time, valid 24 hours, 10 characters (`XXXXX-XXXXX`, read-aloud alphabet), and only its hash is stored.
+  - IT admins can issue a code for anyone; stakeholders only for collectors whose tests or sources are in their areas.
+  - Console users need nothing new on another device: they sign in with username and password.
+- **Outcome (built, on dev, not committed):**
+  - Migration 0011 (`collector_recovery_code`; `collector_profile` policies open to any phone).
+  - `POST /v1/collectors/{key}/recovery-code` and `POST /v1/collectors/recover`, both audited.
+  - The API client was regenerated.
+  - Console: Collectors › ⋮ › "Sign-in code for another phone".
+  - Collect: "I already have a profile" (`/who/recover`); `CollectorProfileRepository.restore`.
+  - Tests in all three layers; full Flutter suites pass. Dev was rebuilt (migration 0011, both previews).
+- **Watch:**
+  - The code is a bearer secret for 24 hours.
+  - The old phone should still be revoked.
+  - A collector appears in the Console's Collectors list only after a test of theirs has synced.
+  - Details from older phones may be incomplete; they can be fixed with "Edit".
+
+### 19. Refine slice B: one search, fly-to, path to the source, layers, Console map (ADR-021)
+- **Asked:**
+  - the map search should include villages and sub-counties added by hand, and source names;
+  - the path should run down to the searched level, even to the source;
+  - the map should zoom or move to the choice, responsively;
+  - toggles for map labels, straight-line distance and the shortest road route (with distance and time);
+  - the same interactive search and map on the Console map page.
+- **Found:**
+  - Choosing an area did not move a map that had already been moved ("My location").
+  - The country showed twice in the path.
+- **Options and decisions:**
+  - routing service = **self-host OSRM** (offered: OSRM self-hosted, the public OSRM demo, OpenRouteService);
+  - travel mode = **motorbike/car by default, walking as a switch**.
+- **Outcome (built, on dev, not committed):**
+  - `ui_kit/map_kit.dart` (`MapSearchBar`, `MapMotion`, `MapLayersButton`, `StraightLinesLayer`, `RouteLayer`, `fetchRoute`, `distanceSummary`).
+  - `AreaTree` moved into the data package.
+  - Collect map rewritten: `/map?area=` and `/map?source=`; the path including the source; a chosen-source card with distance and route; flying to the choice.
+  - Console `SourcesMap`: search, path chips, fly-to, the new layers menu and route, and a distance chip.
+- **Watch:**
+  - The Console map was keyed on the focus (rebuilt on each change); that key was removed so it can fly.
+  - Routes need the routing service, which is a separate decision (entry 20).
+
+### 20. Routing engine: OSRM out of memory, Valhalla chosen (ADR-021)
+- **Found:**
+  - The first OSRM image tag (`osrm/osrm-backend:v5.27.1`) does not exist on Docker Hub; the GitHub registry has it.
+  - Then the OSRM car extract for Uganda (371 MB of map data) stopped Docker Desktop: out of memory with 3.8 GB.
+  - Two OSRM services would also need about 2–3 GB of the 4 GB production VM.
+  - The session ended during this step; Docker was restarted.
+- **Options and decisions:** **Valhalla, self-hosted** (offered: Valhalla; OSRM vehicle-only with more memory and an 8 GB VM; the public OSRM demo for now).
+- **Outcome:**
+  - `tools/build_routes.ps1` was rewritten for Valhalla (config, tiles, single `tiles.tar`; the extract is kept on failure, deleted on success).
+  - Compose has one `routing` service (profile `routing`, `valhalla_service`, 512 MB).
+  - Caddy routes `/route/*` on dev and both production hosts (validated).
+  - `fetchRoute` uses Valhalla (motorcycle or pedestrian costing; polyline6 decoding, tested).
+  - ADR-021 written. Build running on dev.
+- **Watch:**
+  - Valhalla travel times are estimates on OpenStreetMap roads.
+  - The routing data must be rebuilt after map updates.
+  - The VM gets the data either built on the VM or copied from dev.
+
+### 21. Console Sources: endless "Instance of 'minified:lX<void>'" errors
+- **Asked:** the lead pasted thousands of identical browser console errors from `localhost/console/#/sources`, after a 401 on refresh.
+- **How it was found:**
+  - A readable (`--profile`) Console build was made.
+  - A headless Chrome was driven over the DevTools protocol (`scratchpad/cdp_errors.py`): sign in through the page's own fetch, location set to Kampala, then a replay of the clicks (Sources › Map › search "Kitanaba" › choose the borehole › Layers › Route by road › Walking).
+  - The error appeared once the route layer was on: flutter_map `Infinite loop going beyond 30 for world width 16777216` in the polyline painter, on every frame.
+- **Cause:**
+  - `decodePolyline6` used `~(result >> 1)` for negative steps. On the web, Dart's `~` is unsigned 32-bit, so every step south or west became a jump of thousands of degrees.
+  - The route line ran off the world, and flutter_map's world-copy loop never found it "invisible".
+  - On the Dart VM (tests) the decoder was right, which is why the tests passed.
+- **Fix:**
+  - The decoder now uses `-(result >> 1) - 1`, with a south/west test.
+  - All maps use `NoRepeatCrs` (Web Mercator not repeated sideways; Uganda never crosses the date line), as a safeguard against the same loop.
+  - Verified in the headless replay: no errors; "80 km by road, about 1 h 02 min".
+- **Also found in the full backend run:** a phone's scope took the first `country` area (`LIMIT 1`). Tests create other country areas, so it could miss Uganda. The scope now covers every country-level area.
+- **Watch:**
+  - Bitwise operators behave differently on the web (32-bit, unsigned `~`); test web-only code paths in a browser.
+  - The 401 on `/auth/refresh` in that log is normal when the cookie has expired (the page then asks to sign in).
+  - A temporary dev account `dbg-admin@example.org` was created for the replay. Remove it, or keep it for later replays.
