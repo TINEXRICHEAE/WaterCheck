@@ -186,6 +186,18 @@ final testDraftProvider = NotifierProvider<TestDraftNotifier, TestDraft>(
   TestDraftNotifier.new,
 );
 
+/// A limit set chosen from Reference data ("Test with these limits"): the
+/// next test starts with it instead of the area default, once.
+class PreferredProfile extends Notifier<ReferenceProfile?> {
+  @override
+  ReferenceProfile? build() => null;
+
+  void set(ReferenceProfile? p) => state = p;
+}
+
+final preferredProfileProvider =
+    NotifierProvider<PreferredProfile, ReferenceProfile?>(PreferredProfile.new);
+
 final catalogueProvider = FutureProvider<ParameterCatalogue>(
   (ref) => ref.watch(referenceDataRepositoryProvider).catalogue(),
 );

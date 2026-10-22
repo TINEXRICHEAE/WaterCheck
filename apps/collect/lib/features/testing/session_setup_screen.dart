@@ -69,19 +69,23 @@ class _SessionSetupScreenState extends ConsumerState<SessionSetupScreen> {
   ) {
     if (_defaultsApplied) return;
     _defaultsApplied = true;
+    final preferred = ref.read(preferredProfileProvider);
     final profile =
         draft.profile ??
+        preferred ??
         profiles.where((p) => p.id == areaDefaultId).firstOrNull ??
         profiles
             .where((p) => p.code == rules.defaultReferenceProfile)
             .firstOrNull ??
         profiles.first;
     final tester = draft.tester ?? testers.firstOrNull;
-    Future.microtask(
-      () => ref
+    Future.microtask(() {
+      ref
           .read(testDraftProvider.notifier)
-          .update((d) => d.copyWith(profile: profile, tester: tester)),
-    );
+          .update((d) => d.copyWith(profile: profile, tester: tester));
+      // Used once.
+      ref.read(preferredProfileProvider.notifier).set(null);
+    });
   }
 
   Future<void> _checkLocation(WaterSource source) async {

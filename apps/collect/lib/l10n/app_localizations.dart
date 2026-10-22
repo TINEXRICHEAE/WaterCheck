@@ -2319,6 +2319,402 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Kept with the test and shown to the district.'**
   String get setupFarReasonHint;
+
+  /// No description provided for @navMap.
+  ///
+  /// In en, this message translates to:
+  /// **'Map'**
+  String get navMap;
+
+  /// No description provided for @mapTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Map'**
+  String get mapTitle;
+
+  /// No description provided for @mapAllAreas.
+  ///
+  /// In en, this message translates to:
+  /// **'Uganda'**
+  String get mapAllAreas;
+
+  /// No description provided for @mapWithin.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 area within} other{{count} areas within}}'**
+  String mapWithin(int count);
+
+  /// No description provided for @mapSourcesHere.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No sources here} =1{1 source} other{{count} sources}} ({placed} on the map)'**
+  String mapSourcesHere(int count, int placed);
+
+  /// No description provided for @mapNoSources.
+  ///
+  /// In en, this message translates to:
+  /// **'No source on this phone is in this area yet. Search online from Home to find others.'**
+  String get mapNoSources;
+
+  /// No description provided for @mapNoLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'no location saved'**
+  String get mapNoLocation;
+
+  /// No description provided for @mapShowOnMap.
+  ///
+  /// In en, this message translates to:
+  /// **'Show on the map'**
+  String get mapShowOnMap;
+
+  /// No description provided for @mapFindArea.
+  ///
+  /// In en, this message translates to:
+  /// **'Find an area'**
+  String get mapFindArea;
+
+  /// No description provided for @mapFindAreaHint.
+  ///
+  /// In en, this message translates to:
+  /// **'District, sub-county, parish or village'**
+  String get mapFindAreaHint;
+
+  /// No description provided for @mapMyLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'My location'**
+  String get mapMyLocation;
+
+  /// No description provided for @levelCountry.
+  ///
+  /// In en, this message translates to:
+  /// **'country'**
+  String get levelCountry;
+
+  /// No description provided for @levelRegion.
+  ///
+  /// In en, this message translates to:
+  /// **'region'**
+  String get levelRegion;
+
+  /// No description provided for @levelDistrict.
+  ///
+  /// In en, this message translates to:
+  /// **'district'**
+  String get levelDistrict;
+
+  /// No description provided for @levelSubcounty.
+  ///
+  /// In en, this message translates to:
+  /// **'sub-county'**
+  String get levelSubcounty;
+
+  /// No description provided for @levelParish.
+  ///
+  /// In en, this message translates to:
+  /// **'parish'**
+  String get levelParish;
+
+  /// No description provided for @levelVillage.
+  ///
+  /// In en, this message translates to:
+  /// **'village'**
+  String get levelVillage;
+
+  /// No description provided for @refNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Not found on this phone. Sync and try again.'**
+  String get refNotFound;
+
+  /// No description provided for @rulesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Testing rules'**
+  String get rulesTitle;
+
+  /// No description provided for @rulesIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'What every test needs and how often a source is due. Set by the IT admin; they reach this phone with sync.'**
+  String get rulesIntro;
+
+  /// No description provided for @rulesRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Readings every test needs'**
+  String get rulesRequired;
+
+  /// No description provided for @rulesSchedule.
+  ///
+  /// In en, this message translates to:
+  /// **'When a source is due'**
+  String get rulesSchedule;
+
+  /// No description provided for @rulesRoutine.
+  ///
+  /// In en, this message translates to:
+  /// **'Every {days} days normally'**
+  String rulesRoutine(int days);
+
+  /// No description provided for @rulesRainy.
+  ///
+  /// In en, this message translates to:
+  /// **'Every {days} days in the rainy season'**
+  String rulesRainy(int days);
+
+  /// No description provided for @rulesAbnormal.
+  ///
+  /// In en, this message translates to:
+  /// **'Again within {days} days after an abnormal result'**
+  String rulesAbnormal(int days);
+
+  /// No description provided for @rulesClears.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to normal after {count} normal results'**
+  String rulesClears(int count);
+
+  /// No description provided for @rulesDueSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Shown as due {days} days before'**
+  String rulesDueSoon(int days);
+
+  /// No description provided for @rulesAtTheSource.
+  ///
+  /// In en, this message translates to:
+  /// **'At the source'**
+  String get rulesAtTheSource;
+
+  /// No description provided for @rulesProximity.
+  ///
+  /// In en, this message translates to:
+  /// **'Within {metres} m of the source (plus the GPS error); farther needs a reason'**
+  String rulesProximity(int metres);
+
+  /// No description provided for @rulesDefaultLimits.
+  ///
+  /// In en, this message translates to:
+  /// **'Limits used when an area has no default'**
+  String get rulesDefaultLimits;
+
+  /// No description provided for @rulesSetBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Only the IT admin can change these rules, in the Console.'**
+  String get rulesSetBy;
+
+  /// No description provided for @limitsCalibrate.
+  ///
+  /// In en, this message translates to:
+  /// **'Calibrate with these limits'**
+  String get limitsCalibrate;
+
+  /// No description provided for @limitsTestWith.
+  ///
+  /// In en, this message translates to:
+  /// **'Test a source with these limits'**
+  String get limitsTestWith;
+
+  /// No description provided for @limitsUsedFor.
+  ///
+  /// In en, this message translates to:
+  /// **'Where it is used'**
+  String get limitsUsedFor;
+
+  /// No description provided for @limitsTestsHere.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No test on this phone used it yet.} =1{1 test on this phone used it.} other{{count} tests on this phone used it.}}'**
+  String limitsTestsHere(int count);
+
+  /// No description provided for @limitsNoAreaDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'No area starts its tests with it by default.'**
+  String get limitsNoAreaDefault;
+
+  /// No description provided for @limitsAreaDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'New tests here start with these limits'**
+  String get limitsAreaDefault;
+
+  /// No description provided for @limitsTable.
+  ///
+  /// In en, this message translates to:
+  /// **'Limits'**
+  String get limitsTable;
+
+  /// No description provided for @paramCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Code: {code}'**
+  String paramCode(String code);
+
+  /// No description provided for @paramUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'Unit: {unit}'**
+  String paramUnit(String unit);
+
+  /// No description provided for @paramCore.
+  ///
+  /// In en, this message translates to:
+  /// **'Core'**
+  String get paramCore;
+
+  /// No description provided for @paramRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Needed in every test'**
+  String get paramRequired;
+
+  /// No description provided for @paramCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Added in the field'**
+  String get paramCustom;
+
+  /// No description provided for @paramPlausible.
+  ///
+  /// In en, this message translates to:
+  /// **'Readings outside {min} to {max} are treated as mistakes.'**
+  String paramPlausible(String min, String max);
+
+  /// No description provided for @paramLimits.
+  ///
+  /// In en, this message translates to:
+  /// **'Limit in each limit set'**
+  String get paramLimits;
+
+  /// No description provided for @paramRecent.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent readings on this phone'**
+  String get paramRecent;
+
+  /// No description provided for @paramNoReadings.
+  ///
+  /// In en, this message translates to:
+  /// **'No readings on this phone yet.'**
+  String get paramNoReadings;
+
+  /// No description provided for @searchOnline.
+  ///
+  /// In en, this message translates to:
+  /// **'Search all of Uganda'**
+  String get searchOnline;
+
+  /// No description provided for @searchOnlineHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Sources beyond the districts on this phone (needs internet)'**
+  String get searchOnlineHint;
+
+  /// No description provided for @groupOnline.
+  ///
+  /// In en, this message translates to:
+  /// **'Elsewhere in Uganda (online)'**
+  String get groupOnline;
+
+  /// No description provided for @searchOnlineOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not reach the server. Try again when online.'**
+  String get searchOnlineOffline;
+
+  /// No description provided for @searchOnlineNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing else found.'**
+  String get searchOnlineNone;
+
+  /// No description provided for @searchOnlineGet.
+  ///
+  /// In en, this message translates to:
+  /// **'Get this district'**
+  String get searchOnlineGet;
+
+  /// No description provided for @searchOnlineAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'{district} added to this phone; syncing now.'**
+  String searchOnlineAdded(String district);
+
+  /// No description provided for @whoRecover.
+  ///
+  /// In en, this message translates to:
+  /// **'I already have a profile'**
+  String get whoRecover;
+
+  /// No description provided for @whoRecoverHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Lost your phone, or using another one? Come back as yourself with a code.'**
+  String get whoRecoverHint;
+
+  /// No description provided for @recoverTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'I already have a profile'**
+  String get recoverTitle;
+
+  /// No description provided for @recoverIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the code your IT admin or stakeholder gave you. Your details come back to this phone, and your earlier work stays yours.'**
+  String get recoverIntro;
+
+  /// No description provided for @recoverCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Code'**
+  String get recoverCode;
+
+  /// No description provided for @recoverButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Get my profile'**
+  String get recoverButton;
+
+  /// No description provided for @recoverWhoGives.
+  ///
+  /// In en, this message translates to:
+  /// **'No code? Ask your IT admin or the stakeholder for your area: in the Console they open Collectors, your name, \"Sign-in code for another phone\". A code works once, within a day.'**
+  String get recoverWhoGives;
+
+  /// No description provided for @recoverInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'That code is not valid. It may be mistyped, used already, or older than a day.'**
+  String get recoverInvalid;
+
+  /// No description provided for @recoverOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not reach the server. Connect to the internet and try again.'**
+  String get recoverOffline;
+
+  /// No description provided for @recoverWelcome.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome back, {name}.'**
+  String recoverWelcome(String name);
+
+  /// No description provided for @mapOpenSource.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get mapOpenSource;
+
+  /// No description provided for @mapLocateForDistance.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap \"My location\" for the distance and the route.'**
+  String get mapLocateForDistance;
 }
 
 class _AppLocalizationsDelegate

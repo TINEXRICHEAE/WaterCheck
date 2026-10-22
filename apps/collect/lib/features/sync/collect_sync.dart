@@ -119,6 +119,14 @@ List<String> collectStreams(
   ];
 }
 
+/// Signed requests to the API outside sync (the online source search);
+/// tests replace it.
+final collectApiDioProvider = Provider<Dio?>((ref) {
+  final c = ref.watch(credentialsProvider);
+  if (c == null) return null;
+  return collectSyncDio(c, clockOffset: () => ref.read(clockOffsetProvider));
+});
+
 /// How the app reaches `/v1/sync`; tests replace it.
 final syncTransportProvider = Provider<SyncTransport?>((ref) {
   final c = ref.watch(credentialsProvider);
@@ -167,14 +175,24 @@ final syncServiceProvider = Provider<SyncService?>((ref) {
     streams: collectStreams(c),
     // The districts of the people using the phone, read at each sync (not
     // watched: a rebuild here would hold the database open).
-    moreStreams: () async => collectStreams(
-      c,
-      collectors: await ref
-          .read(collectorProfileRepositoryProvider)
-          .watchActive()
-          .first,
-      units: await ref.read(referenceDataRepositoryProvider).adminUnits(),
-    ),
+    moreStreams: () async => [
+      ...collectStreams(
+        c,
+        collectors: await ref
+            .read(collectorProfileRepositoryProvider)
+            .watchActive()
+            .first,
+        units: await ref.read(referenceDataRepositoryProvider).adminUnits(),
+      ),
+      // Districts added from an online search ("Get this district").
+      for (final d
+          in (await ref
+                      .read(localSettingsRepositoryProvider)
+                      .read('sync.extra_districts'))
+                  ?.split(',') ??
+              const <String>[])
+        if (d.isNotEmpty) 'area:$d',
+    ],
   );
 });
 

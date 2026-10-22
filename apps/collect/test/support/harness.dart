@@ -123,6 +123,17 @@ class TestServices {
           ),
       );
     }),
+    collectApiDioProvider.overrideWith((ref) {
+      final c = ref.watch(credentialsProvider);
+      if (c == null) return null;
+      return server.dioFor(c.apiUrl)
+        ..interceptors.add(
+          InstallationSigner(
+            installationId: c.installationId,
+            secret: c.secret,
+          ),
+        );
+    }),
     syncTransportProvider.overrideWith((ref) {
       final c = ref.watch(credentialsProvider);
       if (c == null) return null;

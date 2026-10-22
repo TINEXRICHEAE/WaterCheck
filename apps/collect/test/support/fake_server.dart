@@ -38,6 +38,24 @@ class FakeServer implements HttpClientAdapter {
   final uploads = <String, BytesBuilder>{};
   final uploaded = <String, Uint8List>{};
 
+  /// The collector a recovery code brings back (`/v1/collectors/recover`);
+  /// the code `ABCDE23456` works once.
+  final recoverable = <String, Object?>{
+    'key': '0b9e1f4a-6c2d-4e8f-a1b3-c5d7e9f0c0de',
+    'full_name': 'Baluku Joseph',
+    'phone': '+256772123456',
+    'collector_type': 'vht',
+    'village': 'Kitanaba',
+    'parish': 'Nawangoma',
+    'subcounty': 'Butagaya',
+    'district': 'Jinja',
+    'profile_version': 2,
+  };
+  final _recoverable = <String, bool>{'ABCDE23456': true};
+
+  /// Sources the online search finds (`/v1/sources/search`).
+  final searchHits = <Map<String, Object?>>[];
+
   /// Rows served on the next pull of each stream.
   final serve = <String, List<Map<String, Object?>>>{};
 
@@ -92,6 +110,25 @@ class FakeServer implements HttpClientAdapter {
         p,
       ),
       ('GET', '/v1/sync/pull') => _pull(options),
+      ('POST', '/v1/collectors/recover') =>
+        _recoverable.remove(
+                  _body(
+                    options,
+                  )['code'].toString().replaceAll('-', '').toUpperCase(),
+                ) ==
+                null
+            ? _json(404, {'detail': 'invalid_code'})
+            : _json(200, {
+                'collector_key': recoverable['key'],
+                'snapshot': recoverable,
+              }),
+      ('GET', '/v1/sources/search') => _json(200, [
+        for (final h in searchHits)
+          if ('${h['code']} ${h['name']} ${h['village']}'
+              .toLowerCase()
+              .contains(options.uri.queryParameters['q']!.toLowerCase()))
+            h,
+      ]),
       _ => _json(404, {'detail': 'not_found'}),
     };
   }
@@ -140,14 +177,19 @@ class FakeServer implements HttpClientAdapter {
     });
   }
 
-  ResponseBody _push(RequestOptions options, {bool asStakeholder = false}) {
+  /// The JSON body, whether the signer left it as text, bytes or a map.
+  Map<String, Object?> _body(RequestOptions options) {
     final data = options.data;
     final raw = switch (data) {
       final String s => s,
       final List<int> b => utf8.decode(b),
       _ => jsonEncode(data),
     };
-    final body = (jsonDecode(raw) as Map).cast<String, Object?>();
+    return (jsonDecode(raw) as Map).cast<String, Object?>();
+  }
+
+  ResponseBody _push(RequestOptions options, {bool asStakeholder = false}) {
+    final body = _body(options);
     final changes = (body['changes']! as List).cast<Map<String, Object?>>();
     (asStakeholder ? pushedByStakeholder : pushed).addAll(changes);
     return _json(200, {

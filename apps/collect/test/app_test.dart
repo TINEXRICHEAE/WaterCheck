@@ -123,6 +123,29 @@ void main() {
     await disposeApp(tester, db);
   });
 
+  testWidgets('a lost phone: an existing person comes back with a code '
+      '(ADR-020)', (tester) async {
+    final db = await pumpCollect(tester, onboarded: false);
+    await tapAndSettle(tester, find.text('I understand and agree'));
+    await tapAndSettle(tester, find.text('I already have a profile'));
+    await tester.enterText(find.byType(TextField), 'zzzzz-zzzzz');
+    await tester.pump();
+    await tapAndSettle(tester, find.text('Get my profile'));
+    expect(find.textContaining('Could not reach'), findsNothing);
+    expect(find.textContaining('not valid'), findsOneWidget);
+    await tester.enterText(find.byType(TextField), 'abcde-23456');
+    await tester.pump();
+    await tapAndSettle(tester, find.text('Get my profile'));
+    expect(find.text('Water sources'), findsOneWidget);
+    expect(find.text('Testing now: Baluku Joseph'), findsOneWidget);
+    final saved = await tester.runAsync(
+      () => DriftCollectorProfileRepository(db).watchActive().first,
+    );
+    expect(saved!.single.collectorKey, '0b9e1f4a-6c2d-4e8f-a1b3-c5d7e9f0c0de');
+    expect(saved.single.profileVersion, 2);
+    await disposeApp(tester, db);
+  });
+
   testWidgets('settings opens the seeded reference data', (tester) async {
     final db = await pumpCollect(tester);
     await tapAndSettle(tester, find.text('Settings'));

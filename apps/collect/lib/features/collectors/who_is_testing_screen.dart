@@ -51,6 +51,16 @@ class WhoIsTestingScreen extends ConsumerWidget {
                   if (context.mounted) context.go('/');
                 },
               ),
+            const Divider(height: 32),
+            // A lost phone, or a second device: come back as the same
+            // person with a code from the IT admin or stakeholder (ADR-020).
+            ListTile(
+              leading: const Icon(Icons.key_outlined),
+              title: Text(l10n.whoRecover),
+              subtitle: Text(l10n.whoRecoverHint),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => context.push('/who/recover'),
+            ),
           ],
         ),
       ),

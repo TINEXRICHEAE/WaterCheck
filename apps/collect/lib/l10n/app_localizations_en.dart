@@ -1308,4 +1308,262 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get setupFarReasonHint =>
       'Kept with the test and shown to the district.';
+
+  @override
+  String get navMap => 'Map';
+
+  @override
+  String get mapTitle => 'Map';
+
+  @override
+  String get mapAllAreas => 'Uganda';
+
+  @override
+  String mapWithin(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count areas within',
+      one: '1 area within',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String mapSourcesHere(int count, int placed) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count sources',
+      one: '1 source',
+      zero: 'No sources here',
+    );
+    return '$_temp0 ($placed on the map)';
+  }
+
+  @override
+  String get mapNoSources =>
+      'No source on this phone is in this area yet. Search online from Home to find others.';
+
+  @override
+  String get mapNoLocation => 'no location saved';
+
+  @override
+  String get mapShowOnMap => 'Show on the map';
+
+  @override
+  String get mapFindArea => 'Find an area';
+
+  @override
+  String get mapFindAreaHint => 'District, sub-county, parish or village';
+
+  @override
+  String get mapMyLocation => 'My location';
+
+  @override
+  String get levelCountry => 'country';
+
+  @override
+  String get levelRegion => 'region';
+
+  @override
+  String get levelDistrict => 'district';
+
+  @override
+  String get levelSubcounty => 'sub-county';
+
+  @override
+  String get levelParish => 'parish';
+
+  @override
+  String get levelVillage => 'village';
+
+  @override
+  String get refNotFound => 'Not found on this phone. Sync and try again.';
+
+  @override
+  String get rulesTitle => 'Testing rules';
+
+  @override
+  String get rulesIntro =>
+      'What every test needs and how often a source is due. Set by the IT admin; they reach this phone with sync.';
+
+  @override
+  String get rulesRequired => 'Readings every test needs';
+
+  @override
+  String get rulesSchedule => 'When a source is due';
+
+  @override
+  String rulesRoutine(int days) {
+    return 'Every $days days normally';
+  }
+
+  @override
+  String rulesRainy(int days) {
+    return 'Every $days days in the rainy season';
+  }
+
+  @override
+  String rulesAbnormal(int days) {
+    return 'Again within $days days after an abnormal result';
+  }
+
+  @override
+  String rulesClears(int count) {
+    return 'Back to normal after $count normal results';
+  }
+
+  @override
+  String rulesDueSoon(int days) {
+    return 'Shown as due $days days before';
+  }
+
+  @override
+  String get rulesAtTheSource => 'At the source';
+
+  @override
+  String rulesProximity(int metres) {
+    return 'Within $metres m of the source (plus the GPS error); farther needs a reason';
+  }
+
+  @override
+  String get rulesDefaultLimits => 'Limits used when an area has no default';
+
+  @override
+  String get rulesSetBy =>
+      'Only the IT admin can change these rules, in the Console.';
+
+  @override
+  String get limitsCalibrate => 'Calibrate with these limits';
+
+  @override
+  String get limitsTestWith => 'Test a source with these limits';
+
+  @override
+  String get limitsUsedFor => 'Where it is used';
+
+  @override
+  String limitsTestsHere(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count tests on this phone used it.',
+      one: '1 test on this phone used it.',
+      zero: 'No test on this phone used it yet.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get limitsNoAreaDefault =>
+      'No area starts its tests with it by default.';
+
+  @override
+  String get limitsAreaDefault => 'New tests here start with these limits';
+
+  @override
+  String get limitsTable => 'Limits';
+
+  @override
+  String paramCode(String code) {
+    return 'Code: $code';
+  }
+
+  @override
+  String paramUnit(String unit) {
+    return 'Unit: $unit';
+  }
+
+  @override
+  String get paramCore => 'Core';
+
+  @override
+  String get paramRequired => 'Needed in every test';
+
+  @override
+  String get paramCustom => 'Added in the field';
+
+  @override
+  String paramPlausible(String min, String max) {
+    return 'Readings outside $min to $max are treated as mistakes.';
+  }
+
+  @override
+  String get paramLimits => 'Limit in each limit set';
+
+  @override
+  String get paramRecent => 'Recent readings on this phone';
+
+  @override
+  String get paramNoReadings => 'No readings on this phone yet.';
+
+  @override
+  String get searchOnline => 'Search all of Uganda';
+
+  @override
+  String get searchOnlineHint =>
+      'Sources beyond the districts on this phone (needs internet)';
+
+  @override
+  String get groupOnline => 'Elsewhere in Uganda (online)';
+
+  @override
+  String get searchOnlineOffline =>
+      'Could not reach the server. Try again when online.';
+
+  @override
+  String get searchOnlineNone => 'Nothing else found.';
+
+  @override
+  String get searchOnlineGet => 'Get this district';
+
+  @override
+  String searchOnlineAdded(String district) {
+    return '$district added to this phone; syncing now.';
+  }
+
+  @override
+  String get whoRecover => 'I already have a profile';
+
+  @override
+  String get whoRecoverHint =>
+      'Lost your phone, or using another one? Come back as yourself with a code.';
+
+  @override
+  String get recoverTitle => 'I already have a profile';
+
+  @override
+  String get recoverIntro =>
+      'Enter the code your IT admin or stakeholder gave you. Your details come back to this phone, and your earlier work stays yours.';
+
+  @override
+  String get recoverCode => 'Code';
+
+  @override
+  String get recoverButton => 'Get my profile';
+
+  @override
+  String get recoverWhoGives =>
+      'No code? Ask your IT admin or the stakeholder for your area: in the Console they open Collectors, your name, \"Sign-in code for another phone\". A code works once, within a day.';
+
+  @override
+  String get recoverInvalid =>
+      'That code is not valid. It may be mistyped, used already, or older than a day.';
+
+  @override
+  String get recoverOffline =>
+      'Could not reach the server. Connect to the internet and try again.';
+
+  @override
+  String recoverWelcome(String name) {
+    return 'Welcome back, $name.';
+  }
+
+  @override
+  String get mapOpenSource => 'Open';
+
+  @override
+  String get mapLocateForDistance =>
+      'Tap \"My location\" for the distance and the route.';
 }

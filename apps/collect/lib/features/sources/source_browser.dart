@@ -8,6 +8,7 @@ import '../../app/providers.dart';
 import '../../l10n/app_localizations.dart';
 import '../location/location_service.dart';
 import '../sync/collect_sync.dart';
+import 'online_search.dart';
 import 'source_providers.dart';
 import 'source_status.dart';
 
@@ -45,6 +46,9 @@ class _SourceBrowserState extends ConsumerState<SourceBrowser> {
   var _filter = SourceFilter.all;
   GeoPoint? _here;
   var _locating = false;
+
+  /// The search also asks the server (sources beyond this phone).
+  var _online = false;
 
   Future<void> _locate() async {
     setState(() => _locating = true);
@@ -156,6 +160,10 @@ class _SourceBrowserState extends ConsumerState<SourceBrowser> {
     final filtered = _query.isNotEmpty || _filter != SourceFilter.all;
 
     final rows = <Widget>[];
+    final term = _query.trim();
+    final online = term.length >= 2 && _online
+        ? ref.watch(onlineSourceSearchProvider(term))
+        : null;
     SourceGroup? last;
     for (final (s, g) in list) {
       if (g != last) {
@@ -199,6 +207,70 @@ class _SourceBrowserState extends ConsumerState<SourceBrowser> {
       rows.add(const Divider(height: 1));
     }
 
+    // Beyond this phone's districts: ask the server (online).
+    if (term.length >= 2) {
+      final local = {for (final s in summaries) s.source.id};
+      if (!_online) {
+        rows.add(
+          ListTile(
+            leading: const Icon(Icons.travel_explore),
+            title: Text(l10n.searchOnline),
+            subtitle: Text(l10n.searchOnlineHint),
+            onTap: () => setState(() => _online = true),
+          ),
+        );
+      } else {
+        rows.add(
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
+            child: Text(
+              l10n.groupOnline,
+              style: Theme.of(context).textTheme.titleSmall,
+            ),
+          ),
+        );
+        final hits = online?.value;
+        if (online == null || online.isLoading) {
+          rows.add(const LinearProgressIndicator());
+        } else if (hits == null) {
+          rows.add(ListTile(title: Text(l10n.searchOnlineOffline)));
+        } else {
+          final fresh = [
+            for (final h in hits)
+              if (!local.contains(h.id)) h,
+          ];
+          if (fresh.isEmpty) {
+            rows.add(ListTile(title: Text(l10n.searchOnlineNone)));
+          }
+          for (final h in fresh) {
+            rows.add(
+              ListTile(
+                title: Text(h.name ?? h.code),
+                subtitle: Text(
+                  [
+                    if (h.name != null) h.code,
+                    h.village,
+                    ?h.district,
+                  ].join(' · '),
+                ),
+                trailing: h.districtId == null
+                    ? null
+                    : TextButton(
+                        onPressed: () async {
+                          final messenger = ScaffoldMessenger.of(context);
+                          final msg = l10n.searchOnlineAdded(h.district ?? '');
+                          await addDistrict(ref, h.districtId!);
+                          messenger.showSnackBar(SnackBar(content: Text(msg)));
+                        },
+                        child: Text(l10n.searchOnlineGet),
+                      ),
+              ),
+            );
+          }
+        }
+      }
+    }
+
     return Column(
       children: [
         Padding(
@@ -206,7 +278,10 @@ class _SourceBrowserState extends ConsumerState<SourceBrowser> {
           child: SearchField(
             value: _query,
             label: l10n.sourcesSearch,
-            onChanged: (v) => setState(() => _query = v),
+            onChanged: (v) => setState(() {
+              _query = v;
+              _online = false;
+            }),
           ),
         ),
         SingleChildScrollView(
@@ -239,7 +314,7 @@ class _SourceBrowserState extends ConsumerState<SourceBrowser> {
           ),
         ),
         Expanded(
-          child: list.isEmpty
+          child: list.isEmpty && rows.isEmpty
               ? Center(
                   child: Padding(
                     padding: const EdgeInsets.all(32),

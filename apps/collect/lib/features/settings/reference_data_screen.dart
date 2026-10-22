@@ -1,6 +1,7 @@
 import 'package:domain/domain.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:ui_kit/ui_kit.dart';
 
 import '../../app/providers.dart';
@@ -11,7 +12,7 @@ typedef _ReferenceData = ({
   List<ReferenceProfile> profiles,
   List<TesterProfile> testers,
   DomainRules rules,
-  List<(String, String)> areas,
+  List<RefArea> areas,
 });
 
 final _referenceDataProvider = FutureProvider<_ReferenceData>((ref) async {
@@ -24,7 +25,7 @@ final _referenceDataProvider = FutureProvider<_ReferenceData>((ref) async {
     profiles: await repo.referenceProfiles(),
     testers: await repo.testerProfiles(),
     rules: await repo.rules(),
-    areas: [for (final u in units) (u.level, u.name)],
+    areas: [for (final u in units) (id: u.id, level: u.level, name: u.name)],
   );
 });
 
@@ -56,6 +57,13 @@ class ReferenceDataScreen extends ConsumerWidget {
           testerProfiles: d.testers,
           rules: d.rules,
           areas: d.areas,
+          // Each item opens its page; an area opens the map (slice B).
+          onRules: () => context.push('/settings/reference-data/rules'),
+          onProfile: (p) =>
+              context.push('/settings/reference-data/limits/${p.id}'),
+          onParameter: (p) =>
+              context.push('/settings/reference-data/parameter/${p.code}'),
+          onArea: (a) => context.go('/map?area=${a.id}'),
         ),
       ),
     );

@@ -9,6 +9,9 @@ import '../features/alerts/response_card_screen.dart';
 import '../features/collectors/collector_form_screen.dart';
 import '../features/collectors/who_is_testing_screen.dart';
 import '../features/home/home_screen.dart';
+import '../features/collectors/recover_profile_screen.dart';
+import '../features/map/map_screen.dart';
+import '../features/settings/reference_detail_screens.dart';
 import '../features/lock/lock_screens.dart';
 import '../features/onboarding/welcome_screen.dart';
 import '../features/reset/reset_screen.dart';
@@ -102,6 +105,10 @@ final routerProvider = Provider<GoRouter>((ref) {
         routes: [
           GoRoute(path: 'new', builder: (_, _) => const CollectorFormScreen()),
           GoRoute(
+            path: 'recover',
+            builder: (_, _) => const RecoverProfileScreen(),
+          ),
+          GoRoute(
             path: ':key/edit',
             builder: (_, state) =>
                 CollectorFormScreen(collectorKey: state.pathParameters['key']),
@@ -160,6 +167,17 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           StatefulShellBranch(
             routes: [
+              GoRoute(
+                path: '/map',
+                builder: (_, state) => MapScreen(
+                  areaId: state.uri.queryParameters['area'],
+                  sourceId: state.uri.queryParameters['source'],
+                ),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
               GoRoute(path: '/sync', builder: (_, _) => const SyncScreen()),
             ],
           ),
@@ -172,6 +190,24 @@ final routerProvider = Provider<GoRouter>((ref) {
                   GoRoute(
                     path: 'reference-data',
                     builder: (_, _) => const ReferenceDataScreen(),
+                    routes: [
+                      GoRoute(
+                        path: 'rules',
+                        builder: (_, _) => const RulesScreen(),
+                      ),
+                      GoRoute(
+                        path: 'limits/:id',
+                        builder: (_, state) => LimitSetScreen(
+                          profileId: state.pathParameters['id']!,
+                        ),
+                      ),
+                      GoRoute(
+                        path: 'parameter/:code',
+                        builder: (_, state) => ParameterScreen(
+                          code: state.pathParameters['code']!,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -204,6 +240,11 @@ class _CollectShell extends StatelessWidget {
             icon: const Icon(Icons.water_drop_outlined),
             selectedIcon: const Icon(Icons.water_drop),
             label: l10n.navHome,
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.map_outlined),
+            selectedIcon: const Icon(Icons.map),
+            label: l10n.navMap,
           ),
           NavigationDestination(
             icon: const Icon(Icons.cloud_upload_outlined),

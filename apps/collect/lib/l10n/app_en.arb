@@ -619,5 +619,175 @@
   "setupLocating": "Finding your location…",
   "setupAtSource": "You are at the source.",
   "setupNoFix": "Your location could not be found. Try again in the open, or say why.",
-  "setupFarReasonHint": "Kept with the test and shown to the district."
+  "setupFarReasonHint": "Kept with the test and shown to the district.",
+  "navMap": "Map",
+  "mapTitle": "Map",
+  "mapAllAreas": "Uganda",
+  "mapWithin": "{count, plural, =1{1 area within} other{{count} areas within}}",
+  "@mapWithin": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "mapSourcesHere": "{count, plural, =0{No sources here} =1{1 source} other{{count} sources}} ({placed} on the map)",
+  "@mapSourcesHere": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "placed": {
+        "type": "int"
+      }
+    }
+  },
+  "mapNoSources": "No source on this phone is in this area yet. Search online from Home to find others.",
+  "mapNoLocation": "no location saved",
+  "mapShowOnMap": "Show on the map",
+  "mapFindArea": "Find an area",
+  "mapFindAreaHint": "District, sub-county, parish or village",
+  "mapMyLocation": "My location",
+  "levelCountry": "country",
+  "levelRegion": "region",
+  "levelDistrict": "district",
+  "levelSubcounty": "sub-county",
+  "levelParish": "parish",
+  "levelVillage": "village",
+  "refNotFound": "Not found on this phone. Sync and try again.",
+  "rulesTitle": "Testing rules",
+  "rulesIntro": "What every test needs and how often a source is due. Set by the IT admin; they reach this phone with sync.",
+  "rulesRequired": "Readings every test needs",
+  "rulesSchedule": "When a source is due",
+  "rulesRoutine": "Every {days} days normally",
+  "@rulesRoutine": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "rulesRainy": "Every {days} days in the rainy season",
+  "@rulesRainy": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "rulesAbnormal": "Again within {days} days after an abnormal result",
+  "@rulesAbnormal": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "rulesClears": "Back to normal after {count} normal results",
+  "@rulesClears": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "rulesDueSoon": "Shown as due {days} days before",
+  "@rulesDueSoon": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "rulesAtTheSource": "At the source",
+  "rulesProximity": "Within {metres} m of the source (plus the GPS error); farther needs a reason",
+  "@rulesProximity": {
+    "placeholders": {
+      "metres": {
+        "type": "int"
+      }
+    }
+  },
+  "rulesDefaultLimits": "Limits used when an area has no default",
+  "rulesSetBy": "Only the IT admin can change these rules, in the Console.",
+  "limitsCalibrate": "Calibrate with these limits",
+  "limitsTestWith": "Test a source with these limits",
+  "limitsUsedFor": "Where it is used",
+  "limitsTestsHere": "{count, plural, =0{No test on this phone used it yet.} =1{1 test on this phone used it.} other{{count} tests on this phone used it.}}",
+  "@limitsTestsHere": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "limitsNoAreaDefault": "No area starts its tests with it by default.",
+  "limitsAreaDefault": "New tests here start with these limits",
+  "limitsTable": "Limits",
+  "paramCode": "Code: {code}",
+  "@paramCode": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "paramUnit": "Unit: {unit}",
+  "@paramUnit": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "paramCore": "Core",
+  "paramRequired": "Needed in every test",
+  "paramCustom": "Added in the field",
+  "paramPlausible": "Readings outside {min} to {max} are treated as mistakes.",
+  "@paramPlausible": {
+    "placeholders": {
+      "min": {
+        "type": "String"
+      },
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "paramLimits": "Limit in each limit set",
+  "paramRecent": "Recent readings on this phone",
+  "paramNoReadings": "No readings on this phone yet.",
+  "searchOnline": "Search all of Uganda",
+  "searchOnlineHint": "Sources beyond the districts on this phone (needs internet)",
+  "groupOnline": "Elsewhere in Uganda (online)",
+  "searchOnlineOffline": "Could not reach the server. Try again when online.",
+  "searchOnlineNone": "Nothing else found.",
+  "searchOnlineGet": "Get this district",
+  "searchOnlineAdded": "{district} added to this phone; syncing now.",
+  "@searchOnlineAdded": {
+    "placeholders": {
+      "district": {
+        "type": "String"
+      }
+    }
+  },
+  "whoRecover": "I already have a profile",
+  "whoRecoverHint": "Lost your phone, or using another one? Come back as yourself with a code.",
+  "recoverTitle": "I already have a profile",
+  "recoverIntro": "Enter the code your IT admin or stakeholder gave you. Your details come back to this phone, and your earlier work stays yours.",
+  "recoverCode": "Code",
+  "recoverButton": "Get my profile",
+  "recoverWhoGives": "No code? Ask your IT admin or the stakeholder for your area: in the Console they open Collectors, your name, \"Sign-in code for another phone\". A code works once, within a day.",
+  "recoverInvalid": "That code is not valid. It may be mistyped, used already, or older than a day.",
+  "recoverOffline": "Could not reach the server. Connect to the internet and try again.",
+  "recoverWelcome": "Welcome back, {name}.",
+  "@recoverWelcome": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "mapOpenSource": "Open",
+  "mapLocateForDistance": "Tap \"My location\" for the distance and the route."
 }
