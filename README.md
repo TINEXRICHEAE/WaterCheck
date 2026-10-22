@@ -985,7 +985,9 @@ documents for section-specific detail:
 - [PROGRESS.md](PROGRESS.md): phase gates, completed work, evidence and
   deferred checks;
 - [docs/PLAN.md](docs/PLAN.md): roadmap, planning assumptions and durable
-  decisions still being tracked;
+  decisions still being tracked (status at a glance, refinement rounds in §3a);
+- [docs/DEVLOG.md](docs/DEVLOG.md): every request from the project lead and its
+  outcome, with decisions and points to watch (from 2026-10-20);
 - [docs/SPEC.md](docs/SPEC.md): product requirements and acceptance criteria;
 - [docs/adr/](docs/adr/): architecture decision records;
 - [SECURITY.md](SECURITY.md): security baseline and reporting expectations;

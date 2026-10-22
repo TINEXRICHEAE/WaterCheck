@@ -4,7 +4,39 @@ Derived from `water-monitoring-app-SPEC.md` (v0.4). The spec is the source of tr
 
 > Legend: **[DECIDE]** = a choice to make before or during that phase · ★ = recommended option · ⏱ = rough effort in *focused developer-weeks* for one developer (part-time work stretches these).
 
-## Current implementation and deployment baseline
+## Status at a glance (updated 2026-10-22)
+
+| Block | State | Where |
+|-------|-------|-------|
+| P0–P11 automated gates | ✅ done; human/device checks deferred to P12 | §3, PROGRESS.md |
+| Production on Azure (live) | ✅ since 2026-10-17; release 0.1.1 on 2026-10-21 | DEPLOYMENT_GUIDE.md |
+| Refinements round 1: archive, trails, UX (ADR-018) | ✅ built and committed locally; **not yet deployed** (migration 0009) | §3a |
+| Refinements round 2: anywhere in Uganda, sources, location, map, links (ADR-019) | 🔄 slice A built, waiting for the lead's check on dev; slices B–D to come | §3a |
+| Open discussions with the lead | ⏳ email/phone/SMS settings, password reset, updates without new installers, notifications | §3a |
+| P12 hardening and pilot release | ⏳ not started (operations items listed in §3 P12) | §3 |
+
+**Working rules (the lead):**
+- Commit locally only after the lead confirms a change on the dev stack; the lead pushes.
+- From 2026-10-22, every prompt and its outcome is logged in [DEVLOG.md](DEVLOG.md), with this plan, PROGRESS.md and the ADRs kept in step.
+- `app/plan.md` (outside the repo) is frozen for now. It was the copy GitHub Copilot used on 2026-10-15 to 10-17. This file is the plan.
+
+## Baseline written during the Copilot sessions (2026-10-15 to 10-17), with status
+
+The section below was written by GitHub Copilot while the original assistant was unavailable. Status as checked on 2026-10-22:
+
+| Item | Status |
+|------|--------|
+| Repository on GitHub; `main` is the deployment source | ✅ done |
+| Dev on Windows with Docker Compose; separate DEV_DEPLOYMENT_GUIDE.md | ✅ done; dev/prod Caddy split added 2026-10-20 |
+| Production VM (Azure, South Africa North, B2als_v2) with HTTPS | ✅ done |
+| `dev → test → prod`; staging later | ✅ policy in force; staging ⏳ future (needs its own host or a larger VM) |
+| Production onboarding (first IT admin, stakeholders, activation codes, smoke tests) | ⏳ partly: sample data documented 2026-10-21; first real admin and smoke tests still open (P12) |
+| Performance fixture never in prod | ✅ guarded by the `prod` environment check |
+| Gradle heap capped at 2 GiB; cleanup script | ✅ done |
+| Offline Windows installers (Inno Setup, bundled VC++ runtime) | ✅ done; fixed in 0.1.1 (runtime file name, skipped when present) |
+| Automatic update channel (Windows updater, Play in-app updates, sideloaded APK check) | ❌ not built; to discuss with the lead (see §3a, "Updates without new installers") |
+| Rotate production secrets (they were pasted into the Copilot chat) | ❌ still open (P12) |
+| Real SMTP in production (Mailpit is used now) | ❌ still open; part of the notifications discussion |
 
 The implementation has progressed beyond the original planning snapshot:
 
@@ -107,7 +139,7 @@ not a reason for clients to download arbitrary executables from the API.
 
 ---
 
-## 0. Where we are today (2026-10-09)
+## 0. Where we were at the start (2026-10-09; table updated since)
 
 | Item | Status |
 |------|--------|
@@ -157,6 +189,8 @@ P-1 (workstation setup) was done on 2026-10-10; see the decisions log below.
 | 2026-10-20 | CI | **Two CI failures fixed.** `osv-scanner`: a new critical advisory for `certifi` (GHSA-6q48-6c7w-9gw2), fixed by updating the lockfile and rebuilding the API/worker on the VM. Flutter: calibration-today compared a Kampala time with the device clock and failed on UTC machines between 21:00 and 24:00; `WcTime.isToday` converts both sides (ADR-017 amendment). Rule: run CI's exact commands before pushing. |
 | 2026-10-21 | Release 0.1.1 | **Map readable and working in production.** Roads outlined and coloured, tracks dashed, minor roads from zoom 11; style id `watercheck-v2` (change the id whenever the style changes: tiles are cached a week); single sources open at zoom 13. Installers fixed (Visual C++ runtime as `vc_redist.x64.exe`, skipped when present). Version 0.1.1+2. Web, Windows installers and APK built against production into `dist\` with SHA-256 checksums; release procedure in DEPLOYMENT_GUIDE.md §17a. |
 | 2026-10-22 | ADR-018 | **Lead: archive, trails and UX refinements.** IT admins archive phones, collectors, sources and tests with a reason; what hangs below goes too (a source another collector used is kept); one batch, restorable, audited; devices drop archived rows (migration 0009). Edits keep a field-level trail (old → new, who, when, why); a test is corrected as a new version, only by the person who made it. Refresh buttons in both apps; dashboard figures open lists that lead to the item; reference data searchable; area entry searches the official list to sub-county and fills the levels above, "Other" for new places, only villages typed. Console PIN optional for stakeholders (Windows/Android), required for IT admins. |
+| 2026-10-22 | ADR-019 | **Lead: anywhere in Uganda (refinements round 2).** Nothing in the apps points to Abim/Entebbe any more. Choices: **source codes are short random codes** (`WC-7Q2K9`, not place codes); **a typed village/parish/sub-county is added at once, marked new**, and the IT admin reviews it; **a phone syncs the whole district** of each person using it and searches further online; **the location is checked for every test**, and a reason is needed beyond **100 m plus the GPS error** or with no fix. Phones may record anywhere in Uganda (scope = the country). Sources list: own first, then nearby, sub-county, elsewhere; search and filters. Slices B–D to follow (§3a). |
+| 2026-10-22 | Process | **Lead:** commit only after a confirmation on dev; log every prompt and outcome in `docs/DEVLOG.md`; `app/plan.md` frozen, `docs/PLAN.md` is the plan. |
 | 2026-10-11 | P9 | **P9 gate passed** (two items deferred or partial). Dashboard, Sources (full-screen map of all of Uganda with labels, clustered status dots, distance lines from the device), the latest-issue card, Collectors, Profile, conflict resolution. Web: server summary first (reload on Fast 3G 10.9 s → 4.5 s, 2.0 s from app start). Real Windows click-through and long-term web caching deferred to P12. |
 | 2026-10-11 | Scope | **Lead: nationwide app.** Users at any level (village → sub-county → district → region → national), created and linked by the IT admin; alerts go to the lowest assigned level and escalate up the chain, skipping empty levels; admin units and the map cover all of Uganda. See §3 "Nationwide scope and the stakeholder chain". |
 | 2026-10-11 | P9 map | **Lead:** the map belongs on the dashboard (reference design with pins, alert callout and footer), starting with Abim pins. The app must cover the whole of Uganda: national tiles on the server, per-district packs on devices, built off the laptop. P9 implementation paused for now (session limit). |
@@ -439,7 +473,82 @@ The app serves **the whole of Uganda**, not only the Abim pilot. Users sit at an
 - Audit-log middleware has existed since P4, so this phase mostly adds the viewer.
 - ~~Resolve open question **O2**~~ Resolved 2026-10-12: only a stakeholder (ADR-016).
 
+### 3a. Refinement rounds after P11 (the lead's requests, from 2026-10-22)
+
+These came from the lead trying the apps. They sit between P11 and P12. Each round has an ADR; each prompt is logged in [DEVLOG.md](DEVLOG.md).
+
+#### Round 1: archive, trails and UX (ADR-018), ✅ built and committed (20ec1eb..2bfc75a)
+
+| # | Item | State |
+|---|------|-------|
+| 1 | IT admin archive (restorable delete) of phones, collectors, sources and tests, cascading; shared sources kept; migration 0009 | ✅ |
+| 2 | Field-level edit trail (old → new, who, when, why); test corrections as new versions, only by the creator | ✅ |
+| 3 | Refresh buttons on every data page (Console top bar; Collect pages) | ✅ |
+| 4 | Dashboard cards and lists open pop-up lists leading to the item | ✅ |
+| 5 | Reference data searchable (both apps) | ✅ |
+| 6 | Area entry: search the official list to sub-county, the levels above fill in, "Other", only villages typed | ✅ |
+| 7 | Console PIN optional for stakeholders, required for IT admins (Windows/Android) | ✅ |
+| 8 | Deploy to the VM (migration 0009, API, web) and 0.1.2 client builds | ⏳ after the lead's go |
+
+#### Round 2: anywhere in Uganda (ADR-019), 🔄 in progress
+
+**Slice A: Collect sources and location.** 🔄 Built; waiting for the lead's check on dev; not committed.
+
+| # | Item | State |
+|---|------|-------|
+| A1 | Remove Abim/Entebbe defaults from the apps (About, privacy notice, code hint; the phone no longer falls back to the seeded village) | ✅ built |
+| A2 | Random source codes `WC-XXXXX` (no 0/O/1/I) | ✅ built |
+| A3 | Places a collector types are added on the phone, marked `new`, pushed (`admin_unit` push, migration 0010) | ✅ built |
+| A4 | Phone scope = the whole country; sync = district of each person using the phone plus the activation area's district | ✅ built |
+| A5 | Sources list: search, filters (All, Safe, Unsafe, Not tested, Mine, Others, Nearby, Reset); groups Added by you → Nearby (5 km) → In your sub-county → Elsewhere; used on Home and "Test a source" | ✅ built |
+| A6 | "Where is it?" on new sources (starts with the collector's area) | ✅ built |
+| A7 | Location check before every test, automatic; reason needed beyond 100 m + GPS error, or with no fix | ✅ built |
+| A8 | Retire the seeded pilot placeholder (the "TODO-verify" sub-county and parish in Abim, village Entebbe), still in the official list and used by tests | ⏳ needs a decision (rename or archive via Places once review exists, slice C) |
+
+**Slice B: Collect map and reference data.** ⏳ Next, after slice A is confirmed.
+
+| # | Item |
+|---|------|
+| B1 | A map in Collect: sources by status, area labels, the device's position |
+| B2 | Reference data items clickable: a rule, limit set or parameter opens its detail page with its actions (edit limits, calibrate, where it is used per area) |
+| B3 | An area opens the map zoomed to it, with that area's sources as a list and on the map, and the labels around it |
+| B4 | Search for sources beyond the synced districts, online |
+
+**Slice C: Console linking and profile.** ⏳
+
+| # | Item |
+|---|------|
+| C1 | Collector detail page: profile, actions, links to their area on the map, the sources they added or manage, and the tests they did |
+| C2 | Everything interlinked in both apps: area, collector, source, test, user and alert pages link to each other |
+| C3 | Editable profile: own phone and email (confirmed by a code), each notification channel with its details and a test send, areas and responsibilities by request (the IT admin approves) |
+| C4 | Places review for the IT admin: places added from phones (rename, merge, mark official) |
+| C5 | A test's distance from the source and its reason, shown in the Console |
+
+**Slice D: Notifications.** ⏳ To agree with the lead first.
+
+| # | Item |
+|---|------|
+| D1 | Collect inbox: alerts about sources near the collector |
+| D2 | Browser and desktop notifications while the Console is open |
+| D3 | Android push (needs a Firebase project) |
+| D4 | Real email (an SMTP provider) and SMS (Africa's Talking) in production |
+
+#### Open discussions with the lead (raised 2026-10-22, no decision yet)
+
+| Topic | Today | Options put to the lead |
+|-------|-------|-------------------------|
+| Email, phone and SMS settings | Profile toggles only; contacts set by the IT admin; prod email goes to Mailpit | Self-service contacts with code confirmation; channel details; real providers |
+| Forgot password | Console request only writes an audit entry for the IT admin; Collect has no password (PIN reset or re-activation) | (a) email reset link (needs real email), (b) SMS code, (c) IT admin reset with requests shown on the admin dashboard. Recommended: c now, a once email works |
+| Fixes without new installers | Web updates by deploying; reference data reaches phones by sync; code changes need new installers/APK | (a) in-app update check that downloads and installs a newer signed installer or APK (user approves), (b) Shorebird code push (paid; Windows support to confirm), (c) Play Store. Recommended: a now, b or c for the pilot |
+
 ### P12. Hardening and pilot release ⏱ 3 (+ field time)
+**Operations items carried from the Copilot baseline and the rounds above:**
+- Create the first real IT admin in production; run the online/offline smoke tests.
+- Rotate the production secrets (they were pasted into the Copilot chat).
+- Deploy migrations 0009 and 0010 and the round 1–2 builds.
+- Staging stays future work (its own host or a larger VM).
+- Automatic update channel: see "Fixes without new installers" above.
+
 **Notes:**
 - **External items to start early (calendar time, not dev time):**
   - PDPO registration;

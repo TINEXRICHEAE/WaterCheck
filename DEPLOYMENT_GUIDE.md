@@ -798,6 +798,14 @@ Then rebuild and ship the web Console (§10–§11), because the archive and tra
 screens need the new API. Phones and Windows apps on 0.1.1 keep working; they
 pick up archive marks and trails once updated.
 
+**Migration 0010 (round 2, ADR-019)** comes the same way: it adds the review
+columns for places that phones add (`admin_unit.review_status`). After it,
+check what phones have added with:
+
+```bash
+docker compose exec db sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c   "SELECT level, name, added_at FROM admin_unit WHERE review_status = '"'"'new'"'"' ORDER BY added_at DESC LIMIT 20;"'
+```
+
 Archive and restore are done in the Console (Admin › Archived), not on the
 VM. Nothing is deleted from the database: an archived record is hidden by an
 `archive_mark` row and comes back when its batch is restored. To see what is

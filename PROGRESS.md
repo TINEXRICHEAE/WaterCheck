@@ -1,6 +1,6 @@
 # Progress
 
-**Current phase:** P11 gate passed (2026-10-12); app-wide UX conventions (2026-10-13, ADR-017); production on Azure (2026-10-17); client release 0.1.1 with the working production map (2026-10-21); archive, edit trails and UX refinements (2026-10-22, ADR-018). Next: P12 (hardening and pilot release).
+**Current phase:** P11 gate passed (2026-10-12); app-wide UX conventions (2026-10-13, ADR-017); production on Azure (2026-10-17); client release 0.1.1 with the working production map (2026-10-21); archive, edit trails and UX refinements (2026-10-22, ADR-018); round 2 "anywhere in Uganda" in progress (ADR-019, slice A on dev). Next: slices B–D, then P12. Plan: [docs/PLAN.md](docs/PLAN.md) §3a; every request: [docs/DEVLOG.md](docs/DEVLOG.md).
 
 Windows release bundles now build for both apps. Offline single-file
 installer definitions were added under `tools/windows/`; Inno Setup and an
@@ -10,6 +10,34 @@ Windows needs a signed installer/update channel, Android needs Play
 distribution or a user-approved sideload update, and web updates use the VPS
 deployment and cache versioning.
 **Last updated:** 2026-10-22
+
+## Round 2: anywhere in Uganda (2026-10-22, ADR-019) 🔄
+
+**Slice A: Collect sources and location.** Built and on the dev stack; waiting for the lead's check; not committed.
+
+- [x] **No Abim defaults:** no Abim/Entebbe wording in the apps; the phone no longer falls back to the seeded village.
+- [x] **Random source codes:** `WC-XXXXX`.
+- [x] **Places from phones:**
+  - a typed sub-county ("Other"), parish or village is added on the phone and pushed, marked `new` (migration 0010, applied on dev);
+  - the server accepts only one level below a known place.
+- [x] **Scope and sync:** a phone may record anywhere in Uganda; it syncs the district of its activation area and of each person using it.
+- [x] **Sources list on Home and "Test a source":**
+  - search;
+  - filters: All, Safe, Unsafe, Not tested, Mine, Others, Nearby, Reset;
+  - groups: Added by you, Nearby, In your sub-county, Elsewhere.
+- [x] **"Where is it?"** on new sources.
+- [x] **Location check before every test:** automatic and required; a reason is needed beyond 100 m plus the GPS error, or with no fix.
+- [x] **Tests:**
+  - backend `test_a_phone_works_anywhere_in_uganda_and_adds_new_places`;
+  - data: places, random codes;
+  - Collect: no fix needs a reason; sources filtering and search.
+
+  All Collect (55), data and backend sync tests pass; ruff and mypy are clean.
+- [ ] **The lead's check on dev**, then commit.
+- [ ] **Retire the pilot placeholder** (the "TODO-verify" sub-county and parish in Abim, village Entebbe; PLAN §3a A8).
+- [ ] **Slice B:** Collect map; clickable reference data; areas open the map; online search.
+- [ ] **Slice C:** Console collector page, links everywhere, editable profile, places review, test distance and reason.
+- [ ] **Slice D:** notifications (Collect inbox, browser and desktop, push, real email and SMS), after agreeing with the lead.
 
 ## Archive, edit trails and UX refinements (2026-10-22, ADR-018)
 
