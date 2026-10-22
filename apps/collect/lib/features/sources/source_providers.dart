@@ -6,18 +6,21 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/providers.dart';
 
-/// The village this phone works in. Until activation (P5) binds the
-/// installation to an area, it is the active collector's village from the
-/// seeded areas, or the only seeded village.
+/// The active collector's village (ADR-019): found in the area list by the
+/// names in their details, or added there (marked new for the IT admin)
+/// when they typed one that is not in the list yet.
 final currentVillageProvider = FutureProvider<AdminUnit>((ref) async {
-  final units = await ref.watch(adminUnitsProvider.future);
-  final villages = units.where((u) => u.level == 'village').toList();
-  if (villages.isEmpty) throw StateError('No village in the seeded areas');
-  final name = ref.watch(activeCollectorProvider)?.village.toLowerCase();
-  return villages.firstWhere(
-    (v) => v.name.toLowerCase() == name,
-    orElse: () => villages.first,
-  );
+  final collector = ref.watch(activeCollectorProvider);
+  final origin = ref.watch(submissionOriginProvider);
+  if (collector == null || origin == null) {
+    throw StateError('No one is testing');
+  }
+  return ref.watch(placeRepositoryProvider).ensureVillage((
+    district: collector.district,
+    subcounty: collector.subcounty,
+    parish: collector.parish,
+    village: collector.village,
+  ), origin);
 });
 
 final rulesProvider = FutureProvider<DomainRules>(
@@ -34,12 +37,12 @@ typedef SourceSummary = ({
 /// Today, injectable for tests.
 final todayProvider = Provider<DateTime>((ref) => DateTime.now());
 
-/// The village's sources with status, refreshed whenever a source, session
-/// or result changes (SPEC §3.1 step 2, F-SRC-4).
+/// Every source on this phone (the districts of the people using it, and
+/// their own) with status, refreshed whenever a source, session or result
+/// changes (SPEC §3.1 step 2, F-SRC-4). The list orders and filters them.
 final sourceSummariesProvider = StreamProvider<List<SourceSummary>>((
   ref,
 ) async* {
-  final village = await ref.watch(currentVillageProvider.future);
   final rules = await ref.watch(rulesProvider.future);
   final sources = ref.watch(sourceRepositoryProvider);
   final testing = ref.watch(testingRepositoryProvider);
@@ -66,7 +69,7 @@ final sourceSummariesProvider = StreamProvider<List<SourceSummary>>((
   var latest = <WaterSource>[];
   final controller = StreamController<List<SourceSummary>>();
   final subs = [
-    sources.watchSources(villageId: village.id).listen((list) async {
+    sources.watchSources().listen((list) async {
       latest = list;
       controller.add(await summarise(list));
     }),

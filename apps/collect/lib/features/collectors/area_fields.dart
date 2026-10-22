@@ -318,35 +318,42 @@ class _AreaFieldState extends State<_AreaField> {
         onFieldSubmitted: (_) => onSubmit(),
         validator: widget.validator,
       ),
-      optionsViewBuilder: (context, onSelected, options) => Align(
-        alignment: Alignment.topLeft,
-        child: Material(
-          elevation: 4,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxHeight: 280, maxWidth: 480),
-            child: ListView(
-              padding: EdgeInsets.zero,
-              shrinkWrap: true,
-              children: [
-                for (final o in options)
-                  ListTile(
-                    dense: true,
-                    leading: Icon(
-                      o.unit == null ? Icons.add : Icons.place_outlined,
-                    ),
-                    title: Text(
-                      o.unit == null ? l10n.areaOther(o.name) : o.name,
-                    ),
-                    subtitle: o.unit == null
-                        ? Text(l10n.areaOtherHint)
-                        : Text(widget.describe(o.unit!)),
-                    onTap: () => onSelected(o),
+      // Suggestions only while typing here: a list left open would cover
+      // the fields below it.
+      optionsViewBuilder: (context, onSelected, options) => !_focus.hasFocus
+          ? const SizedBox.shrink()
+          : Align(
+              alignment: Alignment.topLeft,
+              child: Material(
+                elevation: 4,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(
+                    maxHeight: 280,
+                    maxWidth: 480,
                   ),
-              ],
+                  child: ListView(
+                    padding: EdgeInsets.zero,
+                    shrinkWrap: true,
+                    children: [
+                      for (final o in options)
+                        ListTile(
+                          dense: true,
+                          leading: Icon(
+                            o.unit == null ? Icons.add : Icons.place_outlined,
+                          ),
+                          title: Text(
+                            o.unit == null ? l10n.areaOther(o.name) : o.name,
+                          ),
+                          subtitle: o.unit == null
+                              ? Text(l10n.areaOtherHint)
+                              : Text(widget.describe(o.unit!)),
+                          onTap: () => onSelected(o),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
             ),
-          ),
-        ),
-      ),
     );
   }
 }

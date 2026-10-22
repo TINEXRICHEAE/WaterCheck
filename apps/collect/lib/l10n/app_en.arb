@@ -4,8 +4,8 @@
   "navHome": "Home",
   "navSync": "Sync",
   "navSettings": "Settings",
-  "homeTitle": "Village sources",
-  "homeEmpty": "No water sources yet. Sources you add will appear here, with their latest result.",
+  "homeTitle": "Water sources",
+  "homeEmpty": "No water sources yet. Sources you add, and those around you, will appear here with their latest result.",
   "homeTestSource": "Test a source",
   "homeComingSoon": "Testing arrives in the next build (P3).",
   "syncTitle": "Sync",
@@ -14,7 +14,7 @@
   "settingsReferenceData": "Reference data",
   "settingsReferenceDataHint": "Parameters, limits, tester profiles and areas on this phone",
   "settingsAbout": "About",
-  "settingsAboutBody": "WaterCheck Collect {version}. Water quality screening for Abim District. Results are screening only, not laboratory confirmation.",
+  "settingsAboutBody": "WaterCheck Collect {version}. Water quality screening for communities across Uganda. Results are screening only, not laboratory confirmation.",
   "@settingsAboutBody": {
     "placeholders": {
       "version": {
@@ -26,7 +26,7 @@
   "startupRetry": "Try again",
   "welcomeTitle": "Welcome to WaterCheck",
   "privacyHeading": "How your information is used",
-  "privacyBody": "WaterCheck records water test results for the shared water sources in your village.\n\nWith every result it saves your name, phone number, collector type, village and the place where you tested. This lets the district trust the result and contact you about it.\n\nWaterCheck does not ask for national ID numbers or information about households.\n\nEverything is kept locked (encrypted) on this phone and sent to the Abim District WaterCheck service when there is internet. You can stop taking part at any time by telling your VHT coordinator.",
+  "privacyBody": "WaterCheck records water test results for shared water sources.\n\nWith every result it saves your name, phone number, collector type, village and the place where you tested. This lets the district trust the result and contact you about it.\n\nWaterCheck does not ask for national ID numbers or information about households.\n\nEverything is kept locked (encrypted) on this phone and sent to the WaterCheck service when there is internet. You can stop taking part at any time by telling your coordinator.",
   "privacyVersion": "Privacy notice version {version}",
   "@privacyVersion": {
     "placeholders": {
@@ -63,7 +63,7 @@
   "sourceNewTitle": "New water source",
   "sourceEditTitle": "Edit source",
   "sourceCode": "Source code",
-  "sourceCodeHelp": "Village code and number, e.g. ABIM-ENT-003",
+  "sourceCodeHelp": "A short code made for you, e.g. WC-7Q2K9. You may change it.",
   "sourceName": "Name (optional)",
   "sourceNameHint": "e.g. Church borehole",
   "sourceType": "Type of source",
@@ -592,5 +592,32 @@
   },
   "areaOtherHint": "Not in the list (a new place)",
   "areaPickOrOther": "Pick a sub-county from the list, or choose Other",
-  "areaPickDistrict": "Pick the district from the list"
+  "areaPickDistrict": "Pick the district from the list",
+  "sourceWhere": "Where is it?",
+  "sourceWhereHint": "Starts with your own area. Change it if the source is somewhere else.",
+  "sourcesSearch": "Search by name, code or village",
+  "filterAll": "All",
+  "filterSafe": "Safe",
+  "filterUnsafe": "Unsafe",
+  "filterNotTested": "Not tested",
+  "filterMine": "Mine",
+  "filterOthers": "Others",
+  "filterNearby": "Nearby",
+  "groupMine": "Added by you",
+  "groupNearby": "Nearby (within 5 km)",
+  "groupArea": "In your sub-county",
+  "groupElsewhere": "Elsewhere",
+  "distanceAway": "{distance} away",
+  "@distanceAway": {
+    "placeholders": {
+      "distance": {
+        "type": "String"
+      }
+    }
+  },
+  "setupLocationRequired": "Needed for every test: it shows the test was made at the source.",
+  "setupLocating": "Finding your location…",
+  "setupAtSource": "You are at the source.",
+  "setupNoFix": "Your location could not be found. Try again in the open, or say why.",
+  "setupFarReasonHint": "Kept with the test and shown to the district."
 }

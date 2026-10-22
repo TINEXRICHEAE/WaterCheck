@@ -7,7 +7,7 @@ import 'package:go_router/go_router.dart';
 import '../../app/providers.dart';
 import '../../l10n/app_localizations.dart';
 import '../location/location_service.dart';
-import 'source_providers.dart';
+import '../collectors/area_fields.dart';
 
 /// GPS accuracy above which the collector is asked to try again.
 const poorAccuracyMetres = 30.0;
@@ -29,6 +29,11 @@ class _SourceFormScreenState extends ConsumerState<SourceFormScreen> {
   final _households = TextEditingController();
   final _lat = TextEditingController();
   final _lon = TextEditingController();
+  // Where the source is (new sources); starts as the collector's area.
+  final _village = TextEditingController();
+  final _parish = TextEditingController();
+  final _subcounty = TextEditingController();
+  final _district = TextEditingController();
   String? _type;
   String _status = 'functional';
   GeoPoint? _fix;
@@ -41,8 +46,30 @@ class _SourceFormScreenState extends ConsumerState<SourceFormScreen> {
   bool get _editing => widget.sourceId != null;
 
   @override
+  void initState() {
+    super.initState();
+    final me = ref.read(activeCollectorProvider);
+    if (me != null) {
+      _village.text = me.village;
+      _parish.text = me.parish;
+      _subcounty.text = me.subcounty;
+      _district.text = me.district;
+    }
+  }
+
+  @override
   void dispose() {
-    for (final c in [_code, _name, _households, _lat, _lon]) {
+    for (final c in [
+      _code,
+      _name,
+      _households,
+      _lat,
+      _lon,
+      _village,
+      _parish,
+      _subcounty,
+      _district,
+    ]) {
       c.dispose();
     }
     super.dispose();
@@ -65,10 +92,7 @@ class _SourceFormScreenState extends ConsumerState<SourceFormScreen> {
         _fix = s.location;
       });
     } else {
-      final village = await ref.read(currentVillageProvider.future);
-      final code = await ref
-          .read(sourceRepositoryProvider)
-          .suggestCode(villageId: village.id, villageCode: village.code);
+      final code = await ref.read(sourceRepositoryProvider).suggestCode();
       if (mounted) setState(() => _code.text = code);
     }
   }
@@ -125,7 +149,12 @@ class _SourceFormScreenState extends ConsumerState<SourceFormScreen> {
           origin,
         );
       } else {
-        final village = await ref.read(currentVillageProvider.future);
+        final village = await ref.read(placeRepositoryProvider).ensureVillage((
+          district: _district.text,
+          subcounty: _subcounty.text,
+          parish: _parish.text,
+          village: _village.text,
+        ), origin);
         await repo.create(
           NewSource(
             villageId: village.id,
@@ -161,7 +190,8 @@ class _SourceFormScreenState extends ConsumerState<SourceFormScreen> {
     _load();
     final l10n = AppLocalizations.of(context);
     final lists = ref.watch(listsProvider).value;
-    if (lists == null) {
+    final units = ref.watch(adminUnitsProvider).value;
+    if (lists == null || units == null) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
     List<Map<String, Object?>> list(String key) =>
@@ -240,6 +270,21 @@ class _SourceFormScreenState extends ConsumerState<SourceFormScreen> {
               ],
               onChanged: (v) => setState(() => _status = v ?? _status),
             ),
+            if (!_editing) ...[
+              const SizedBox(height: 20),
+              Text(
+                l10n.sourceWhere,
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              Text(l10n.sourceWhereHint),
+              AreaFields(
+                units: units,
+                village: _village,
+                parish: _parish,
+                subcounty: _subcounty,
+                district: _district,
+              ),
+            ],
             const SizedBox(height: 20),
             Text(
               l10n.sourceLocation,

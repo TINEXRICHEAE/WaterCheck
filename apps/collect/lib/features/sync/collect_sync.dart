@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:api_client/api_client.dart';
 import 'package:data/data.dart';
+import 'package:domain/domain.dart' show CollectorSnapshot;
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -91,11 +92,32 @@ Dio collectSyncDio(
     ]);
 }
 
-/// Streams Collect pulls: reference data and its own village (SPEC §8.2).
-List<String> collectStreams(InstallationCredentials c) => [
-  'reference',
-  'area:${c.areaId}',
-];
+/// Streams Collect pulls (ADR-019): reference data, and the whole district
+/// of the phone's activation area and of each person using it. Sources
+/// elsewhere are found online.
+List<String> collectStreams(
+  InstallationCredentials c, {
+  Iterable<CollectorSnapshot> collectors = const [],
+  List<AdminUnit> units = const [],
+}) {
+  final byId = {for (final u in units) u.id: u};
+  String? districtNamed(String name) => units
+      .where(
+        (u) =>
+            u.level == 'district' &&
+            u.name.toLowerCase() == name.trim().toLowerCase(),
+      )
+      .firstOrNull
+      ?.id;
+  return [
+    'reference',
+    for (final area in {
+      districtOf(c.areaId, byId) ?? c.areaId,
+      for (final p in collectors) ?districtNamed(p.district),
+    })
+      'area:$area',
+  ];
+}
 
 /// How the app reaches `/v1/sync`; tests replace it.
 final syncTransportProvider = Provider<SyncTransport?>((ref) {
@@ -143,6 +165,16 @@ final syncServiceProvider = Provider<SyncService?>((ref) {
     ref.watch(databaseProvider),
     transport,
     streams: collectStreams(c),
+    // The districts of the people using the phone, read at each sync (not
+    // watched: a rebuild here would hold the database open).
+    moreStreams: () async => collectStreams(
+      c,
+      collectors: await ref
+          .read(collectorProfileRepositoryProvider)
+          .watchActive()
+          .first,
+      units: await ref.read(referenceDataRepositoryProvider).adminUnits(),
+    ),
   );
 });
 

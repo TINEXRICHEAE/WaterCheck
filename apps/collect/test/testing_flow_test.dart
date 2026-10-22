@@ -13,6 +13,13 @@ class _FixedLocation implements LocationService {
   Future<GeoPoint> currentFix() async => fix;
 }
 
+class _NoFix implements LocationService {
+  const _NoFix();
+  @override
+  Future<GeoPoint> currentFix() async =>
+      throw const LocationException(LocationProblem.timeout);
+}
+
 const _sourceAt = GeoPoint(lat: 2.700000, lon: 33.600000, accuracyM: 5);
 
 /// One borehole with a known location in the seeded village.
@@ -130,7 +137,7 @@ void main() {
     expect(find.text('Test again'), findsOneWidget);
 
     await tapAndSettle(tester, find.text('Done'));
-    expect(find.text('Village sources'), findsOneWidget);
+    expect(find.text('Water sources'), findsOneWidget);
     expect(find.text('UNSAFE'), findsOneWidget);
     await disposeApp(tester, db);
   });
@@ -233,6 +240,54 @@ void main() {
           .max,
       Decimal.parse('1500'),
     );
+    await disposeApp(tester, db);
+  });
+
+  testWidgets('the location is checked for every test: no fix needs a '
+      'reason', (tester) async {
+    final db = await pumpCollect(
+      tester,
+      size: const Size(420, 1400),
+      prepare: _withSource,
+      overrides: [locationServiceProvider.overrideWithValue(const _NoFix())],
+    );
+    await _openSetup(tester);
+    await tapAndSettle(tester, find.text('Test without calibrating'));
+    // Checked on opening, without a tap.
+    expect(find.textContaining('could not be found'), findsOneWidget);
+    final continueButton = find.widgetWithText(
+      FilledButton,
+      'Continue to readings',
+    );
+    expect(tester.widget<FilledButton>(continueButton).onPressed, isNull);
+    await tester.enterText(
+      find.widgetWithText(
+        TextField,
+        'Reason (e.g. water carried from the source)',
+      ),
+      'Phone has no GPS signal under the trees',
+    );
+    await tester.pump();
+    expect(tester.widget<FilledButton>(continueButton).onPressed, isNotNull);
+    await disposeApp(tester, db);
+  });
+
+  testWidgets('sources: own first, searchable, filtered', (tester) async {
+    final db = await _start(tester);
+    expect(find.text('Added by you'), findsOneWidget);
+    await tapAndSettle(tester, find.text('Unsafe'));
+    expect(find.text('Church borehole'), findsNothing);
+    await tapAndSettle(tester, find.text('Not tested'));
+    expect(find.text('Church borehole'), findsOneWidget);
+    await tapAndSettle(tester, find.text('Others'));
+    expect(find.text('Church borehole'), findsNothing);
+    await tapAndSettle(tester, find.text('Reset filters'));
+    await tester.enterText(find.byType(TextField).first, 'zzz');
+    await tester.pump();
+    expect(find.text('Church borehole'), findsNothing);
+    await tester.enterText(find.byType(TextField).first, 'church');
+    await tester.pump();
+    expect(find.text('Church borehole'), findsOneWidget);
     await disposeApp(tester, db);
   });
 

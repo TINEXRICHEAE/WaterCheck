@@ -22,11 +22,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navSettings => 'Settings';
 
   @override
-  String get homeTitle => 'Village sources';
+  String get homeTitle => 'Water sources';
 
   @override
   String get homeEmpty =>
-      'No water sources yet. Sources you add will appear here, with their latest result.';
+      'No water sources yet. Sources you add, and those around you, will appear here with their latest result.';
 
   @override
   String get homeTestSource => 'Test a source';
@@ -56,7 +56,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String settingsAboutBody(String version) {
-    return 'WaterCheck Collect $version. Water quality screening for Abim District. Results are screening only, not laboratory confirmation.';
+    return 'WaterCheck Collect $version. Water quality screening for communities across Uganda. Results are screening only, not laboratory confirmation.';
   }
 
   @override
@@ -74,7 +74,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get privacyBody =>
-      'WaterCheck records water test results for the shared water sources in your village.\n\nWith every result it saves your name, phone number, collector type, village and the place where you tested. This lets the district trust the result and contact you about it.\n\nWaterCheck does not ask for national ID numbers or information about households.\n\nEverything is kept locked (encrypted) on this phone and sent to the Abim District WaterCheck service when there is internet. You can stop taking part at any time by telling your VHT coordinator.';
+      'WaterCheck records water test results for shared water sources.\n\nWith every result it saves your name, phone number, collector type, village and the place where you tested. This lets the district trust the result and contact you about it.\n\nWaterCheck does not ask for national ID numbers or information about households.\n\nEverything is kept locked (encrypted) on this phone and sent to the WaterCheck service when there is internet. You can stop taking part at any time by telling your coordinator.';
 
   @override
   String privacyVersion(int version) {
@@ -168,7 +168,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sourceCode => 'Source code';
 
   @override
-  String get sourceCodeHelp => 'Village code and number, e.g. ABIM-ENT-003';
+  String get sourceCodeHelp =>
+      'A short code made for you, e.g. WC-7Q2K9. You may change it.';
 
   @override
   String get sourceName => 'Name (optional)';
@@ -1241,4 +1242,70 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get areaPickDistrict => 'Pick the district from the list';
+
+  @override
+  String get sourceWhere => 'Where is it?';
+
+  @override
+  String get sourceWhereHint =>
+      'Starts with your own area. Change it if the source is somewhere else.';
+
+  @override
+  String get sourcesSearch => 'Search by name, code or village';
+
+  @override
+  String get filterAll => 'All';
+
+  @override
+  String get filterSafe => 'Safe';
+
+  @override
+  String get filterUnsafe => 'Unsafe';
+
+  @override
+  String get filterNotTested => 'Not tested';
+
+  @override
+  String get filterMine => 'Mine';
+
+  @override
+  String get filterOthers => 'Others';
+
+  @override
+  String get filterNearby => 'Nearby';
+
+  @override
+  String get groupMine => 'Added by you';
+
+  @override
+  String get groupNearby => 'Nearby (within 5 km)';
+
+  @override
+  String get groupArea => 'In your sub-county';
+
+  @override
+  String get groupElsewhere => 'Elsewhere';
+
+  @override
+  String distanceAway(String distance) {
+    return '$distance away';
+  }
+
+  @override
+  String get setupLocationRequired =>
+      'Needed for every test: it shows the test was made at the source.';
+
+  @override
+  String get setupLocating => 'Finding your location…';
+
+  @override
+  String get setupAtSource => 'You are at the source.';
+
+  @override
+  String get setupNoFix =>
+      'Your location could not be found. Try again in the open, or say why.';
+
+  @override
+  String get setupFarReasonHint =>
+      'Kept with the test and shown to the district.';
 }

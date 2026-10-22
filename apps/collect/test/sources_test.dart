@@ -84,19 +84,28 @@ void main() {
     );
     await tapAndSettle(tester, find.text('Add source'));
     expect(find.text('New water source'), findsOneWidget);
-    expect(find.text('ABIM-ENT-001'), findsOneWidget, reason: 'suggested code');
+    expect(
+      find.textContaining(RegExp(r'^WC-[2-9A-Z]{5}$')),
+      findsOneWidget,
+      reason: 'suggested code',
+    );
+    // Where it is starts with the collector's own area.
+    expect(find.text('Entebbe'), findsOneWidget);
 
     await tester.enterText(
       find.widgetWithText(TextFormField, 'Name (optional)'),
       'Church borehole',
     );
-    await tapAndSettle(tester, find.text('Type of source'));
+    await tapAndSettle(
+      tester,
+      find.byType(DropdownButtonFormField<String>).first,
+    );
     await tapAndSettle(tester, find.text('Borehole').last);
     await tapAndSettle(tester, find.text('Get GPS location'));
     expect(find.text('2.712345, 33.654321 (± 6 m)'), findsOneWidget);
     await tapAndSettle(tester, find.text('Save source'));
 
-    expect(find.text('Village sources'), findsOneWidget);
+    expect(find.text('Water sources'), findsOneWidget);
     expect(find.text('Church borehole'), findsOneWidget);
     expect(find.text('NOT TESTED'), findsOneWidget);
     expect(find.text('Never tested'), findsOneWidget);
@@ -124,7 +133,12 @@ void main() {
       find.widgetWithText(TextFormField, 'Latitude'),
       '200',
     );
-    await tapAndSettle(tester, find.text('Type of source'));
+    FocusManager.instance.primaryFocus?.unfocus();
+    await settle(tester);
+    await tapAndSettle(
+      tester,
+      find.byType(DropdownButtonFormField<String>).first,
+    );
     await tapAndSettle(tester, find.text('Tap').last);
     await tapAndSettle(tester, find.text('Save source'));
     expect(
@@ -174,7 +188,7 @@ void main() {
 
     await tapAndSettle(tester, find.text('Stop using this source'));
     await tapAndSettle(tester, find.text('Continue'));
-    expect(find.text('Village sources'), findsOneWidget);
+    expect(find.text('Water sources'), findsOneWidget);
     expect(find.text('Church borehole'), findsNothing);
     await disposeApp(tester, db);
   });

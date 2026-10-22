@@ -229,11 +229,13 @@ void main() {
       findsOneWidget,
     );
     await tester.tap(find.widgetWithText(FilledButton, 'Erase this phone'));
-    await tester.pump();
-    await tester.pump(const Duration(seconds: 1));
-    await tester.runAsync(
-      () => Future<void>.delayed(const Duration(milliseconds: 200)),
-    );
+    // Closing the database waits for its open queries (real time).
+    for (var i = 0; i < 10 && svc.restarts == 0; i++) {
+      await tester.pump(const Duration(milliseconds: 200));
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 100)),
+      );
+    }
     await tester.pump();
     expect(svc.restarts, 1);
     expect(svc.deletes, 1);

@@ -72,7 +72,7 @@ void main() {
     await tapAndSettle(tester, find.text('VHT member').last);
     await tapAndSettle(tester, find.text('Save'));
 
-    expect(find.text('Village sources'), findsOneWidget);
+    expect(find.text('Water sources'), findsOneWidget);
     expect(find.text('Testing now: Example Collector'), findsOneWidget);
     await disposeApp(tester, db);
   });
@@ -81,7 +81,7 @@ void main() {
     tester,
   ) async {
     final db = await pumpCollect(tester);
-    expect(find.text('Village sources'), findsOneWidget);
+    expect(find.text('Water sources'), findsOneWidget);
     expect(find.textContaining('No water sources yet'), findsOneWidget);
     expect(find.text('Test a source'), findsOneWidget);
     expect(find.byIcon(Icons.cloud_done_outlined), findsOneWidget);
@@ -94,7 +94,7 @@ void main() {
     expect(find.text('Who is testing?'), findsOneWidget);
     expect(find.text('+256772123456 · Entebbe'), findsOneWidget);
     await tapAndSettle(tester, find.text('Example Collector'));
-    expect(find.text('Village sources'), findsOneWidget);
+    expect(find.text('Water sources'), findsOneWidget);
     await disposeApp(tester, db);
   });
 

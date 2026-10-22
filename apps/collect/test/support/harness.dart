@@ -166,8 +166,8 @@ Future<AppDatabase> seededDb({bool onboarded = true}) async {
         phone: '+256772123456',
         collectorType: 'vht',
         village: 'Entebbe',
-        parish: 'P',
-        subcounty: 'S',
+        parish: 'TODO-verify parish',
+        subcounty: 'TODO-verify sub-county',
         district: 'Abim',
       ),
     );
@@ -241,7 +241,10 @@ Future<void> disposeApp(WidgetTester tester, AppDatabase db) async {
 /// list has not yet), then settles.
 Future<void> tapAndSettle(WidgetTester tester, Finder finder) async {
   if (finder.evaluate().isEmpty) {
-    final scrollable = find.byType(Scrollable);
+    // The page's vertical list, not a text field's own (sideways) scroller.
+    final scrollable = find.byWidgetPredicate(
+      (w) => w is Scrollable && w.axisDirection == AxisDirection.down,
+    );
     if (scrollable.evaluate().isNotEmpty) {
       await tester.scrollUntilVisible(
         finder,
@@ -252,7 +255,11 @@ Future<void> tapAndSettle(WidgetTester tester, Finder finder) async {
     }
   }
   await tester.ensureVisible(finder);
-  await tester.pump();
+  // Let the scroll finish: a list ignores taps while it moves (a focused
+  // text field keeps scrolling itself into view).
+  for (var i = 0; i < 10; i++) {
+    await tester.pump(const Duration(milliseconds: 100));
+  }
   await tester.tap(finder);
   await settle(tester);
 }

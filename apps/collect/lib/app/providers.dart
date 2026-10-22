@@ -92,3 +92,16 @@ final listsProvider = FutureProvider<JsonMap>(
 final adminUnitsProvider = FutureProvider<List<AdminUnit>>(
   (ref) => ref.watch(referenceDataRepositoryProvider).adminUnits(),
 );
+
+/// Places a collector names that are not in the list yet (ADR-019).
+final placeRepositoryProvider = Provider<PlaceRepository>(
+  (ref) => PlaceRepository(ref.watch(databaseProvider)),
+);
+
+/// The district [unitId] lies in (itself when it is one), or null above.
+String? districtOf(String unitId, Map<String, AdminUnit> byId) {
+  for (AdminUnit? u = byId[unitId]; u != null; u = byId[u.parentId]) {
+    if (u.level == 'district') return u.id;
+  }
+  return null;
+}

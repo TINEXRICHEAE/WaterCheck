@@ -121,13 +121,13 @@ abstract class AppLocalizations {
   /// No description provided for @homeTitle.
   ///
   /// In en, this message translates to:
-  /// **'Village sources'**
+  /// **'Water sources'**
   String get homeTitle;
 
   /// No description provided for @homeEmpty.
   ///
   /// In en, this message translates to:
-  /// **'No water sources yet. Sources you add will appear here, with their latest result.'**
+  /// **'No water sources yet. Sources you add, and those around you, will appear here with their latest result.'**
   String get homeEmpty;
 
   /// No description provided for @homeTestSource.
@@ -181,7 +181,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsAboutBody.
   ///
   /// In en, this message translates to:
-  /// **'WaterCheck Collect {version}. Water quality screening for Abim District. Results are screening only, not laboratory confirmation.'**
+  /// **'WaterCheck Collect {version}. Water quality screening for communities across Uganda. Results are screening only, not laboratory confirmation.'**
   String settingsAboutBody(String version);
 
   /// No description provided for @startupFailed.
@@ -211,7 +211,7 @@ abstract class AppLocalizations {
   /// No description provided for @privacyBody.
   ///
   /// In en, this message translates to:
-  /// **'WaterCheck records water test results for the shared water sources in your village.\n\nWith every result it saves your name, phone number, collector type, village and the place where you tested. This lets the district trust the result and contact you about it.\n\nWaterCheck does not ask for national ID numbers or information about households.\n\nEverything is kept locked (encrypted) on this phone and sent to the Abim District WaterCheck service when there is internet. You can stop taking part at any time by telling your VHT coordinator.'**
+  /// **'WaterCheck records water test results for shared water sources.\n\nWith every result it saves your name, phone number, collector type, village and the place where you tested. This lets the district trust the result and contact you about it.\n\nWaterCheck does not ask for national ID numbers or information about households.\n\nEverything is kept locked (encrypted) on this phone and sent to the WaterCheck service when there is internet. You can stop taking part at any time by telling your coordinator.'**
   String get privacyBody;
 
   /// No description provided for @privacyVersion.
@@ -391,7 +391,7 @@ abstract class AppLocalizations {
   /// No description provided for @sourceCodeHelp.
   ///
   /// In en, this message translates to:
-  /// **'Village code and number, e.g. ABIM-ENT-003'**
+  /// **'A short code made for you, e.g. WC-7Q2K9. You may change it.'**
   String get sourceCodeHelp;
 
   /// No description provided for @sourceName.
@@ -2199,6 +2199,126 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Pick the district from the list'**
   String get areaPickDistrict;
+
+  /// No description provided for @sourceWhere.
+  ///
+  /// In en, this message translates to:
+  /// **'Where is it?'**
+  String get sourceWhere;
+
+  /// No description provided for @sourceWhereHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Starts with your own area. Change it if the source is somewhere else.'**
+  String get sourceWhereHint;
+
+  /// No description provided for @sourcesSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by name, code or village'**
+  String get sourcesSearch;
+
+  /// No description provided for @filterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get filterAll;
+
+  /// No description provided for @filterSafe.
+  ///
+  /// In en, this message translates to:
+  /// **'Safe'**
+  String get filterSafe;
+
+  /// No description provided for @filterUnsafe.
+  ///
+  /// In en, this message translates to:
+  /// **'Unsafe'**
+  String get filterUnsafe;
+
+  /// No description provided for @filterNotTested.
+  ///
+  /// In en, this message translates to:
+  /// **'Not tested'**
+  String get filterNotTested;
+
+  /// No description provided for @filterMine.
+  ///
+  /// In en, this message translates to:
+  /// **'Mine'**
+  String get filterMine;
+
+  /// No description provided for @filterOthers.
+  ///
+  /// In en, this message translates to:
+  /// **'Others'**
+  String get filterOthers;
+
+  /// No description provided for @filterNearby.
+  ///
+  /// In en, this message translates to:
+  /// **'Nearby'**
+  String get filterNearby;
+
+  /// No description provided for @groupMine.
+  ///
+  /// In en, this message translates to:
+  /// **'Added by you'**
+  String get groupMine;
+
+  /// No description provided for @groupNearby.
+  ///
+  /// In en, this message translates to:
+  /// **'Nearby (within 5 km)'**
+  String get groupNearby;
+
+  /// No description provided for @groupArea.
+  ///
+  /// In en, this message translates to:
+  /// **'In your sub-county'**
+  String get groupArea;
+
+  /// No description provided for @groupElsewhere.
+  ///
+  /// In en, this message translates to:
+  /// **'Elsewhere'**
+  String get groupElsewhere;
+
+  /// No description provided for @distanceAway.
+  ///
+  /// In en, this message translates to:
+  /// **'{distance} away'**
+  String distanceAway(String distance);
+
+  /// No description provided for @setupLocationRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Needed for every test: it shows the test was made at the source.'**
+  String get setupLocationRequired;
+
+  /// No description provided for @setupLocating.
+  ///
+  /// In en, this message translates to:
+  /// **'Finding your location…'**
+  String get setupLocating;
+
+  /// No description provided for @setupAtSource.
+  ///
+  /// In en, this message translates to:
+  /// **'You are at the source.'**
+  String get setupAtSource;
+
+  /// No description provided for @setupNoFix.
+  ///
+  /// In en, this message translates to:
+  /// **'Your location could not be found. Try again in the open, or say why.'**
+  String get setupNoFix;
+
+  /// No description provided for @setupFarReasonHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Kept with the test and shown to the district.'**
+  String get setupFarReasonHint;
 }
 
 class _AppLocalizationsDelegate

@@ -44,8 +44,13 @@ class _SessionSetupScreenState extends ConsumerState<SessionSetupScreen> {
   final _farReason = TextEditingController();
   bool _skipCalibration = false;
   bool _locating = false;
-  String? _locationError;
   bool _defaultsApplied = false;
+
+  /// The location was checked (a fix, or a try that failed). Every test
+  /// needs it (2026-10-22): anyone can test any source, so a test made
+  /// away from the source is noted, with a reason.
+  bool _checked = false;
+  bool _autoChecked = false;
 
   @override
   void dispose() {
@@ -80,10 +85,7 @@ class _SessionSetupScreenState extends ConsumerState<SessionSetupScreen> {
   }
 
   Future<void> _checkLocation(WaterSource source) async {
-    setState(() {
-      _locating = true;
-      _locationError = null;
-    });
+    setState(() => _locating = true);
     try {
       final here = await ref.read(locationServiceProvider).currentFix();
       final loc = source.location;
@@ -95,10 +97,15 @@ class _SessionSetupScreenState extends ConsumerState<SessionSetupScreen> {
               distanceM: loc == null ? null : distanceMetres(here, loc),
             ),
           );
-    } on LocationException catch (e) {
-      setState(() => _locationError = e.problem.name);
+    } on LocationException {
+      // No fix: shown below, and a reason is asked for.
     } finally {
-      if (mounted) setState(() => _locating = false);
+      if (mounted) {
+        setState(() {
+          _locating = false;
+          _checked = true;
+        });
+      }
     }
   }
 
@@ -125,16 +132,25 @@ class _SessionSetupScreenState extends ConsumerState<SessionSetupScreen> {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
     _applyDefaults(draft, testers, profiles, rules, areaDefault.value);
+    if (!_autoChecked) {
+      _autoChecked = true;
+      Future.microtask(() => _checkLocation(source));
+    }
     final profile = draft.profile;
     final todays = calibration.value;
     final calibrated = todays != null && todays.passed;
-    final tooFar =
-        draft.distanceM != null && draft.distanceM! > rules.proximityMaxMetres;
+    // Farther than the limit plus the GPS error: not at the source.
+    final allowed = rules.proximityMaxMetres + (draft.location?.accuracyM ?? 0);
+    final tooFar = draft.distanceM != null && draft.distanceM! > allowed;
+    final noFix = _checked && draft.location == null;
+    final needsReason = tooFar || noFix;
     final calibrationDecided = todays != null || _skipCalibration;
     final canContinue =
         profile != null &&
         calibrationDecided &&
-        (!tooFar || _farReason.text.trim().isNotEmpty);
+        _checked &&
+        !_locating &&
+        (!needsReason || _farReason.text.trim().isNotEmpty);
     final text = Theme.of(context).textTheme;
 
     return Scaffold(
@@ -261,27 +277,34 @@ class _SessionSetupScreenState extends ConsumerState<SessionSetupScreen> {
           const Divider(height: 32),
 
           Text(l10n.setupLocation, style: text.titleMedium),
+          Text(l10n.setupLocationRequired, style: text.bodySmall),
           const SizedBox(height: 8),
+          if (_locating) Text(l10n.setupLocating),
           if (source.location == null) Text(l10n.setupSourceHasNoLocation),
           if (draft.distanceM != null)
             Text(l10n.setupDistance(draft.distanceM!.round().toString())),
-          if (tooFar) ...[
-            const SizedBox(height: 8),
+          if (draft.distanceM != null && !tooFar) Text(l10n.setupAtSource),
+          if (tooFar)
             Text(
               l10n.setupTooFar(rules.proximityMaxMetres.round().toString()),
               style: TextStyle(color: Theme.of(context).colorScheme.error),
             ),
+          if (noFix)
+            Text(
+              l10n.setupNoFix,
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
+            ),
+          if (needsReason) ...[
+            const SizedBox(height: 8),
             TextField(
               controller: _farReason,
-              decoration: InputDecoration(labelText: l10n.setupFarReason),
+              decoration: InputDecoration(
+                labelText: l10n.setupFarReason,
+                helperText: l10n.setupFarReasonHint,
+              ),
               onChanged: (_) => setState(() {}),
             ),
           ],
-          if (_locationError != null)
-            Text(
-              l10n.locationUnavailable,
-              style: TextStyle(color: Theme.of(context).colorScheme.error),
-            ),
           const SizedBox(height: 8),
           OutlinedButton.icon(
             onPressed: _locating ? null : () => _checkLocation(source),
@@ -306,7 +329,9 @@ class _SessionSetupScreenState extends ConsumerState<SessionSetupScreen> {
                             profile: d.profile,
                             location: d.location,
                             distanceM: d.distanceM,
-                            farReason: tooFar ? _farReason.text.trim() : null,
+                            farReason: needsReason
+                                ? _farReason.text.trim()
+                                : null,
                             values: d.values,
                             revealed: d.revealed,
                           ),
