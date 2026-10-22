@@ -1,6 +1,6 @@
 # Progress
 
-**Current phase:** P11 gate passed (2026-10-12); app-wide UX conventions (2026-10-13, ADR-017); production on Azure (2026-10-17); client release 0.1.1 with the working production map (2026-10-21). Next: P12 (hardening and pilot release).
+**Current phase:** P11 gate passed (2026-10-12); app-wide UX conventions (2026-10-13, ADR-017); production on Azure (2026-10-17); client release 0.1.1 with the working production map (2026-10-21); archive, edit trails and UX refinements (2026-10-22, ADR-018). Next: P12 (hardening and pilot release).
 
 Windows release bundles now build for both apps. Offline single-file
 installer definitions were added under `tools/windows/`; Inno Setup and an
@@ -9,7 +9,42 @@ installer artifacts. Automatic update delivery is not implemented yet:
 Windows needs a signed installer/update channel, Android needs Play
 distribution or a user-approved sideload update, and web updates use the VPS
 deployment and cache versioning.
-**Last updated:** 2026-10-21
+**Last updated:** 2026-10-22
+
+## Archive, edit trails and UX refinements (2026-10-22, ADR-018)
+
+- [x] **Archive instead of delete** (IT admins):
+  - phones, collectors, sources and tests, each with a reason;
+  - the cascade phone → collectors → tests and sources only they used → alerts; shared sources are kept;
+  - one batch, restorable (Undo, or Admin › Archived), audited;
+  - devices remove archived rows and pull again after a restore.
+
+  Migration 0009.
+- [x] **Edit trails:**
+  - sources, collector profiles and phone names: old → new, who, when, why;
+  - test corrections are new versions, shown field by field, and only the collector who made the test may correct it;
+  - Edit history in both apps.
+- [x] **Refresh:** a top-bar button in the Console (web, Windows, Android) re-syncs and fetches every server list again. In Collect, a button on Home, source details, picking a source, the response card and reference data.
+- [x] **Dashboard:** the cards (sources tested, unsafe tests, open alerts, time to acknowledge), the overdue list and each collector row open pop-up lists. Each item opens its source or alert.
+- [x] **Reference data:** one search box filters every group, in both apps.
+- [x] **Area entry** in the Collect collector form:
+  - search the official sub-county list, and the district and region fill in;
+  - known parishes and villages are suggested;
+  - "Other" covers new places;
+  - only the village is typed.
+- [x] **Console PIN:** a stakeholder may skip it or turn it off in Profile; IT admins must keep it.
+- [x] **Tests:**
+  - backend `test_archive.py`;
+  - data sync/repository tests;
+  - Console admin, alerts and app tests;
+  - Collect history and app tests.
+
+  ruff, mypy, analyze and format checks are clean.
+- [ ] **On the VM:** pull, `docker compose up -d --build migrate api worker` (runs migration 0009), then the web Console. New Windows and Android builds (0.1.2) when the lead is ready.
+- [ ] **To discuss with the lead:**
+  - email, phone and SMS settings in Collect and the Console;
+  - password reset options;
+  - over-the-air fixes for installed apps.
 
 ## Release 0.1.1 (2026-10-21)
 

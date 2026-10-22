@@ -782,6 +782,32 @@ example a security update): `docker compose up -d --build api worker`.
 
 For new client builds (web, Windows installers, Android APK) follow §17a.
 
+### Migration 0009: archive and edit trails (2026-10-22, ADR-018)
+
+The `migrate` service applies migrations; rebuild it with the API and worker:
+
+```bash
+cd ~/WaterCheck && git pull
+cd infra
+docker compose up -d --build migrate api worker
+docker compose logs --tail=30 migrate   # look for "Running upgrade 0008 -> 0009"
+curl -fsS https://api.watercheck.cooptconnect.app/v1/health
+```
+
+Then rebuild and ship the web Console (§10–§11), because the archive and trail
+screens need the new API. Phones and Windows apps on 0.1.1 keep working; they
+pick up archive marks and trails once updated.
+
+Archive and restore are done in the Console (Admin › Archived), not on the
+VM. Nothing is deleted from the database: an archived record is hidden by an
+`archive_mark` row and comes back when its batch is restored. To see what is
+archived from the VM without secrets on screen:
+
+```bash
+docker compose exec db psql -U watercheck -d watercheck -c \
+  "SELECT entity, count(*) FROM archive_mark WHERE archived GROUP BY 1;"
+```
+
 ## 17a. Releasing a client version
 
 The 0.1.1 release (2026-10-21) followed this procedure.

@@ -19,3 +19,6 @@ Format: context → decision → consequences. Number them sequentially. Never r
 | [013](ADR-013-alerts-and-notifications.md) | Alerts, notifications, escalation and the SMS fallback (own job queue) | Accepted |
 | [014](ADR-014-dashboard-and-map.md) | Stakeholder dashboard computed on the device, collector marks and flags, offline raster MBTiles map | Accepted |
 | [015](ADR-015-reports-and-exports.md) | Reports, CSV export and community notices: made on the device, as collected, embedded fonts | Accepted |
+| [016](ADR-016-admin-console-and-custom-limit-sets.md) | IT admin console and who changes limit sets (O2) | Accepted |
+| [017](ADR-017-app-wide-ux-conventions.md) | App-wide UX conventions: back, errors, settings, loading, filters, icons | Accepted |
+| [018](ADR-018-archive-and-edit-trail.md) | Archive with cascade (restorable), edit trails, refresh, clickable dashboard, area search, optional Console PIN | Accepted |
