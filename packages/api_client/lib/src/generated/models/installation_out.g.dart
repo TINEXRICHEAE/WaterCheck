@@ -22,6 +22,8 @@ InstallationOut _$InstallationOutFromJson(Map<String, dynamic> json) =>
           : DateTime.parse(json['revoked_at'] as String),
       collectorsSeen: (json['collectors_seen'] as num).toInt(),
       tests: (json['tests'] as num).toInt(),
+      archived: json['archived'] as bool? ?? false,
+      label: json['label'] as String?,
     );
 
 Map<String, dynamic> _$InstallationOutToJson(InstallationOut instance) =>
@@ -36,4 +38,6 @@ Map<String, dynamic> _$InstallationOutToJson(InstallationOut instance) =>
       'revoked_at': instance.revokedAt?.toIso8601String(),
       'collectors_seen': instance.collectorsSeen,
       'tests': instance.tests,
+      'label': instance.label,
+      'archived': instance.archived,
     };

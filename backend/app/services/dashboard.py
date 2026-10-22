@@ -69,7 +69,8 @@ async def summary(
             text(
                 "SELECT w.id, w.code, w.name, ST_Y(w.location::geometry) AS lat, "
                 "ST_X(w.location::geometry) AS lon FROM water_source w "
-                "WHERE w.is_active AND (CAST(:area AS uuid) IS NULL "
+                "WHERE w.is_active AND NOT wc_archived('water_source', w.id) "
+                "AND (CAST(:area AS uuid) IS NULL "
                 "OR wc_under(w.village_id, CAST(:area AS uuid)))"
             ),
             area,
@@ -94,6 +95,7 @@ async def summary(
                 "  AND c.standard_id = r.standard_id AND c.computed_by = 'server' "
                 "WHERE w.is_active AND (CAST(:area AS uuid) IS NULL "
                 "OR wc_under(w.village_id, CAST(:area AS uuid))) "
+                "AND NOT wc_archived('test_session', s.id) "
                 "AND NOT EXISTS (SELECT 1 FROM test_result x WHERE x.amendment_of = r.id) "
                 "ORDER BY s.tested_at_device DESC"
             ),
@@ -217,7 +219,8 @@ async def _alerts(
             text(
                 "SELECT a.id, a.source_id, a.trigger_rule, a.severity, a.status, a.opened_at, "
                 "a.acknowledged_at FROM alert a JOIN water_source w ON w.id = a.source_id "
-                "WHERE w.is_active AND (CAST(:area AS uuid) IS NULL "
+                "WHERE w.is_active AND NOT wc_archived('alert', a.id) "
+                "AND (CAST(:area AS uuid) IS NULL "
                 "OR wc_under(w.village_id, CAST(:area AS uuid))) ORDER BY a.opened_at DESC"
             ),
             area,

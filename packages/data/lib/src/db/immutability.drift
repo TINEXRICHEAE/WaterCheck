@@ -1,8 +1,11 @@
 -- Insert-only records (SPEC §5.4). Deleting is refused; updating is refused
 -- for every column except server_seq, which sync sets after the push.
+-- The one exception: records an IT admin archived (ADR-018) are removed
+-- from the device when their archive mark arrives.
 import 'tables.dart';
 
 CREATE TRIGGER test_sessions_no_delete BEFORE DELETE ON test_sessions
+WHEN NOT EXISTS (SELECT 1 FROM archive_marks m WHERE m.archived = 1 AND m.entity = 'test_session' AND m.record_id = OLD.id)
 BEGIN SELECT RAISE(ABORT, 'test_sessions are immutable'); END;
 CREATE TRIGGER test_sessions_no_update BEFORE UPDATE OF
   id, source_id, calibration_id, tester_profile_id, reference_standard_id, calibrated,
@@ -12,6 +15,7 @@ CREATE TRIGGER test_sessions_no_update BEFORE UPDATE OF
 BEGIN SELECT RAISE(ABORT, 'test_sessions are immutable'); END;
 
 CREATE TRIGGER test_results_no_delete BEFORE DELETE ON test_results
+WHEN NOT EXISTS (SELECT 1 FROM archive_marks m WHERE m.archived = 1 AND m.entity = 'test_session' AND m.record_id = OLD.session_id)
 BEGIN SELECT RAISE(ABORT, 'test_results are immutable'); END;
 CREATE TRIGGER test_results_no_update BEFORE UPDATE OF
   id, session_id, overall, standard_id, computed_by, retest_of, amendment_of,
@@ -20,6 +24,7 @@ CREATE TRIGGER test_results_no_update BEFORE UPDATE OF
 BEGIN SELECT RAISE(ABORT, 'test_results are immutable'); END;
 
 CREATE TRIGGER readings_no_delete BEFORE DELETE ON readings
+WHEN NOT EXISTS (SELECT 1 FROM archive_marks m WHERE m.archived = 1 AND m.entity = 'test_session' AND m.record_id = OLD.session_id)
 BEGIN SELECT RAISE(ABORT, 'readings are immutable'); END;
 CREATE TRIGGER readings_no_update BEFORE UPDATE OF
   id, session_id, result_id, parameter_code, value, detected, acceptable, value_text,
@@ -36,6 +41,7 @@ CREATE TRIGGER calibrations_no_update BEFORE UPDATE OF
 BEGIN SELECT RAISE(ABORT, 'calibrations are immutable'); END;
 
 CREATE TRIGGER alert_events_no_delete BEFORE DELETE ON alert_events
+WHEN NOT EXISTS (SELECT 1 FROM archive_marks m WHERE m.archived = 1 AND m.entity = 'alert' AND m.record_id = OLD.alert_id)
 BEGIN SELECT RAISE(ABORT, 'alert_events are immutable'); END;
 CREATE TRIGGER alert_events_no_update BEFORE UPDATE OF
   id, alert_id, actor_id, event_type, note, occurred_at_device,
@@ -44,6 +50,7 @@ CREATE TRIGGER alert_events_no_update BEFORE UPDATE OF
 BEGIN SELECT RAISE(ABORT, 'alert_events are immutable'); END;
 
 CREATE TRIGGER sanitary_inspections_no_delete BEFORE DELETE ON sanitary_inspections
+WHEN NOT EXISTS (SELECT 1 FROM archive_marks m WHERE m.archived = 1 AND m.entity = 'water_source' AND m.record_id = OLD.source_id)
 BEGIN SELECT RAISE(ABORT, 'sanitary_inspections are immutable'); END;
 CREATE TRIGGER sanitary_inspections_no_update BEFORE UPDATE OF
   id, source_id, answers, inspected_at_device, installation_id, collector_key, collector_snapshot
@@ -52,4 +59,5 @@ BEGIN SELECT RAISE(ABORT, 'sanitary_inspections are immutable'); END;
 
 -- Sources are soft-deleted only (F-SRC-5).
 CREATE TRIGGER water_sources_no_delete BEFORE DELETE ON water_sources
+WHEN NOT EXISTS (SELECT 1 FROM archive_marks m WHERE m.archived = 1 AND m.entity = 'water_source' AND m.record_id = OLD.id)
 BEGIN SELECT RAISE(ABORT, 'water_sources are deactivated, never deleted'); END;

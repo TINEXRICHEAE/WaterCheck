@@ -206,6 +206,8 @@ async def collectors(user: UserDep, db: DbDep) -> list[CollectorSummary]:
                 "max(s.tested_at_device) OVER (PARTITION BY s.collector_key) AS last_at, "
                 "m.status AS mark FROM test_session s "
                 "LEFT JOIN collector_mark m ON m.collector_key = s.collector_key "
+                "WHERE NOT wc_archived('collector', s.collector_key) "
+                "AND NOT wc_archived('test_session', s.id) "
                 "ORDER BY s.collector_key, s.tested_at_device DESC"
             )
         )

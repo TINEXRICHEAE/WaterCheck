@@ -308,6 +308,7 @@ class DriftTestingRepository implements TestingRepository {
         classification: classification,
         amendmentOf: original.id,
         amendmentReason: reason.trim(),
+        amendedBy: origin,
         at: clock(),
       );
     });
@@ -322,6 +323,7 @@ class DriftTestingRepository implements TestingRepository {
     String? retestOf,
     String? amendmentOf,
     String? amendmentReason,
+    SubmissionOrigin? amendedBy,
   }) async {
     final result = await _db
         .into(_db.testResults)
@@ -337,6 +339,10 @@ class DriftTestingRepository implements TestingRepository {
             flags: Value(jsonEncode(classification.flags)),
             limitationCode: Value(classification.limitationCode),
             createdAtDevice: at,
+            // Who corrected it (ADR-018).
+            installationId: Value(amendedBy?.installationId),
+            collectorKey: Value(amendedBy?.collectorKey),
+            collectorSnapshot: Value(amendedBy?.snapshotJson),
           ),
         );
     await enqueueOutbox(

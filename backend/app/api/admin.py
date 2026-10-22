@@ -98,6 +98,10 @@ class InstallationOut(BaseModel):
     revoked_at: datetime | None
     collectors_seen: int
     tests: int
+    # A name the IT admin gave the phone; archived phones stay listed so
+    # they can be restored (ADR-018).
+    label: str | None = None
+    archived: bool = False
 
 
 class ActivationCodeOut(BaseModel):
@@ -197,10 +201,13 @@ async def installations(admin: AdminDep, db: DbDep) -> list[InstallationOut]:
             await conn.execute(
                 text(
                     "SELECT i.id, i.platform, i.app_version, i.short_code, i.activated_at, "
-                    "i.last_seen_at, i.revoked_at, a.id AS area_id, a.code, a.name, a.level, "
+                    "i.last_seen_at, i.revoked_at, i.label, "
+                    "wc_archived('installation', i.id) AS archived, "
+                    "a.id AS area_id, a.code, a.name, a.level, "
                     "(SELECT count(DISTINCT s.collector_key) FROM test_session s "
                     " WHERE s.installation_id = i.id) AS collectors_seen, "
-                    "(SELECT count(*) FROM test_session s WHERE s.installation_id = i.id) "
+                    "(SELECT count(*) FROM test_session s WHERE s.installation_id = i.id "
+                    " AND NOT wc_archived('test_session', s.id)) "
                     "AS tests FROM installation i JOIN admin_unit a ON a.id = i.admin_unit_id "
                     "ORDER BY i.revoked_at IS NOT NULL, i.last_seen_at DESC NULLS LAST"
                 )
@@ -218,6 +225,8 @@ async def installations(admin: AdminDep, db: DbDep) -> list[InstallationOut]:
             revoked_at=r.revoked_at,
             collectors_seen=r.collectors_seen,
             tests=r.tests,
+            label=r.label,
+            archived=r.archived,
         )
         for r in rows
     ]

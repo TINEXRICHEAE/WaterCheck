@@ -6,7 +6,14 @@ import 'dart:math';
 
 import 'package:data/data.dart';
 import 'package:data/src/db/database.dart'
-    show OutboxCompanion, SyncLocksCompanion, SyncStateCompanion;
+    show
+        OutboxCompanion,
+        ReadingsCompanion,
+        SyncLocksCompanion,
+        SyncStateCompanion,
+        TestResultsCompanion,
+        TestSessionsCompanion,
+        WaterSourcesCompanion;
 import 'package:drift/drift.dart' show Value;
 import 'package:flutter_test/flutter_test.dart';
 
@@ -404,6 +411,92 @@ void main() {
       (await outbox()).single,
       isA<OutboxRow>().having((r) => r.status, 'status', 'sent'),
     );
+  });
+
+  test('an archive mark removes the test from the device; a restore pulls '
+      'the area again', () async {
+    final t = fixedClock();
+    await db
+        .into(db.waterSources)
+        .insert(
+          WaterSourcesCompanion.insert(
+            id: 'src-1',
+            villageId: 'village-1',
+            code: 'ABIM-ENT-001',
+            sourceType: 'borehole',
+            createdAtDevice: t,
+            updatedAtDevice: t,
+          ),
+        );
+    await db
+        .into(db.testSessions)
+        .insert(
+          TestSessionsCompanion.insert(
+            id: 'ses-1',
+            sourceId: 'src-1',
+            referenceStandardId: 'std',
+            calibrated: true,
+            testedAtDevice: t,
+          ),
+        );
+    await db
+        .into(db.testResults)
+        .insert(
+          TestResultsCompanion.insert(
+            id: 'res-1',
+            sessionId: 'ses-1',
+            overall: 'unsafe',
+            standardId: 'std',
+            createdAtDevice: t,
+          ),
+        );
+    await db
+        .into(db.readings)
+        .insert(
+          ReadingsCompanion.insert(
+            id: 'rd-1',
+            sessionId: 'ses-1',
+            resultId: 'res-1',
+            parameterCode: 'ph',
+            result: 'low',
+          ),
+        );
+    // Still refused without an archive mark (SPEC §5.4).
+    await expectLater(
+      (db.delete(db.testSessions)..where((s) => s.id.equals('ses-1'))).go(),
+      throwsA(anything),
+    );
+
+    PullPage mark(bool archived, String cursor) => PullPage(
+      changes: [
+        IncomingChange(
+          entity: 'archive_mark',
+          op: 'upsert',
+          id: 'test_session/ses-1',
+          data: {
+            'entity': 'test_session',
+            'record_id': 'ses-1',
+            'archived': archived,
+            'reason': 'typed by mistake',
+            'archived_at': '2026-10-22T08:00:00Z',
+          },
+        ),
+      ],
+      nextCursor: cursor,
+      hasMore: false,
+    );
+    server.pages['scope'] = [mark(true, '1.1')];
+    await service(streams: const ['scope']).run();
+    expect(await db.select(db.testSessions).get(), isEmpty);
+    expect(await db.select(db.testResults).get(), isEmpty);
+    expect(await db.select(db.readings).get(), isEmpty);
+    expect((await db.select(db.waterSources).get()).single.id, 'src-1');
+
+    // Restored: the stream is read once more from the start.
+    server.pulls.clear();
+    server.pages['scope'] = [mark(false, '1.2')];
+    await service(streams: const ['scope']).run();
+    expect(server.pulls, [('scope', '1.1'), ('scope', null)]);
   });
 
   test('sync state rows need no migration of the old cursor', () async {

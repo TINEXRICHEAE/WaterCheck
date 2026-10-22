@@ -328,7 +328,8 @@ async def escalation_sweep(conn: AsyncConnection, now: datetime) -> list[UUID]:
     due = await conn.execute(
         text(
             "SELECT id, escalation_level, opened_at FROM alert WHERE status = 'open' "
-            "AND opened_at <= :first ORDER BY opened_at FOR UPDATE SKIP LOCKED"
+            "AND opened_at <= :first AND NOT wc_archived('alert', id) "
+            "ORDER BY opened_at FOR UPDATE SKIP LOCKED"
         ),
         {"first": now - timedelta(hours=hours[0])},
     )

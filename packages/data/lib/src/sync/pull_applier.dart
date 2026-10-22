@@ -103,14 +103,92 @@ class PullApplier {
       db.sanitaryInspections,
       SanitaryInspectionRow.fromJson(j, serializer: _s),
     ),
+    'change_trail': (db, j) =>
+        _keep(db, db.changeTrails, ChangeTrailRow.fromJson(j, serializer: _s)),
   };
+
+  /// True once a restored archive was seen: the records it brings back sit
+  /// earlier in the feed, so the stream is pulled again from the start.
+  bool restored = false;
+
+  /// An archive mark (ADR-018): archived records and what hangs off them
+  /// leave the device; unsent changes to them are marked refused.
+  Future<void> _archiveMark(Map<String, Object?> j) async {
+    final entity = j['entity']! as String;
+    final id = j['record_id']! as String;
+    final archived = j['archived'] == true || j['archived'] == 1;
+    final before =
+        await (_db.select(_db.archiveMarks)
+              ..where((m) => m.entity.equals(entity) & m.recordId.equals(id)))
+            .getSingleOrNull();
+    await _db
+        .into(_db.archiveMarks)
+        .insertOnConflictUpdate(ArchiveMarkRow.fromJson(j, serializer: _s));
+    if (!archived) {
+      if (before?.archived ?? false) restored = true;
+      return;
+    }
+    final gone = <String>[id];
+    switch (entity) {
+      case 'test_session':
+        final results = await (_db.select(
+          _db.testResults,
+        )..where((r) => r.sessionId.equals(id))).map((r) => r.id).get();
+        gone.addAll(results);
+        await (_db.delete(
+          _db.readings,
+        )..where((r) => r.sessionId.equals(id))).go();
+        await (_db.delete(
+          _db.classifications,
+        )..where((c) => c.resultId.isIn(results))).go();
+        await (_db.delete(
+          _db.submissionFlags,
+        )..where((f) => f.resultId.isIn(results))).go();
+        await (_db.delete(
+          _db.testResults,
+        )..where((r) => r.sessionId.equals(id))).go();
+        await (_db.delete(
+          _db.attachments,
+        )..where((a) => a.ownerId.equals(id))).go();
+        await (_db.delete(
+          _db.testSessions,
+        )..where((t) => t.id.equals(id))).go();
+      case 'alert':
+        await (_db.delete(
+          _db.alertEvents,
+        )..where((e) => e.alertId.equals(id))).go();
+        await (_db.delete(_db.alerts)..where((a) => a.id.equals(id))).go();
+      case 'water_source':
+        await (_db.delete(
+          _db.sanitaryInspections,
+        )..where((i) => i.sourceId.equals(id))).go();
+        await (_db.delete(
+          _db.attachments,
+        )..where((a) => a.ownerId.equals(id))).go();
+        await (_db.delete(
+          _db.waterSources,
+        )..where((w) => w.id.equals(id))).go();
+    }
+    await (_db.update(
+      _db.outbox,
+    )..where((o) => o.entityId.isIn(gone) & o.status.equals('pending'))).write(
+      const OutboxCompanion(
+        status: Value('rejected'),
+        lastError: Value('archived'),
+      ),
+    );
+  }
 
   /// Entities this client stores; others are skipped (a newer server may
   /// send more than this app version knows).
-  static Set<String> get entities => _appliers.keys.toSet();
+  static Set<String> get entities => {..._appliers.keys, 'archive_mark'};
 
   /// Applies one row. Returns false for an entity this version ignores.
   Future<bool> apply(String entity, Map<String, Object?> data) async {
+    if (entity == 'archive_mark') {
+      await _archiveMark(data);
+      return true;
+    }
     final apply = _appliers[entity];
     if (apply == null) return false;
     await apply(_db, {

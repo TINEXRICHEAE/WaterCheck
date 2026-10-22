@@ -433,6 +433,18 @@ void main() {
         history.firstWhere((h) => h.resultId == amendedId).isAmendment,
         isTrue,
       );
+      // The correction's trail: what changed, from what to what, who, why.
+      final trail = await TrailQueries(db).forTest(ids.sessionId);
+      final tds = trail.singleWhere((e) => e.field == 'tds');
+      expect((tds.oldValue, tds.newValue), ('1600', '600'));
+      expect(tds.reason, 'Typed 600 as 1600');
+      expect(tds.who, isNotNull);
+      final overall = trail.singleWhere((e) => e.field == 'overall');
+      expect((overall.oldValue, overall.newValue), ('unsafe', 'safe'));
+      final row = await (db.select(
+        db.testResults,
+      )..where((r) => r.id.equals(amendedId))).getSingle();
+      expect(row.collectorKey, origin.collectorKey);
       final detail = await testing.resultDetail(amendedId);
       expect(detail!.sourceId, source.id);
       expect(detail.amendmentOf, ids.resultId);

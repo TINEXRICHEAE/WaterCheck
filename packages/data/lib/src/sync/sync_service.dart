@@ -228,7 +228,13 @@ class SyncService {
               );
         });
         cursor = page.nextCursor;
-        if (!page.hasMore) return;
+        if (!page.hasMore) {
+          // A restored archive (ADR-018): its records are older than the
+          // cursor, so the stream is read once more from the start.
+          if (!applier.restored) return;
+          applier.restored = false;
+          cursor = null;
+        }
       }
     } finally {
       await _db.customStatement('PRAGMA foreign_keys = ON');

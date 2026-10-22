@@ -249,7 +249,9 @@ class TestSessions extends Table with CollectOrigin, ServerSeq {
 /// Each result owns a full set of readings; amendments are new results
 /// (ADR-005 §1).
 @DataClassName('TestResultRow')
-class TestResults extends Table with ServerSeq {
+/// An amendment (a correction) also records who made it (ADR-018); first
+/// results leave these empty (their session says who).
+class TestResults extends Table with ServerSeq, CollectOrigin {
   TextColumn get id => text()();
   TextColumn get sessionId => text().references(TestSessions, #id)();
   TextColumn get overall => text()();
@@ -459,4 +461,38 @@ class AttachmentQueue extends Table {
 
   @override
   Set<Column> get primaryKey => {attachmentId};
+}
+
+/// Records an IT admin archived (ADR-018). The device removes its copies of
+/// archived records; a restore brings them back with the next full pull.
+@DataClassName('ArchiveMarkRow')
+class ArchiveMarks extends Table {
+  TextColumn get entity => text()();
+  TextColumn get recordId => text()();
+  BoolColumn get archived => boolean()();
+  TextColumn get reason => text().nullable()();
+  DateTimeColumn get archivedAt => dateTime().nullable()();
+  IntColumn get serverSeq => integer().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {entity, recordId};
+}
+
+/// Who changed what, from what to what, and when (ADR-018). Values are JSON
+/// text as the server sends them.
+@DataClassName('ChangeTrailRow')
+class ChangeTrails extends Table {
+  TextColumn get id => text()();
+  TextColumn get entity => text()();
+  TextColumn get recordId => text()();
+  TextColumn get field => text()();
+  TextColumn get oldValue => text().nullable()();
+  TextColumn get newValue => text().nullable()();
+  TextColumn get reason => text().nullable()();
+  TextColumn get actorName => text().nullable()();
+  DateTimeColumn get changedAt => dateTime()();
+  IntColumn get serverSeq => integer().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
 }

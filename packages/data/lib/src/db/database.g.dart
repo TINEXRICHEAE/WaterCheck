@@ -2147,6 +2147,425 @@ class TestSessionsCompanion extends UpdateCompanion<TestSessionRow> {
   }
 }
 
+class $ArchiveMarksTable extends ArchiveMarks
+    with TableInfo<$ArchiveMarksTable, ArchiveMarkRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ArchiveMarksTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _entityMeta = const VerificationMeta('entity');
+  @override
+  late final GeneratedColumn<String> entity = GeneratedColumn<String>(
+    'entity',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _recordIdMeta = const VerificationMeta(
+    'recordId',
+  );
+  @override
+  late final GeneratedColumn<String> recordId = GeneratedColumn<String>(
+    'record_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _archivedMeta = const VerificationMeta(
+    'archived',
+  );
+  @override
+  late final GeneratedColumn<bool> archived = GeneratedColumn<bool>(
+    'archived',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("archived" IN (0, 1))',
+    ),
+  );
+  static const VerificationMeta _reasonMeta = const VerificationMeta('reason');
+  @override
+  late final GeneratedColumn<String> reason = GeneratedColumn<String>(
+    'reason',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _archivedAtMeta = const VerificationMeta(
+    'archivedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> archivedAt = GeneratedColumn<DateTime>(
+    'archived_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _serverSeqMeta = const VerificationMeta(
+    'serverSeq',
+  );
+  @override
+  late final GeneratedColumn<int> serverSeq = GeneratedColumn<int>(
+    'server_seq',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    entity,
+    recordId,
+    archived,
+    reason,
+    archivedAt,
+    serverSeq,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'archive_marks';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ArchiveMarkRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('entity')) {
+      context.handle(
+        _entityMeta,
+        entity.isAcceptableOrUnknown(data['entity']!, _entityMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_entityMeta);
+    }
+    if (data.containsKey('record_id')) {
+      context.handle(
+        _recordIdMeta,
+        recordId.isAcceptableOrUnknown(data['record_id']!, _recordIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_recordIdMeta);
+    }
+    if (data.containsKey('archived')) {
+      context.handle(
+        _archivedMeta,
+        archived.isAcceptableOrUnknown(data['archived']!, _archivedMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_archivedMeta);
+    }
+    if (data.containsKey('reason')) {
+      context.handle(
+        _reasonMeta,
+        reason.isAcceptableOrUnknown(data['reason']!, _reasonMeta),
+      );
+    }
+    if (data.containsKey('archived_at')) {
+      context.handle(
+        _archivedAtMeta,
+        archivedAt.isAcceptableOrUnknown(data['archived_at']!, _archivedAtMeta),
+      );
+    }
+    if (data.containsKey('server_seq')) {
+      context.handle(
+        _serverSeqMeta,
+        serverSeq.isAcceptableOrUnknown(data['server_seq']!, _serverSeqMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {entity, recordId};
+  @override
+  ArchiveMarkRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ArchiveMarkRow(
+      entity: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}entity'],
+      )!,
+      recordId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}record_id'],
+      )!,
+      archived: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}archived'],
+      )!,
+      reason: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}reason'],
+      ),
+      archivedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}archived_at'],
+      ),
+      serverSeq: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}server_seq'],
+      ),
+    );
+  }
+
+  @override
+  $ArchiveMarksTable createAlias(String alias) {
+    return $ArchiveMarksTable(attachedDatabase, alias);
+  }
+}
+
+class ArchiveMarkRow extends DataClass implements Insertable<ArchiveMarkRow> {
+  final String entity;
+  final String recordId;
+  final bool archived;
+  final String? reason;
+  final DateTime? archivedAt;
+  final int? serverSeq;
+  const ArchiveMarkRow({
+    required this.entity,
+    required this.recordId,
+    required this.archived,
+    this.reason,
+    this.archivedAt,
+    this.serverSeq,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['entity'] = Variable<String>(entity);
+    map['record_id'] = Variable<String>(recordId);
+    map['archived'] = Variable<bool>(archived);
+    if (!nullToAbsent || reason != null) {
+      map['reason'] = Variable<String>(reason);
+    }
+    if (!nullToAbsent || archivedAt != null) {
+      map['archived_at'] = Variable<DateTime>(archivedAt);
+    }
+    if (!nullToAbsent || serverSeq != null) {
+      map['server_seq'] = Variable<int>(serverSeq);
+    }
+    return map;
+  }
+
+  ArchiveMarksCompanion toCompanion(bool nullToAbsent) {
+    return ArchiveMarksCompanion(
+      entity: Value(entity),
+      recordId: Value(recordId),
+      archived: Value(archived),
+      reason: reason == null && nullToAbsent
+          ? const Value.absent()
+          : Value(reason),
+      archivedAt: archivedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(archivedAt),
+      serverSeq: serverSeq == null && nullToAbsent
+          ? const Value.absent()
+          : Value(serverSeq),
+    );
+  }
+
+  factory ArchiveMarkRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ArchiveMarkRow(
+      entity: serializer.fromJson<String>(json['entity']),
+      recordId: serializer.fromJson<String>(json['record_id']),
+      archived: serializer.fromJson<bool>(json['archived']),
+      reason: serializer.fromJson<String?>(json['reason']),
+      archivedAt: serializer.fromJson<DateTime?>(json['archived_at']),
+      serverSeq: serializer.fromJson<int?>(json['server_seq']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'entity': serializer.toJson<String>(entity),
+      'record_id': serializer.toJson<String>(recordId),
+      'archived': serializer.toJson<bool>(archived),
+      'reason': serializer.toJson<String?>(reason),
+      'archived_at': serializer.toJson<DateTime?>(archivedAt),
+      'server_seq': serializer.toJson<int?>(serverSeq),
+    };
+  }
+
+  ArchiveMarkRow copyWith({
+    String? entity,
+    String? recordId,
+    bool? archived,
+    Value<String?> reason = const Value.absent(),
+    Value<DateTime?> archivedAt = const Value.absent(),
+    Value<int?> serverSeq = const Value.absent(),
+  }) => ArchiveMarkRow(
+    entity: entity ?? this.entity,
+    recordId: recordId ?? this.recordId,
+    archived: archived ?? this.archived,
+    reason: reason.present ? reason.value : this.reason,
+    archivedAt: archivedAt.present ? archivedAt.value : this.archivedAt,
+    serverSeq: serverSeq.present ? serverSeq.value : this.serverSeq,
+  );
+  ArchiveMarkRow copyWithCompanion(ArchiveMarksCompanion data) {
+    return ArchiveMarkRow(
+      entity: data.entity.present ? data.entity.value : this.entity,
+      recordId: data.recordId.present ? data.recordId.value : this.recordId,
+      archived: data.archived.present ? data.archived.value : this.archived,
+      reason: data.reason.present ? data.reason.value : this.reason,
+      archivedAt: data.archivedAt.present
+          ? data.archivedAt.value
+          : this.archivedAt,
+      serverSeq: data.serverSeq.present ? data.serverSeq.value : this.serverSeq,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ArchiveMarkRow(')
+          ..write('entity: $entity, ')
+          ..write('recordId: $recordId, ')
+          ..write('archived: $archived, ')
+          ..write('reason: $reason, ')
+          ..write('archivedAt: $archivedAt, ')
+          ..write('serverSeq: $serverSeq')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(entity, recordId, archived, reason, archivedAt, serverSeq);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ArchiveMarkRow &&
+          other.entity == this.entity &&
+          other.recordId == this.recordId &&
+          other.archived == this.archived &&
+          other.reason == this.reason &&
+          other.archivedAt == this.archivedAt &&
+          other.serverSeq == this.serverSeq);
+}
+
+class ArchiveMarksCompanion extends UpdateCompanion<ArchiveMarkRow> {
+  final Value<String> entity;
+  final Value<String> recordId;
+  final Value<bool> archived;
+  final Value<String?> reason;
+  final Value<DateTime?> archivedAt;
+  final Value<int?> serverSeq;
+  final Value<int> rowid;
+  const ArchiveMarksCompanion({
+    this.entity = const Value.absent(),
+    this.recordId = const Value.absent(),
+    this.archived = const Value.absent(),
+    this.reason = const Value.absent(),
+    this.archivedAt = const Value.absent(),
+    this.serverSeq = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ArchiveMarksCompanion.insert({
+    required String entity,
+    required String recordId,
+    required bool archived,
+    this.reason = const Value.absent(),
+    this.archivedAt = const Value.absent(),
+    this.serverSeq = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : entity = Value(entity),
+       recordId = Value(recordId),
+       archived = Value(archived);
+  static Insertable<ArchiveMarkRow> custom({
+    Expression<String>? entity,
+    Expression<String>? recordId,
+    Expression<bool>? archived,
+    Expression<String>? reason,
+    Expression<DateTime>? archivedAt,
+    Expression<int>? serverSeq,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (entity != null) 'entity': entity,
+      if (recordId != null) 'record_id': recordId,
+      if (archived != null) 'archived': archived,
+      if (reason != null) 'reason': reason,
+      if (archivedAt != null) 'archived_at': archivedAt,
+      if (serverSeq != null) 'server_seq': serverSeq,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ArchiveMarksCompanion copyWith({
+    Value<String>? entity,
+    Value<String>? recordId,
+    Value<bool>? archived,
+    Value<String?>? reason,
+    Value<DateTime?>? archivedAt,
+    Value<int?>? serverSeq,
+    Value<int>? rowid,
+  }) {
+    return ArchiveMarksCompanion(
+      entity: entity ?? this.entity,
+      recordId: recordId ?? this.recordId,
+      archived: archived ?? this.archived,
+      reason: reason ?? this.reason,
+      archivedAt: archivedAt ?? this.archivedAt,
+      serverSeq: serverSeq ?? this.serverSeq,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (entity.present) {
+      map['entity'] = Variable<String>(entity.value);
+    }
+    if (recordId.present) {
+      map['record_id'] = Variable<String>(recordId.value);
+    }
+    if (archived.present) {
+      map['archived'] = Variable<bool>(archived.value);
+    }
+    if (reason.present) {
+      map['reason'] = Variable<String>(reason.value);
+    }
+    if (archivedAt.present) {
+      map['archived_at'] = Variable<DateTime>(archivedAt.value);
+    }
+    if (serverSeq.present) {
+      map['server_seq'] = Variable<int>(serverSeq.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ArchiveMarksCompanion(')
+          ..write('entity: $entity, ')
+          ..write('recordId: $recordId, ')
+          ..write('archived: $archived, ')
+          ..write('reason: $reason, ')
+          ..write('archivedAt: $archivedAt, ')
+          ..write('serverSeq: $serverSeq, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $TestResultsTable extends TestResults
     with TableInfo<$TestResultsTable, TestResultRow> {
   @override
@@ -2164,6 +2583,40 @@ class $TestResultsTable extends TestResults
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _installationIdMeta = const VerificationMeta(
+    'installationId',
+  );
+  @override
+  late final GeneratedColumn<String> installationId = GeneratedColumn<String>(
+    'installation_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _collectorKeyMeta = const VerificationMeta(
+    'collectorKey',
+  );
+  @override
+  late final GeneratedColumn<String> collectorKey = GeneratedColumn<String>(
+    'collector_key',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _collectorSnapshotMeta = const VerificationMeta(
+    'collectorSnapshot',
+  );
+  @override
+  late final GeneratedColumn<String> collectorSnapshot =
+      GeneratedColumn<String>(
+        'collector_snapshot',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<String> id = GeneratedColumn<String>(
@@ -2290,6 +2743,9 @@ class $TestResultsTable extends TestResults
   @override
   List<GeneratedColumn> get $columns => [
     serverSeq,
+    installationId,
+    collectorKey,
+    collectorSnapshot,
     id,
     sessionId,
     overall,
@@ -2318,6 +2774,33 @@ class $TestResultsTable extends TestResults
       context.handle(
         _serverSeqMeta,
         serverSeq.isAcceptableOrUnknown(data['server_seq']!, _serverSeqMeta),
+      );
+    }
+    if (data.containsKey('installation_id')) {
+      context.handle(
+        _installationIdMeta,
+        installationId.isAcceptableOrUnknown(
+          data['installation_id']!,
+          _installationIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('collector_key')) {
+      context.handle(
+        _collectorKeyMeta,
+        collectorKey.isAcceptableOrUnknown(
+          data['collector_key']!,
+          _collectorKeyMeta,
+        ),
+      );
+    }
+    if (data.containsKey('collector_snapshot')) {
+      context.handle(
+        _collectorSnapshotMeta,
+        collectorSnapshot.isAcceptableOrUnknown(
+          data['collector_snapshot']!,
+          _collectorSnapshotMeta,
+        ),
       );
     }
     if (data.containsKey('id')) {
@@ -2418,6 +2901,18 @@ class $TestResultsTable extends TestResults
         DriftSqlType.int,
         data['${effectivePrefix}server_seq'],
       ),
+      installationId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}installation_id'],
+      ),
+      collectorKey: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}collector_key'],
+      ),
+      collectorSnapshot: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}collector_snapshot'],
+      ),
       id: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}id'],
@@ -2473,6 +2968,11 @@ class $TestResultsTable extends TestResults
 
 class TestResultRow extends DataClass implements Insertable<TestResultRow> {
   final int? serverSeq;
+  final String? installationId;
+  final String? collectorKey;
+
+  /// JSON copy of the collector profile at submission time.
+  final String? collectorSnapshot;
   final String id;
   final String sessionId;
   final String overall;
@@ -2488,6 +2988,9 @@ class TestResultRow extends DataClass implements Insertable<TestResultRow> {
   final DateTime createdAtDevice;
   const TestResultRow({
     this.serverSeq,
+    this.installationId,
+    this.collectorKey,
+    this.collectorSnapshot,
     required this.id,
     required this.sessionId,
     required this.overall,
@@ -2505,6 +3008,15 @@ class TestResultRow extends DataClass implements Insertable<TestResultRow> {
     final map = <String, Expression>{};
     if (!nullToAbsent || serverSeq != null) {
       map['server_seq'] = Variable<int>(serverSeq);
+    }
+    if (!nullToAbsent || installationId != null) {
+      map['installation_id'] = Variable<String>(installationId);
+    }
+    if (!nullToAbsent || collectorKey != null) {
+      map['collector_key'] = Variable<String>(collectorKey);
+    }
+    if (!nullToAbsent || collectorSnapshot != null) {
+      map['collector_snapshot'] = Variable<String>(collectorSnapshot);
     }
     map['id'] = Variable<String>(id);
     map['session_id'] = Variable<String>(sessionId);
@@ -2533,6 +3045,15 @@ class TestResultRow extends DataClass implements Insertable<TestResultRow> {
       serverSeq: serverSeq == null && nullToAbsent
           ? const Value.absent()
           : Value(serverSeq),
+      installationId: installationId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(installationId),
+      collectorKey: collectorKey == null && nullToAbsent
+          ? const Value.absent()
+          : Value(collectorKey),
+      collectorSnapshot: collectorSnapshot == null && nullToAbsent
+          ? const Value.absent()
+          : Value(collectorSnapshot),
       id: Value(id),
       sessionId: Value(sessionId),
       overall: Value(overall),
@@ -2562,6 +3083,11 @@ class TestResultRow extends DataClass implements Insertable<TestResultRow> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return TestResultRow(
       serverSeq: serializer.fromJson<int?>(json['server_seq']),
+      installationId: serializer.fromJson<String?>(json['installation_id']),
+      collectorKey: serializer.fromJson<String?>(json['collector_key']),
+      collectorSnapshot: serializer.fromJson<String?>(
+        json['collector_snapshot'],
+      ),
       id: serializer.fromJson<String>(json['id']),
       sessionId: serializer.fromJson<String>(json['session_id']),
       overall: serializer.fromJson<String>(json['overall']),
@@ -2580,6 +3106,9 @@ class TestResultRow extends DataClass implements Insertable<TestResultRow> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'server_seq': serializer.toJson<int?>(serverSeq),
+      'installation_id': serializer.toJson<String?>(installationId),
+      'collector_key': serializer.toJson<String?>(collectorKey),
+      'collector_snapshot': serializer.toJson<String?>(collectorSnapshot),
       'id': serializer.toJson<String>(id),
       'session_id': serializer.toJson<String>(sessionId),
       'overall': serializer.toJson<String>(overall),
@@ -2596,6 +3125,9 @@ class TestResultRow extends DataClass implements Insertable<TestResultRow> {
 
   TestResultRow copyWith({
     Value<int?> serverSeq = const Value.absent(),
+    Value<String?> installationId = const Value.absent(),
+    Value<String?> collectorKey = const Value.absent(),
+    Value<String?> collectorSnapshot = const Value.absent(),
     String? id,
     String? sessionId,
     String? overall,
@@ -2609,6 +3141,13 @@ class TestResultRow extends DataClass implements Insertable<TestResultRow> {
     DateTime? createdAtDevice,
   }) => TestResultRow(
     serverSeq: serverSeq.present ? serverSeq.value : this.serverSeq,
+    installationId: installationId.present
+        ? installationId.value
+        : this.installationId,
+    collectorKey: collectorKey.present ? collectorKey.value : this.collectorKey,
+    collectorSnapshot: collectorSnapshot.present
+        ? collectorSnapshot.value
+        : this.collectorSnapshot,
     id: id ?? this.id,
     sessionId: sessionId ?? this.sessionId,
     overall: overall ?? this.overall,
@@ -2628,6 +3167,15 @@ class TestResultRow extends DataClass implements Insertable<TestResultRow> {
   TestResultRow copyWithCompanion(TestResultsCompanion data) {
     return TestResultRow(
       serverSeq: data.serverSeq.present ? data.serverSeq.value : this.serverSeq,
+      installationId: data.installationId.present
+          ? data.installationId.value
+          : this.installationId,
+      collectorKey: data.collectorKey.present
+          ? data.collectorKey.value
+          : this.collectorKey,
+      collectorSnapshot: data.collectorSnapshot.present
+          ? data.collectorSnapshot.value
+          : this.collectorSnapshot,
       id: data.id.present ? data.id.value : this.id,
       sessionId: data.sessionId.present ? data.sessionId.value : this.sessionId,
       overall: data.overall.present ? data.overall.value : this.overall,
@@ -2658,6 +3206,9 @@ class TestResultRow extends DataClass implements Insertable<TestResultRow> {
   String toString() {
     return (StringBuffer('TestResultRow(')
           ..write('serverSeq: $serverSeq, ')
+          ..write('installationId: $installationId, ')
+          ..write('collectorKey: $collectorKey, ')
+          ..write('collectorSnapshot: $collectorSnapshot, ')
           ..write('id: $id, ')
           ..write('sessionId: $sessionId, ')
           ..write('overall: $overall, ')
@@ -2676,6 +3227,9 @@ class TestResultRow extends DataClass implements Insertable<TestResultRow> {
   @override
   int get hashCode => Object.hash(
     serverSeq,
+    installationId,
+    collectorKey,
+    collectorSnapshot,
     id,
     sessionId,
     overall,
@@ -2693,6 +3247,9 @@ class TestResultRow extends DataClass implements Insertable<TestResultRow> {
       identical(this, other) ||
       (other is TestResultRow &&
           other.serverSeq == this.serverSeq &&
+          other.installationId == this.installationId &&
+          other.collectorKey == this.collectorKey &&
+          other.collectorSnapshot == this.collectorSnapshot &&
           other.id == this.id &&
           other.sessionId == this.sessionId &&
           other.overall == this.overall &&
@@ -2708,6 +3265,9 @@ class TestResultRow extends DataClass implements Insertable<TestResultRow> {
 
 class TestResultsCompanion extends UpdateCompanion<TestResultRow> {
   final Value<int?> serverSeq;
+  final Value<String?> installationId;
+  final Value<String?> collectorKey;
+  final Value<String?> collectorSnapshot;
   final Value<String> id;
   final Value<String> sessionId;
   final Value<String> overall;
@@ -2722,6 +3282,9 @@ class TestResultsCompanion extends UpdateCompanion<TestResultRow> {
   final Value<int> rowid;
   const TestResultsCompanion({
     this.serverSeq = const Value.absent(),
+    this.installationId = const Value.absent(),
+    this.collectorKey = const Value.absent(),
+    this.collectorSnapshot = const Value.absent(),
     this.id = const Value.absent(),
     this.sessionId = const Value.absent(),
     this.overall = const Value.absent(),
@@ -2737,6 +3300,9 @@ class TestResultsCompanion extends UpdateCompanion<TestResultRow> {
   });
   TestResultsCompanion.insert({
     this.serverSeq = const Value.absent(),
+    this.installationId = const Value.absent(),
+    this.collectorKey = const Value.absent(),
+    this.collectorSnapshot = const Value.absent(),
     required String id,
     required String sessionId,
     required String overall,
@@ -2756,6 +3322,9 @@ class TestResultsCompanion extends UpdateCompanion<TestResultRow> {
        createdAtDevice = Value(createdAtDevice);
   static Insertable<TestResultRow> custom({
     Expression<int>? serverSeq,
+    Expression<String>? installationId,
+    Expression<String>? collectorKey,
+    Expression<String>? collectorSnapshot,
     Expression<String>? id,
     Expression<String>? sessionId,
     Expression<String>? overall,
@@ -2771,6 +3340,9 @@ class TestResultsCompanion extends UpdateCompanion<TestResultRow> {
   }) {
     return RawValuesInsertable({
       if (serverSeq != null) 'server_seq': serverSeq,
+      if (installationId != null) 'installation_id': installationId,
+      if (collectorKey != null) 'collector_key': collectorKey,
+      if (collectorSnapshot != null) 'collector_snapshot': collectorSnapshot,
       if (id != null) 'id': id,
       if (sessionId != null) 'session_id': sessionId,
       if (overall != null) 'overall': overall,
@@ -2788,6 +3360,9 @@ class TestResultsCompanion extends UpdateCompanion<TestResultRow> {
 
   TestResultsCompanion copyWith({
     Value<int?>? serverSeq,
+    Value<String?>? installationId,
+    Value<String?>? collectorKey,
+    Value<String?>? collectorSnapshot,
     Value<String>? id,
     Value<String>? sessionId,
     Value<String>? overall,
@@ -2803,6 +3378,9 @@ class TestResultsCompanion extends UpdateCompanion<TestResultRow> {
   }) {
     return TestResultsCompanion(
       serverSeq: serverSeq ?? this.serverSeq,
+      installationId: installationId ?? this.installationId,
+      collectorKey: collectorKey ?? this.collectorKey,
+      collectorSnapshot: collectorSnapshot ?? this.collectorSnapshot,
       id: id ?? this.id,
       sessionId: sessionId ?? this.sessionId,
       overall: overall ?? this.overall,
@@ -2823,6 +3401,15 @@ class TestResultsCompanion extends UpdateCompanion<TestResultRow> {
     final map = <String, Expression>{};
     if (serverSeq.present) {
       map['server_seq'] = Variable<int>(serverSeq.value);
+    }
+    if (installationId.present) {
+      map['installation_id'] = Variable<String>(installationId.value);
+    }
+    if (collectorKey.present) {
+      map['collector_key'] = Variable<String>(collectorKey.value);
+    }
+    if (collectorSnapshot.present) {
+      map['collector_snapshot'] = Variable<String>(collectorSnapshot.value);
     }
     if (id.present) {
       map['id'] = Variable<String>(id.value);
@@ -2867,6 +3454,9 @@ class TestResultsCompanion extends UpdateCompanion<TestResultRow> {
   String toString() {
     return (StringBuffer('TestResultsCompanion(')
           ..write('serverSeq: $serverSeq, ')
+          ..write('installationId: $installationId, ')
+          ..write('collectorKey: $collectorKey, ')
+          ..write('collectorSnapshot: $collectorSnapshot, ')
           ..write('id: $id, ')
           ..write('sessionId: $sessionId, ')
           ..write('overall: $overall, ')
@@ -15330,13 +15920,621 @@ class AttachmentQueueCompanion extends UpdateCompanion<AttachmentQueueRow> {
   }
 }
 
+class $ChangeTrailsTable extends ChangeTrails
+    with TableInfo<$ChangeTrailsTable, ChangeTrailRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ChangeTrailsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _entityMeta = const VerificationMeta('entity');
+  @override
+  late final GeneratedColumn<String> entity = GeneratedColumn<String>(
+    'entity',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _recordIdMeta = const VerificationMeta(
+    'recordId',
+  );
+  @override
+  late final GeneratedColumn<String> recordId = GeneratedColumn<String>(
+    'record_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _fieldMeta = const VerificationMeta('field');
+  @override
+  late final GeneratedColumn<String> field = GeneratedColumn<String>(
+    'field',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _oldValueMeta = const VerificationMeta(
+    'oldValue',
+  );
+  @override
+  late final GeneratedColumn<String> oldValue = GeneratedColumn<String>(
+    'old_value',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _newValueMeta = const VerificationMeta(
+    'newValue',
+  );
+  @override
+  late final GeneratedColumn<String> newValue = GeneratedColumn<String>(
+    'new_value',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _reasonMeta = const VerificationMeta('reason');
+  @override
+  late final GeneratedColumn<String> reason = GeneratedColumn<String>(
+    'reason',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _actorNameMeta = const VerificationMeta(
+    'actorName',
+  );
+  @override
+  late final GeneratedColumn<String> actorName = GeneratedColumn<String>(
+    'actor_name',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _changedAtMeta = const VerificationMeta(
+    'changedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> changedAt = GeneratedColumn<DateTime>(
+    'changed_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _serverSeqMeta = const VerificationMeta(
+    'serverSeq',
+  );
+  @override
+  late final GeneratedColumn<int> serverSeq = GeneratedColumn<int>(
+    'server_seq',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    entity,
+    recordId,
+    field,
+    oldValue,
+    newValue,
+    reason,
+    actorName,
+    changedAt,
+    serverSeq,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'change_trails';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ChangeTrailRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('entity')) {
+      context.handle(
+        _entityMeta,
+        entity.isAcceptableOrUnknown(data['entity']!, _entityMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_entityMeta);
+    }
+    if (data.containsKey('record_id')) {
+      context.handle(
+        _recordIdMeta,
+        recordId.isAcceptableOrUnknown(data['record_id']!, _recordIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_recordIdMeta);
+    }
+    if (data.containsKey('field')) {
+      context.handle(
+        _fieldMeta,
+        field.isAcceptableOrUnknown(data['field']!, _fieldMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_fieldMeta);
+    }
+    if (data.containsKey('old_value')) {
+      context.handle(
+        _oldValueMeta,
+        oldValue.isAcceptableOrUnknown(data['old_value']!, _oldValueMeta),
+      );
+    }
+    if (data.containsKey('new_value')) {
+      context.handle(
+        _newValueMeta,
+        newValue.isAcceptableOrUnknown(data['new_value']!, _newValueMeta),
+      );
+    }
+    if (data.containsKey('reason')) {
+      context.handle(
+        _reasonMeta,
+        reason.isAcceptableOrUnknown(data['reason']!, _reasonMeta),
+      );
+    }
+    if (data.containsKey('actor_name')) {
+      context.handle(
+        _actorNameMeta,
+        actorName.isAcceptableOrUnknown(data['actor_name']!, _actorNameMeta),
+      );
+    }
+    if (data.containsKey('changed_at')) {
+      context.handle(
+        _changedAtMeta,
+        changedAt.isAcceptableOrUnknown(data['changed_at']!, _changedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_changedAtMeta);
+    }
+    if (data.containsKey('server_seq')) {
+      context.handle(
+        _serverSeqMeta,
+        serverSeq.isAcceptableOrUnknown(data['server_seq']!, _serverSeqMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ChangeTrailRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ChangeTrailRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      entity: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}entity'],
+      )!,
+      recordId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}record_id'],
+      )!,
+      field: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}field'],
+      )!,
+      oldValue: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}old_value'],
+      ),
+      newValue: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}new_value'],
+      ),
+      reason: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}reason'],
+      ),
+      actorName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}actor_name'],
+      ),
+      changedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}changed_at'],
+      )!,
+      serverSeq: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}server_seq'],
+      ),
+    );
+  }
+
+  @override
+  $ChangeTrailsTable createAlias(String alias) {
+    return $ChangeTrailsTable(attachedDatabase, alias);
+  }
+}
+
+class ChangeTrailRow extends DataClass implements Insertable<ChangeTrailRow> {
+  final String id;
+  final String entity;
+  final String recordId;
+  final String field;
+  final String? oldValue;
+  final String? newValue;
+  final String? reason;
+  final String? actorName;
+  final DateTime changedAt;
+  final int? serverSeq;
+  const ChangeTrailRow({
+    required this.id,
+    required this.entity,
+    required this.recordId,
+    required this.field,
+    this.oldValue,
+    this.newValue,
+    this.reason,
+    this.actorName,
+    required this.changedAt,
+    this.serverSeq,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['entity'] = Variable<String>(entity);
+    map['record_id'] = Variable<String>(recordId);
+    map['field'] = Variable<String>(field);
+    if (!nullToAbsent || oldValue != null) {
+      map['old_value'] = Variable<String>(oldValue);
+    }
+    if (!nullToAbsent || newValue != null) {
+      map['new_value'] = Variable<String>(newValue);
+    }
+    if (!nullToAbsent || reason != null) {
+      map['reason'] = Variable<String>(reason);
+    }
+    if (!nullToAbsent || actorName != null) {
+      map['actor_name'] = Variable<String>(actorName);
+    }
+    map['changed_at'] = Variable<DateTime>(changedAt);
+    if (!nullToAbsent || serverSeq != null) {
+      map['server_seq'] = Variable<int>(serverSeq);
+    }
+    return map;
+  }
+
+  ChangeTrailsCompanion toCompanion(bool nullToAbsent) {
+    return ChangeTrailsCompanion(
+      id: Value(id),
+      entity: Value(entity),
+      recordId: Value(recordId),
+      field: Value(field),
+      oldValue: oldValue == null && nullToAbsent
+          ? const Value.absent()
+          : Value(oldValue),
+      newValue: newValue == null && nullToAbsent
+          ? const Value.absent()
+          : Value(newValue),
+      reason: reason == null && nullToAbsent
+          ? const Value.absent()
+          : Value(reason),
+      actorName: actorName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(actorName),
+      changedAt: Value(changedAt),
+      serverSeq: serverSeq == null && nullToAbsent
+          ? const Value.absent()
+          : Value(serverSeq),
+    );
+  }
+
+  factory ChangeTrailRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ChangeTrailRow(
+      id: serializer.fromJson<String>(json['id']),
+      entity: serializer.fromJson<String>(json['entity']),
+      recordId: serializer.fromJson<String>(json['record_id']),
+      field: serializer.fromJson<String>(json['field']),
+      oldValue: serializer.fromJson<String?>(json['old_value']),
+      newValue: serializer.fromJson<String?>(json['new_value']),
+      reason: serializer.fromJson<String?>(json['reason']),
+      actorName: serializer.fromJson<String?>(json['actor_name']),
+      changedAt: serializer.fromJson<DateTime>(json['changed_at']),
+      serverSeq: serializer.fromJson<int?>(json['server_seq']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'entity': serializer.toJson<String>(entity),
+      'record_id': serializer.toJson<String>(recordId),
+      'field': serializer.toJson<String>(field),
+      'old_value': serializer.toJson<String?>(oldValue),
+      'new_value': serializer.toJson<String?>(newValue),
+      'reason': serializer.toJson<String?>(reason),
+      'actor_name': serializer.toJson<String?>(actorName),
+      'changed_at': serializer.toJson<DateTime>(changedAt),
+      'server_seq': serializer.toJson<int?>(serverSeq),
+    };
+  }
+
+  ChangeTrailRow copyWith({
+    String? id,
+    String? entity,
+    String? recordId,
+    String? field,
+    Value<String?> oldValue = const Value.absent(),
+    Value<String?> newValue = const Value.absent(),
+    Value<String?> reason = const Value.absent(),
+    Value<String?> actorName = const Value.absent(),
+    DateTime? changedAt,
+    Value<int?> serverSeq = const Value.absent(),
+  }) => ChangeTrailRow(
+    id: id ?? this.id,
+    entity: entity ?? this.entity,
+    recordId: recordId ?? this.recordId,
+    field: field ?? this.field,
+    oldValue: oldValue.present ? oldValue.value : this.oldValue,
+    newValue: newValue.present ? newValue.value : this.newValue,
+    reason: reason.present ? reason.value : this.reason,
+    actorName: actorName.present ? actorName.value : this.actorName,
+    changedAt: changedAt ?? this.changedAt,
+    serverSeq: serverSeq.present ? serverSeq.value : this.serverSeq,
+  );
+  ChangeTrailRow copyWithCompanion(ChangeTrailsCompanion data) {
+    return ChangeTrailRow(
+      id: data.id.present ? data.id.value : this.id,
+      entity: data.entity.present ? data.entity.value : this.entity,
+      recordId: data.recordId.present ? data.recordId.value : this.recordId,
+      field: data.field.present ? data.field.value : this.field,
+      oldValue: data.oldValue.present ? data.oldValue.value : this.oldValue,
+      newValue: data.newValue.present ? data.newValue.value : this.newValue,
+      reason: data.reason.present ? data.reason.value : this.reason,
+      actorName: data.actorName.present ? data.actorName.value : this.actorName,
+      changedAt: data.changedAt.present ? data.changedAt.value : this.changedAt,
+      serverSeq: data.serverSeq.present ? data.serverSeq.value : this.serverSeq,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ChangeTrailRow(')
+          ..write('id: $id, ')
+          ..write('entity: $entity, ')
+          ..write('recordId: $recordId, ')
+          ..write('field: $field, ')
+          ..write('oldValue: $oldValue, ')
+          ..write('newValue: $newValue, ')
+          ..write('reason: $reason, ')
+          ..write('actorName: $actorName, ')
+          ..write('changedAt: $changedAt, ')
+          ..write('serverSeq: $serverSeq')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    entity,
+    recordId,
+    field,
+    oldValue,
+    newValue,
+    reason,
+    actorName,
+    changedAt,
+    serverSeq,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ChangeTrailRow &&
+          other.id == this.id &&
+          other.entity == this.entity &&
+          other.recordId == this.recordId &&
+          other.field == this.field &&
+          other.oldValue == this.oldValue &&
+          other.newValue == this.newValue &&
+          other.reason == this.reason &&
+          other.actorName == this.actorName &&
+          other.changedAt == this.changedAt &&
+          other.serverSeq == this.serverSeq);
+}
+
+class ChangeTrailsCompanion extends UpdateCompanion<ChangeTrailRow> {
+  final Value<String> id;
+  final Value<String> entity;
+  final Value<String> recordId;
+  final Value<String> field;
+  final Value<String?> oldValue;
+  final Value<String?> newValue;
+  final Value<String?> reason;
+  final Value<String?> actorName;
+  final Value<DateTime> changedAt;
+  final Value<int?> serverSeq;
+  final Value<int> rowid;
+  const ChangeTrailsCompanion({
+    this.id = const Value.absent(),
+    this.entity = const Value.absent(),
+    this.recordId = const Value.absent(),
+    this.field = const Value.absent(),
+    this.oldValue = const Value.absent(),
+    this.newValue = const Value.absent(),
+    this.reason = const Value.absent(),
+    this.actorName = const Value.absent(),
+    this.changedAt = const Value.absent(),
+    this.serverSeq = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ChangeTrailsCompanion.insert({
+    required String id,
+    required String entity,
+    required String recordId,
+    required String field,
+    this.oldValue = const Value.absent(),
+    this.newValue = const Value.absent(),
+    this.reason = const Value.absent(),
+    this.actorName = const Value.absent(),
+    required DateTime changedAt,
+    this.serverSeq = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       entity = Value(entity),
+       recordId = Value(recordId),
+       field = Value(field),
+       changedAt = Value(changedAt);
+  static Insertable<ChangeTrailRow> custom({
+    Expression<String>? id,
+    Expression<String>? entity,
+    Expression<String>? recordId,
+    Expression<String>? field,
+    Expression<String>? oldValue,
+    Expression<String>? newValue,
+    Expression<String>? reason,
+    Expression<String>? actorName,
+    Expression<DateTime>? changedAt,
+    Expression<int>? serverSeq,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (entity != null) 'entity': entity,
+      if (recordId != null) 'record_id': recordId,
+      if (field != null) 'field': field,
+      if (oldValue != null) 'old_value': oldValue,
+      if (newValue != null) 'new_value': newValue,
+      if (reason != null) 'reason': reason,
+      if (actorName != null) 'actor_name': actorName,
+      if (changedAt != null) 'changed_at': changedAt,
+      if (serverSeq != null) 'server_seq': serverSeq,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ChangeTrailsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? entity,
+    Value<String>? recordId,
+    Value<String>? field,
+    Value<String?>? oldValue,
+    Value<String?>? newValue,
+    Value<String?>? reason,
+    Value<String?>? actorName,
+    Value<DateTime>? changedAt,
+    Value<int?>? serverSeq,
+    Value<int>? rowid,
+  }) {
+    return ChangeTrailsCompanion(
+      id: id ?? this.id,
+      entity: entity ?? this.entity,
+      recordId: recordId ?? this.recordId,
+      field: field ?? this.field,
+      oldValue: oldValue ?? this.oldValue,
+      newValue: newValue ?? this.newValue,
+      reason: reason ?? this.reason,
+      actorName: actorName ?? this.actorName,
+      changedAt: changedAt ?? this.changedAt,
+      serverSeq: serverSeq ?? this.serverSeq,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (entity.present) {
+      map['entity'] = Variable<String>(entity.value);
+    }
+    if (recordId.present) {
+      map['record_id'] = Variable<String>(recordId.value);
+    }
+    if (field.present) {
+      map['field'] = Variable<String>(field.value);
+    }
+    if (oldValue.present) {
+      map['old_value'] = Variable<String>(oldValue.value);
+    }
+    if (newValue.present) {
+      map['new_value'] = Variable<String>(newValue.value);
+    }
+    if (reason.present) {
+      map['reason'] = Variable<String>(reason.value);
+    }
+    if (actorName.present) {
+      map['actor_name'] = Variable<String>(actorName.value);
+    }
+    if (changedAt.present) {
+      map['changed_at'] = Variable<DateTime>(changedAt.value);
+    }
+    if (serverSeq.present) {
+      map['server_seq'] = Variable<int>(serverSeq.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ChangeTrailsCompanion(')
+          ..write('id: $id, ')
+          ..write('entity: $entity, ')
+          ..write('recordId: $recordId, ')
+          ..write('field: $field, ')
+          ..write('oldValue: $oldValue, ')
+          ..write('newValue: $newValue, ')
+          ..write('reason: $reason, ')
+          ..write('actorName: $actorName, ')
+          ..write('changedAt: $changedAt, ')
+          ..write('serverSeq: $serverSeq, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $WaterSourcesTable waterSources = $WaterSourcesTable(this);
   late final $TestSessionsTable testSessions = $TestSessionsTable(this);
+  late final $ArchiveMarksTable archiveMarks = $ArchiveMarksTable(this);
   late final Trigger testSessionsNoDelete = Trigger(
-    'CREATE TRIGGER test_sessions_no_delete BEFORE DELETE ON test_sessions BEGIN SELECT RAISE (ABORT, \'test_sessions are immutable\');END',
+    'CREATE TRIGGER test_sessions_no_delete BEFORE DELETE ON test_sessions WHEN NOT EXISTS (SELECT 1 FROM archive_marks AS m WHERE m.archived = 1 AND m.entity = \'test_session\' AND m.record_id = OLD.id) BEGIN SELECT RAISE (ABORT, \'test_sessions are immutable\');END',
     'test_sessions_no_delete',
   );
   late final Trigger testSessionsNoUpdate = Trigger(
@@ -15345,7 +16543,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   );
   late final $TestResultsTable testResults = $TestResultsTable(this);
   late final Trigger testResultsNoDelete = Trigger(
-    'CREATE TRIGGER test_results_no_delete BEFORE DELETE ON test_results BEGIN SELECT RAISE (ABORT, \'test_results are immutable\');END',
+    'CREATE TRIGGER test_results_no_delete BEFORE DELETE ON test_results WHEN NOT EXISTS (SELECT 1 FROM archive_marks AS m WHERE m.archived = 1 AND m.entity = \'test_session\' AND m.record_id = OLD.session_id) BEGIN SELECT RAISE (ABORT, \'test_results are immutable\');END',
     'test_results_no_delete',
   );
   late final Trigger testResultsNoUpdate = Trigger(
@@ -15354,7 +16552,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   );
   late final $ReadingsTable readings = $ReadingsTable(this);
   late final Trigger readingsNoDelete = Trigger(
-    'CREATE TRIGGER readings_no_delete BEFORE DELETE ON readings BEGIN SELECT RAISE (ABORT, \'readings are immutable\');END',
+    'CREATE TRIGGER readings_no_delete BEFORE DELETE ON readings WHEN NOT EXISTS (SELECT 1 FROM archive_marks AS m WHERE m.archived = 1 AND m.entity = \'test_session\' AND m.record_id = OLD.session_id) BEGIN SELECT RAISE (ABORT, \'readings are immutable\');END',
     'readings_no_delete',
   );
   late final Trigger readingsNoUpdate = Trigger(
@@ -15373,7 +16571,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $AlertsTable alerts = $AlertsTable(this);
   late final $AlertEventsTable alertEvents = $AlertEventsTable(this);
   late final Trigger alertEventsNoDelete = Trigger(
-    'CREATE TRIGGER alert_events_no_delete BEFORE DELETE ON alert_events BEGIN SELECT RAISE (ABORT, \'alert_events are immutable\');END',
+    'CREATE TRIGGER alert_events_no_delete BEFORE DELETE ON alert_events WHEN NOT EXISTS (SELECT 1 FROM archive_marks AS m WHERE m.archived = 1 AND m.entity = \'alert\' AND m.record_id = OLD.alert_id) BEGIN SELECT RAISE (ABORT, \'alert_events are immutable\');END',
     'alert_events_no_delete',
   );
   late final Trigger alertEventsNoUpdate = Trigger(
@@ -15383,7 +16581,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $SanitaryInspectionsTable sanitaryInspections =
       $SanitaryInspectionsTable(this);
   late final Trigger sanitaryInspectionsNoDelete = Trigger(
-    'CREATE TRIGGER sanitary_inspections_no_delete BEFORE DELETE ON sanitary_inspections BEGIN SELECT RAISE (ABORT, \'sanitary_inspections are immutable\');END',
+    'CREATE TRIGGER sanitary_inspections_no_delete BEFORE DELETE ON sanitary_inspections WHEN NOT EXISTS (SELECT 1 FROM archive_marks AS m WHERE m.archived = 1 AND m.entity = \'water_source\' AND m.record_id = OLD.source_id) BEGIN SELECT RAISE (ABORT, \'sanitary_inspections are immutable\');END',
     'sanitary_inspections_no_delete',
   );
   late final Trigger sanitaryInspectionsNoUpdate = Trigger(
@@ -15391,7 +16589,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     'sanitary_inspections_no_update',
   );
   late final Trigger waterSourcesNoDelete = Trigger(
-    'CREATE TRIGGER water_sources_no_delete BEFORE DELETE ON water_sources BEGIN SELECT RAISE (ABORT, \'water_sources are deactivated, never deleted\');END',
+    'CREATE TRIGGER water_sources_no_delete BEFORE DELETE ON water_sources WHEN NOT EXISTS (SELECT 1 FROM archive_marks AS m WHERE m.archived = 1 AND m.entity = \'water_source\' AND m.record_id = OLD.id) BEGIN SELECT RAISE (ABORT, \'water_sources are deactivated, never deleted\');END',
     'water_sources_no_delete',
   );
   late final $AdminUnitsTable adminUnits = $AdminUnitsTable(this);
@@ -15426,6 +16624,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $AttachmentQueueTable attachmentQueue = $AttachmentQueueTable(
     this,
   );
+  late final $ChangeTrailsTable changeTrails = $ChangeTrailsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -15433,6 +16632,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   List<DatabaseSchemaEntity> get allSchemaEntities => [
     waterSources,
     testSessions,
+    archiveMarks,
     testSessionsNoDelete,
     testSessionsNoUpdate,
     testResults,
@@ -15470,6 +16670,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     syncState,
     syncLocks,
     attachmentQueue,
+    changeTrails,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -17120,9 +18321,242 @@ typedef $$TestSessionsTableProcessedTableManager =
         bool readingsRefs,
       })
     >;
+typedef $$ArchiveMarksTableCreateCompanionBuilder =
+    ArchiveMarksCompanion Function({
+      required String entity,
+      required String recordId,
+      required bool archived,
+      Value<String?> reason,
+      Value<DateTime?> archivedAt,
+      Value<int?> serverSeq,
+      Value<int> rowid,
+    });
+typedef $$ArchiveMarksTableUpdateCompanionBuilder =
+    ArchiveMarksCompanion Function({
+      Value<String> entity,
+      Value<String> recordId,
+      Value<bool> archived,
+      Value<String?> reason,
+      Value<DateTime?> archivedAt,
+      Value<int?> serverSeq,
+      Value<int> rowid,
+    });
+
+class $$ArchiveMarksTableFilterComposer
+    extends Composer<_$AppDatabase, $ArchiveMarksTable> {
+  $$ArchiveMarksTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get entity => $composableBuilder(
+    column: $table.entity,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get recordId => $composableBuilder(
+    column: $table.recordId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get archived => $composableBuilder(
+    column: $table.archived,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get reason => $composableBuilder(
+    column: $table.reason,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get archivedAt => $composableBuilder(
+    column: $table.archivedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get serverSeq => $composableBuilder(
+    column: $table.serverSeq,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$ArchiveMarksTableOrderingComposer
+    extends Composer<_$AppDatabase, $ArchiveMarksTable> {
+  $$ArchiveMarksTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get entity => $composableBuilder(
+    column: $table.entity,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get recordId => $composableBuilder(
+    column: $table.recordId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get archived => $composableBuilder(
+    column: $table.archived,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get reason => $composableBuilder(
+    column: $table.reason,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get archivedAt => $composableBuilder(
+    column: $table.archivedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get serverSeq => $composableBuilder(
+    column: $table.serverSeq,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$ArchiveMarksTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ArchiveMarksTable> {
+  $$ArchiveMarksTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get entity =>
+      $composableBuilder(column: $table.entity, builder: (column) => column);
+
+  GeneratedColumn<String> get recordId =>
+      $composableBuilder(column: $table.recordId, builder: (column) => column);
+
+  GeneratedColumn<bool> get archived =>
+      $composableBuilder(column: $table.archived, builder: (column) => column);
+
+  GeneratedColumn<String> get reason =>
+      $composableBuilder(column: $table.reason, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get archivedAt => $composableBuilder(
+    column: $table.archivedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get serverSeq =>
+      $composableBuilder(column: $table.serverSeq, builder: (column) => column);
+}
+
+class $$ArchiveMarksTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $ArchiveMarksTable,
+          ArchiveMarkRow,
+          $$ArchiveMarksTableFilterComposer,
+          $$ArchiveMarksTableOrderingComposer,
+          $$ArchiveMarksTableAnnotationComposer,
+          $$ArchiveMarksTableCreateCompanionBuilder,
+          $$ArchiveMarksTableUpdateCompanionBuilder,
+          (
+            ArchiveMarkRow,
+            BaseReferences<_$AppDatabase, $ArchiveMarksTable, ArchiveMarkRow>,
+          ),
+          ArchiveMarkRow,
+          PrefetchHooks Function()
+        > {
+  $$ArchiveMarksTableTableManager(_$AppDatabase db, $ArchiveMarksTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ArchiveMarksTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ArchiveMarksTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ArchiveMarksTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> entity = const Value.absent(),
+                Value<String> recordId = const Value.absent(),
+                Value<bool> archived = const Value.absent(),
+                Value<String?> reason = const Value.absent(),
+                Value<DateTime?> archivedAt = const Value.absent(),
+                Value<int?> serverSeq = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ArchiveMarksCompanion(
+                entity: entity,
+                recordId: recordId,
+                archived: archived,
+                reason: reason,
+                archivedAt: archivedAt,
+                serverSeq: serverSeq,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String entity,
+                required String recordId,
+                required bool archived,
+                Value<String?> reason = const Value.absent(),
+                Value<DateTime?> archivedAt = const Value.absent(),
+                Value<int?> serverSeq = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ArchiveMarksCompanion.insert(
+                entity: entity,
+                recordId: recordId,
+                archived: archived,
+                reason: reason,
+                archivedAt: archivedAt,
+                serverSeq: serverSeq,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$ArchiveMarksTable, ArchiveMarkRow>(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $ArchiveMarksTable,
+                    ArchiveMarkRow
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$ArchiveMarksTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $ArchiveMarksTable,
+      ArchiveMarkRow,
+      $$ArchiveMarksTableFilterComposer,
+      $$ArchiveMarksTableOrderingComposer,
+      $$ArchiveMarksTableAnnotationComposer,
+      $$ArchiveMarksTableCreateCompanionBuilder,
+      $$ArchiveMarksTableUpdateCompanionBuilder,
+      (
+        ArchiveMarkRow,
+        BaseReferences<_$AppDatabase, $ArchiveMarksTable, ArchiveMarkRow>,
+      ),
+      ArchiveMarkRow,
+      PrefetchHooks Function()
+    >;
 typedef $$TestResultsTableCreateCompanionBuilder =
     TestResultsCompanion Function({
       Value<int?> serverSeq,
+      Value<String?> installationId,
+      Value<String?> collectorKey,
+      Value<String?> collectorSnapshot,
       required String id,
       required String sessionId,
       required String overall,
@@ -17139,6 +18573,9 @@ typedef $$TestResultsTableCreateCompanionBuilder =
 typedef $$TestResultsTableUpdateCompanionBuilder =
     TestResultsCompanion Function({
       Value<int?> serverSeq,
+      Value<String?> installationId,
+      Value<String?> collectorKey,
+      Value<String?> collectorSnapshot,
       Value<String> id,
       Value<String> sessionId,
       Value<String> overall,
@@ -17204,6 +18641,21 @@ class $$TestResultsTableFilterComposer
   });
   ColumnFilters<int> get serverSeq => $composableBuilder(
     column: $table.serverSeq,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get installationId => $composableBuilder(
+    column: $table.installationId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get collectorKey => $composableBuilder(
+    column: $table.collectorKey,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get collectorSnapshot => $composableBuilder(
+    column: $table.collectorSnapshot,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -17320,6 +18772,21 @@ class $$TestResultsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get installationId => $composableBuilder(
+    column: $table.installationId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get collectorKey => $composableBuilder(
+    column: $table.collectorKey,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get collectorSnapshot => $composableBuilder(
+    column: $table.collectorSnapshot,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get id => $composableBuilder(
     column: $table.id,
     builder: (column) => ColumnOrderings(column),
@@ -17405,6 +18872,21 @@ class $$TestResultsTableAnnotationComposer
   });
   GeneratedColumn<int> get serverSeq =>
       $composableBuilder(column: $table.serverSeq, builder: (column) => column);
+
+  GeneratedColumn<String> get installationId => $composableBuilder(
+    column: $table.installationId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get collectorKey => $composableBuilder(
+    column: $table.collectorKey,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get collectorSnapshot => $composableBuilder(
+    column: $table.collectorSnapshot,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<String> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
@@ -17526,6 +19008,9 @@ class $$TestResultsTableTableManager
           updateCompanionCallback:
               ({
                 Value<int?> serverSeq = const Value.absent(),
+                Value<String?> installationId = const Value.absent(),
+                Value<String?> collectorKey = const Value.absent(),
+                Value<String?> collectorSnapshot = const Value.absent(),
                 Value<String> id = const Value.absent(),
                 Value<String> sessionId = const Value.absent(),
                 Value<String> overall = const Value.absent(),
@@ -17540,6 +19025,9 @@ class $$TestResultsTableTableManager
                 Value<int> rowid = const Value.absent(),
               }) => TestResultsCompanion(
                 serverSeq: serverSeq,
+                installationId: installationId,
+                collectorKey: collectorKey,
+                collectorSnapshot: collectorSnapshot,
                 id: id,
                 sessionId: sessionId,
                 overall: overall,
@@ -17556,6 +19044,9 @@ class $$TestResultsTableTableManager
           createCompanionCallback:
               ({
                 Value<int?> serverSeq = const Value.absent(),
+                Value<String?> installationId = const Value.absent(),
+                Value<String?> collectorKey = const Value.absent(),
+                Value<String?> collectorSnapshot = const Value.absent(),
                 required String id,
                 required String sessionId,
                 required String overall,
@@ -17570,6 +19061,9 @@ class $$TestResultsTableTableManager
                 Value<int> rowid = const Value.absent(),
               }) => TestResultsCompanion.insert(
                 serverSeq: serverSeq,
+                installationId: installationId,
+                collectorKey: collectorKey,
+                collectorSnapshot: collectorSnapshot,
                 id: id,
                 sessionId: sessionId,
                 overall: overall,
@@ -25042,6 +26536,310 @@ typedef $$AttachmentQueueTableProcessedTableManager =
       AttachmentQueueRow,
       PrefetchHooks Function()
     >;
+typedef $$ChangeTrailsTableCreateCompanionBuilder =
+    ChangeTrailsCompanion Function({
+      required String id,
+      required String entity,
+      required String recordId,
+      required String field,
+      Value<String?> oldValue,
+      Value<String?> newValue,
+      Value<String?> reason,
+      Value<String?> actorName,
+      required DateTime changedAt,
+      Value<int?> serverSeq,
+      Value<int> rowid,
+    });
+typedef $$ChangeTrailsTableUpdateCompanionBuilder =
+    ChangeTrailsCompanion Function({
+      Value<String> id,
+      Value<String> entity,
+      Value<String> recordId,
+      Value<String> field,
+      Value<String?> oldValue,
+      Value<String?> newValue,
+      Value<String?> reason,
+      Value<String?> actorName,
+      Value<DateTime> changedAt,
+      Value<int?> serverSeq,
+      Value<int> rowid,
+    });
+
+class $$ChangeTrailsTableFilterComposer
+    extends Composer<_$AppDatabase, $ChangeTrailsTable> {
+  $$ChangeTrailsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get entity => $composableBuilder(
+    column: $table.entity,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get recordId => $composableBuilder(
+    column: $table.recordId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get field => $composableBuilder(
+    column: $table.field,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get oldValue => $composableBuilder(
+    column: $table.oldValue,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get newValue => $composableBuilder(
+    column: $table.newValue,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get reason => $composableBuilder(
+    column: $table.reason,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get actorName => $composableBuilder(
+    column: $table.actorName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get changedAt => $composableBuilder(
+    column: $table.changedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get serverSeq => $composableBuilder(
+    column: $table.serverSeq,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$ChangeTrailsTableOrderingComposer
+    extends Composer<_$AppDatabase, $ChangeTrailsTable> {
+  $$ChangeTrailsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get entity => $composableBuilder(
+    column: $table.entity,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get recordId => $composableBuilder(
+    column: $table.recordId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get field => $composableBuilder(
+    column: $table.field,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get oldValue => $composableBuilder(
+    column: $table.oldValue,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get newValue => $composableBuilder(
+    column: $table.newValue,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get reason => $composableBuilder(
+    column: $table.reason,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get actorName => $composableBuilder(
+    column: $table.actorName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get changedAt => $composableBuilder(
+    column: $table.changedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get serverSeq => $composableBuilder(
+    column: $table.serverSeq,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$ChangeTrailsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ChangeTrailsTable> {
+  $$ChangeTrailsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get entity =>
+      $composableBuilder(column: $table.entity, builder: (column) => column);
+
+  GeneratedColumn<String> get recordId =>
+      $composableBuilder(column: $table.recordId, builder: (column) => column);
+
+  GeneratedColumn<String> get field =>
+      $composableBuilder(column: $table.field, builder: (column) => column);
+
+  GeneratedColumn<String> get oldValue =>
+      $composableBuilder(column: $table.oldValue, builder: (column) => column);
+
+  GeneratedColumn<String> get newValue =>
+      $composableBuilder(column: $table.newValue, builder: (column) => column);
+
+  GeneratedColumn<String> get reason =>
+      $composableBuilder(column: $table.reason, builder: (column) => column);
+
+  GeneratedColumn<String> get actorName =>
+      $composableBuilder(column: $table.actorName, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get changedAt =>
+      $composableBuilder(column: $table.changedAt, builder: (column) => column);
+
+  GeneratedColumn<int> get serverSeq =>
+      $composableBuilder(column: $table.serverSeq, builder: (column) => column);
+}
+
+class $$ChangeTrailsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $ChangeTrailsTable,
+          ChangeTrailRow,
+          $$ChangeTrailsTableFilterComposer,
+          $$ChangeTrailsTableOrderingComposer,
+          $$ChangeTrailsTableAnnotationComposer,
+          $$ChangeTrailsTableCreateCompanionBuilder,
+          $$ChangeTrailsTableUpdateCompanionBuilder,
+          (
+            ChangeTrailRow,
+            BaseReferences<_$AppDatabase, $ChangeTrailsTable, ChangeTrailRow>,
+          ),
+          ChangeTrailRow,
+          PrefetchHooks Function()
+        > {
+  $$ChangeTrailsTableTableManager(_$AppDatabase db, $ChangeTrailsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ChangeTrailsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ChangeTrailsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ChangeTrailsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> entity = const Value.absent(),
+                Value<String> recordId = const Value.absent(),
+                Value<String> field = const Value.absent(),
+                Value<String?> oldValue = const Value.absent(),
+                Value<String?> newValue = const Value.absent(),
+                Value<String?> reason = const Value.absent(),
+                Value<String?> actorName = const Value.absent(),
+                Value<DateTime> changedAt = const Value.absent(),
+                Value<int?> serverSeq = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ChangeTrailsCompanion(
+                id: id,
+                entity: entity,
+                recordId: recordId,
+                field: field,
+                oldValue: oldValue,
+                newValue: newValue,
+                reason: reason,
+                actorName: actorName,
+                changedAt: changedAt,
+                serverSeq: serverSeq,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String entity,
+                required String recordId,
+                required String field,
+                Value<String?> oldValue = const Value.absent(),
+                Value<String?> newValue = const Value.absent(),
+                Value<String?> reason = const Value.absent(),
+                Value<String?> actorName = const Value.absent(),
+                required DateTime changedAt,
+                Value<int?> serverSeq = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ChangeTrailsCompanion.insert(
+                id: id,
+                entity: entity,
+                recordId: recordId,
+                field: field,
+                oldValue: oldValue,
+                newValue: newValue,
+                reason: reason,
+                actorName: actorName,
+                changedAt: changedAt,
+                serverSeq: serverSeq,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$ChangeTrailsTable, ChangeTrailRow>(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $ChangeTrailsTable,
+                    ChangeTrailRow
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$ChangeTrailsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $ChangeTrailsTable,
+      ChangeTrailRow,
+      $$ChangeTrailsTableFilterComposer,
+      $$ChangeTrailsTableOrderingComposer,
+      $$ChangeTrailsTableAnnotationComposer,
+      $$ChangeTrailsTableCreateCompanionBuilder,
+      $$ChangeTrailsTableUpdateCompanionBuilder,
+      (
+        ChangeTrailRow,
+        BaseReferences<_$AppDatabase, $ChangeTrailsTable, ChangeTrailRow>,
+      ),
+      ChangeTrailRow,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -25050,6 +26848,8 @@ class $AppDatabaseManager {
       $$WaterSourcesTableTableManager(_db, _db.waterSources);
   $$TestSessionsTableTableManager get testSessions =>
       $$TestSessionsTableTableManager(_db, _db.testSessions);
+  $$ArchiveMarksTableTableManager get archiveMarks =>
+      $$ArchiveMarksTableTableManager(_db, _db.archiveMarks);
   $$TestResultsTableTableManager get testResults =>
       $$TestResultsTableTableManager(_db, _db.testResults);
   $$ReadingsTableTableManager get readings =>
@@ -25098,4 +26898,6 @@ class $AppDatabaseManager {
       $$SyncLocksTableTableManager(_db, _db.syncLocks);
   $$AttachmentQueueTableTableManager get attachmentQueue =>
       $$AttachmentQueueTableTableManager(_db, _db.attachmentQueue);
+  $$ChangeTrailsTableTableManager get changeTrails =>
+      $$ChangeTrailsTableTableManager(_db, _db.changeTrails);
 }

@@ -77,7 +77,7 @@ AREA: dict[str, str] = {
         "created_by, installation_id, collector_key, collector_snapshot, "
         "coalesce(created_at_device, created_at_server) AS created_at_device, "
         "coalesce(updated_at_device, updated_at_server) AS updated_at_device, {cols} "
-        "FROM water_source x WHERE {area:x.village_id}"
+        "FROM water_source x WHERE {area:x.village_id} AND NOT wc_archived('water_source', x.id)"
     ),
     "calibration": (
         "SELECT id, tester_serial, tester_profile_id, reference_standard_id, buffers, passed, "
@@ -90,30 +90,35 @@ AREA: dict[str, str] = {
         "calibrated, ST_Y(location::geometry) AS lat, ST_X(location::geometry) AS lon, "
         "location_accuracy_m, distance_from_source_m, distance_override_reason, notes, "
         "tested_at_device, clock_flags, installation_id, collector_key, collector_snapshot, "
-        "{cols} FROM test_session x WHERE {area:" + _SRC.format(col="x.source_id") + "}"
+        "{cols} FROM test_session x WHERE {area:" + _SRC.format(col="x.source_id") + "} "
+        "AND NOT wc_archived('test_session', x.id)"
     ),
     "test_result": (
         "SELECT id, session_id, overall, standard_id, computed_by, retest_of, amendment_of, "
-        "amendment_reason, flags, limitation_code, created_at_device, {cols} "
-        "FROM test_result x WHERE {area:" + _SES.format(col="x.session_id") + "}"
+        "amendment_reason, flags, limitation_code, created_at_device, installation_id, "
+        "collector_key, collector_snapshot, {cols} "
+        "FROM test_result x WHERE {area:" + _SES.format(col="x.session_id") + "} "
+        "AND NOT wc_archived('test_session', x.session_id)"
     ),
     "reading": (
         "SELECT id, session_id, result_id, parameter_code, value::text AS value, detected, "
         "acceptable, value_text, unit, result, is_derived, source_device, {cols} "
-        "FROM reading x WHERE {area:" + _SES.format(col="x.session_id") + "}"
+        "FROM reading x WHERE {area:" + _SES.format(col="x.session_id") + "} "
+        "AND NOT wc_archived('test_session', x.session_id)"
     ),
     "classification": (
         "SELECT result_id, standard_id, computed_by, overall, reading_results, flags, "
         "limitation_code, computed_at, {cols} FROM classification x WHERE {area:"
         + _SES.format(col="(SELECT r.session_id FROM test_result r WHERE r.id = x.result_id)")
-        + "}"
+        + "} AND NOT wc_archived('test_session', "
+        "(SELECT r.session_id FROM test_result r WHERE r.id = x.result_id))"
     ),
     "alert": (
         "SELECT id, source_id, trigger_result_id, trigger_rule, status, severity, opened_at, "
         "acknowledged_at, closed_at, linked_alert_id, version, installation_id, "
         "collector_key, collector_snapshot, {cols} FROM alert x WHERE {area:"
         + _SRC.format(col="x.source_id")
-        + "}"
+        + "} AND NOT wc_archived('alert', x.id)"
     ),
     "alert_event": (
         "SELECT id, alert_id, actor_id, event_type, note, "
@@ -121,7 +126,7 @@ AREA: dict[str, str] = {
         "installation_id, collector_key, collector_snapshot, {cols} FROM alert_event x "
         "WHERE {area:"
         + _SRC.format(col="(SELECT a.source_id FROM alert a WHERE a.id = x.alert_id)")
-        + "}"
+        + "} AND NOT wc_archived('alert', x.alert_id)"
     ),
     "attachment": (
         "SELECT id, owner_type, owner_id, object_key, sha256, bytes, mime, upload_status, {cols} "
@@ -130,7 +135,8 @@ AREA: dict[str, str] = {
             col="CASE WHEN x.owner_type = 'water_source' THEN x.owner_id ELSE "
             "(SELECT t.source_id FROM test_session t WHERE t.id = x.owner_id) END"
         )
-        + "}"
+        + "} AND NOT wc_archived('water_source', x.owner_id) "
+        "AND NOT wc_archived('test_session', x.owner_id)"
     ),
     # Staff only (RLS): phones never receive marks.
     "collector_mark": (
@@ -144,13 +150,27 @@ AREA: dict[str, str] = {
         "coalesce(created_at_device, created_at_server) AS created_at_device, {cols} "
         "FROM submission_flag x WHERE {area:"
         + _SES.format(col="(SELECT r.session_id FROM test_result r WHERE r.id = x.result_id)")
-        + "}"
+        + "} AND NOT wc_archived('test_session', "
+        "(SELECT r.session_id FROM test_result r WHERE r.id = x.result_id))"
     ),
     "sanitary_inspection": (
         "SELECT id, source_id, answers, inspected_at_device, installation_id, collector_key, "
         "collector_snapshot, {cols} FROM sanitary_inspection x WHERE {area:"
         + _SRC.format(col="x.source_id")
-        + "}"
+        + "} AND NOT wc_archived('water_source', x.source_id)"
+    ),
+    # Archive marks (ADR-018): devices remove archived records, and put them
+    # back after a restore. Marks without an area (phones, collectors) reach
+    # IT admins only (row-level security).
+    "archive_mark": (
+        "SELECT entity, record_id, archived, reason, archived_at, {cols} "
+        "FROM archive_mark x WHERE {area:x.village_id}"
+    ),
+    # Who changed what, from what to what (ADR-018).
+    "change_trail": (
+        "SELECT id, entity, record_id, field, old_value::text AS old_value, "
+        "new_value::text AS new_value, reason, actor_name, changed_at, {cols} "
+        "FROM change_trail x WHERE {area:x.village_id}"
     ),
 }
 
@@ -296,7 +316,12 @@ async def pull(
     changes = []
     for _xid, seq, entity, data in page:
         key = _KEY.get(entity)
-        ident = data[key] if key else data.get("id") or f"{data['result_id']}/{data['standard_id']}"
+        if entity == "archive_mark":
+            ident = f"{data['entity']}/{data['record_id']}"
+        else:
+            ident = (
+                data[key] if key else data.get("id") or f"{data['result_id']}/{data['standard_id']}"
+            )
         op = (
             "tombstone" if entity == "water_source" and data.get("is_active") is False else "upsert"
         )

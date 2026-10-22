@@ -36,6 +36,8 @@ part 'database.g.dart';
     SyncState,
     SyncLocks,
     AttachmentQueue,
+    ArchiveMarks,
+    ChangeTrails,
   ],
   include: {'immutability.drift'},
 )
@@ -43,7 +45,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.executor);
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -72,6 +74,26 @@ class AppDatabase extends _$AppDatabase {
       if (from < 5) {
         // The area's default limit set reaches devices (P11, ADR-016).
         await m.addColumn(adminUnits, adminUnits.defaultStandardId);
+      }
+      if (from < 6) {
+        // Archive and edit trails (ADR-018): who corrected a result, the
+        // archive marks, and deletes allowed for archived records only.
+        await m.addColumn(testResults, testResults.installationId);
+        await m.addColumn(testResults, testResults.collectorKey);
+        await m.addColumn(testResults, testResults.collectorSnapshot);
+        await m.createTable(archiveMarks);
+        await m.createTable(changeTrails);
+        for (final t in [
+          testSessionsNoDelete,
+          testResultsNoDelete,
+          readingsNoDelete,
+          alertEventsNoDelete,
+          sanitaryInspectionsNoDelete,
+          waterSourcesNoDelete,
+        ]) {
+          await m.drop(t);
+          await m.createTrigger(t);
+        }
       }
     },
     beforeOpen: (details) async {

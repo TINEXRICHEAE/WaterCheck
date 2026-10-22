@@ -6,6 +6,9 @@ import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
 
 import '../models/activation_code_out.dart';
+import '../models/archive_in.dart';
+import '../models/archive_out.dart';
+import '../models/archived_item.dart';
 import '../models/audit_entry.dart';
 import '../models/card_in.dart';
 import '../models/card_out.dart';
@@ -14,6 +17,7 @@ import '../models/credentials_out.dart';
 import '../models/default_profile_in.dart';
 import '../models/health.dart';
 import '../models/installation_out.dart';
+import '../models/label_in.dart';
 import '../models/new_area_in.dart';
 import '../models/new_user_in.dart';
 import '../models/pending_parameter.dart';
@@ -182,5 +186,33 @@ abstract class AdminClient {
   Future<CardOut> editCard({
     @Path('card_id') required String cardId,
     @Body() required CardIn body,
+  });
+
+  /// Archived.
+  ///
+  /// Archive actions that can still be restored, newest first.
+  @GET('/v1/admin/archive')
+  Future<List<ArchivedItem>> archived();
+
+  /// Archive Record.
+  ///
+  /// Archives a record and what cascades from it (restorable).
+  @POST('/v1/admin/archive')
+  Future<ArchiveOut> archiveRecord({@Body() required ArchiveIn body});
+
+  /// Restore.
+  ///
+  /// Brings back everything one archive action hid. A restored phone stays.
+  /// revoked: issue it a new activation code.
+  @POST('/v1/admin/archive/{batch_id}/restore')
+  Future<Map<String, int>> restore({@Path('batch_id') required String batchId});
+
+  /// Name Installation.
+  ///
+  /// Names a phone ("Nalongo's phone"); the change is kept in its trail.
+  @PATCH('/v1/admin/installations/{installation_id}')
+  Future<void> nameInstallation({
+    @Path('installation_id') required String installationId,
+    @Body() required LabelIn body,
   });
 }

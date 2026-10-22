@@ -164,6 +164,121 @@ class PushService:
         self.p = principal
         self.now = now
         self.classify: set[UUID] = set()
+        self._collectors_seen: set[UUID] = set()
+
+    async def _refuse_archived(self, entity: str, record_id: UUID | None) -> None:
+        """New records and edits on an archived record are refused (ADR-018)."""
+        if record_id is None:
+            return
+        archived = (
+            await self.conn.execute(
+                text("SELECT wc_archived(:e, :id)"), {"e": entity, "id": record_id}
+            )
+        ).scalar_one()
+        if archived:
+            raise Rejected("archived")
+
+    async def _actor_name(self, o: dict[str, Any]) -> str | None:
+        if o["cs"]:
+            name = json.loads(o["cs"]).get("full_name")
+            return str(name) if name else None
+        if o["by"]:
+            return (
+                await self.conn.execute(
+                    text("SELECT full_name FROM app_user WHERE id = :id"), {"id": o["by"]}
+                )
+            ).scalar_one_or_none()
+        return None
+
+    async def _trail(
+        self,
+        entity: str,
+        record_id: UUID,
+        village: UUID | None,
+        o: dict[str, Any],
+        changes: list[tuple[str, Any, Any]],
+    ) -> None:
+        """One trail row per changed field: old → new, who, when (ADR-018)."""
+        if not changes:
+            return
+        name = await self._actor_name(o)
+        for field, old, new in changes:
+            await self.conn.execute(
+                text(
+                    "INSERT INTO change_trail (entity, record_id, field, old_value, new_value, "
+                    "village_id, actor_user_id, installation_id, collector_key, actor_name, "
+                    "server_seq, server_xid) VALUES (:e, :id, :f, CAST(:old AS jsonb), "
+                    "CAST(:new AS jsonb), :v, :by, :inst, :ck, :name, 0, '1'::xid8)"
+                ),
+                {
+                    "e": entity,
+                    "id": record_id,
+                    "f": field,
+                    "old": json.dumps(old, default=str),
+                    "new": json.dumps(new, default=str),
+                    "v": village,
+                    "by": o["by"],
+                    "inst": o["inst"],
+                    "ck": o["ck"],
+                    "name": name,
+                },
+            )
+
+    async def _note_collector(self, o: dict[str, Any]) -> None:
+        """Keeps each collector's latest details; a newer profile version
+        writes the changed fields to the trail."""
+        key = o["ck"]
+        if self.p.kind != "installation" or key is None or not o["cs"]:
+            return
+        if key in self._collectors_seen:
+            return
+        self._collectors_seen.add(key)
+        snap = json.loads(o["cs"])
+        version = int(snap.get("profile_version") or 1)
+        cur = (
+            await self.conn.execute(
+                text(
+                    "SELECT snapshot, profile_version FROM collector_profile "
+                    "WHERE collector_key = :k FOR UPDATE"
+                ),
+                {"k": key},
+            )
+        ).first()
+        if cur is None:
+            await self.conn.execute(
+                text(
+                    "INSERT INTO collector_profile (collector_key, installation_id, snapshot, "
+                    "profile_version) VALUES (:k, :i, CAST(:s AS jsonb), :v) "
+                    "ON CONFLICT (collector_key) DO NOTHING"
+                ),
+                {"k": key, "i": o["inst"], "s": o["cs"], "v": version},
+            )
+            return
+        old = cur.snapshot if isinstance(cur.snapshot, dict) else json.loads(cur.snapshot)
+        if version <= cur.profile_version:
+            await self.conn.execute(
+                text("UPDATE collector_profile SET last_seen_at = now() WHERE collector_key = :k"),
+                {"k": key},
+            )
+            return
+        await self.conn.execute(
+            text(
+                "UPDATE collector_profile SET snapshot = CAST(:s AS jsonb), "
+                "profile_version = :v, last_seen_at = now() WHERE collector_key = :k"
+            ),
+            {"k": key, "s": o["cs"], "v": version},
+        )
+        area = (
+            await self.conn.execute(
+                text("SELECT admin_unit_id FROM installation WHERE id = :i"), {"i": o["inst"]}
+            )
+        ).scalar_one_or_none()
+        changed = [
+            (f, old.get(f), snap.get(f))
+            for f in sorted(set(old) | set(snap))
+            if f != "profile_version" and old.get(f) != snap.get(f)
+        ]
+        await self._trail("collector", key, area, o, changed)
 
     # Who sent it ------------------------------------------------------
     def _origin(self, d: dict[str, Any]) -> dict[str, Any]:
@@ -205,6 +320,7 @@ class PushService:
             return Outcome(c.id, c.entity, "rejected", reason="not_allowed")
         try:
             async with self.conn.begin_nested():
+                await self._note_collector(self._origin(c.data))
                 return await handler(self, c)
         except Rejected as e:
             return Outcome(c.id, c.entity, "rejected", reason=e.reason)
@@ -287,7 +403,9 @@ class PushService:
             (
                 await self.conn.execute(
                     text(
-                        "SELECT version, name, households_served, functional_status, is_active "
+                        "SELECT version, name, households_served, functional_status, is_active, "
+                        "source_type, location_accuracy_m, village_id, "
+                        "ST_Y(location::geometry) AS lat, ST_X(location::geometry) AS lon "
                         "FROM water_source WHERE id = :id FOR UPDATE"
                     ),
                     {"id": sid},
@@ -298,6 +416,7 @@ class PushService:
         )
         if cur is None:
             raise Rejected("not_found")
+        await self._refuse_archived("water_source", sid)
         stale = c.base_version is not None and c.base_version != cur["version"]
         sets: dict[str, Any] = {}
         for f in ("name", "households_served", "source_type", "location_accuracy_m"):
@@ -335,6 +454,13 @@ class PushService:
                     },
                 )
             ).scalar_one()
+        trail = [(f, cur[f], v) for f, v in sets.items() if cur[f] != v]
+        if point:
+            for f in ("lat", "lon"):
+                if f in d and d[f] != cur[f]:
+                    trail.append((f, cur[f], d[f]))
+        if sid is not None:
+            await self._trail("water_source", sid, cur["village_id"], self._origin(d), trail)
         for field, server_value, client_value in conflicts:
             await self.conn.execute(
                 text(
@@ -393,6 +519,7 @@ class PushService:
         d, o = c.data, self._origin(c.data)
         if o["ck"] is None or o["cs"] is None:
             raise Rejected("missing:collector")
+        await self._refuse_archived("water_source", _uuid(_req(d, "source_id"), "source_id"))
         at = _ts(_req(d, "tested_at_device"), "tested_at_device")
         assert at is not None  # noqa: S101 - _req guarantees it
         return await self._insert(
@@ -426,20 +553,38 @@ class PushService:
     async def test_result_insert(self, c: Change) -> Outcome:
         d = c.data
         rid = _uuid(c.id, "id")
+        session = _uuid(_req(d, "session_id"), "session_id")
+        await self._refuse_archived("test_session", session)
+        amends = _uuid(d.get("amendment_of"), "amendment_of")
+        # A correction records who made it; only the person who made the
+        # test may correct it (ADR-018).
+        o = self._origin(d) if amends is not None else {"inst": None, "ck": None, "cs": None}
+        if amends is not None and self.p.kind == "installation":
+            owner = (
+                await self.conn.execute(
+                    text("SELECT collector_key FROM test_session WHERE id = :s"), {"s": session}
+                )
+            ).scalar_one_or_none()
+            if owner is not None and o["ck"] is not None and owner != o["ck"]:
+                raise Rejected("not_creator")
         out = await self._insert(
             c,
             "INSERT INTO test_result (id, session_id, overall, standard_id, computed_by, "
             "retest_of, amendment_of, amendment_reason, flags, limitation_code, "
-            "created_at_device, server_seq) VALUES (:id, :session, :overall, :std, 'device', "
-            ":retest, :amends, :why, :flags, :limitation, :at, 0) "
-            "ON CONFLICT (id) DO NOTHING RETURNING 1",
+            "created_at_device, installation_id, collector_key, collector_snapshot, "
+            "server_seq) VALUES (:id, :session, :overall, :std, 'device', "
+            ":retest, :amends, :why, :flags, :limitation, :at, :inst, :ck, "
+            "CAST(:cs AS jsonb), 0) ON CONFLICT (id) DO NOTHING RETURNING 1",
             {
                 "id": rid,
-                "session": _uuid(_req(d, "session_id"), "session_id"),
+                "session": session,
+                "inst": o["inst"],
+                "ck": o["ck"],
+                "cs": o["cs"],
                 "overall": _req(d, "overall"),
                 "std": _uuid(_req(d, "standard_id"), "standard_id"),
                 "retest": _uuid(d.get("retest_of"), "retest_of"),
-                "amends": _uuid(d.get("amendment_of"), "amendment_of"),
+                "amends": amends,
                 "why": d.get("amendment_reason"),
                 "flags": _list(d.get("flags")),
                 "limitation": d.get("limitation_code"),
@@ -453,6 +598,7 @@ class PushService:
     async def reading_insert(self, c: Change) -> Outcome:
         d = c.data
         result_id = _uuid(_req(d, "result_id"), "result_id")
+        await self._refuse_archived("test_session", _uuid(d.get("session_id"), "session_id"))
         out = await self._insert(
             c,
             "INSERT INTO reading (id, session_id, result_id, parameter_code, value, detected, "
@@ -482,6 +628,7 @@ class PushService:
 
     async def alert_insert(self, c: Change) -> Outcome:
         d, o = c.data, self._origin(c.data)
+        await self._refuse_archived("water_source", _uuid(_req(d, "source_id"), "source_id"))
         # The same result and rule cannot raise two alerts (ADR-005).
         out = await self._insert(
             c,
@@ -508,6 +655,7 @@ class PushService:
     async def alert_event_insert(self, c: Change) -> Outcome:
         d, o = c.data, self._origin(c.data)
         alert_id = _uuid(_req(d, "alert_id"), "alert_id")
+        await self._refuse_archived("alert", alert_id)
         event_type = str(_req(d, "event_type"))
         out = await self._insert(
             c,
@@ -585,6 +733,7 @@ class PushService:
 
     async def sanitary_inspection_insert(self, c: Change) -> Outcome:
         d, o = c.data, self._origin(c.data)
+        await self._refuse_archived("water_source", _uuid(_req(d, "source_id"), "source_id"))
         return await self._insert(
             c,
             "INSERT INTO sanitary_inspection (id, source_id, answers, inspected_at_device, "

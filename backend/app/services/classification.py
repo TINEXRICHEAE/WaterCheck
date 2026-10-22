@@ -41,6 +41,7 @@ async def safe_history(
             "JOIN test_session s ON s.id = r.session_id "
             "JOIN reading g ON g.result_id = r.id "
             "WHERE s.source_id = :src AND r.id <> :me AND r.overall = 'safe' "
+            "AND NOT wc_archived('test_session', s.id) "
             "AND g.value IS NOT NULL "
             "AND NOT EXISTS (SELECT 1 FROM test_result n WHERE n.amendment_of = r.id) "
             "AND s.tested_at_device <= (SELECT s2.tested_at_device FROM test_result r2 "

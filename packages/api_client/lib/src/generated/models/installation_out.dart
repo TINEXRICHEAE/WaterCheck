@@ -21,6 +21,8 @@ class InstallationOut {
     required this.revokedAt,
     required this.collectorsSeen,
     required this.tests,
+    this.archived = false,
+    this.label,
   });
 
   factory InstallationOut.fromJson(Map<String, Object?> json) =>
@@ -42,6 +44,8 @@ class InstallationOut {
   @JsonKey(name: 'collectors_seen')
   final int collectorsSeen;
   final int tests;
+  final String? label;
+  final bool archived;
 
   Map<String, Object?> toJson() => _$InstallationOutToJson(this);
 }

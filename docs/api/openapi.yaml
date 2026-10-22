@@ -1732,6 +1732,120 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
+  /v1/admin/archive:
+    get:
+      tags:
+      - admin
+      summary: Archived
+      description: Archive actions that can still be restored, newest first.
+      operationId: archived
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ArchivedItem'
+                type: array
+                title: Response Archived
+      security:
+      - HTTPBearer: []
+    post:
+      tags:
+      - admin
+      summary: Archive Record
+      description: Archives a record and what cascades from it (restorable).
+      operationId: archive_record
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ArchiveIn'
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArchiveOut'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - HTTPBearer: []
+  /v1/admin/archive/{batch_id}/restore:
+    post:
+      tags:
+      - admin
+      summary: Restore
+      description: 'Brings back everything one archive action hid. A restored phone
+        stays
+
+        revoked: issue it a new activation code.'
+      operationId: restore
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: batch_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Batch Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: integer
+                title: Response Restore
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/admin/installations/{installation_id}:
+    patch:
+      tags:
+      - admin
+      summary: Name Installation
+      description: Names a phone ("Nalongo's phone"); the change is kept in its trail.
+      operationId: name_installation
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: installation_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Installation Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LabelIn'
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
     ActivateRequest:
@@ -1866,6 +1980,91 @@ components:
       - time_zone
       title: AppearanceIn
       description: Theme and time zone; they follow the person to any device.
+    ArchiveIn:
+      properties:
+        entity:
+          type: string
+          enum:
+          - installation
+          - collector
+          - water_source
+          - test_session
+          title: Entity
+        record_id:
+          type: string
+          format: uuid
+          title: Record Id
+        reason:
+          type: string
+          maxLength: 500
+          minLength: 5
+          title: Reason
+      type: object
+      required:
+      - entity
+      - record_id
+      - reason
+      title: ArchiveIn
+    ArchiveOut:
+      properties:
+        batch_id:
+          type: string
+          format: uuid
+          title: Batch Id
+        counts:
+          additionalProperties:
+            type: integer
+          type: object
+          title: Counts
+      type: object
+      required:
+      - batch_id
+      - counts
+      title: ArchiveOut
+    ArchivedItem:
+      properties:
+        batch_id:
+          type: string
+          format: uuid
+          title: Batch Id
+        entity:
+          type: string
+          title: Entity
+        record_id:
+          type: string
+          format: uuid
+          title: Record Id
+        label:
+          type: string
+          title: Label
+        reason:
+          type: string
+          title: Reason
+        archived_by:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Archived By
+        archived_at:
+          type: string
+          format: date-time
+          title: Archived At
+        counts:
+          additionalProperties:
+            type: integer
+          type: object
+          title: Counts
+      type: object
+      required:
+      - batch_id
+      - entity
+      - record_id
+      - label
+      - reason
+      - archived_by
+      - archived_at
+      - counts
+      title: ArchivedItem
     Area:
       properties:
         id:
@@ -2538,6 +2737,15 @@ components:
         tests:
           type: integer
           title: Tests
+        label:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Label
+        archived:
+          type: boolean
+          title: Archived
+          default: false
       type: object
       required:
       - id
@@ -2551,6 +2759,16 @@ components:
       - collectors_seen
       - tests
       title: InstallationOut
+    LabelIn:
+      properties:
+        label:
+          anyOf:
+          - type: string
+            maxLength: 80
+          - type: 'null'
+          title: Label
+      type: object
+      title: LabelIn
     LatestIssue:
       properties:
         source_id:

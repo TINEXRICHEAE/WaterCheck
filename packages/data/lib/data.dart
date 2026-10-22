@@ -27,6 +27,7 @@ export 'src/repositories/outbox_repository.dart';
 export 'src/repositories/reference_data_repository.dart';
 export 'src/repositories/source_repository.dart';
 export 'src/repositories/stakeholder_repository.dart';
+export 'src/repositories/trail_queries.dart';
 export 'src/repositories/support.dart'
     show Clock, IdGenerator, SubmissionOrigin, alertIdFor, systemClock;
 export 'src/repositories/testing_repository.dart';
@@ -42,4 +43,4 @@ export 'src/sync/sync_transport.dart';
 export 'src/seed/seed_importer.dart';
 
 /// Local database schema version (see `drift_schemas/`).
-const int localSchemaVersion = 5;
+const int localSchemaVersion = 6;
