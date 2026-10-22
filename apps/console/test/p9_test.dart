@@ -1,9 +1,16 @@
+import 'dart:convert';
+
+import 'package:api_client/api_client.dart';
 import 'package:data/data.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:latlong2/latlong.dart';
+
+import 'package:watercheck_console/features/admin/admin_api.dart';
 
 import 'support/harness.dart';
 
@@ -90,8 +97,13 @@ List<IncomingChange> _area() {
   ];
 }
 
-Future<AppDatabase> _open(WidgetTester tester, {Size? size}) async {
-  final env = ConsoleTestEnv(cookieMode: true);
+Future<AppDatabase> _open(
+  WidgetTester tester, {
+  Size? size,
+  List<Override> overrides = const [],
+}) async {
+  final env = ConsoleTestEnv(cookieMode: true)
+    ..extraOverrides.addAll(overrides);
   env.api.sessionFor('admin@example.org');
   env.sync.serve['scope'] = _area();
   _env = env;
@@ -234,6 +246,35 @@ void main() {
     await disposeConsole(tester, db);
   });
 
+  testWidgets('collectors: a sign-in code for another phone (ADR-020)', (
+    tester,
+  ) async {
+    final server = _CodeServer();
+    final db = await _open(
+      tester,
+      overrides: [
+        adminApiProvider.overrideWithValue(
+          WaterCheckApi(
+            Dio(BaseOptions(baseUrl: 'http://test'))
+              ..httpClientAdapter = server,
+          ),
+        ),
+      ],
+    );
+    await tester.tap(find.text('Collectors').last);
+    await settle(tester);
+    await tester.tap(find.byTooltip('Mark collector'));
+    await settle(tester);
+    await tester.tap(find.text('Sign-in code for another phone'));
+    await settle(tester);
+    expect(server.paths, ['/v1/collectors/$_collector/recovery-code']);
+    expect(find.text('Code for Example Collector'), findsOneWidget);
+    expect(find.text('K7QMR-T4W9X'), findsOneWidget);
+    await tester.tap(find.text('Close'));
+    await settle(tester);
+    await disposeConsole(tester, db);
+  });
+
   testWidgets('profile: notification channels are saved', (tester) async {
     final db = await _open(tester);
     await tester.tap(find.byTooltip('Account'));
@@ -341,4 +382,31 @@ void main() {
     expect(find.text('Test history'), findsOneWidget);
     await disposeConsole(tester, db);
   });
+}
+
+class _CodeServer implements HttpClientAdapter {
+  final paths = <String>[];
+
+  @override
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future<void>? cancelFuture,
+  ) async {
+    paths.add(options.uri.path);
+    return ResponseBody.fromString(
+      jsonEncode({
+        'code': 'K7QMR-T4W9X',
+        'expires_at': '2026-10-23T08:00:00Z',
+        'full_name': 'Example Collector',
+      }),
+      201,
+      headers: {
+        Headers.contentTypeHeader: [Headers.jsonContentType],
+      },
+    );
+  }
+
+  @override
+  void close({bool force = false}) {}
 }

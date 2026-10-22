@@ -2066,4 +2066,28 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get lockOffConfirm => 'Turn off';
+
+  @override
+  String get recoveryAction => 'Sign-in code for another phone';
+
+  @override
+  String recoveryTitle(String name) {
+    return 'Code for $name';
+  }
+
+  @override
+  String get recoveryHow =>
+      'Give this code to the collector (call or text them). In WaterCheck Collect on any phone: \"Who is testing?\" › \"I already have a profile\" › enter the code. They come back as the same person, with their details. The code works once.';
+
+  @override
+  String recoveryValid(String when) {
+    return 'Valid until $when.';
+  }
+
+  @override
+  String get recoveryCopy => 'Copy';
+
+  @override
+  String get recoveryNotYours =>
+      'This collector does not work in your areas. Ask the IT admin.';
 }

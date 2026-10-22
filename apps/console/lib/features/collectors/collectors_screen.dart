@@ -10,6 +10,7 @@ import '../../app/providers.dart';
 import '../../app/session.dart';
 import '../../l10n/app_localizations.dart';
 import '../admin/archive_actions.dart';
+import 'recovery_code.dart';
 import '../dashboard/dashboard_state.dart';
 import '../dashboard/filter_bar.dart';
 
@@ -71,6 +72,7 @@ class CollectorsScreen extends ConsumerWidget {
                     entity: 'collector',
                     id: c.collectorKey,
                   ),
+                  'code' => showRecoveryCode(context, ref, c),
                   'archive' => archiveRecord(
                     context,
                     ref,
@@ -92,6 +94,10 @@ class CollectorsScreen extends ConsumerWidget {
                     child: Text(l10n.markAsFlagged),
                   ),
                   PopupMenuItem(value: 'trail', child: Text(l10n.trailTitle)),
+                  PopupMenuItem(
+                    value: 'code',
+                    child: Text(l10n.recoveryAction),
+                  ),
                   if (admin)
                     PopupMenuItem(
                       value: 'archive',

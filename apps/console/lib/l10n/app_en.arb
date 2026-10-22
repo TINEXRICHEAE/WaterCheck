@@ -1210,5 +1210,25 @@
   "lockAdminRequired": "Required for IT admins, who can change people, phones and records.",
   "lockOffTitle": "Turn off the PIN?",
   "lockOffBody": "WaterCheck will open on this device without a PIN, and stay open when no one is using it. Sign out when you leave a shared computer.",
-  "lockOffConfirm": "Turn off"
+  "lockOffConfirm": "Turn off",
+  "recoveryAction": "Sign-in code for another phone",
+  "recoveryTitle": "Code for {name}",
+  "@recoveryTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "recoveryHow": "Give this code to the collector (call or text them). In WaterCheck Collect on any phone: \"Who is testing?\" › \"I already have a profile\" › enter the code. They come back as the same person, with their details. The code works once.",
+  "recoveryValid": "Valid until {when}.",
+  "@recoveryValid": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "recoveryCopy": "Copy",
+  "recoveryNotYours": "This collector does not work in your areas. Ask the IT admin."
 }

@@ -3351,6 +3351,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Turn off'**
   String get lockOffConfirm;
+
+  /// No description provided for @recoveryAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign-in code for another phone'**
+  String get recoveryAction;
+
+  /// No description provided for @recoveryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Code for {name}'**
+  String recoveryTitle(String name);
+
+  /// No description provided for @recoveryHow.
+  ///
+  /// In en, this message translates to:
+  /// **'Give this code to the collector (call or text them). In WaterCheck Collect on any phone: \"Who is testing?\" › \"I already have a profile\" › enter the code. They come back as the same person, with their details. The code works once.'**
+  String get recoveryHow;
+
+  /// No description provided for @recoveryValid.
+  ///
+  /// In en, this message translates to:
+  /// **'Valid until {when}.'**
+  String recoveryValid(String when);
+
+  /// No description provided for @recoveryCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get recoveryCopy;
+
+  /// No description provided for @recoveryNotYours.
+  ///
+  /// In en, this message translates to:
+  /// **'This collector does not work in your areas. Ask the IT admin.'**
+  String get recoveryNotYours;
 }
 
 class _AppLocalizationsDelegate

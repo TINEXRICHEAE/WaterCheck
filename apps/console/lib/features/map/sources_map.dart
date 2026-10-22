@@ -7,9 +7,12 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:dio/dio.dart';
+import 'package:ui_kit/map_kit.dart';
 import 'package:ui_kit/ui_kit.dart';
 
 import '../../app/console_sync.dart';
+import '../../app/providers.dart';
 import '../../l10n/app_localizations.dart';
 import '../alerts/alerts_screen.dart' show severityColor, triggerText;
 import '../dashboard/dashboard_state.dart' show mapHomeProvider;
@@ -32,6 +35,11 @@ class MapFocus extends Notifier<String?> {
 }
 
 final mapFocusProvider = NotifierProvider<MapFocus, String?>(MapFocus.new);
+
+/// The area list, for the map search and the path to a chosen place.
+final _mapAreasProvider = FutureProvider<List<AdminUnit>>(
+  (ref) => ref.watch(referenceDataRepositoryProvider).adminUnits(),
+);
 
 final openAlertsProvider = StreamProvider<List<AlertListItem>>(
   (ref) => ref.watch(alertRepositoryProvider).watchList(),
@@ -153,15 +161,77 @@ class SourcesMap extends ConsumerStatefulWidget {
   ConsumerState<SourcesMap> createState() => _SourcesMapState();
 }
 
-class _SourcesMapState extends ConsumerState<SourcesMap> {
+class _SourcesMapState extends ConsumerState<SourcesMap>
+    with TickerProviderStateMixin {
   final _map = MapController();
-  var _lines = true;
-  var _labels = true;
+  late final _motion = MapMotion(_map, this);
+  var _layers = const MapLayers();
+
+  /// What the search chose (2026-10-22, ADR-021): an area, or a source
+  /// (then also the focus).
+  String? _areaId;
+  MapRoute? _route;
+  String? _routeKey;
+  var _routeLoading = false;
 
   @override
   void dispose() {
+    _motion.dispose();
     _map.dispose();
     super.dispose();
+  }
+
+  /// Flies to a source, or around an area's sources.
+  void _choose(MapPlace p, AreaTree tree) {
+    if (p.isSource) {
+      final s = widget.sources.where((x) => x.id == p.id).firstOrNull;
+      setState(() => _areaId = s?.villageId);
+      ref.read(mapFocusProvider.notifier).focus(p.id);
+      if (s?.lat != null) _motion.moveTo(LatLng(s!.lat!, s.lon!), 16);
+      return;
+    }
+    setState(() => _areaId = p.id);
+    ref.read(mapFocusProvider.notifier).focus(null);
+    final points = [
+      for (final s in widget.sources)
+        if (s.lat != null && tree.under(s.villageId, p.id))
+          LatLng(s.lat!, s.lon!),
+    ];
+    if (points.isNotEmpty) {
+      _motion.fit(points, maxZoom: 14);
+      return;
+    }
+    final c = tree.centre(p.id);
+    final u = tree.byId[p.id];
+    if (c != null && u != null) {
+      _motion.moveTo(LatLng(c.lat, c.lon), AreaTree.zoomFor(u.level));
+    }
+  }
+
+  /// The road route from here to the chosen source, once per place, mode
+  /// and position.
+  void _ensureRoute(LatLng from, LatLng to) {
+    if (!_layers.route) return;
+    final key = '$from|$to|${_layers.mode}';
+    if (key == _routeKey) return;
+    _routeKey = key;
+    final mode = _layers.mode;
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+      setState(() => _routeLoading = true);
+      final route = await fetchRoute(
+        Dio(),
+        base: routingBase(defaultApiUrl()),
+        mode: mode,
+        from: from,
+        to: to,
+      );
+      if (!mounted || _routeKey != key) return;
+      setState(() {
+        _route = route;
+        _routeLoading = false;
+      });
+    });
   }
 
   @override
@@ -180,6 +250,44 @@ class _SourcesMapState extends ConsumerState<SourcesMap> {
     final issue = latestIssue(placed, alerts);
     final dots = [for (final s in placed) pointOf(s)];
     final focus = dots.where((d) => d.id == focusId).firstOrNull;
+    final units = ref.watch(_mapAreasProvider).value ?? const <AdminUnit>[];
+    final tree = AreaTree(units);
+    final chosenSource = widget.sources
+        .where((s) => s.id == focusId)
+        .firstOrNull;
+    final areaId = chosenSource?.villageId ?? _areaId;
+    final path = areaId == null
+        ? const <AdminUnit>[]
+        : [
+            for (final u in tree.pathTo(areaId))
+              if (u.level != 'country') u,
+          ];
+    final focusAt = focus == null ? null : LatLng(focus.lat, focus.lon);
+    if (me != null && focusAt != null) _ensureRoute(me, focusAt);
+    final places = [
+      for (final u in units)
+        if (u.level != 'country')
+          MapPlace(
+            id: u.id,
+            name: u.name,
+            isSource: false,
+            detail: [
+              l10n.areaLevel(u.level),
+              for (final a in tree.pathTo(u.id).reversed.skip(1))
+                if (a.level != 'country' && a.level != 'region') a.name,
+            ].join(' · '),
+          ),
+      for (final s in widget.sources)
+        MapPlace(
+          id: s.id,
+          name: s.name ?? s.code,
+          isSource: true,
+          detail: [
+            if (s.name != null) s.code,
+            ?tree.byId[s.villageId]?.name,
+          ].join(' · '),
+        ),
+    ];
     final points = [for (final d in dots) LatLng(d.lat, d.lon)];
     // Lines go from the device to the nearest points of concern.
     final concerns = me == null
@@ -199,8 +307,10 @@ class _SourcesMapState extends ConsumerState<SourcesMap> {
       children: [
         FlutterMap(
           mapController: _map,
-          key: ValueKey(Object.hash(Object.hashAll(points), focusId, home)),
+          // Not keyed on the focus: choosing a place flies there instead.
+          key: ValueKey(Object.hash(Object.hashAll(points), home)),
           options: MapOptions(
+            crs: const NoRepeatCrs(),
             initialCenter: focus != null
                 ? LatLng(focus.lat, focus.lon)
                 : points.length == 1
@@ -230,10 +340,15 @@ class _SourcesMapState extends ConsumerState<SourcesMap> {
                 maxNativeZoom: 18,
                 userAgentPackageName: 'org.watercheck.console',
               ),
-            if (_lines && me != null) _DistanceLines(from: me, to: concerns),
+            if (_layers.route && _route != null && focusAt != null)
+              RouteLayer(route: _route!),
+            if (_layers.lines && me != null)
+              focusAt != null
+                  ? StraightLinesLayer(from: me, to: [focusAt])
+                  : _DistanceLines(from: me, to: concerns),
             _Dots(
               points: dots,
-              labels: _labels,
+              labels: _layers.labels,
               pulseId: focus?.id ?? issue?.point.id,
             ),
             if (me != null) _YouAreHere(at: me),
@@ -241,6 +356,67 @@ class _SourcesMapState extends ConsumerState<SourcesMap> {
         ),
         if (widget.overlay != null)
           Positioned(top: 12, left: 12, child: widget.overlay!),
+        // One search for areas and sources; the path to what was chosen,
+        // and its distance and route from here.
+        Positioned(
+          top: widget.overlay == null ? 12 : 68,
+          left: 12,
+          right: 72,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              MapSearchBar(places: places, onSelected: (p) => _choose(p, tree)),
+              if (path.isNotEmpty) ...[
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 4,
+                  runSpacing: 4,
+                  children: [
+                    for (final u in path)
+                      ActionChip(
+                        avatar: const Icon(Icons.chevron_right, size: 16),
+                        label: Text(u.name),
+                        onPressed: () => _choose(
+                          MapPlace(id: u.id, name: u.name, isSource: false),
+                          tree,
+                        ),
+                      ),
+                    if (chosenSource != null)
+                      ActionChip(
+                        avatar: const Icon(Icons.water_drop, size: 16),
+                        label: Text(chosenSource.name ?? chosenSource.code),
+                        onPressed: () =>
+                            context.go('/sources/${chosenSource.id}'),
+                      ),
+                  ],
+                ),
+              ],
+              if (focusAt != null && me != null) ...[
+                const SizedBox(height: 8),
+                Material(
+                  elevation: 2,
+                  borderRadius: BorderRadius.circular(10),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
+                    child: Text(
+                      distanceSummary(
+                        UiKitLocalizations.of(context),
+                        straight: metresBetween(me, focusAt),
+                        route: _layers.route ? _route : null,
+                        mode: _layers.mode,
+                        routeWanted: _layers.route,
+                        routeLoading: _routeLoading,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
         Positioned(
           top: 12,
           right: 12,
@@ -254,11 +430,12 @@ class _SourcesMapState extends ConsumerState<SourcesMap> {
                     : () => _map.move(me, 14),
               ),
               const SizedBox(height: 8),
-              _LayersButton(
-                lines: _lines,
-                labels: _labels,
-                onLines: (v) => setState(() => _lines = v),
-                onLabels: (v) => setState(() => _labels = v),
+              MapLayersButton(
+                layers: _layers,
+                onChanged: (v) => setState(() {
+                  if (v.mode != _layers.mode) _routeKey = null;
+                  _layers = v;
+                }),
               ),
             ],
           ),
@@ -349,6 +526,7 @@ class IssueMapCard extends ConsumerWidget {
                   FlutterMap(
                     key: ValueKey(issue.point.id),
                     options: MapOptions(
+                      crs: const NoRepeatCrs(),
                       initialCameraFit: me == null
                           ? null
                           : CameraFit.coordinates(
@@ -855,45 +1033,4 @@ class _MapButton extends StatelessWidget {
     color: Theme.of(context).colorScheme.surface,
     child: IconButton(tooltip: tooltip, icon: Icon(icon), onPressed: onPressed),
   );
-}
-
-class _LayersButton extends StatelessWidget {
-  const _LayersButton({
-    required this.lines,
-    required this.labels,
-    required this.onLines,
-    required this.onLabels,
-  });
-
-  final bool lines;
-  final bool labels;
-  final ValueChanged<bool> onLines;
-  final ValueChanged<bool> onLabels;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    return Material(
-      elevation: 3,
-      borderRadius: BorderRadius.circular(12),
-      color: Theme.of(context).colorScheme.surface,
-      child: PopupMenuButton<int>(
-        tooltip: l10n.mapLayers,
-        icon: const Icon(Icons.layers_outlined),
-        itemBuilder: (_) => [
-          CheckedPopupMenuItem(
-            value: 0,
-            checked: lines,
-            child: Text(l10n.mapLayerDistances),
-          ),
-          CheckedPopupMenuItem(
-            value: 1,
-            checked: labels,
-            child: Text(l10n.mapLayerLabels),
-          ),
-        ],
-        onSelected: (v) => v == 0 ? onLines(!lines) : onLabels(!labels),
-      ),
-    );
-  }
 }

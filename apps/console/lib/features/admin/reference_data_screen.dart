@@ -11,7 +11,7 @@ typedef _ReferenceData = ({
   List<ReferenceProfile> profiles,
   List<TesterProfile> testers,
   DomainRules rules,
-  List<(String, String)> areas,
+  List<RefArea> areas,
 });
 
 final _referenceDataProvider = FutureProvider<_ReferenceData>((ref) async {
@@ -25,7 +25,7 @@ final _referenceDataProvider = FutureProvider<_ReferenceData>((ref) async {
     profiles: await repo.referenceProfiles(),
     testers: await repo.testerProfiles(),
     rules: await repo.rules(),
-    areas: [for (final u in units) (u.level, u.name)],
+    areas: [for (final u in units) (id: u.id, level: u.level, name: u.name)],
   );
 });
 
