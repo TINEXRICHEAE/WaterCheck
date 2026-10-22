@@ -8,6 +8,7 @@ import 'package:retrofit/retrofit.dart';
 import '../models/admin_unit_out.dart';
 import '../models/catalogue.dart';
 import '../models/collector_summary.dart';
+import '../models/source_hit.dart';
 
 part 'reference_client.g.dart';
 
@@ -40,6 +41,16 @@ abstract class ReferenceClient {
   /// Admin Units
   @GET('/v1/reference/admin-units')
   Future<List<AdminUnitOut>> adminUnits();
+
+  /// Search Sources.
+  ///
+  /// Sources anywhere, by code, name or village (ADR-019): a phone finds.
+  /// sources beyond the districts it holds, then syncs that district.
+  @GET('/v1/sources/search')
+  Future<List<SourceHit>> searchSources({
+    @Query('q') required String q,
+    @Query('limit') int? limit = 30,
+  });
 
   /// Collectors.
   ///

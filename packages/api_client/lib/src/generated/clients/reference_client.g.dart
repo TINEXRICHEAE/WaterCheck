@@ -161,6 +161,39 @@ class _ReferenceClient implements ReferenceClient {
   }
 
   @override
+  Future<List<SourceHit>> searchSources({
+    required String q,
+    int? limit = 30,
+  }) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{r'q': q, r'limit': limit};
+    queryParameters.removeWhere((k, v) => v == null);
+    final _headers = <String, dynamic>{};
+    const Map<String, dynamic>? _data = null;
+    final _options = _setStreamType<List<SourceHit>>(
+      Options(method: 'GET', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/v1/sources/search',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<List<dynamic>>(_options);
+    late List<SourceHit> _value;
+    try {
+      _value = _result.data!
+          .map((dynamic i) => SourceHit.fromJson(i as Map<String, dynamic>))
+          .toList();
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
   Future<List<CollectorSummary>> collectors() async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
