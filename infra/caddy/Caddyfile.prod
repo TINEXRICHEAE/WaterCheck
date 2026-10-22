@@ -29,6 +29,12 @@
 			reverse_proxy tiles:8080
 		}
 
+		# Road routes (Valhalla, ADR-021): /route/route?json=...; only the two
+		# points are sent, and WaterCheck stores nothing.
+		handle_path /route/* {
+			reverse_proxy routing:8002
+		}
+
 		# Engine files change only with a Flutter or package upgrade: cache them
 		# for a day, while the app shell is re-checked on every request.
 		@engine path /canvaskit/* /sqlite3.wasm /assets/fonts/* /assets/packages/* /assets/shaders/*
@@ -62,6 +68,12 @@
 		handle_path /tiles/* {
 			header Cache-Control "public, max-age=604800"
 			reverse_proxy tiles:8080
+		}
+
+		# Road routes (Valhalla, ADR-021): /route/route?json=...; only the two
+		# points are sent, and WaterCheck stores nothing.
+		handle_path /route/* {
+			reverse_proxy routing:8002
 		}
 
 		handle {

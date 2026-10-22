@@ -50,3 +50,4 @@ infra/tiles/
 .claude/
 /dist/
 /tools/windows/prerequisites/
+infra/routing/

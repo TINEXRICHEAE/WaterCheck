@@ -141,6 +141,20 @@ services:
     mem_limit: 1g
     restart: unless-stopped
 
+  # Road routes for the maps (ADR-021): Valhalla for all of Uganda, one
+  # service for motorbike/car and walking, from infra/routing/valhalla
+  # (tools/build_routes.ps1). It reads its tiles from disk, so it needs
+  # little memory. Behind Caddy at /route/. Started with the `routing`
+  # profile once the data is built: docker compose --profile routing up -d
+  routing:
+    image: ghcr.io/valhalla/valhalla:3.5.1
+    command: ["valhalla_service", "/data/valhalla.json", "2"]
+    volumes:
+      - ./routing/valhalla:/data:ro
+    mem_limit: 512m
+    restart: unless-stopped
+    profiles: [routing]
+
   # Dev mail catcher: SMTP on 1025, web inbox at http://localhost:8025.
   mailpit:
     image: axllent/mailpit:v1.27
