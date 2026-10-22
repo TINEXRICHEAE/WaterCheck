@@ -1203,4 +1203,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String amendNotYours(String name) {
     return 'Only $name, who made this test, can correct it.';
   }
+
+  @override
+  String get refresh => 'Refresh';
 }

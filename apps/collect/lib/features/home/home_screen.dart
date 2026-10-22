@@ -5,6 +5,7 @@ import 'package:ui_kit/ui_kit.dart';
 
 import '../../app/providers.dart';
 import '../../l10n/app_localizations.dart';
+import '../sync/refresh_button.dart';
 import '../collectors/active_collector_chip.dart';
 import '../sources/source_providers.dart';
 import '../sources/source_status.dart';
@@ -29,6 +30,7 @@ class HomeScreen extends ConsumerWidget {
             icon: const Icon(Icons.add_location_alt_outlined),
             onPressed: () => context.push('/sources/new'),
           ),
+          const SyncRefreshButton(),
           SyncIndicator(
             compact: true,
             pending: sync?.pending ?? 0,

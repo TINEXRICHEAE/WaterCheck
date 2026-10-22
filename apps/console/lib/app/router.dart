@@ -23,6 +23,7 @@ import '../features/auth/pin_screens.dart';
 import '../features/auth/sign_in_screen.dart';
 import '../features/collectors/collectors_screen.dart';
 import '../features/dashboard/dashboard_screen.dart';
+import '../features/dashboard/dashboard_state.dart';
 import '../features/limits/limit_sets_screen.dart';
 import '../features/profile/profile_screen.dart';
 import '../features/reports/reports_screen.dart';
@@ -225,6 +226,41 @@ String? parentPath(String path) {
   return '/${parts.sublist(0, parts.length - 1).join('/')}';
 }
 
+/// Fetches everything on screen again: a sync, then every server list
+/// (2026-10-22). The same on the web, Windows and Android.
+class _RefreshButton extends ConsumerStatefulWidget {
+  const _RefreshButton();
+
+  @override
+  ConsumerState<_RefreshButton> createState() => _RefreshButtonState();
+}
+
+class _RefreshButtonState extends ConsumerState<_RefreshButton> {
+  var _busy = false;
+
+  Future<void> _refresh() async {
+    setState(() => _busy = true);
+    try {
+      await ref.read(consoleSyncProvider.notifier).run(force: true);
+    } finally {
+      ref.read(dataVersionProvider.notifier).bump();
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) => IconButton(
+    tooltip: AppLocalizations.of(context).refresh,
+    onPressed: _busy ? null : _refresh,
+    icon: _busy
+        ? const SizedBox.square(
+            dimension: 20,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          )
+        : const Icon(Icons.refresh),
+  );
+}
+
 class _ConsoleShell extends ConsumerWidget {
   const _ConsoleShell({required this.shell, required this.path});
 
@@ -261,6 +297,7 @@ class _ConsoleShell extends ConsumerWidget {
           pending: sync?.pending ?? 0,
           rejected: sync?.rejected ?? 0,
         ),
+        const _RefreshButton(),
         const InboxButton(),
         const _AccountButton(),
       ],

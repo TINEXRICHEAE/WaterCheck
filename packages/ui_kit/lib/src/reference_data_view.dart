@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 import '../l10n/ui_kit_localizations.dart';
 
 /// Read-only view of the seeded reference data (P2 gate "debug screen").
-class ReferenceDataView extends StatelessWidget {
+/// One search box filters every group (2026-10-22).
+class ReferenceDataView extends StatefulWidget {
   const ReferenceDataView({
     super.key,
     required this.catalogue,
@@ -23,10 +24,33 @@ class ReferenceDataView extends StatelessWidget {
   final List<(String, String)> areas;
 
   @override
+  State<ReferenceDataView> createState() => _ReferenceDataViewState();
+}
+
+class _ReferenceDataViewState extends State<ReferenceDataView> {
+  /// Areas listed at most; the search narrows the rest.
+  static const _areaCap = 100;
+
+  final _search = TextEditingController();
+  var _q = '';
+
+  @override
+  void dispose() {
+    _search.dispose();
+    super.dispose();
+  }
+
+  bool _hit(String s) => _q.isEmpty || s.toLowerCase().contains(_q);
+
+  bool _paramHit(ParameterDefinition p) =>
+      _hit(p.name) || _hit(p.code) || _hit(p.defaultUnit);
+
+  @override
   Widget build(BuildContext context) {
     final l10n = UiKitLocalizations.of(context);
     final text = Theme.of(context).textTheme;
-    final parameterCount = catalogue.parameters.length;
+    final catalogue = widget.catalogue;
+    final rules = widget.rules;
 
     String limitText(ParameterLimit? l) {
       if (l == null || !l.isAssessable) return l10n.refNoLimit;
@@ -38,68 +62,129 @@ class ReferenceDataView extends StatelessWidget {
       return '≥ ${l.min}$unit';
     }
 
+    // While searching, groups with a match open by themselves (the keys
+    // rebuild them when the search starts or ends).
+    final open = _q.isNotEmpty;
+    final rulesHit = _hit(l10n.refRules) || rules.requiredParameters.any(_hit);
+    final profiles = [
+      for (final p in widget.profiles)
+        if (_hit(p.title) || catalogue.core.any(_paramHit)) p,
+    ];
+    final core = [
+      for (final p in catalogue.core)
+        if (_paramHit(p)) p,
+    ];
+    final categories = [
+      for (final c in catalogue.categories)
+        (
+          c,
+          [
+            for (final p in catalogue.inCategory(c.code))
+              if (_paramHit(p)) p,
+          ],
+        ),
+    ];
+    final testers = [
+      for (final t in widget.testerProfiles)
+        if (_hit(t.name) || t.parameters.any((p) => _hit(p.code))) t,
+    ];
+    final areas = [
+      for (final a in widget.areas)
+        if (_hit(a.$2) || _hit(a.$1)) a,
+    ];
+    final anyParameter =
+        core.isNotEmpty || categories.any((c) => c.$2.isNotEmpty);
+    final nothing =
+        !rulesHit &&
+        profiles.isEmpty &&
+        !anyParameter &&
+        testers.isEmpty &&
+        areas.isEmpty;
+
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
         Text(l10n.refDataIntro, style: text.bodyMedium),
+        const SizedBox(height: 12),
+        TextField(
+          controller: _search,
+          decoration: InputDecoration(
+            prefixIcon: const Icon(Icons.search),
+            hintText: l10n.refSearch,
+            border: const OutlineInputBorder(),
+            suffixIcon: _q.isEmpty
+                ? null
+                : IconButton(
+                    tooltip: l10n.refSearchClear,
+                    icon: const Icon(Icons.clear),
+                    onPressed: () => setState(() {
+                      _search.clear();
+                      _q = '';
+                    }),
+                  ),
+          ),
+          onChanged: (v) => setState(() => _q = v.trim().toLowerCase()),
+        ),
         const SizedBox(height: 16),
-        Text(l10n.refRules, style: text.titleMedium),
-        ListTile(
-          contentPadding: EdgeInsets.zero,
-          title: Text(l10n.refRequired(rules.requiredParameters.join(', '))),
-          subtitle: Text(
-            l10n.refSchedule(
-              rules.schedule.routineDays,
-              rules.schedule.rainySeasonDays,
-              rules.schedule.afterAbnormalDays,
+        if (nothing) Text(l10n.refNoMatch(_search.text.trim())),
+        if (rulesHit) ...[
+          Text(l10n.refRules, style: text.titleMedium),
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            title: Text(l10n.refRequired(rules.requiredParameters.join(', '))),
+            subtitle: Text(
+              l10n.refSchedule(
+                rules.schedule.routineDays,
+                rules.schedule.rainySeasonDays,
+                rules.schedule.afterAbnormalDays,
+              ),
             ),
           ),
-        ),
-        const Divider(),
-        Text(l10n.refProfiles(profiles.length), style: text.titleMedium),
-        for (final p in profiles)
-          ExpansionTile(
-            tilePadding: EdgeInsets.zero,
-            title: Text(p.title),
-            subtitle: Wrap(
-              spacing: 8,
+          const Divider(),
+        ],
+        if (profiles.isNotEmpty) ...[
+          Text(l10n.refProfiles(profiles.length), style: text.titleMedium),
+          for (final p in profiles)
+            ExpansionTile(
+              key: ValueKey('profile-${p.id}-$open'),
+              // A match inside the limits opens the set.
+              initiallyExpanded: open && !_hit(p.title),
+              tilePadding: EdgeInsets.zero,
+              title: Text(p.title),
+              subtitle: Wrap(
+                spacing: 8,
+                children: [
+                  Text(l10n.refLimitCount(p.limits.length)),
+                  if (p.isProvisional)
+                    Chip(label: Text(l10n.provisionalLimits)),
+                  if (p.isCustom) Chip(label: Text(l10n.customLimits)),
+                ],
+              ),
               children: [
-                Text(l10n.refLimitCount(p.limits.length)),
-                if (p.isProvisional) Chip(label: Text(l10n.provisionalLimits)),
-                if (p.isCustom) Chip(label: Text(l10n.customLimits)),
+                for (final def in catalogue.core)
+                  if (_hit(p.title) || _paramHit(def))
+                    ListTile(
+                      dense: true,
+                      title: Text(def.name),
+                      trailing: Text(limitText(p.limitFor(def.code))),
+                    ),
               ],
             ),
-            children: [
-              for (final def in catalogue.core)
-                ListTile(
-                  dense: true,
-                  title: Text(def.name),
-                  trailing: Text(limitText(p.limitFor(def.code))),
-                ),
-            ],
+          const Divider(),
+        ],
+        if (anyParameter) ...[
+          Text(
+            l10n.refParameters(catalogue.parameters.length),
+            style: text.titleMedium,
           ),
-        const Divider(),
-        Text(l10n.refParameters(parameterCount), style: text.titleMedium),
-        ExpansionTile(
-          tilePadding: EdgeInsets.zero,
-          title: Text(l10n.refCore),
-          initiallyExpanded: true,
-          children: [
-            for (final p in catalogue.core)
-              ListTile(
-                dense: true,
-                title: Text(p.name),
-                trailing: Text(p.defaultUnit),
-              ),
-          ],
-        ),
-        for (final c in catalogue.categories)
-          if (catalogue.inCategory(c.code).isNotEmpty)
+          if (core.isNotEmpty)
             ExpansionTile(
+              key: ValueKey('core-$open'),
               tilePadding: EdgeInsets.zero,
-              title: Text('${c.name} (${catalogue.inCategory(c.code).length})'),
+              title: Text(l10n.refCore),
+              initiallyExpanded: true,
               children: [
-                for (final p in catalogue.inCategory(c.code))
+                for (final p in core)
                   ListTile(
                     dense: true,
                     title: Text(p.name),
@@ -107,26 +192,52 @@ class ReferenceDataView extends StatelessWidget {
                   ),
               ],
             ),
-        const Divider(),
-        Text(l10n.refTesterProfiles, style: text.titleMedium),
-        for (final t in testerProfiles)
-          ListTile(
-            contentPadding: EdgeInsets.zero,
-            title: Text(t.name),
-            subtitle: Text(
-              t.parameters.map((p) => '${p.code} (${p.unit})').join(', '),
+          for (final (c, params) in categories)
+            if (params.isNotEmpty)
+              ExpansionTile(
+                key: ValueKey('cat-${c.code}-$open'),
+                initiallyExpanded: open,
+                tilePadding: EdgeInsets.zero,
+                title: Text('${c.name} (${params.length})'),
+                children: [
+                  for (final p in params)
+                    ListTile(
+                      dense: true,
+                      title: Text(p.name),
+                      trailing: Text(p.defaultUnit),
+                    ),
+                ],
+              ),
+          const Divider(),
+        ],
+        if (testers.isNotEmpty) ...[
+          Text(l10n.refTesterProfiles, style: text.titleMedium),
+          for (final t in testers)
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(t.name),
+              subtitle: Text(
+                t.parameters.map((p) => '${p.code} (${p.unit})').join(', '),
+              ),
             ),
-          ),
-        const Divider(),
-        Text(l10n.refAreas, style: text.titleMedium),
-        for (final (level, name) in areas)
-          ListTile(
-            contentPadding: EdgeInsets.zero,
-            dense: true,
-            leading: const Icon(Icons.place_outlined),
-            title: Text(name),
-            trailing: Text(level),
-          ),
+          const Divider(),
+        ],
+        if (areas.isNotEmpty) ...[
+          Text('${l10n.refAreas} (${areas.length})', style: text.titleMedium),
+          for (final (level, name) in areas.take(_areaCap))
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              dense: true,
+              leading: const Icon(Icons.place_outlined),
+              title: Text(name),
+              trailing: Text(level),
+            ),
+          if (areas.length > _areaCap)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Text(l10n.refAreasMore(_areaCap, areas.length)),
+            ),
+        ],
       ],
     );
   }

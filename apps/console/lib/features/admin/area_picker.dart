@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/providers.dart';
+import '../dashboard/dashboard_state.dart';
 import '../../l10n/app_localizations.dart';
 
 const _rank = {
@@ -15,6 +16,7 @@ const _rank = {
 };
 
 final _allAreasProvider = FutureProvider<List<AdminUnit>>((ref) async {
+  ref.watch(dataVersionProvider);
   final units = await ref.watch(referenceDataRepositoryProvider).adminUnits();
   return units..sort((a, b) {
     final r = (_rank[a.level] ?? 9).compareTo(_rank[b.level] ?? 9);

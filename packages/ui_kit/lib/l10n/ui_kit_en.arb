@@ -189,5 +189,26 @@
   "aboutLegalese": "Community drinking water monitoring. Licensed under the project licence; open-source components are listed under View licences.",
   "cancel": "Cancel",
   "searchClear": "Clear search",
-  "filterAll": "All"
+  "filterAll": "All",
+  "refSearch": "Search parameters, limits, kits and areas",
+  "refSearchClear": "Clear the search",
+  "refNoMatch": "Nothing matches \"{query}\".",
+  "@refNoMatch": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "refAreasMore": "Showing {shown} of {count}. Type in the search box to narrow the list.",
+  "@refAreasMore": {
+    "placeholders": {
+      "shown": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

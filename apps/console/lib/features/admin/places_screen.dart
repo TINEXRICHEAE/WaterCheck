@@ -9,6 +9,7 @@ import 'package:ui_kit/ui_kit.dart';
 import '../../app/console_sync.dart';
 import '../../app/providers.dart';
 import '../../l10n/app_localizations.dart';
+import '../dashboard/dashboard_state.dart';
 import 'admin_api.dart';
 import 'area_picker.dart';
 
@@ -18,18 +19,21 @@ const _below = {
   'parish': ['village'],
 };
 
-final _defaultProvider = FutureProvider.autoDispose.family<String?, String>(
-  (ref, areaId) async =>
-      (await ref
-              .watch(adminApiProvider)
-              .admin
-              .getDefaultProfile(areaId: areaId))
-          .standardId,
-);
+final _defaultProvider = FutureProvider.autoDispose.family<String?, String>((
+  ref,
+  areaId,
+) async {
+  ref.watch(dataVersionProvider);
+  final api = ref.watch(adminApiProvider).admin;
+  return (await api.getDefaultProfile(areaId: areaId)).standardId;
+});
 
-final _profilesProvider = FutureProvider.autoDispose<List<ReferenceProfile>>(
-  (ref) => ref.watch(referenceDataRepositoryProvider).referenceProfiles(),
-);
+final _profilesProvider = FutureProvider.autoDispose<List<ReferenceProfile>>((
+  ref,
+) {
+  ref.watch(dataVersionProvider);
+  return ref.watch(referenceDataRepositoryProvider).referenceProfiles();
+});
 
 /// Places below the official list (parishes, villages; F-ADM-3), names,
 /// and the limit set phones in an area start with.

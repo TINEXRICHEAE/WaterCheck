@@ -549,6 +549,30 @@ abstract class UiKitLocalizations {
   /// In en, this message translates to:
   /// **'All'**
   String get filterAll;
+
+  /// No description provided for @refSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Search parameters, limits, kits and areas'**
+  String get refSearch;
+
+  /// No description provided for @refSearchClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear the search'**
+  String get refSearchClear;
+
+  /// No description provided for @refNoMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing matches \"{query}\".'**
+  String refNoMatch(String query);
+
+  /// No description provided for @refAreasMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Showing {shown} of {count}. Type in the search box to narrow the list.'**
+  String refAreasMore(int shown, int count);
 }
 
 class _UiKitLocalizationsDelegate

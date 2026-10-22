@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../app/providers.dart';
 import '../../l10n/app_localizations.dart';
+import '../sync/refresh_button.dart';
 import '../sources/source_status.dart';
 import 'sms_fallback.dart';
 
@@ -84,7 +85,14 @@ class _ResponseCardScreenState extends ConsumerState<ResponseCardScreen> {
     final data = ref.watch(_cardProvider(widget.alertId));
     final text = Theme.of(context).textTheme;
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.alertTitle)),
+      appBar: AppBar(
+        title: Text(l10n.alertTitle),
+        actions: [
+          SyncRefreshButton(
+            onDone: (ref) => ref.invalidate(_cardProvider(widget.alertId)),
+          ),
+        ],
+      ),
       body: data.when(
         loading: () => const PageLoading(),
         error: (e, _) => ErrorView(

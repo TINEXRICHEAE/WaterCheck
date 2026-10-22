@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ui_kit/ui_kit.dart';
 
 import '../../app/providers.dart';
+import '../sync/refresh_button.dart';
 
 typedef _ReferenceData = ({
   ParameterCatalogue catalogue,
@@ -35,7 +36,14 @@ class ReferenceDataScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final data = ref.watch(_referenceDataProvider);
     return Scaffold(
-      appBar: AppBar(title: Text(UiKitLocalizations.of(context).refDataTitle)),
+      appBar: AppBar(
+        title: Text(UiKitLocalizations.of(context).refDataTitle),
+        actions: [
+          SyncRefreshButton(
+            onDone: (ref) => ref.invalidate(_referenceDataProvider),
+          ),
+        ],
+      ),
       body: data.when(
         loading: () => const PageLoading(),
         error: (e, _) => ErrorView(

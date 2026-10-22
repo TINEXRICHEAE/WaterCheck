@@ -2133,6 +2133,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Only {name}, who made this test, can correct it.'**
   String amendNotYours(String name);
+
+  /// No description provided for @refresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh'**
+  String get refresh;
 }
 
 class _AppLocalizationsDelegate

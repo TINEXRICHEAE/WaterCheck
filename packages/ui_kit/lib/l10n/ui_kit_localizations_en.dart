@@ -297,4 +297,20 @@ class UiKitLocalizationsEn extends UiKitLocalizations {
 
   @override
   String get filterAll => 'All';
+
+  @override
+  String get refSearch => 'Search parameters, limits, kits and areas';
+
+  @override
+  String get refSearchClear => 'Clear the search';
+
+  @override
+  String refNoMatch(String query) {
+    return 'Nothing matches \"$query\".';
+  }
+
+  @override
+  String refAreasMore(int shown, int count) {
+    return 'Showing $shown of $count. Type in the search box to narrow the list.';
+  }
 }

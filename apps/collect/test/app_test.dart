@@ -105,6 +105,16 @@ void main() {
     expect(find.text('Reference profiles (2)'), findsOneWidget);
     expect(find.text('Provisional limits'), findsNWidgets(2));
     expect(find.text('Required: temp, ph, ec, tds'), findsOneWidget);
+    // One search filters every group.
+    await tester.enterText(find.byType(TextField), 'arsenic');
+    await tester.pumpAndSettle();
+    expect(find.text('Arsenic'), findsWidgets);
+    expect(find.text('Required: temp, ph, ec, tds'), findsNothing);
+    await tester.enterText(find.byType(TextField), 'zzzz');
+    await tester.pumpAndSettle();
+    expect(find.text('Nothing matches "zzzz".'), findsOneWidget);
+    await tapAndSettle(tester, find.byTooltip('Clear the search'));
+    expect(find.text('Required: temp, ph, ec, tds'), findsOneWidget);
     await disposeApp(tester, db);
   });
 

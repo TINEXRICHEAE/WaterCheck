@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:ui_kit/ui_kit.dart';
 
 import '../../l10n/app_localizations.dart';
+import '../sync/refresh_button.dart';
 import '../location/location_service.dart';
 import '../sources/source_providers.dart';
 import '../sources/source_status.dart';
@@ -63,6 +64,7 @@ class _PickSourceScreenState extends ConsumerState<PickSourceScreen> {
       appBar: AppBar(
         title: Text(l10n.pickTitle),
         actions: [
+          const SyncRefreshButton(),
           TextButton.icon(
             onPressed: _locating ? null : _nearest,
             icon: _locating

@@ -7,6 +7,7 @@ import 'package:ui_kit/ui_kit.dart';
 
 import '../../app/providers.dart';
 import '../../l10n/app_localizations.dart';
+import '../sync/refresh_button.dart';
 import '../alerts/response_card_screen.dart';
 import '../testing/test_draft.dart';
 import '../photos/photo_strip.dart';
@@ -77,6 +78,7 @@ class SourceDetailScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(s.name ?? s.code),
         actions: [
+          const SyncRefreshButton(),
           IconButton(
             tooltip: l10n.sourceEdit,
             icon: const Icon(Icons.edit_outlined),

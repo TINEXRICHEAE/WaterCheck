@@ -5,12 +5,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ui_kit/ui_kit.dart';
 
 import '../../l10n/app_localizations.dart';
+import '../dashboard/dashboard_state.dart';
 import 'admin_api.dart';
 import 'area_picker.dart';
 
-final _chainProvider = FutureProvider.autoDispose.family<ChainOut, String>(
-  (ref, areaId) => ref.watch(adminApiProvider).admin.chain(areaId: areaId),
-);
+final _chainProvider = FutureProvider.autoDispose.family<ChainOut, String>((
+  ref,
+  areaId,
+) {
+  ref.watch(dataVersionProvider);
+  return ref.watch(adminApiProvider).admin.chain(areaId: areaId);
+});
 
 /// Who an alert from an area reaches, level by level, with the gaps
 /// (docs/PLAN.md §3). Empty levels are skipped; the first level with

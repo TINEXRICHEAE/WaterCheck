@@ -5,6 +5,7 @@ import 'package:data/data.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../features/dashboard/dashboard_state.dart';
 import 'perf.dart';
 import 'providers.dart';
 import 'request_activity.dart';
@@ -162,6 +163,7 @@ final notificationsApiProvider = Provider<NotificationsApi>(
 /// Empty while signed out or offline; refreshed after each sync.
 final inboxProvider = FutureProvider<Inbox?>((ref) async {
   if (ref.watch(sessionProvider).phase != SessionPhase.signedIn) return null;
+  ref.watch(dataVersionProvider);
   try {
     return await ref.watch(notificationsApiProvider).inbox();
   } catch (_) {

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ui_kit/ui_kit.dart';
 
 import '../../app/providers.dart';
+import '../dashboard/dashboard_state.dart';
 
 typedef _ReferenceData = ({
   ParameterCatalogue catalogue,
@@ -14,6 +15,7 @@ typedef _ReferenceData = ({
 });
 
 final _referenceDataProvider = FutureProvider<_ReferenceData>((ref) async {
+  ref.watch(dataVersionProvider);
   final repo = ref.watch(referenceDataRepositoryProvider);
   const order = ['country', 'district', 'subcounty', 'parish', 'village'];
   final units = await repo.adminUnits()

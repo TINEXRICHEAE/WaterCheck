@@ -172,6 +172,7 @@ class DashboardView {
 /// local data, which survives restarts). Null when it cannot be had.
 final dashboardSummaryProvider = FutureProvider<DashboardSummary?>((ref) async {
   if (!kIsWeb) return null;
+  ref.watch(dataVersionProvider);
   final s = ref.watch(dashboardSettingsProvider);
   // Re-judging under another profile needs the readings: local data only.
   if (s.profileId != null) return null;
