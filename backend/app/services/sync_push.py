@@ -37,6 +37,7 @@ Status = Literal["applied", "duplicate", "conflict", "rejected"]
 
 # Parents first; within an entity, the order the client queued them.
 ORDER = [
+    "admin_unit",
     "parameter_definition",
     "reference_standard",
     "water_source",
@@ -63,6 +64,9 @@ USER_ENTITIES = {
 }
 # Marks and flags are stakeholder judgements, never sent by phones.
 USER_ONLY = {"collector_mark", "submission_flag"}
+
+# Area levels a phone may add below (district down), top first.
+_PLACE_ORDER = ["district", "subcounty", "parish", "village"]
 
 # Clock sanity (SPEC §5.2): tested in the future, or long before first sync.
 FUTURE_SLACK = timedelta(days=1)
@@ -343,6 +347,64 @@ class PushService:
         return Outcome(c.id, c.entity, "applied")
 
     # Handlers ----------------------------------------------------------
+    async def admin_unit_insert(self, c: Change) -> Outcome:
+        """A place a collector typed that is not in the list (ADR-019): a
+        sub-county, parish or village below a known place, marked 'new'
+        for the IT admin to review. Phones only."""
+        if self.p.kind != "installation":
+            raise Rejected("not_allowed")
+        d, o = c.data, self._origin(c.data)
+        uid = _uuid(c.id, "id")
+        level = str(_req(d, "level"))
+        name = " ".join(str(_req(d, "name")).split())
+        if level not in _PLACE_ORDER[1:] or not name or len(name) > 120:
+            raise Rejected("invalid_value")
+        parent = (
+            await self.conn.execute(
+                text("SELECT level FROM admin_unit WHERE id = :id"),
+                {"id": _uuid(_req(d, "parent_id"), "parent_id")},
+            )
+        ).first()
+        if parent is None:
+            raise Rejected("missing_parent")
+        # Exactly one level down: a village sits in a parish, and so on.
+        if (
+            parent.level not in _PLACE_ORDER
+            or _PLACE_ORDER.index(parent.level) != _PLACE_ORDER.index(level) - 1
+        ):
+            raise Rejected("invalid_value")
+        if (
+            await self.conn.execute(text("SELECT 1 FROM admin_unit WHERE id = :id"), {"id": uid})
+        ).first():
+            return Outcome(c.id, c.entity, "duplicate")
+        # Two phones can add the same name offline: keep both (the admin
+        # merges); a taken code gets a suffix, which flows back on pull.
+        code = str(_req(d, "code"))
+        reason = None
+        if (
+            await self.conn.execute(text("SELECT 1 FROM admin_unit WHERE code = :c"), {"c": code})
+        ).first():
+            code = f"{code}-{str(uid)[-4:].upper()}"
+            reason = "code_renamed"
+        await self.conn.execute(
+            text(
+                "INSERT INTO admin_unit (id, level, name, code, parent_id, review_status, "
+                "added_by_installation, added_collector_snapshot, added_at, server_seq) "
+                "VALUES (:id, :level, :name, :code, :parent, 'new', :inst, "
+                "CAST(:cs AS jsonb), now(), 0)"
+            ),
+            {
+                "id": uid,
+                "level": level,
+                "name": name,
+                "code": code,
+                "parent": _uuid(d["parent_id"], "parent_id"),
+                "inst": o["inst"],
+                "cs": o["cs"],
+            },
+        )
+        return Outcome(c.id, c.entity, "applied", reason=reason)
+
     async def water_source_insert(self, c: Change) -> Outcome:
         d, o = c.data, self._origin(c.data)
         params = {
@@ -948,6 +1010,7 @@ STATUS_EVENTS = {"acknowledged", "action_in_progress", "closed", "false_alarm"}
 
 _Handler = Callable[[PushService, Change], Awaitable[Outcome]]
 _HANDLERS: dict[tuple[str, str], _Handler] = {
+    ("admin_unit", "insert"): PushService.admin_unit_insert,
     ("water_source", "insert"): PushService.water_source_insert,
     ("water_source", "update"): PushService.water_source_update,
     ("calibration", "insert"): PushService.calibration_insert,

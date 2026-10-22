@@ -234,7 +234,8 @@ class InstallationService:
             row = (
                 await conn.execute(
                     text(
-                        "SELECT admin_unit_id, secret_encrypted, revoked_at "
+                        "SELECT admin_unit_id, secret_encrypted, revoked_at, "
+                        "(SELECT id FROM admin_unit WHERE level = 'country' LIMIT 1) AS country "
                         "FROM installation WHERE id = :id"
                     ),
                     {"id": inst_id},
@@ -269,8 +270,13 @@ class InstallationService:
                 text("DELETE FROM request_nonce WHERE seen_at < :cutoff"),
                 {"cutoff": now - timedelta(seconds=2 * self.settings.signature_window_seconds)},
             )
+        # Collectors work anywhere in Uganda (ADR-019): a phone may read and
+        # record any area; the location check before each test keeps it
+        # accountable. Its activation area is only where it starts.
         return Principal(
-            kind="installation", installation_id=inst_id, scope_units=(row.admin_unit_id,)
+            kind="installation",
+            installation_id=inst_id,
+            scope_units=tuple(u for u in (row.country, row.admin_unit_id) if u),
         )
 
     async def revoke(self, installation_id: UUID, *, by: UUID | None) -> bool:

@@ -301,9 +301,66 @@ async def test_one_bad_record_does_not_sink_the_batch(
     assert out[second[-1]["id"]]["status"] == "applied"
 
 
-async def test_records_outside_the_phone_area_are_refused(
+async def test_a_phone_works_anywhere_in_uganda_and_adds_new_places(
     client: AsyncClient, owner_db: Database, seeded: None
 ) -> None:
+    """ADR-019: a phone activated in one district records a source in
+    another, below a parish and village it adds; both are marked new."""
+    async with owner_db.transaction(Principal.system()) as conn:
+        abim = (
+            await conn.execute(text("SELECT id FROM admin_unit WHERE code = 'UG-ABIM'"))
+        ).scalar_one()
+        butagaya = (
+            await conn.execute(
+                text(
+                    "SELECT s.id, s.code FROM admin_unit s JOIN admin_unit d ON d.id = s.parent_id "
+                    "WHERE s.name = 'Butagaya' AND d.name = 'Jinja'"
+                )
+            )
+        ).one()
+    a = await phone(client, owner_db, {"id": abim})
+    parish, village = str(uuid.uuid4()), str(uuid.uuid4())
+    places = [
+        {
+            "entity": "admin_unit",
+            "op": "insert",
+            "id": pid,
+            "data": {
+                "level": level,
+                "name": name,
+                "code": f"{butagaya.code}-{name.upper()[:6]}",
+                "parent_id": parent,
+                **a.origin(),
+            },
+        }
+        for pid, level, name, parent in [
+            (parish, "parish", "Nawangoma", str(butagaya.id)),
+            (village, "village", "Kitanaba", parish),
+        ]
+    ]
+    source = visit(a)[0]
+    source["data"]["village_id"] = village
+    # The source comes first in the batch; places are applied before it.
+    out = (await a.push([source, *places]))["results"]
+    assert [r["status"] for r in out] == ["applied", "applied", "applied"]
+    assert await count(owner_db, "admin_unit", id=uuid.UUID(village), review_status="new") == 1
+    # The other district can be read too.
+    jinja = (await a.pull(f"area:{butagaya.id}")).json()["changes"]
+    assert [c["entity"] for c in jinja] == ["water_source"]
+    # A place must sit below a known one, one level down.
+    bad: dict[str, Any] = {
+        **places[1],
+        "id": str(uuid.uuid4()),
+        "data": {**places[1]["data"], "parent_id": str(abim), "code": "X-1"},  # type: ignore[dict-item]
+    }
+    assert (await a.push([bad]))["results"][0]["reason"] == "invalid_value"
+
+
+async def test_records_outside_the_area_list_are_refused(
+    client: AsyncClient, owner_db: Database, seeded: None
+) -> None:
+    # Test areas outside Uganda's tree: neither phone's scope covers the
+    # other's (in production every area is under Uganda).
     district = await make_area(owner_db, "district")
     a = await phone(client, owner_db, district)
     b = await phone(client, owner_db, district)
