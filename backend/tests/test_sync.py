@@ -84,6 +84,25 @@ class Phone:
         )
         return r
 
+    async def post(self, path: str, payload: dict[str, Any]) -> Any:
+        body = json.dumps(payload).encode()
+        return await self.client.post(
+            path,
+            content=body,
+            headers={
+                "Content-Type": "application/json",
+                **signed_headers(self.id, self.secret, "POST", path, body, nonce=uuid.uuid4().hex),
+            },
+        )
+
+    async def get(self, path: str) -> Any:
+        r = await self.client.get(
+            path,
+            headers=signed_headers(self.id, self.secret, "GET", path, nonce=uuid.uuid4().hex),
+        )
+        assert r.status_code == 200, r.text
+        return r.json()
+
     def origin(self) -> dict[str, Any]:
         return {
             "installation_id": self.id,
@@ -342,11 +361,18 @@ async def test_a_phone_works_anywhere_in_uganda_and_adds_new_places(
     source["data"]["village_id"] = village
     # The source comes first in the batch; places are applied before it.
     out = (await a.push([source, *places]))["results"]
-    assert [r["status"] for r in out] == ["applied", "applied", "applied"]
+    assert [r["status"] for r in out] == ["applied", "applied", "applied"], out
     assert await count(owner_db, "admin_unit", id=uuid.UUID(village), review_status="new") == 1
     # The other district can be read too.
     jinja = (await a.pull(f"area:{butagaya.id}")).json()["changes"]
     assert [c["entity"] for c in jinja] == ["water_source"]
+    # Found by search from anywhere, with its district to sync.
+    hits = await a.get("/v1/sources/search?q=" + source["data"]["code"][:6])
+    hit = next(h for h in hits if h["id"] == source["id"])
+    assert hit["village"] == "Kitanaba"
+    assert hit["district"] == "Jinja"
+    assert hit["latest"] is None
+    assert await a.get("/v1/sources/search?q=%25") == []
     # A place must sit below a known one, one level down.
     bad: dict[str, Any] = {
         **places[1],
@@ -567,7 +593,9 @@ async def test_pull_is_scoped_paged_and_resumable(
     # Another phone in another district sees nothing of it.
     b = await phone(client, owner_db, await make_area(owner_db, "district"))
     assert (await b.pull(f"area:{a.village}")).status_code == 403
-    assert (await b.pull("scope")).json()["changes"] == []
+    # (A phone may read all of Uganda, ADR-019; test areas sit outside it.)
+    ours = {c["id"] for c in seen}
+    assert not [c for c in (await b.pull("scope")).json()["changes"] if c["id"] in ours]
     assert (await b.pull("galaxy")).status_code == 400
 
     # A deactivated source travels as a tombstone.
@@ -642,3 +670,36 @@ async def test_a_late_commit_is_never_skipped(
 
     after = (await p.pull("scope", start)).json()["changes"]
     assert {c["id"] for c in after} == {str(slow_id), fast["id"]}
+
+
+async def test_a_collector_gets_back_in_on_another_phone_with_a_code(
+    client: AsyncClient, owner_db: Database, seeded: None
+) -> None:
+    """ADR-020: an IT admin issues a one-time code; on another phone the
+    collector comes back with the same key and details."""
+    district = await make_area(owner_db, "district")
+    a = await phone(client, owner_db, district)
+    b = await phone(client, owner_db, district)
+    await a.push(visit(a))
+    admin = await signed_in(client, owner_db, role="it_admin")
+    r = await client.post(f"/v1/collectors/{a.collector}/recovery-code", headers=admin)
+    assert r.status_code == 201, r.text
+    issued = r.json()
+    assert issued["full_name"] == "Example Collector"
+    assert len(issued["code"]) == 11 and issued["code"][5] == "-"
+
+    # Typed in lower case without the dash: still the same code.
+    r = await b.post("/v1/collectors/recover", {"code": issued["code"].replace("-", "").lower()})
+    assert r.status_code == 200, r.text
+    back = r.json()
+    assert back["collector_key"] == a.collector
+    assert back["snapshot"]["full_name"] == "Example Collector"
+    # Once only.
+    again = await b.post("/v1/collectors/recover", {"code": issued["code"]})
+    assert again.status_code == 404
+    assert await count(owner_db, "audit_log", action="collector.recovered") == 1
+
+    # A stakeholder outside the collector's areas cannot issue one.
+    other = await signed_in(client, owner_db)
+    r = await client.post(f"/v1/collectors/{a.collector}/recovery-code", headers=other)
+    assert r.status_code == 403

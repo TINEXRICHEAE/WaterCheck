@@ -835,6 +835,63 @@
         }
       }
     },
+    "/v1/sources/search": {
+      "get": {
+        "tags": [
+          "reference"
+        ],
+        "summary": "Search Sources",
+        "description": "Sources anywhere, by code, name or village (ADR-019): a phone finds\nsources beyond the districts it holds, then syncs that district.",
+        "operationId": "search_sources",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Q"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 30,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SourceHit"
+                  },
+                  "title": "Response Search Sources"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/collectors": {
       "get": {
         "tags": [
@@ -3010,6 +3067,97 @@
         "responses": {
           "204": {
             "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/collectors/{collector_key}/recovery-code": {
+      "post": {
+        "tags": [
+          "collectors"
+        ],
+        "summary": "Issue Code",
+        "description": "A one-time code for this collector, valid 24 hours.",
+        "operationId": "issue_code",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "collector_key",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Collector Key"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecoveryCodeOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/collectors/recover": {
+      "post": {
+        "tags": [
+          "collectors"
+        ],
+        "summary": "Recover",
+        "description": "Redeems a code on an activated phone; each code works once.",
+        "operationId": "recover",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecoverIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecoveredCollector"
+                }
+              }
+            }
           },
           "422": {
             "description": "Validation Error",
@@ -5276,6 +5424,65 @@
         ],
         "title": "PushTokenIn"
       },
+      "RecoverIn": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "maxLength": 40,
+            "minLength": 6,
+            "title": "Code"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code"
+        ],
+        "title": "RecoverIn"
+      },
+      "RecoveredCollector": {
+        "properties": {
+          "collector_key": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Collector Key"
+          },
+          "snapshot": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Snapshot"
+          }
+        },
+        "type": "object",
+        "required": [
+          "collector_key",
+          "snapshot"
+        ],
+        "title": "RecoveredCollector"
+      },
+      "RecoveryCodeOut": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Expires At"
+          },
+          "full_name": {
+            "type": "string",
+            "title": "Full Name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "expires_at",
+          "full_name"
+        ],
+        "title": "RecoveryCodeOut"
+      },
       "RefreshRequest": {
         "properties": {
           "refresh_token": {
@@ -5515,6 +5722,109 @@
         ],
         "title": "SmsProviderName",
         "description": "Inbound SMS adapters (``test`` is the fake used in tests)."
+      },
+      "SourceHit": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "village_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Village Id"
+          },
+          "village": {
+            "type": "string",
+            "title": "Village"
+          },
+          "district_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "District Id"
+          },
+          "district": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "District"
+          },
+          "lat": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lat"
+          },
+          "lon": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lon"
+          },
+          "latest": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latest"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "code",
+          "name",
+          "village_id",
+          "village",
+          "district_id",
+          "district",
+          "lat",
+          "lon",
+          "latest"
+        ],
+        "title": "SourceHit"
       },
       "TilesInfo": {
         "properties": {

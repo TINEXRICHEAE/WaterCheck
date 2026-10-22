@@ -21,6 +21,7 @@ from app.api import (
     health,
     installations,
     notifications,
+    recovery,
     reference,
     sync,
     tiles,
@@ -95,6 +96,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(admin.router)
     app.include_router(admin_config.router)
     app.include_router(admin_archive.router)
+    app.include_router(recovery.router)
     # Small links (SPEC §8.1): compressed requests in, compressed responses out.
     app.add_middleware(GZipMiddleware, minimum_size=1024)
     app.add_middleware(GzipRequestMiddleware)

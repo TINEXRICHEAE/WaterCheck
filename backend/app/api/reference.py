@@ -194,6 +194,57 @@ async def admin_units(principal: AnyPrincipal, db: DbDep) -> list[AdminUnitOut]:
         ]
 
 
+class SourceHit(BaseModel):
+    id: UUID
+    code: str
+    name: str | None
+    village_id: UUID
+    village: str
+    district_id: UUID | None
+    district: str | None
+    lat: float | None
+    lon: float | None
+    latest: str | None
+
+
+@router.get("/sources/search")
+async def search_sources(
+    principal: AnyPrincipal, db: DbDep, q: str, limit: int = 30
+) -> list[SourceHit]:
+    """Sources anywhere, by code, name or village (ADR-019): a phone finds
+    sources beyond the districts it holds, then syncs that district."""
+    term = " ".join(q.split())
+    if len(term) < 2:
+        return []
+    # What was typed is matched literally: % and _ are not wildcards.
+    escaped = term.replace("\\", "\\\\").replace("%", r"\%").replace("_", r"\_")
+    like = f"%{escaped}%"
+    async with db.transaction(principal) as conn:
+        rows = await conn.execute(
+            text(
+                "SELECT s.id, s.code, s.name, s.village_id, v.name AS village, "
+                "d.id AS district_id, d.name AS district, "
+                "ST_Y(s.location::geometry) AS lat, ST_X(s.location::geometry) AS lon, "
+                "(SELECT r.overall FROM test_session t JOIN test_result r ON r.session_id = t.id "
+                " WHERE t.source_id = s.id AND NOT wc_archived('test_session', t.id) "
+                " ORDER BY t.tested_at_device DESC, r.created_at_device DESC LIMIT 1) AS latest "
+                "FROM water_source s JOIN admin_unit v ON v.id = s.village_id "
+                "LEFT JOIN LATERAL ("
+                " WITH RECURSIVE up(id, parent_id, level, name) AS ("
+                "  SELECT a.id, a.parent_id, a.level, a.name FROM admin_unit a "
+                "  WHERE a.id = s.village_id "
+                "  UNION ALL SELECT a.id, a.parent_id, a.level, a.name "
+                "  FROM admin_unit a JOIN up ON a.id = up.parent_id) "
+                " SELECT id, name FROM up WHERE level = 'district' LIMIT 1) d ON true "
+                "WHERE s.is_active AND NOT wc_archived('water_source', s.id) "
+                "AND (s.code ILIKE :like OR s.name ILIKE :like OR v.name ILIKE :like) "
+                "ORDER BY s.code LIMIT :limit"
+            ),
+            {"like": like, "limit": max(1, min(limit, 100))},
+        )
+        return [SourceHit(**r._mapping) for r in rows]
+
+
 @router.get("/collectors")
 async def collectors(user: UserDep, db: DbDep) -> list[CollectorSummary]:
     """Collectors seen in the user's area, built from submissions (§2.1):

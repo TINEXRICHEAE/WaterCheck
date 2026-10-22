@@ -235,7 +235,7 @@ class InstallationService:
                 await conn.execute(
                     text(
                         "SELECT admin_unit_id, secret_encrypted, revoked_at, "
-                        "(SELECT id FROM admin_unit WHERE level = 'country' LIMIT 1) AS country "
+                        "ARRAY(SELECT id FROM admin_unit WHERE level = 'country') AS countries "
                         "FROM installation WHERE id = :id"
                     ),
                     {"id": inst_id},
@@ -276,7 +276,7 @@ class InstallationService:
         return Principal(
             kind="installation",
             installation_id=inst_id,
-            scope_units=tuple(u for u in (row.country, row.admin_unit_id) if u),
+            scope_units=(*row.countries, row.admin_unit_id),
         )
 
     async def revoke(self, installation_id: UUID, *, by: UUID | None) -> bool:
