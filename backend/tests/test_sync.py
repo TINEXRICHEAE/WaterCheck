@@ -526,8 +526,14 @@ async def test_pull_is_scoped_paged_and_resumable(
             }
         ]
     )
+    # ...with its edit trail row (ADR-018).
     later = (await a.pull(f"area:{a.village}", cursor)).json()["changes"]
-    assert [(c["entity"], c["op"]) for c in later] == [("water_source", "tombstone")]
+    assert sorted((c["entity"], c["op"]) for c in later) == [
+        ("change_trail", "upsert"),
+        ("water_source", "tombstone"),
+    ]
+    trail = next(c for c in later if c["entity"] == "change_trail")
+    assert trail["data"]["field"] == "is_active"
 
 
 async def test_reference_stream(client: AsyncClient, owner_db: Database, seeded: None) -> None:
