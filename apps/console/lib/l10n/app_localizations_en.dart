@@ -2001,4 +2001,42 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get refresh => 'Refresh';
+
+  @override
+  String get kpiTestedListHint =>
+      'Every source, latest test first. Tap one to open it.';
+
+  @override
+  String get kpiUnsafeListHint =>
+      'Unsafe tests in the period, newest first. Tap one to open its source.';
+
+  @override
+  String get kpiOpenAlertsListHint =>
+      'Alerts not closed yet. Tap one to open it.';
+
+  @override
+  String get kpiWaitingAckListHint =>
+      'Alerts still waiting to be acknowledged, oldest first.';
+
+  @override
+  String get kpiOverdueListHint =>
+      'Sources whose next test is overdue. Tap one to open it.';
+
+  @override
+  String get kpiCollectorListHint => 'Their tests in the period, newest first.';
+
+  @override
+  String kpiNotTestedInPeriod(String when) {
+    return 'Not tested in the period (last $when)';
+  }
+
+  @override
+  String get kpiListAfterSync =>
+      'The list appears once this device has finished its first sync.';
+
+  @override
+  String get kpiListEmpty => 'Nothing to show for this period.';
+
+  @override
+  String get kpiListClose => 'Close';
 }

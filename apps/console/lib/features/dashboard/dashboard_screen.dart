@@ -11,6 +11,7 @@ import '../../l10n/app_localizations.dart';
 import 'dashboard_view.dart';
 import '../map/sources_map.dart';
 import 'filter_bar.dart';
+import 'kpi_lists.dart';
 
 /// One dashboard for every stakeholder, filtered to their areas (SPEC P9):
 /// KPIs, overdue sources, collector activity and the latest tests.
@@ -66,7 +67,7 @@ class DashboardScreen extends ConsumerWidget {
               onRetry: () => ref.invalidate(dashboardViewProvider),
             ),
           ],
-          data: (d) => _content(context, l10n, d),
+          data: (d) => _content(context, ref, l10n, d),
         ),
       ],
     );
@@ -74,6 +75,7 @@ class DashboardScreen extends ConsumerWidget {
 
   List<Widget> _content(
     BuildContext context,
+    WidgetRef ref,
     AppLocalizations l10n,
     DashboardView d,
   ) {
@@ -101,6 +103,13 @@ class DashboardScreen extends ConsumerWidget {
               value: '${d.tested}',
               hint: l10n.kpiOfSources(d.sources),
               icon: Icons.science_outlined,
+              onTap: () => showKpiList(
+                context,
+                ref,
+                which: KpiList.tested,
+                title: l10n.kpiTested,
+                hint: l10n.kpiTestedListHint,
+              ),
             ),
             _Kpi(
               label: l10n.kpiUnsafe,
@@ -109,19 +118,39 @@ class DashboardScreen extends ConsumerWidget {
                   : '${(d.unsafeShare! * 100).toStringAsFixed(0)}%',
               hint: l10n.kpiUnsafeCount(d.unsafe),
               icon: Icons.warning_amber_rounded,
+              onTap: () => showKpiList(
+                context,
+                ref,
+                which: KpiList.unsafe,
+                title: l10n.kpiUnsafe,
+                hint: l10n.kpiUnsafeListHint,
+              ),
             ),
             _Kpi(
               label: l10n.kpiOpenAlerts,
               value: '${d.openAlerts}',
               hint: l10n.kpiOpenAlertsHint,
               icon: Icons.notifications_active_outlined,
-              onTap: () => context.go('/alerts'),
+              onTap: () => showKpiList(
+                context,
+                ref,
+                which: KpiList.openAlerts,
+                title: l10n.kpiOpenAlerts,
+                hint: l10n.kpiOpenAlertsListHint,
+              ),
             ),
             _Kpi(
               label: l10n.kpiAckTime,
               value: median == null ? '–' : _duration(l10n, median),
               hint: l10n.kpiAckTimeHint,
               icon: Icons.timer_outlined,
+              onTap: () => showKpiList(
+                context,
+                ref,
+                which: KpiList.waitingAck,
+                title: l10n.kpiAckTime,
+                hint: l10n.kpiWaitingAckListHint,
+              ),
             ),
           ];
           final width = (box.maxWidth - 8 * (columns - 1)) / columns;
@@ -145,6 +174,15 @@ class DashboardScreen extends ConsumerWidget {
                 l10n.overdueTitle(d.overdue.length),
                 style: text.titleMedium,
               ),
+              onTap: d.overdue.isEmpty
+                  ? null
+                  : () => showKpiList(
+                      context,
+                      ref,
+                      which: KpiList.overdue,
+                      title: l10n.overdueTitle(d.overdue.length),
+                      hint: l10n.kpiOverdueListHint,
+                    ),
               trailing: TextButton(
                 onPressed: () => context.go('/sources'),
                 child: Text(l10n.seeAllSources),
@@ -201,6 +239,14 @@ class DashboardScreen extends ConsumerWidget {
                   ),
                 ),
                 trailing: c.mark == null ? null : _MarkChip(mark: c.mark!),
+                onTap: () => showKpiList(
+                  context,
+                  ref,
+                  which: KpiList.collector,
+                  collectorKey: c.collectorKey,
+                  title: c.name,
+                  hint: l10n.kpiCollectorListHint,
+                ),
               ),
           ],
         ),

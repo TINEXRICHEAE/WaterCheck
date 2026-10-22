@@ -3243,6 +3243,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Refresh'**
   String get refresh;
+
+  /// No description provided for @kpiTestedListHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Every source, latest test first. Tap one to open it.'**
+  String get kpiTestedListHint;
+
+  /// No description provided for @kpiUnsafeListHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Unsafe tests in the period, newest first. Tap one to open its source.'**
+  String get kpiUnsafeListHint;
+
+  /// No description provided for @kpiOpenAlertsListHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Alerts not closed yet. Tap one to open it.'**
+  String get kpiOpenAlertsListHint;
+
+  /// No description provided for @kpiWaitingAckListHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Alerts still waiting to be acknowledged, oldest first.'**
+  String get kpiWaitingAckListHint;
+
+  /// No description provided for @kpiOverdueListHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Sources whose next test is overdue. Tap one to open it.'**
+  String get kpiOverdueListHint;
+
+  /// No description provided for @kpiCollectorListHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Their tests in the period, newest first.'**
+  String get kpiCollectorListHint;
+
+  /// No description provided for @kpiNotTestedInPeriod.
+  ///
+  /// In en, this message translates to:
+  /// **'Not tested in the period (last {when})'**
+  String kpiNotTestedInPeriod(String when);
+
+  /// No description provided for @kpiListAfterSync.
+  ///
+  /// In en, this message translates to:
+  /// **'The list appears once this device has finished its first sync.'**
+  String get kpiListAfterSync;
+
+  /// No description provided for @kpiListEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to show for this period.'**
+  String get kpiListEmpty;
+
+  /// No description provided for @kpiListClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get kpiListClose;
 }
 
 class _AppLocalizationsDelegate

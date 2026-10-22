@@ -1185,5 +1185,22 @@
       }
     }
   },
-  "refresh": "Refresh"
+  "refresh": "Refresh",
+  "kpiTestedListHint": "Every source, latest test first. Tap one to open it.",
+  "kpiUnsafeListHint": "Unsafe tests in the period, newest first. Tap one to open its source.",
+  "kpiOpenAlertsListHint": "Alerts not closed yet. Tap one to open it.",
+  "kpiWaitingAckListHint": "Alerts still waiting to be acknowledged, oldest first.",
+  "kpiOverdueListHint": "Sources whose next test is overdue. Tap one to open it.",
+  "kpiCollectorListHint": "Their tests in the period, newest first.",
+  "kpiNotTestedInPeriod": "Not tested in the period (last {when})",
+  "@kpiNotTestedInPeriod": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "kpiListAfterSync": "The list appears once this device has finished its first sync.",
+  "kpiListEmpty": "Nothing to show for this period.",
+  "kpiListClose": "Close"
 }

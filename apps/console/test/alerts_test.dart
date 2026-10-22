@@ -107,6 +107,42 @@ Future<void> _note(WidgetTester tester, String text) async {
 void main() {
   _windowsOffline();
 
+  testWidgets('dashboard cards open lists that lead to the item', (
+    tester,
+  ) async {
+    final env = ConsoleTestEnv(cookieMode: true);
+    env.api.sessionFor('admin@example.org');
+    env.sync.serve['scope'] = _syncedAlert();
+    final db = await pumpConsole(tester, env: env);
+
+    await tester.tap(find.text('Open alerts'));
+    await settle(tester);
+    expect(find.text('Alerts not closed yet. Tap one to open it.'), findsOne);
+    await tester.tap(
+      find.descendant(
+        of: find.byType(AlertDialog),
+        matching: find.text('Unsafe result: Main borehole'),
+      ),
+    );
+    await settle(tester);
+    expect(find.text('Acknowledge'), findsOneWidget);
+
+    await tester.tap(find.text('Dashboard').first);
+    await settle(tester);
+    await tester.tap(find.text('Sources tested'));
+    await settle(tester);
+    await tester.tap(
+      find.descendant(
+        of: find.byType(AlertDialog),
+        matching: find.text('Main borehole (ABIM-ENT-001)'),
+      ),
+    );
+    await settle(tester);
+    expect(find.text('Edit history'), findsOneWidget);
+    expect(find.byType(AlertDialog), findsNothing);
+    await disposeConsole(tester, db);
+  });
+
   testWidgets('acknowledge, act and close an alert; each step is sent', (
     tester,
   ) async {
