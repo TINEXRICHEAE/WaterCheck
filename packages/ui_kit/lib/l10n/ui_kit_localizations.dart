@@ -657,6 +657,174 @@ abstract class UiKitLocalizations {
   /// In en, this message translates to:
   /// **'no route found (or routing is off)'**
   String get mapRouteNone;
+
+  /// No description provided for @installApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Install app'**
+  String get installApp;
+
+  /// No description provided for @installAppHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Open WaterCheck from your home screen or app list, also offline.'**
+  String get installAppHint;
+
+  /// No description provided for @mapZoomIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Zoom in (R key)'**
+  String get mapZoomIn;
+
+  /// No description provided for @mapZoomOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Zoom out (F key)'**
+  String get mapZoomOut;
+
+  /// No description provided for @photoClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close (Esc)'**
+  String get photoClose;
+
+  /// No description provided for @photoPrevious.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous picture (left arrow)'**
+  String get photoPrevious;
+
+  /// No description provided for @photoNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next picture (right arrow)'**
+  String get photoNext;
+
+  /// No description provided for @photoCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Picture {at} of {total}'**
+  String photoCount(int at, int total);
+
+  /// No description provided for @photoRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove picture'**
+  String get photoRemove;
+
+  /// No description provided for @photoRemoveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove this picture?'**
+  String get photoRemoveTitle;
+
+  /// No description provided for @photoRemoveBody.
+  ///
+  /// In en, this message translates to:
+  /// **'It disappears from this device and, once synced, from everyone\'s view. You can add a new one after.'**
+  String get photoRemoveBody;
+
+  /// No description provided for @photoKeep.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep it'**
+  String get photoKeep;
+
+  /// No description provided for @photoRemoveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The picture could not be removed.'**
+  String get photoRemoveFailed;
+
+  /// No description provided for @photoUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'This picture can\'t be shown right now (not uploaded yet, or no connection).'**
+  String get photoUnavailable;
+
+  /// No description provided for @choiceOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other (type it)'**
+  String get choiceOther;
+
+  /// No description provided for @choiceTypedBefore.
+  ///
+  /// In en, this message translates to:
+  /// **'{value} (typed before)'**
+  String choiceTypedBefore(String value);
+
+  /// No description provided for @choiceTypeIt.
+  ///
+  /// In en, this message translates to:
+  /// **'Type it'**
+  String get choiceTypeIt;
+
+  /// No description provided for @choiceTypeItHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Used on this device at once; the IT admin may add it to the shared list.'**
+  String get choiceTypeItHint;
+
+  /// No description provided for @choiceRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose one, or pick Other and type it.'**
+  String get choiceRequired;
+
+  /// No description provided for @choiceTypeItRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Type what it is.'**
+  String get choiceTypeItRequired;
+
+  /// No description provided for @conversationEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No messages yet. Write the first one.'**
+  String get conversationEmpty;
+
+  /// No description provided for @conversationYou.
+  ///
+  /// In en, this message translates to:
+  /// **'You'**
+  String get conversationYou;
+
+  /// No description provided for @conversationFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'Message from {name}'**
+  String conversationFrom(String name);
+
+  /// No description provided for @conversationStaff.
+  ///
+  /// In en, this message translates to:
+  /// **'Stakeholder or IT admin'**
+  String get conversationStaff;
+
+  /// No description provided for @conversationWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting to send (no connection yet)'**
+  String get conversationWaiting;
+
+  /// No description provided for @conversationWrite.
+  ///
+  /// In en, this message translates to:
+  /// **'Write a message'**
+  String get conversationWrite;
+
+  /// No description provided for @conversationHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter sends; Shift+Enter for a new line. Everyone following this sees it.'**
+  String get conversationHint;
+
+  /// No description provided for @conversationSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get conversationSend;
 }
 
 class _UiKitLocalizationsDelegate

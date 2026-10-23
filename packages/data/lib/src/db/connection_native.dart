@@ -13,6 +13,8 @@ import 'key_store.dart';
 Future<AppDatabase> openAppDatabase({
   required DatabaseKeyStore keys,
   String fileName = 'watercheck.db',
+  // Web only (ignored here: the file is always kept, encrypted).
+  bool persistOnWeb = false,
 }) async {
   final dir = await getApplicationSupportDirectory();
   final key = await keys.readOrCreate();

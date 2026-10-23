@@ -111,6 +111,10 @@ void main() {
     final photos = await repo.photos('src-0');
     expect(photos.map((p) => p.id), unorderedEquals(['p1', 'p2']));
     expect(photos.firstWhere((p) => p.id == 'p1').uploaded, isTrue);
+    expect(
+      {for (final p in photos) p.id: (p.ofSource, p.ownerId)},
+      {'p1': (true, 'src-0'), 'p2': (false, 'ses-0-1')},
+    );
     final inspections = await repo.inspections('src-0');
     expect(inspections.single.risks, 2);
     expect(inspections.single.answered, 3);

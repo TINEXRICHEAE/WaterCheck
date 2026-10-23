@@ -86,8 +86,22 @@ class PullApplier {
         _upsert(db, db.alerts, AlertRow.fromJson(j, serializer: _s)),
     'alert_event': (db, j) =>
         _keep(db, db.alertEvents, AlertEventRow.fromJson(j, serializer: _s)),
-    'attachment': (db, j) =>
-        _upsert(db, db.attachments, AttachmentRow.fromJson(j, serializer: _s)),
+    // A picture its author removed (ADR-022) leaves this device.
+    'attachment': (db, j) async {
+      if (j['removed_at'] != null) {
+        final id = j['id']! as String;
+        await (db.delete(
+          db.attachmentQueue,
+        )..where((q) => q.attachmentId.equals(id))).go();
+        await (db.delete(db.attachments)..where((a) => a.id.equals(id))).go();
+        return;
+      }
+      await _upsert(
+        db,
+        db.attachments,
+        AttachmentRow.fromJson(j, serializer: _s),
+      );
+    },
     'collector_mark': (db, j) => _upsert(
       db,
       db.collectorMarks,
@@ -105,6 +119,23 @@ class PullApplier {
     ),
     'change_trail': (db, j) =>
         _keep(db, db.changeTrails, ChangeTrailRow.fromJson(j, serializer: _s)),
+    // A message (ADR-022): the server's copy fills in the author and time,
+    // and never clears this device's "read".
+    'message': (db, j) {
+      final row = MessageRow.fromJson(j, serializer: _s);
+      return db
+          .into(db.messages)
+          .insert(
+            row,
+            onConflict: DoUpdate(
+              (_) => MessagesCompanion(
+                authorName: Value(row.authorName),
+                createdAtServer: Value(row.createdAtServer),
+                serverSeq: Value(row.serverSeq),
+              ),
+            ),
+          );
+    },
   };
 
   /// True once a restored archive was seen: the records it brings back sit

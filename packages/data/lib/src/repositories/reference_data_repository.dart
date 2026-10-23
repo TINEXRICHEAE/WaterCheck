@@ -28,6 +28,11 @@ abstract interface class ReferenceDataRepository {
   /// Pick lists from `lists.json` (collector types, source types, …).
   Future<JsonMap> lists();
 
+  /// Values already used on this device for [list] (`source_types`,
+  /// `collector_types`), typed ones included: "Other" means type it, and
+  /// what was typed is offered again (ADR-022).
+  Future<List<String>> usedValues(String list);
+
   /// A configuration document pulled from the server (e.g.
   /// `notifications`), or null before the first sync.
   Future<JsonMap?> configOrNull(String key);
@@ -118,6 +123,22 @@ class DriftReferenceDataRepository implements ReferenceDataRepository {
 
   @override
   Future<JsonMap> lists() => _config('lists');
+
+  @override
+  Future<List<String>> usedValues(String list) async {
+    final sql = switch (list) {
+      'source_types' => 'SELECT DISTINCT source_type AS v FROM water_sources',
+      'collector_types' =>
+        'SELECT DISTINCT collector_type AS v FROM collector_profiles',
+      _ => null,
+    };
+    if (sql == null) return const [];
+    final rows = await _db.customSelect(sql).get();
+    return [
+      for (final r in rows)
+        if (r.read<String?>('v') case final v? when v.trim().isNotEmpty) v,
+    ]..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
+  }
 
   @override
   Future<JsonMap?> configOrNull(String key) async {

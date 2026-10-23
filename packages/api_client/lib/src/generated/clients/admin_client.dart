@@ -15,10 +15,13 @@ import '../models/card_out.dart';
 import '../models/chain_out.dart';
 import '../models/credentials_out.dart';
 import '../models/default_profile_in.dart';
+import '../models/device_collector.dart';
 import '../models/health.dart';
 import '../models/installation_out.dart';
 import '../models/label_in.dart';
+import '../models/ledger.dart';
 import '../models/new_area_in.dart';
+import '../models/new_place.dart';
 import '../models/new_user_in.dart';
 import '../models/pending_parameter.dart';
 import '../models/place_out.dart';
@@ -28,6 +31,8 @@ import '../models/review_in.dart';
 import '../models/routing.dart';
 import '../models/routing_in.dart';
 import '../models/security_in.dart';
+import '../models/typed_value.dart';
+import '../models/typed_value_in.dart';
 import '../models/user_changes_in.dart';
 import '../models/user_out.dart';
 
@@ -67,6 +72,30 @@ abstract class AdminClient {
   /// Installations
   @GET('/v1/admin/installations')
   Future<List<InstallationOut>> installations();
+
+  /// Installation Collectors.
+  ///
+  /// The collectors and testers seen on one device. People added on the.
+  /// device who never sent anything are not known to the server yet.
+  @GET('/v1/admin/installations/{installation_id}/collectors')
+  Future<List<DeviceCollector>> installationCollectors({
+    @Path('installation_id') required String installationId,
+  });
+
+  /// Credentials.
+  ///
+  /// Every activation code and Console account made, by whom, for which.
+  /// area, and their use: devices activated, first and last sign-in.
+  /// (ADR-022). The codes and passwords themselves are never stored.
+  @GET('/v1/admin/credentials')
+  Future<Ledger> credentials();
+
+  /// Revoke Code.
+  ///
+  /// Withdraws an unused or partly used code; devices already activated.
+  /// with it keep working (revoke those one by one).
+  @POST('/v1/admin/activation-codes/{code_id}/revoke')
+  Future<void> revokeCode({@Path('code_id') required String codeId});
 
   /// Chain
   @GET('/v1/admin/areas/{area_id}/chain')
@@ -119,6 +148,16 @@ abstract class AdminClient {
     @Body() required RenameIn body,
   });
 
+  /// New Places
+  @GET('/v1/admin/areas/new')
+  Future<List<NewPlace>> newPlaces();
+
+  /// Mark Place Official.
+  ///
+  /// Accepts a place added from a device into the list.
+  @POST('/v1/admin/areas/{area_id}/official')
+  Future<void> markPlaceOfficial({@Path('area_id') required String areaId});
+
   /// Get Default Profile.
   ///
   /// The limit set set on this area itself (empty: it inherits).
@@ -160,6 +199,19 @@ abstract class AdminClient {
   /// Set Security
   @PUT('/v1/admin/security')
   Future<SecurityIn> setSecurity({@Body() required SecurityIn body});
+
+  /// Typed Values.
+  ///
+  /// Values typed under "Other" that the shared lists do not have yet.
+  @GET('/v1/admin/typed-values')
+  Future<List<TypedValue>> typedValues();
+
+  /// Add Typed Value.
+  ///
+  /// Adds a typed value to the shared list, before "Other"; devices get.
+  /// it with the next sync.
+  @POST('/v1/admin/typed-values')
+  Future<void> addTypedValue({@Body() required TypedValueIn body});
 
   /// Pending Parameters
   @GET('/v1/admin/parameters/pending')

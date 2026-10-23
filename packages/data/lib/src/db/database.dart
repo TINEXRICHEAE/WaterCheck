@@ -38,6 +38,7 @@ part 'database.g.dart';
     AttachmentQueue,
     ArchiveMarks,
     ChangeTrails,
+    Messages,
   ],
   include: {'immutability.drift'},
 )
@@ -45,7 +46,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.executor);
 
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => 8;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -94,6 +95,16 @@ class AppDatabase extends _$AppDatabase {
           await m.drop(t);
           await m.createTrigger(t);
         }
+      }
+      if (from < 7) {
+        // Pictures and test context (ADR-022): why a test has no picture,
+        // and who added each picture.
+        await m.addColumn(testSessions, testSessions.noPhotoReason);
+        await m.addColumn(attachments, attachments.collectorKey);
+      }
+      if (from < 8) {
+        // Conversations in the app (ADR-022).
+        await m.createTable(messages);
       }
     },
     beforeOpen: (details) async {

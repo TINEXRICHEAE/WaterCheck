@@ -16,6 +16,11 @@ class PendingParameter {
     required this.valueType,
     required this.collectorName,
     required this.readings,
+    this.collectorKey,
+    this.sourceId,
+    this.sourceName,
+    this.sessionId,
+    this.firstValue,
   });
 
   factory PendingParameter.fromJson(Map<String, Object?> json) =>
@@ -32,6 +37,16 @@ class PendingParameter {
   @JsonKey(name: 'collector_name')
   final String? collectorName;
   final int readings;
+  @JsonKey(name: 'collector_key')
+  final String? collectorKey;
+  @JsonKey(name: 'source_id')
+  final String? sourceId;
+  @JsonKey(name: 'source_name')
+  final String? sourceName;
+  @JsonKey(name: 'session_id')
+  final String? sessionId;
+  @JsonKey(name: 'first_value')
+  final String? firstValue;
 
   Map<String, Object?> toJson() => _$PendingParameterToJson(this);
 }

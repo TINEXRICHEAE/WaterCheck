@@ -3,6 +3,7 @@
 /// road route, vehicle or walking) and OSRM routes. Used by both apps.
 library;
 
+export 'src/map/map_access.dart';
 export 'src/map/map_controls.dart';
 export 'src/map/map_motion.dart';
 export 'src/map/map_route.dart';

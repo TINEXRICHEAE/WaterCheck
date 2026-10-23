@@ -360,4 +360,99 @@ class UiKitLocalizationsEn extends UiKitLocalizations {
 
   @override
   String get mapRouteNone => 'no route found (or routing is off)';
+
+  @override
+  String get installApp => 'Install app';
+
+  @override
+  String get installAppHint =>
+      'Open WaterCheck from your home screen or app list, also offline.';
+
+  @override
+  String get mapZoomIn => 'Zoom in (R key)';
+
+  @override
+  String get mapZoomOut => 'Zoom out (F key)';
+
+  @override
+  String get photoClose => 'Close (Esc)';
+
+  @override
+  String get photoPrevious => 'Previous picture (left arrow)';
+
+  @override
+  String get photoNext => 'Next picture (right arrow)';
+
+  @override
+  String photoCount(int at, int total) {
+    return 'Picture $at of $total';
+  }
+
+  @override
+  String get photoRemove => 'Remove picture';
+
+  @override
+  String get photoRemoveTitle => 'Remove this picture?';
+
+  @override
+  String get photoRemoveBody =>
+      'It disappears from this device and, once synced, from everyone\'s view. You can add a new one after.';
+
+  @override
+  String get photoKeep => 'Keep it';
+
+  @override
+  String get photoRemoveFailed => 'The picture could not be removed.';
+
+  @override
+  String get photoUnavailable =>
+      'This picture can\'t be shown right now (not uploaded yet, or no connection).';
+
+  @override
+  String get choiceOther => 'Other (type it)';
+
+  @override
+  String choiceTypedBefore(String value) {
+    return '$value (typed before)';
+  }
+
+  @override
+  String get choiceTypeIt => 'Type it';
+
+  @override
+  String get choiceTypeItHint =>
+      'Used on this device at once; the IT admin may add it to the shared list.';
+
+  @override
+  String get choiceRequired => 'Choose one, or pick Other and type it.';
+
+  @override
+  String get choiceTypeItRequired => 'Type what it is.';
+
+  @override
+  String get conversationEmpty => 'No messages yet. Write the first one.';
+
+  @override
+  String get conversationYou => 'You';
+
+  @override
+  String conversationFrom(String name) {
+    return 'Message from $name';
+  }
+
+  @override
+  String get conversationStaff => 'Stakeholder or IT admin';
+
+  @override
+  String get conversationWaiting => 'Waiting to send (no connection yet)';
+
+  @override
+  String get conversationWrite => 'Write a message';
+
+  @override
+  String get conversationHint =>
+      'Enter sends; Shift+Enter for a new line. Everyone following this sees it.';
+
+  @override
+  String get conversationSend => 'Send';
 }

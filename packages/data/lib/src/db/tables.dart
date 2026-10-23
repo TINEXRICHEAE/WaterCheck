@@ -240,6 +240,10 @@ class TestSessions extends Table with CollectOrigin, ServerSeq {
   RealColumn get distanceFromSourceM => real().nullable()();
   TextColumn get distanceOverrideReason => text().nullable()();
   TextColumn get notes => text().nullable()();
+
+  /// Why the test has no picture of the kit or reading (ADR-022). Added
+  /// in v7.
+  TextColumn get noPhotoReason => text().nullable()();
   DateTimeColumn get testedAtDevice => dateTime()();
 
   @override
@@ -390,6 +394,9 @@ class Attachments extends Table with ServerSeq {
   TextColumn get sha256 => text()();
   IntColumn get bytes => integer()();
   TextColumn get mime => text()();
+
+  /// Who added it: only they may remove it (ADR-022). Added in v7.
+  TextColumn get collectorKey => text().nullable()();
   TextColumn get uploadStatus =>
       text().withDefault(const Constant('pending'))();
 
@@ -491,6 +498,30 @@ class ChangeTrails extends Table {
   TextColumn get reason => text().nullable()();
   TextColumn get actorName => text().nullable()();
   DateTimeColumn get changedAt => dateTime()();
+  IntColumn get serverSeq => integer().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// Conversations (ADR-022): messages in threads on a test, a source, a
+/// collector or an area, between collectors and Console users. Insert-only;
+/// [readAt] is this device's own and never synced. Added in v8.
+@DataClassName('MessageRow')
+class Messages extends Table {
+  TextColumn get id => text()();
+
+  /// `test`, `source`, `collector` or `area`.
+  TextColumn get subjectType => text()();
+  TextColumn get subjectId => text()();
+  TextColumn get body => text()();
+  TextColumn get authorUserId => text().nullable()();
+  TextColumn get installationId => text().nullable()();
+  TextColumn get collectorKey => text().nullable()();
+  TextColumn get authorName => text().nullable()();
+  DateTimeColumn get writtenAtDevice => dateTime().nullable()();
+  DateTimeColumn get createdAtServer => dateTime().nullable()();
+  DateTimeColumn get readAt => dateTime().nullable()();
   IntColumn get serverSeq => integer().nullable()();
 
   @override

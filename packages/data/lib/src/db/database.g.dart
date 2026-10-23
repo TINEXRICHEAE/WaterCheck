@@ -1282,6 +1282,17 @@ class $TestSessionsTable extends TestSessions
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _noPhotoReasonMeta = const VerificationMeta(
+    'noPhotoReason',
+  );
+  @override
+  late final GeneratedColumn<String> noPhotoReason = GeneratedColumn<String>(
+    'no_photo_reason',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _testedAtDeviceMeta = const VerificationMeta(
     'testedAtDevice',
   );
@@ -1312,6 +1323,7 @@ class $TestSessionsTable extends TestSessions
     distanceFromSourceM,
     distanceOverrideReason,
     notes,
+    noPhotoReason,
     testedAtDevice,
   ];
   @override
@@ -1454,6 +1466,15 @@ class $TestSessionsTable extends TestSessions
         notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
       );
     }
+    if (data.containsKey('no_photo_reason')) {
+      context.handle(
+        _noPhotoReasonMeta,
+        noPhotoReason.isAcceptableOrUnknown(
+          data['no_photo_reason']!,
+          _noPhotoReasonMeta,
+        ),
+      );
+    }
     if (data.containsKey('tested_at_device')) {
       context.handle(
         _testedAtDeviceMeta,
@@ -1538,6 +1559,10 @@ class $TestSessionsTable extends TestSessions
         DriftSqlType.string,
         data['${effectivePrefix}notes'],
       ),
+      noPhotoReason: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}no_photo_reason'],
+      ),
       testedAtDevice: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}tested_at_device'],
@@ -1570,6 +1595,10 @@ class TestSessionRow extends DataClass implements Insertable<TestSessionRow> {
   final double? distanceFromSourceM;
   final String? distanceOverrideReason;
   final String? notes;
+
+  /// Why the test has no picture of the kit or reading (ADR-022). Added
+  /// in v7.
+  final String? noPhotoReason;
   final DateTime testedAtDevice;
   const TestSessionRow({
     this.installationId,
@@ -1588,6 +1617,7 @@ class TestSessionRow extends DataClass implements Insertable<TestSessionRow> {
     this.distanceFromSourceM,
     this.distanceOverrideReason,
     this.notes,
+    this.noPhotoReason,
     required this.testedAtDevice,
   });
   @override
@@ -1635,6 +1665,9 @@ class TestSessionRow extends DataClass implements Insertable<TestSessionRow> {
     if (!nullToAbsent || notes != null) {
       map['notes'] = Variable<String>(notes);
     }
+    if (!nullToAbsent || noPhotoReason != null) {
+      map['no_photo_reason'] = Variable<String>(noPhotoReason);
+    }
     map['tested_at_device'] = Variable<DateTime>(testedAtDevice);
     return map;
   }
@@ -1677,6 +1710,9 @@ class TestSessionRow extends DataClass implements Insertable<TestSessionRow> {
       notes: notes == null && nullToAbsent
           ? const Value.absent()
           : Value(notes),
+      noPhotoReason: noPhotoReason == null && nullToAbsent
+          ? const Value.absent()
+          : Value(noPhotoReason),
       testedAtDevice: Value(testedAtDevice),
     );
   }
@@ -1713,6 +1749,7 @@ class TestSessionRow extends DataClass implements Insertable<TestSessionRow> {
         json['distance_override_reason'],
       ),
       notes: serializer.fromJson<String?>(json['notes']),
+      noPhotoReason: serializer.fromJson<String?>(json['no_photo_reason']),
       testedAtDevice: serializer.fromJson<DateTime>(json['tested_at_device']),
     );
   }
@@ -1738,6 +1775,7 @@ class TestSessionRow extends DataClass implements Insertable<TestSessionRow> {
         distanceOverrideReason,
       ),
       'notes': serializer.toJson<String?>(notes),
+      'no_photo_reason': serializer.toJson<String?>(noPhotoReason),
       'tested_at_device': serializer.toJson<DateTime>(testedAtDevice),
     };
   }
@@ -1759,6 +1797,7 @@ class TestSessionRow extends DataClass implements Insertable<TestSessionRow> {
     Value<double?> distanceFromSourceM = const Value.absent(),
     Value<String?> distanceOverrideReason = const Value.absent(),
     Value<String?> notes = const Value.absent(),
+    Value<String?> noPhotoReason = const Value.absent(),
     DateTime? testedAtDevice,
   }) => TestSessionRow(
     installationId: installationId.present
@@ -1791,6 +1830,9 @@ class TestSessionRow extends DataClass implements Insertable<TestSessionRow> {
         ? distanceOverrideReason.value
         : this.distanceOverrideReason,
     notes: notes.present ? notes.value : this.notes,
+    noPhotoReason: noPhotoReason.present
+        ? noPhotoReason.value
+        : this.noPhotoReason,
     testedAtDevice: testedAtDevice ?? this.testedAtDevice,
   );
   TestSessionRow copyWithCompanion(TestSessionsCompanion data) {
@@ -1831,6 +1873,9 @@ class TestSessionRow extends DataClass implements Insertable<TestSessionRow> {
           ? data.distanceOverrideReason.value
           : this.distanceOverrideReason,
       notes: data.notes.present ? data.notes.value : this.notes,
+      noPhotoReason: data.noPhotoReason.present
+          ? data.noPhotoReason.value
+          : this.noPhotoReason,
       testedAtDevice: data.testedAtDevice.present
           ? data.testedAtDevice.value
           : this.testedAtDevice,
@@ -1856,6 +1901,7 @@ class TestSessionRow extends DataClass implements Insertable<TestSessionRow> {
           ..write('distanceFromSourceM: $distanceFromSourceM, ')
           ..write('distanceOverrideReason: $distanceOverrideReason, ')
           ..write('notes: $notes, ')
+          ..write('noPhotoReason: $noPhotoReason, ')
           ..write('testedAtDevice: $testedAtDevice')
           ..write(')'))
         .toString();
@@ -1879,6 +1925,7 @@ class TestSessionRow extends DataClass implements Insertable<TestSessionRow> {
     distanceFromSourceM,
     distanceOverrideReason,
     notes,
+    noPhotoReason,
     testedAtDevice,
   );
   @override
@@ -1901,6 +1948,7 @@ class TestSessionRow extends DataClass implements Insertable<TestSessionRow> {
           other.distanceFromSourceM == this.distanceFromSourceM &&
           other.distanceOverrideReason == this.distanceOverrideReason &&
           other.notes == this.notes &&
+          other.noPhotoReason == this.noPhotoReason &&
           other.testedAtDevice == this.testedAtDevice);
 }
 
@@ -1921,6 +1969,7 @@ class TestSessionsCompanion extends UpdateCompanion<TestSessionRow> {
   final Value<double?> distanceFromSourceM;
   final Value<String?> distanceOverrideReason;
   final Value<String?> notes;
+  final Value<String?> noPhotoReason;
   final Value<DateTime> testedAtDevice;
   final Value<int> rowid;
   const TestSessionsCompanion({
@@ -1940,6 +1989,7 @@ class TestSessionsCompanion extends UpdateCompanion<TestSessionRow> {
     this.distanceFromSourceM = const Value.absent(),
     this.distanceOverrideReason = const Value.absent(),
     this.notes = const Value.absent(),
+    this.noPhotoReason = const Value.absent(),
     this.testedAtDevice = const Value.absent(),
     this.rowid = const Value.absent(),
   });
@@ -1960,6 +2010,7 @@ class TestSessionsCompanion extends UpdateCompanion<TestSessionRow> {
     this.distanceFromSourceM = const Value.absent(),
     this.distanceOverrideReason = const Value.absent(),
     this.notes = const Value.absent(),
+    this.noPhotoReason = const Value.absent(),
     required DateTime testedAtDevice,
     this.rowid = const Value.absent(),
   }) : id = Value(id),
@@ -1984,6 +2035,7 @@ class TestSessionsCompanion extends UpdateCompanion<TestSessionRow> {
     Expression<double>? distanceFromSourceM,
     Expression<String>? distanceOverrideReason,
     Expression<String>? notes,
+    Expression<String>? noPhotoReason,
     Expression<DateTime>? testedAtDevice,
     Expression<int>? rowid,
   }) {
@@ -2007,6 +2059,7 @@ class TestSessionsCompanion extends UpdateCompanion<TestSessionRow> {
       if (distanceOverrideReason != null)
         'distance_override_reason': distanceOverrideReason,
       if (notes != null) 'notes': notes,
+      if (noPhotoReason != null) 'no_photo_reason': noPhotoReason,
       if (testedAtDevice != null) 'tested_at_device': testedAtDevice,
       if (rowid != null) 'rowid': rowid,
     });
@@ -2029,6 +2082,7 @@ class TestSessionsCompanion extends UpdateCompanion<TestSessionRow> {
     Value<double?>? distanceFromSourceM,
     Value<String?>? distanceOverrideReason,
     Value<String?>? notes,
+    Value<String?>? noPhotoReason,
     Value<DateTime>? testedAtDevice,
     Value<int>? rowid,
   }) {
@@ -2050,6 +2104,7 @@ class TestSessionsCompanion extends UpdateCompanion<TestSessionRow> {
       distanceOverrideReason:
           distanceOverrideReason ?? this.distanceOverrideReason,
       notes: notes ?? this.notes,
+      noPhotoReason: noPhotoReason ?? this.noPhotoReason,
       testedAtDevice: testedAtDevice ?? this.testedAtDevice,
       rowid: rowid ?? this.rowid,
     );
@@ -2112,6 +2167,9 @@ class TestSessionsCompanion extends UpdateCompanion<TestSessionRow> {
     if (notes.present) {
       map['notes'] = Variable<String>(notes.value);
     }
+    if (noPhotoReason.present) {
+      map['no_photo_reason'] = Variable<String>(noPhotoReason.value);
+    }
     if (testedAtDevice.present) {
       map['tested_at_device'] = Variable<DateTime>(testedAtDevice.value);
     }
@@ -2140,6 +2198,7 @@ class TestSessionsCompanion extends UpdateCompanion<TestSessionRow> {
           ..write('distanceFromSourceM: $distanceFromSourceM, ')
           ..write('distanceOverrideReason: $distanceOverrideReason, ')
           ..write('notes: $notes, ')
+          ..write('noPhotoReason: $noPhotoReason, ')
           ..write('testedAtDevice: $testedAtDevice, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -12834,6 +12893,17 @@ class $AttachmentsTable extends Attachments
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _collectorKeyMeta = const VerificationMeta(
+    'collectorKey',
+  );
+  @override
+  late final GeneratedColumn<String> collectorKey = GeneratedColumn<String>(
+    'collector_key',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _uploadStatusMeta = const VerificationMeta(
     'uploadStatus',
   );
@@ -12856,6 +12926,7 @@ class $AttachmentsTable extends Attachments
     sha256,
     bytes,
     mime,
+    collectorKey,
     uploadStatus,
   ];
   @override
@@ -12927,6 +12998,15 @@ class $AttachmentsTable extends Attachments
     } else if (isInserting) {
       context.missing(_mimeMeta);
     }
+    if (data.containsKey('collector_key')) {
+      context.handle(
+        _collectorKeyMeta,
+        collectorKey.isAcceptableOrUnknown(
+          data['collector_key']!,
+          _collectorKeyMeta,
+        ),
+      );
+    }
     if (data.containsKey('upload_status')) {
       context.handle(
         _uploadStatusMeta,
@@ -12977,6 +13057,10 @@ class $AttachmentsTable extends Attachments
         DriftSqlType.string,
         data['${effectivePrefix}mime'],
       )!,
+      collectorKey: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}collector_key'],
+      ),
       uploadStatus: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}upload_status'],
@@ -12999,6 +13083,9 @@ class AttachmentRow extends DataClass implements Insertable<AttachmentRow> {
   final String sha256;
   final int bytes;
   final String mime;
+
+  /// Who added it: only they may remove it (ADR-022). Added in v7.
+  final String? collectorKey;
   final String uploadStatus;
   const AttachmentRow({
     this.serverSeq,
@@ -13009,6 +13096,7 @@ class AttachmentRow extends DataClass implements Insertable<AttachmentRow> {
     required this.sha256,
     required this.bytes,
     required this.mime,
+    this.collectorKey,
     required this.uploadStatus,
   });
   @override
@@ -13026,6 +13114,9 @@ class AttachmentRow extends DataClass implements Insertable<AttachmentRow> {
     map['sha256'] = Variable<String>(sha256);
     map['bytes'] = Variable<int>(bytes);
     map['mime'] = Variable<String>(mime);
+    if (!nullToAbsent || collectorKey != null) {
+      map['collector_key'] = Variable<String>(collectorKey);
+    }
     map['upload_status'] = Variable<String>(uploadStatus);
     return map;
   }
@@ -13044,6 +13135,9 @@ class AttachmentRow extends DataClass implements Insertable<AttachmentRow> {
       sha256: Value(sha256),
       bytes: Value(bytes),
       mime: Value(mime),
+      collectorKey: collectorKey == null && nullToAbsent
+          ? const Value.absent()
+          : Value(collectorKey),
       uploadStatus: Value(uploadStatus),
     );
   }
@@ -13062,6 +13156,7 @@ class AttachmentRow extends DataClass implements Insertable<AttachmentRow> {
       sha256: serializer.fromJson<String>(json['sha256']),
       bytes: serializer.fromJson<int>(json['bytes']),
       mime: serializer.fromJson<String>(json['mime']),
+      collectorKey: serializer.fromJson<String?>(json['collector_key']),
       uploadStatus: serializer.fromJson<String>(json['upload_status']),
     );
   }
@@ -13077,6 +13172,7 @@ class AttachmentRow extends DataClass implements Insertable<AttachmentRow> {
       'sha256': serializer.toJson<String>(sha256),
       'bytes': serializer.toJson<int>(bytes),
       'mime': serializer.toJson<String>(mime),
+      'collector_key': serializer.toJson<String?>(collectorKey),
       'upload_status': serializer.toJson<String>(uploadStatus),
     };
   }
@@ -13090,6 +13186,7 @@ class AttachmentRow extends DataClass implements Insertable<AttachmentRow> {
     String? sha256,
     int? bytes,
     String? mime,
+    Value<String?> collectorKey = const Value.absent(),
     String? uploadStatus,
   }) => AttachmentRow(
     serverSeq: serverSeq.present ? serverSeq.value : this.serverSeq,
@@ -13100,6 +13197,7 @@ class AttachmentRow extends DataClass implements Insertable<AttachmentRow> {
     sha256: sha256 ?? this.sha256,
     bytes: bytes ?? this.bytes,
     mime: mime ?? this.mime,
+    collectorKey: collectorKey.present ? collectorKey.value : this.collectorKey,
     uploadStatus: uploadStatus ?? this.uploadStatus,
   );
   AttachmentRow copyWithCompanion(AttachmentsCompanion data) {
@@ -13112,6 +13210,9 @@ class AttachmentRow extends DataClass implements Insertable<AttachmentRow> {
       sha256: data.sha256.present ? data.sha256.value : this.sha256,
       bytes: data.bytes.present ? data.bytes.value : this.bytes,
       mime: data.mime.present ? data.mime.value : this.mime,
+      collectorKey: data.collectorKey.present
+          ? data.collectorKey.value
+          : this.collectorKey,
       uploadStatus: data.uploadStatus.present
           ? data.uploadStatus.value
           : this.uploadStatus,
@@ -13129,6 +13230,7 @@ class AttachmentRow extends DataClass implements Insertable<AttachmentRow> {
           ..write('sha256: $sha256, ')
           ..write('bytes: $bytes, ')
           ..write('mime: $mime, ')
+          ..write('collectorKey: $collectorKey, ')
           ..write('uploadStatus: $uploadStatus')
           ..write(')'))
         .toString();
@@ -13144,6 +13246,7 @@ class AttachmentRow extends DataClass implements Insertable<AttachmentRow> {
     sha256,
     bytes,
     mime,
+    collectorKey,
     uploadStatus,
   );
   @override
@@ -13158,6 +13261,7 @@ class AttachmentRow extends DataClass implements Insertable<AttachmentRow> {
           other.sha256 == this.sha256 &&
           other.bytes == this.bytes &&
           other.mime == this.mime &&
+          other.collectorKey == this.collectorKey &&
           other.uploadStatus == this.uploadStatus);
 }
 
@@ -13170,6 +13274,7 @@ class AttachmentsCompanion extends UpdateCompanion<AttachmentRow> {
   final Value<String> sha256;
   final Value<int> bytes;
   final Value<String> mime;
+  final Value<String?> collectorKey;
   final Value<String> uploadStatus;
   final Value<int> rowid;
   const AttachmentsCompanion({
@@ -13181,6 +13286,7 @@ class AttachmentsCompanion extends UpdateCompanion<AttachmentRow> {
     this.sha256 = const Value.absent(),
     this.bytes = const Value.absent(),
     this.mime = const Value.absent(),
+    this.collectorKey = const Value.absent(),
     this.uploadStatus = const Value.absent(),
     this.rowid = const Value.absent(),
   });
@@ -13193,6 +13299,7 @@ class AttachmentsCompanion extends UpdateCompanion<AttachmentRow> {
     required String sha256,
     required int bytes,
     required String mime,
+    this.collectorKey = const Value.absent(),
     this.uploadStatus = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
@@ -13210,6 +13317,7 @@ class AttachmentsCompanion extends UpdateCompanion<AttachmentRow> {
     Expression<String>? sha256,
     Expression<int>? bytes,
     Expression<String>? mime,
+    Expression<String>? collectorKey,
     Expression<String>? uploadStatus,
     Expression<int>? rowid,
   }) {
@@ -13222,6 +13330,7 @@ class AttachmentsCompanion extends UpdateCompanion<AttachmentRow> {
       if (sha256 != null) 'sha256': sha256,
       if (bytes != null) 'bytes': bytes,
       if (mime != null) 'mime': mime,
+      if (collectorKey != null) 'collector_key': collectorKey,
       if (uploadStatus != null) 'upload_status': uploadStatus,
       if (rowid != null) 'rowid': rowid,
     });
@@ -13236,6 +13345,7 @@ class AttachmentsCompanion extends UpdateCompanion<AttachmentRow> {
     Value<String>? sha256,
     Value<int>? bytes,
     Value<String>? mime,
+    Value<String?>? collectorKey,
     Value<String>? uploadStatus,
     Value<int>? rowid,
   }) {
@@ -13248,6 +13358,7 @@ class AttachmentsCompanion extends UpdateCompanion<AttachmentRow> {
       sha256: sha256 ?? this.sha256,
       bytes: bytes ?? this.bytes,
       mime: mime ?? this.mime,
+      collectorKey: collectorKey ?? this.collectorKey,
       uploadStatus: uploadStatus ?? this.uploadStatus,
       rowid: rowid ?? this.rowid,
     );
@@ -13280,6 +13391,9 @@ class AttachmentsCompanion extends UpdateCompanion<AttachmentRow> {
     if (mime.present) {
       map['mime'] = Variable<String>(mime.value);
     }
+    if (collectorKey.present) {
+      map['collector_key'] = Variable<String>(collectorKey.value);
+    }
     if (uploadStatus.present) {
       map['upload_status'] = Variable<String>(uploadStatus.value);
     }
@@ -13300,6 +13414,7 @@ class AttachmentsCompanion extends UpdateCompanion<AttachmentRow> {
           ..write('sha256: $sha256, ')
           ..write('bytes: $bytes, ')
           ..write('mime: $mime, ')
+          ..write('collectorKey: $collectorKey, ')
           ..write('uploadStatus: $uploadStatus, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -16527,6 +16642,760 @@ class ChangeTrailsCompanion extends UpdateCompanion<ChangeTrailRow> {
   }
 }
 
+class $MessagesTable extends Messages
+    with TableInfo<$MessagesTable, MessageRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $MessagesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _subjectTypeMeta = const VerificationMeta(
+    'subjectType',
+  );
+  @override
+  late final GeneratedColumn<String> subjectType = GeneratedColumn<String>(
+    'subject_type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _subjectIdMeta = const VerificationMeta(
+    'subjectId',
+  );
+  @override
+  late final GeneratedColumn<String> subjectId = GeneratedColumn<String>(
+    'subject_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _bodyMeta = const VerificationMeta('body');
+  @override
+  late final GeneratedColumn<String> body = GeneratedColumn<String>(
+    'body',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _authorUserIdMeta = const VerificationMeta(
+    'authorUserId',
+  );
+  @override
+  late final GeneratedColumn<String> authorUserId = GeneratedColumn<String>(
+    'author_user_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _installationIdMeta = const VerificationMeta(
+    'installationId',
+  );
+  @override
+  late final GeneratedColumn<String> installationId = GeneratedColumn<String>(
+    'installation_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _collectorKeyMeta = const VerificationMeta(
+    'collectorKey',
+  );
+  @override
+  late final GeneratedColumn<String> collectorKey = GeneratedColumn<String>(
+    'collector_key',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _authorNameMeta = const VerificationMeta(
+    'authorName',
+  );
+  @override
+  late final GeneratedColumn<String> authorName = GeneratedColumn<String>(
+    'author_name',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _writtenAtDeviceMeta = const VerificationMeta(
+    'writtenAtDevice',
+  );
+  @override
+  late final GeneratedColumn<DateTime> writtenAtDevice =
+      GeneratedColumn<DateTime>(
+        'written_at_device',
+        aliasedName,
+        true,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _createdAtServerMeta = const VerificationMeta(
+    'createdAtServer',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAtServer =
+      GeneratedColumn<DateTime>(
+        'created_at_server',
+        aliasedName,
+        true,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _readAtMeta = const VerificationMeta('readAt');
+  @override
+  late final GeneratedColumn<DateTime> readAt = GeneratedColumn<DateTime>(
+    'read_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _serverSeqMeta = const VerificationMeta(
+    'serverSeq',
+  );
+  @override
+  late final GeneratedColumn<int> serverSeq = GeneratedColumn<int>(
+    'server_seq',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    subjectType,
+    subjectId,
+    body,
+    authorUserId,
+    installationId,
+    collectorKey,
+    authorName,
+    writtenAtDevice,
+    createdAtServer,
+    readAt,
+    serverSeq,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'messages';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<MessageRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('subject_type')) {
+      context.handle(
+        _subjectTypeMeta,
+        subjectType.isAcceptableOrUnknown(
+          data['subject_type']!,
+          _subjectTypeMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_subjectTypeMeta);
+    }
+    if (data.containsKey('subject_id')) {
+      context.handle(
+        _subjectIdMeta,
+        subjectId.isAcceptableOrUnknown(data['subject_id']!, _subjectIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_subjectIdMeta);
+    }
+    if (data.containsKey('body')) {
+      context.handle(
+        _bodyMeta,
+        body.isAcceptableOrUnknown(data['body']!, _bodyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_bodyMeta);
+    }
+    if (data.containsKey('author_user_id')) {
+      context.handle(
+        _authorUserIdMeta,
+        authorUserId.isAcceptableOrUnknown(
+          data['author_user_id']!,
+          _authorUserIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('installation_id')) {
+      context.handle(
+        _installationIdMeta,
+        installationId.isAcceptableOrUnknown(
+          data['installation_id']!,
+          _installationIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('collector_key')) {
+      context.handle(
+        _collectorKeyMeta,
+        collectorKey.isAcceptableOrUnknown(
+          data['collector_key']!,
+          _collectorKeyMeta,
+        ),
+      );
+    }
+    if (data.containsKey('author_name')) {
+      context.handle(
+        _authorNameMeta,
+        authorName.isAcceptableOrUnknown(data['author_name']!, _authorNameMeta),
+      );
+    }
+    if (data.containsKey('written_at_device')) {
+      context.handle(
+        _writtenAtDeviceMeta,
+        writtenAtDevice.isAcceptableOrUnknown(
+          data['written_at_device']!,
+          _writtenAtDeviceMeta,
+        ),
+      );
+    }
+    if (data.containsKey('created_at_server')) {
+      context.handle(
+        _createdAtServerMeta,
+        createdAtServer.isAcceptableOrUnknown(
+          data['created_at_server']!,
+          _createdAtServerMeta,
+        ),
+      );
+    }
+    if (data.containsKey('read_at')) {
+      context.handle(
+        _readAtMeta,
+        readAt.isAcceptableOrUnknown(data['read_at']!, _readAtMeta),
+      );
+    }
+    if (data.containsKey('server_seq')) {
+      context.handle(
+        _serverSeqMeta,
+        serverSeq.isAcceptableOrUnknown(data['server_seq']!, _serverSeqMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  MessageRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return MessageRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      subjectType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}subject_type'],
+      )!,
+      subjectId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}subject_id'],
+      )!,
+      body: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}body'],
+      )!,
+      authorUserId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}author_user_id'],
+      ),
+      installationId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}installation_id'],
+      ),
+      collectorKey: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}collector_key'],
+      ),
+      authorName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}author_name'],
+      ),
+      writtenAtDevice: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}written_at_device'],
+      ),
+      createdAtServer: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at_server'],
+      ),
+      readAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}read_at'],
+      ),
+      serverSeq: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}server_seq'],
+      ),
+    );
+  }
+
+  @override
+  $MessagesTable createAlias(String alias) {
+    return $MessagesTable(attachedDatabase, alias);
+  }
+}
+
+class MessageRow extends DataClass implements Insertable<MessageRow> {
+  final String id;
+
+  /// `test`, `source`, `collector` or `area`.
+  final String subjectType;
+  final String subjectId;
+  final String body;
+  final String? authorUserId;
+  final String? installationId;
+  final String? collectorKey;
+  final String? authorName;
+  final DateTime? writtenAtDevice;
+  final DateTime? createdAtServer;
+  final DateTime? readAt;
+  final int? serverSeq;
+  const MessageRow({
+    required this.id,
+    required this.subjectType,
+    required this.subjectId,
+    required this.body,
+    this.authorUserId,
+    this.installationId,
+    this.collectorKey,
+    this.authorName,
+    this.writtenAtDevice,
+    this.createdAtServer,
+    this.readAt,
+    this.serverSeq,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['subject_type'] = Variable<String>(subjectType);
+    map['subject_id'] = Variable<String>(subjectId);
+    map['body'] = Variable<String>(body);
+    if (!nullToAbsent || authorUserId != null) {
+      map['author_user_id'] = Variable<String>(authorUserId);
+    }
+    if (!nullToAbsent || installationId != null) {
+      map['installation_id'] = Variable<String>(installationId);
+    }
+    if (!nullToAbsent || collectorKey != null) {
+      map['collector_key'] = Variable<String>(collectorKey);
+    }
+    if (!nullToAbsent || authorName != null) {
+      map['author_name'] = Variable<String>(authorName);
+    }
+    if (!nullToAbsent || writtenAtDevice != null) {
+      map['written_at_device'] = Variable<DateTime>(writtenAtDevice);
+    }
+    if (!nullToAbsent || createdAtServer != null) {
+      map['created_at_server'] = Variable<DateTime>(createdAtServer);
+    }
+    if (!nullToAbsent || readAt != null) {
+      map['read_at'] = Variable<DateTime>(readAt);
+    }
+    if (!nullToAbsent || serverSeq != null) {
+      map['server_seq'] = Variable<int>(serverSeq);
+    }
+    return map;
+  }
+
+  MessagesCompanion toCompanion(bool nullToAbsent) {
+    return MessagesCompanion(
+      id: Value(id),
+      subjectType: Value(subjectType),
+      subjectId: Value(subjectId),
+      body: Value(body),
+      authorUserId: authorUserId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(authorUserId),
+      installationId: installationId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(installationId),
+      collectorKey: collectorKey == null && nullToAbsent
+          ? const Value.absent()
+          : Value(collectorKey),
+      authorName: authorName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(authorName),
+      writtenAtDevice: writtenAtDevice == null && nullToAbsent
+          ? const Value.absent()
+          : Value(writtenAtDevice),
+      createdAtServer: createdAtServer == null && nullToAbsent
+          ? const Value.absent()
+          : Value(createdAtServer),
+      readAt: readAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(readAt),
+      serverSeq: serverSeq == null && nullToAbsent
+          ? const Value.absent()
+          : Value(serverSeq),
+    );
+  }
+
+  factory MessageRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return MessageRow(
+      id: serializer.fromJson<String>(json['id']),
+      subjectType: serializer.fromJson<String>(json['subject_type']),
+      subjectId: serializer.fromJson<String>(json['subject_id']),
+      body: serializer.fromJson<String>(json['body']),
+      authorUserId: serializer.fromJson<String?>(json['author_user_id']),
+      installationId: serializer.fromJson<String?>(json['installation_id']),
+      collectorKey: serializer.fromJson<String?>(json['collector_key']),
+      authorName: serializer.fromJson<String?>(json['author_name']),
+      writtenAtDevice: serializer.fromJson<DateTime?>(
+        json['written_at_device'],
+      ),
+      createdAtServer: serializer.fromJson<DateTime?>(
+        json['created_at_server'],
+      ),
+      readAt: serializer.fromJson<DateTime?>(json['read_at']),
+      serverSeq: serializer.fromJson<int?>(json['server_seq']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'subject_type': serializer.toJson<String>(subjectType),
+      'subject_id': serializer.toJson<String>(subjectId),
+      'body': serializer.toJson<String>(body),
+      'author_user_id': serializer.toJson<String?>(authorUserId),
+      'installation_id': serializer.toJson<String?>(installationId),
+      'collector_key': serializer.toJson<String?>(collectorKey),
+      'author_name': serializer.toJson<String?>(authorName),
+      'written_at_device': serializer.toJson<DateTime?>(writtenAtDevice),
+      'created_at_server': serializer.toJson<DateTime?>(createdAtServer),
+      'read_at': serializer.toJson<DateTime?>(readAt),
+      'server_seq': serializer.toJson<int?>(serverSeq),
+    };
+  }
+
+  MessageRow copyWith({
+    String? id,
+    String? subjectType,
+    String? subjectId,
+    String? body,
+    Value<String?> authorUserId = const Value.absent(),
+    Value<String?> installationId = const Value.absent(),
+    Value<String?> collectorKey = const Value.absent(),
+    Value<String?> authorName = const Value.absent(),
+    Value<DateTime?> writtenAtDevice = const Value.absent(),
+    Value<DateTime?> createdAtServer = const Value.absent(),
+    Value<DateTime?> readAt = const Value.absent(),
+    Value<int?> serverSeq = const Value.absent(),
+  }) => MessageRow(
+    id: id ?? this.id,
+    subjectType: subjectType ?? this.subjectType,
+    subjectId: subjectId ?? this.subjectId,
+    body: body ?? this.body,
+    authorUserId: authorUserId.present ? authorUserId.value : this.authorUserId,
+    installationId: installationId.present
+        ? installationId.value
+        : this.installationId,
+    collectorKey: collectorKey.present ? collectorKey.value : this.collectorKey,
+    authorName: authorName.present ? authorName.value : this.authorName,
+    writtenAtDevice: writtenAtDevice.present
+        ? writtenAtDevice.value
+        : this.writtenAtDevice,
+    createdAtServer: createdAtServer.present
+        ? createdAtServer.value
+        : this.createdAtServer,
+    readAt: readAt.present ? readAt.value : this.readAt,
+    serverSeq: serverSeq.present ? serverSeq.value : this.serverSeq,
+  );
+  MessageRow copyWithCompanion(MessagesCompanion data) {
+    return MessageRow(
+      id: data.id.present ? data.id.value : this.id,
+      subjectType: data.subjectType.present
+          ? data.subjectType.value
+          : this.subjectType,
+      subjectId: data.subjectId.present ? data.subjectId.value : this.subjectId,
+      body: data.body.present ? data.body.value : this.body,
+      authorUserId: data.authorUserId.present
+          ? data.authorUserId.value
+          : this.authorUserId,
+      installationId: data.installationId.present
+          ? data.installationId.value
+          : this.installationId,
+      collectorKey: data.collectorKey.present
+          ? data.collectorKey.value
+          : this.collectorKey,
+      authorName: data.authorName.present
+          ? data.authorName.value
+          : this.authorName,
+      writtenAtDevice: data.writtenAtDevice.present
+          ? data.writtenAtDevice.value
+          : this.writtenAtDevice,
+      createdAtServer: data.createdAtServer.present
+          ? data.createdAtServer.value
+          : this.createdAtServer,
+      readAt: data.readAt.present ? data.readAt.value : this.readAt,
+      serverSeq: data.serverSeq.present ? data.serverSeq.value : this.serverSeq,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MessageRow(')
+          ..write('id: $id, ')
+          ..write('subjectType: $subjectType, ')
+          ..write('subjectId: $subjectId, ')
+          ..write('body: $body, ')
+          ..write('authorUserId: $authorUserId, ')
+          ..write('installationId: $installationId, ')
+          ..write('collectorKey: $collectorKey, ')
+          ..write('authorName: $authorName, ')
+          ..write('writtenAtDevice: $writtenAtDevice, ')
+          ..write('createdAtServer: $createdAtServer, ')
+          ..write('readAt: $readAt, ')
+          ..write('serverSeq: $serverSeq')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    subjectType,
+    subjectId,
+    body,
+    authorUserId,
+    installationId,
+    collectorKey,
+    authorName,
+    writtenAtDevice,
+    createdAtServer,
+    readAt,
+    serverSeq,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is MessageRow &&
+          other.id == this.id &&
+          other.subjectType == this.subjectType &&
+          other.subjectId == this.subjectId &&
+          other.body == this.body &&
+          other.authorUserId == this.authorUserId &&
+          other.installationId == this.installationId &&
+          other.collectorKey == this.collectorKey &&
+          other.authorName == this.authorName &&
+          other.writtenAtDevice == this.writtenAtDevice &&
+          other.createdAtServer == this.createdAtServer &&
+          other.readAt == this.readAt &&
+          other.serverSeq == this.serverSeq);
+}
+
+class MessagesCompanion extends UpdateCompanion<MessageRow> {
+  final Value<String> id;
+  final Value<String> subjectType;
+  final Value<String> subjectId;
+  final Value<String> body;
+  final Value<String?> authorUserId;
+  final Value<String?> installationId;
+  final Value<String?> collectorKey;
+  final Value<String?> authorName;
+  final Value<DateTime?> writtenAtDevice;
+  final Value<DateTime?> createdAtServer;
+  final Value<DateTime?> readAt;
+  final Value<int?> serverSeq;
+  final Value<int> rowid;
+  const MessagesCompanion({
+    this.id = const Value.absent(),
+    this.subjectType = const Value.absent(),
+    this.subjectId = const Value.absent(),
+    this.body = const Value.absent(),
+    this.authorUserId = const Value.absent(),
+    this.installationId = const Value.absent(),
+    this.collectorKey = const Value.absent(),
+    this.authorName = const Value.absent(),
+    this.writtenAtDevice = const Value.absent(),
+    this.createdAtServer = const Value.absent(),
+    this.readAt = const Value.absent(),
+    this.serverSeq = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  MessagesCompanion.insert({
+    required String id,
+    required String subjectType,
+    required String subjectId,
+    required String body,
+    this.authorUserId = const Value.absent(),
+    this.installationId = const Value.absent(),
+    this.collectorKey = const Value.absent(),
+    this.authorName = const Value.absent(),
+    this.writtenAtDevice = const Value.absent(),
+    this.createdAtServer = const Value.absent(),
+    this.readAt = const Value.absent(),
+    this.serverSeq = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       subjectType = Value(subjectType),
+       subjectId = Value(subjectId),
+       body = Value(body);
+  static Insertable<MessageRow> custom({
+    Expression<String>? id,
+    Expression<String>? subjectType,
+    Expression<String>? subjectId,
+    Expression<String>? body,
+    Expression<String>? authorUserId,
+    Expression<String>? installationId,
+    Expression<String>? collectorKey,
+    Expression<String>? authorName,
+    Expression<DateTime>? writtenAtDevice,
+    Expression<DateTime>? createdAtServer,
+    Expression<DateTime>? readAt,
+    Expression<int>? serverSeq,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (subjectType != null) 'subject_type': subjectType,
+      if (subjectId != null) 'subject_id': subjectId,
+      if (body != null) 'body': body,
+      if (authorUserId != null) 'author_user_id': authorUserId,
+      if (installationId != null) 'installation_id': installationId,
+      if (collectorKey != null) 'collector_key': collectorKey,
+      if (authorName != null) 'author_name': authorName,
+      if (writtenAtDevice != null) 'written_at_device': writtenAtDevice,
+      if (createdAtServer != null) 'created_at_server': createdAtServer,
+      if (readAt != null) 'read_at': readAt,
+      if (serverSeq != null) 'server_seq': serverSeq,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  MessagesCompanion copyWith({
+    Value<String>? id,
+    Value<String>? subjectType,
+    Value<String>? subjectId,
+    Value<String>? body,
+    Value<String?>? authorUserId,
+    Value<String?>? installationId,
+    Value<String?>? collectorKey,
+    Value<String?>? authorName,
+    Value<DateTime?>? writtenAtDevice,
+    Value<DateTime?>? createdAtServer,
+    Value<DateTime?>? readAt,
+    Value<int?>? serverSeq,
+    Value<int>? rowid,
+  }) {
+    return MessagesCompanion(
+      id: id ?? this.id,
+      subjectType: subjectType ?? this.subjectType,
+      subjectId: subjectId ?? this.subjectId,
+      body: body ?? this.body,
+      authorUserId: authorUserId ?? this.authorUserId,
+      installationId: installationId ?? this.installationId,
+      collectorKey: collectorKey ?? this.collectorKey,
+      authorName: authorName ?? this.authorName,
+      writtenAtDevice: writtenAtDevice ?? this.writtenAtDevice,
+      createdAtServer: createdAtServer ?? this.createdAtServer,
+      readAt: readAt ?? this.readAt,
+      serverSeq: serverSeq ?? this.serverSeq,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (subjectType.present) {
+      map['subject_type'] = Variable<String>(subjectType.value);
+    }
+    if (subjectId.present) {
+      map['subject_id'] = Variable<String>(subjectId.value);
+    }
+    if (body.present) {
+      map['body'] = Variable<String>(body.value);
+    }
+    if (authorUserId.present) {
+      map['author_user_id'] = Variable<String>(authorUserId.value);
+    }
+    if (installationId.present) {
+      map['installation_id'] = Variable<String>(installationId.value);
+    }
+    if (collectorKey.present) {
+      map['collector_key'] = Variable<String>(collectorKey.value);
+    }
+    if (authorName.present) {
+      map['author_name'] = Variable<String>(authorName.value);
+    }
+    if (writtenAtDevice.present) {
+      map['written_at_device'] = Variable<DateTime>(writtenAtDevice.value);
+    }
+    if (createdAtServer.present) {
+      map['created_at_server'] = Variable<DateTime>(createdAtServer.value);
+    }
+    if (readAt.present) {
+      map['read_at'] = Variable<DateTime>(readAt.value);
+    }
+    if (serverSeq.present) {
+      map['server_seq'] = Variable<int>(serverSeq.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MessagesCompanion(')
+          ..write('id: $id, ')
+          ..write('subjectType: $subjectType, ')
+          ..write('subjectId: $subjectId, ')
+          ..write('body: $body, ')
+          ..write('authorUserId: $authorUserId, ')
+          ..write('installationId: $installationId, ')
+          ..write('collectorKey: $collectorKey, ')
+          ..write('authorName: $authorName, ')
+          ..write('writtenAtDevice: $writtenAtDevice, ')
+          ..write('createdAtServer: $createdAtServer, ')
+          ..write('readAt: $readAt, ')
+          ..write('serverSeq: $serverSeq, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -16625,6 +17494,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     this,
   );
   late final $ChangeTrailsTable changeTrails = $ChangeTrailsTable(this);
+  late final $MessagesTable messages = $MessagesTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -16671,6 +17541,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     syncLocks,
     attachmentQueue,
     changeTrails,
+    messages,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -17579,6 +18450,7 @@ typedef $$TestSessionsTableCreateCompanionBuilder =
       Value<double?> distanceFromSourceM,
       Value<String?> distanceOverrideReason,
       Value<String?> notes,
+      Value<String?> noPhotoReason,
       required DateTime testedAtDevice,
       Value<int> rowid,
     });
@@ -17600,6 +18472,7 @@ typedef $$TestSessionsTableUpdateCompanionBuilder =
       Value<double?> distanceFromSourceM,
       Value<String?> distanceOverrideReason,
       Value<String?> notes,
+      Value<String?> noPhotoReason,
       Value<DateTime> testedAtDevice,
       Value<int> rowid,
     });
@@ -17743,6 +18616,11 @@ class $$TestSessionsTableFilterComposer
 
   ColumnFilters<String> get notes => $composableBuilder(
     column: $table.notes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get noPhotoReason => $composableBuilder(
+    column: $table.noPhotoReason,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -17909,6 +18787,11 @@ class $$TestSessionsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get noPhotoReason => $composableBuilder(
+    column: $table.noPhotoReason,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get testedAtDevice => $composableBuilder(
     column: $table.testedAtDevice,
     builder: (column) => ColumnOrderings(column),
@@ -18011,6 +18894,11 @@ class $$TestSessionsTableAnnotationComposer
 
   GeneratedColumn<String> get notes =>
       $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  GeneratedColumn<String> get noPhotoReason => $composableBuilder(
+    column: $table.noPhotoReason,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<DateTime> get testedAtDevice => $composableBuilder(
     column: $table.testedAtDevice,
@@ -18139,6 +19027,7 @@ class $$TestSessionsTableTableManager
                 Value<double?> distanceFromSourceM = const Value.absent(),
                 Value<String?> distanceOverrideReason = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
+                Value<String?> noPhotoReason = const Value.absent(),
                 Value<DateTime> testedAtDevice = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => TestSessionsCompanion(
@@ -18158,6 +19047,7 @@ class $$TestSessionsTableTableManager
                 distanceFromSourceM: distanceFromSourceM,
                 distanceOverrideReason: distanceOverrideReason,
                 notes: notes,
+                noPhotoReason: noPhotoReason,
                 testedAtDevice: testedAtDevice,
                 rowid: rowid,
               ),
@@ -18179,6 +19069,7 @@ class $$TestSessionsTableTableManager
                 Value<double?> distanceFromSourceM = const Value.absent(),
                 Value<String?> distanceOverrideReason = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
+                Value<String?> noPhotoReason = const Value.absent(),
                 required DateTime testedAtDevice,
                 Value<int> rowid = const Value.absent(),
               }) => TestSessionsCompanion.insert(
@@ -18198,6 +19089,7 @@ class $$TestSessionsTableTableManager
                 distanceFromSourceM: distanceFromSourceM,
                 distanceOverrideReason: distanceOverrideReason,
                 notes: notes,
+                noPhotoReason: noPhotoReason,
                 testedAtDevice: testedAtDevice,
                 rowid: rowid,
               ),
@@ -24833,6 +25725,7 @@ typedef $$AttachmentsTableCreateCompanionBuilder =
       required String sha256,
       required int bytes,
       required String mime,
+      Value<String?> collectorKey,
       Value<String> uploadStatus,
       Value<int> rowid,
     });
@@ -24846,6 +25739,7 @@ typedef $$AttachmentsTableUpdateCompanionBuilder =
       Value<String> sha256,
       Value<int> bytes,
       Value<String> mime,
+      Value<String?> collectorKey,
       Value<String> uploadStatus,
       Value<int> rowid,
     });
@@ -24896,6 +25790,11 @@ class $$AttachmentsTableFilterComposer
 
   ColumnFilters<String> get mime => $composableBuilder(
     column: $table.mime,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get collectorKey => $composableBuilder(
+    column: $table.collectorKey,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -24954,6 +25853,11 @@ class $$AttachmentsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get collectorKey => $composableBuilder(
+    column: $table.collectorKey,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get uploadStatus => $composableBuilder(
     column: $table.uploadStatus,
     builder: (column) => ColumnOrderings(column),
@@ -24992,6 +25896,11 @@ class $$AttachmentsTableAnnotationComposer
 
   GeneratedColumn<String> get mime =>
       $composableBuilder(column: $table.mime, builder: (column) => column);
+
+  GeneratedColumn<String> get collectorKey => $composableBuilder(
+    column: $table.collectorKey,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<String> get uploadStatus => $composableBuilder(
     column: $table.uploadStatus,
@@ -25038,6 +25947,7 @@ class $$AttachmentsTableTableManager
                 Value<String> sha256 = const Value.absent(),
                 Value<int> bytes = const Value.absent(),
                 Value<String> mime = const Value.absent(),
+                Value<String?> collectorKey = const Value.absent(),
                 Value<String> uploadStatus = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => AttachmentsCompanion(
@@ -25049,6 +25959,7 @@ class $$AttachmentsTableTableManager
                 sha256: sha256,
                 bytes: bytes,
                 mime: mime,
+                collectorKey: collectorKey,
                 uploadStatus: uploadStatus,
                 rowid: rowid,
               ),
@@ -25062,6 +25973,7 @@ class $$AttachmentsTableTableManager
                 required String sha256,
                 required int bytes,
                 required String mime,
+                Value<String?> collectorKey = const Value.absent(),
                 Value<String> uploadStatus = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => AttachmentsCompanion.insert(
@@ -25073,6 +25985,7 @@ class $$AttachmentsTableTableManager
                 sha256: sha256,
                 bytes: bytes,
                 mime: mime,
+                collectorKey: collectorKey,
                 uploadStatus: uploadStatus,
                 rowid: rowid,
               ),
@@ -26840,6 +27753,357 @@ typedef $$ChangeTrailsTableProcessedTableManager =
       ChangeTrailRow,
       PrefetchHooks Function()
     >;
+typedef $$MessagesTableCreateCompanionBuilder = MessagesCompanion Function({
+  required String id,
+  required String subjectType,
+  required String subjectId,
+  required String body,
+  Value<String?> authorUserId,
+  Value<String?> installationId,
+  Value<String?> collectorKey,
+  Value<String?> authorName,
+  Value<DateTime?> writtenAtDevice,
+  Value<DateTime?> createdAtServer,
+  Value<DateTime?> readAt,
+  Value<int?> serverSeq,
+  Value<int> rowid,
+});
+typedef $$MessagesTableUpdateCompanionBuilder = MessagesCompanion Function({
+  Value<String> id,
+  Value<String> subjectType,
+  Value<String> subjectId,
+  Value<String> body,
+  Value<String?> authorUserId,
+  Value<String?> installationId,
+  Value<String?> collectorKey,
+  Value<String?> authorName,
+  Value<DateTime?> writtenAtDevice,
+  Value<DateTime?> createdAtServer,
+  Value<DateTime?> readAt,
+  Value<int?> serverSeq,
+  Value<int> rowid,
+});
+
+class $$MessagesTableFilterComposer
+    extends Composer<_$AppDatabase, $MessagesTable> {
+  $$MessagesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get subjectType => $composableBuilder(
+    column: $table.subjectType,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get subjectId => $composableBuilder(
+    column: $table.subjectId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get body => $composableBuilder(
+    column: $table.body,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get authorUserId => $composableBuilder(
+    column: $table.authorUserId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get installationId => $composableBuilder(
+    column: $table.installationId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get collectorKey => $composableBuilder(
+    column: $table.collectorKey,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get authorName => $composableBuilder(
+    column: $table.authorName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get writtenAtDevice => $composableBuilder(
+    column: $table.writtenAtDevice,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAtServer => $composableBuilder(
+    column: $table.createdAtServer,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get readAt => $composableBuilder(
+    column: $table.readAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get serverSeq => $composableBuilder(
+    column: $table.serverSeq,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$MessagesTableOrderingComposer
+    extends Composer<_$AppDatabase, $MessagesTable> {
+  $$MessagesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get subjectType => $composableBuilder(
+    column: $table.subjectType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get subjectId => $composableBuilder(
+    column: $table.subjectId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get body => $composableBuilder(
+    column: $table.body,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get authorUserId => $composableBuilder(
+    column: $table.authorUserId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get installationId => $composableBuilder(
+    column: $table.installationId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get collectorKey => $composableBuilder(
+    column: $table.collectorKey,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get authorName => $composableBuilder(
+    column: $table.authorName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get writtenAtDevice => $composableBuilder(
+    column: $table.writtenAtDevice,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAtServer => $composableBuilder(
+    column: $table.createdAtServer,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get readAt => $composableBuilder(
+    column: $table.readAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get serverSeq => $composableBuilder(
+    column: $table.serverSeq,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$MessagesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $MessagesTable> {
+  $$MessagesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get subjectType => $composableBuilder(
+    column: $table.subjectType,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get subjectId =>
+      $composableBuilder(column: $table.subjectId, builder: (column) => column);
+
+  GeneratedColumn<String> get body =>
+      $composableBuilder(column: $table.body, builder: (column) => column);
+
+  GeneratedColumn<String> get authorUserId => $composableBuilder(
+    column: $table.authorUserId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get installationId => $composableBuilder(
+    column: $table.installationId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get collectorKey => $composableBuilder(
+    column: $table.collectorKey,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get authorName => $composableBuilder(
+    column: $table.authorName,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get writtenAtDevice => $composableBuilder(
+    column: $table.writtenAtDevice,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get createdAtServer => $composableBuilder(
+    column: $table.createdAtServer,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get readAt =>
+      $composableBuilder(column: $table.readAt, builder: (column) => column);
+
+  GeneratedColumn<int> get serverSeq =>
+      $composableBuilder(column: $table.serverSeq, builder: (column) => column);
+}
+
+class $$MessagesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $MessagesTable,
+          MessageRow,
+          $$MessagesTableFilterComposer,
+          $$MessagesTableOrderingComposer,
+          $$MessagesTableAnnotationComposer,
+          $$MessagesTableCreateCompanionBuilder,
+          $$MessagesTableUpdateCompanionBuilder,
+          (
+            MessageRow,
+            BaseReferences<_$AppDatabase, $MessagesTable, MessageRow>,
+          ),
+          MessageRow,
+          PrefetchHooks Function()
+        > {
+  $$MessagesTableTableManager(_$AppDatabase db, $MessagesTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$MessagesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$MessagesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$MessagesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> subjectType = const Value.absent(),
+                Value<String> subjectId = const Value.absent(),
+                Value<String> body = const Value.absent(),
+                Value<String?> authorUserId = const Value.absent(),
+                Value<String?> installationId = const Value.absent(),
+                Value<String?> collectorKey = const Value.absent(),
+                Value<String?> authorName = const Value.absent(),
+                Value<DateTime?> writtenAtDevice = const Value.absent(),
+                Value<DateTime?> createdAtServer = const Value.absent(),
+                Value<DateTime?> readAt = const Value.absent(),
+                Value<int?> serverSeq = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => MessagesCompanion(
+                id: id,
+                subjectType: subjectType,
+                subjectId: subjectId,
+                body: body,
+                authorUserId: authorUserId,
+                installationId: installationId,
+                collectorKey: collectorKey,
+                authorName: authorName,
+                writtenAtDevice: writtenAtDevice,
+                createdAtServer: createdAtServer,
+                readAt: readAt,
+                serverSeq: serverSeq,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String subjectType,
+                required String subjectId,
+                required String body,
+                Value<String?> authorUserId = const Value.absent(),
+                Value<String?> installationId = const Value.absent(),
+                Value<String?> collectorKey = const Value.absent(),
+                Value<String?> authorName = const Value.absent(),
+                Value<DateTime?> writtenAtDevice = const Value.absent(),
+                Value<DateTime?> createdAtServer = const Value.absent(),
+                Value<DateTime?> readAt = const Value.absent(),
+                Value<int?> serverSeq = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => MessagesCompanion.insert(
+                id: id,
+                subjectType: subjectType,
+                subjectId: subjectId,
+                body: body,
+                authorUserId: authorUserId,
+                installationId: installationId,
+                collectorKey: collectorKey,
+                authorName: authorName,
+                writtenAtDevice: writtenAtDevice,
+                createdAtServer: createdAtServer,
+                readAt: readAt,
+                serverSeq: serverSeq,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$MessagesTable, MessageRow>(table),
+                  BaseReferences<_$AppDatabase, $MessagesTable, MessageRow>(
+                    db,
+                    table,
+                    e,
+                  ),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$MessagesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $MessagesTable,
+      MessageRow,
+      $$MessagesTableFilterComposer,
+      $$MessagesTableOrderingComposer,
+      $$MessagesTableAnnotationComposer,
+      $$MessagesTableCreateCompanionBuilder,
+      $$MessagesTableUpdateCompanionBuilder,
+      (MessageRow, BaseReferences<_$AppDatabase, $MessagesTable, MessageRow>),
+      MessageRow,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -26900,4 +28164,6 @@ class $AppDatabaseManager {
       $$AttachmentQueueTableTableManager(_db, _db.attachmentQueue);
   $$ChangeTrailsTableTableManager get changeTrails =>
       $$ChangeTrailsTableTableManager(_db, _db.changeTrails);
+  $$MessagesTableTableManager get messages =>
+      $$MessagesTableTableManager(_db, _db.messages);
 }

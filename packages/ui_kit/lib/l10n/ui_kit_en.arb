@@ -244,5 +244,57 @@
     }
   },
   "mapRouteLoading": "finding the route…",
-  "mapRouteNone": "no route found (or routing is off)"
+  "mapRouteNone": "no route found (or routing is off)",
+  "installApp": "Install app",
+  "installAppHint": "Open WaterCheck from your home screen or app list, also offline.",
+  "mapZoomIn": "Zoom in (R key)",
+  "mapZoomOut": "Zoom out (F key)",
+  "photoClose": "Close (Esc)",
+  "photoPrevious": "Previous picture (left arrow)",
+  "photoNext": "Next picture (right arrow)",
+  "photoCount": "Picture {at} of {total}",
+  "@photoCount": {
+    "placeholders": {
+      "at": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "photoRemove": "Remove picture",
+  "photoRemoveTitle": "Remove this picture?",
+  "photoRemoveBody": "It disappears from this device and, once synced, from everyone's view. You can add a new one after.",
+  "photoKeep": "Keep it",
+  "photoRemoveFailed": "The picture could not be removed.",
+  "photoUnavailable": "This picture can't be shown right now (not uploaded yet, or no connection).",
+  "choiceOther": "Other (type it)",
+  "choiceTypedBefore": "{value} (typed before)",
+  "@choiceTypedBefore": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "choiceTypeIt": "Type it",
+  "choiceTypeItHint": "Used on this device at once; the IT admin may add it to the shared list.",
+  "choiceRequired": "Choose one, or pick Other and type it.",
+  "choiceTypeItRequired": "Type what it is.",
+  "conversationEmpty": "No messages yet. Write the first one.",
+  "conversationYou": "You",
+  "conversationFrom": "Message from {name}",
+  "@conversationFrom": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "conversationStaff": "Stakeholder or IT admin",
+  "conversationWaiting": "Waiting to send (no connection yet)",
+  "conversationWrite": "Write a message",
+  "conversationHint": "Enter sends; Shift+Enter for a new line. Everyone following this sees it.",
+  "conversationSend": "Send"
 }

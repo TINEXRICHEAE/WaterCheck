@@ -40,6 +40,7 @@ class TestSubmission {
     this.notes,
     this.retestOf,
     this.alertTriggers = const [],
+    this.noPhotoReason,
   });
 
   final String sourceId;
@@ -61,7 +62,15 @@ class TestSubmission {
 
   /// Alerts to raise with this result (from `alertTriggers`, F-ALR-1).
   final List<AlertTrigger> alertTriggers;
+
+  /// Why the test has no picture (ADR-022): a code from
+  /// [noPhotoReasonCodes] or the collector's own words.
+  final String? noPhotoReason;
 }
+
+/// The named reasons a test may go without a picture (ADR-022); anything
+/// else is typed by the collector.
+const noPhotoReasonCodes = ['camera_broken', 'not_allowed', 'too_dark'];
 
 typedef SubmittedTest = ({
   String sessionId,
@@ -83,6 +92,13 @@ typedef ResultDetail = ({
   /// Who made the test; only they may correct it (ADR-018).
   String? collectorKey,
   String? collectorName,
+
+  /// Where it was taken and why there (ADR-022).
+  GeoPoint? location,
+  double? distanceM,
+  String? farReason,
+  String? noPhotoReason,
+  String? notes,
 });
 
 typedef CalibrationSummary = ({
@@ -227,6 +243,7 @@ class DriftTestingRepository implements TestingRepository {
               distanceFromSourceM: Value(s.distanceFromSourceM),
               distanceOverrideReason: Value(s.distanceOverrideReason),
               notes: Value(s.notes),
+              noPhotoReason: Value(s.noPhotoReason),
               testedAtDevice: now,
               installationId: Value(origin.installationId),
               collectorKey: Value(origin.collectorKey),
@@ -522,6 +539,13 @@ class DriftTestingRepository implements TestingRepository {
       readings: await readingsOf(r.id),
       collectorKey: s.collectorKey,
       collectorName: _snapshotName(s.collectorSnapshot),
+      location: s.lat == null || s.lon == null
+          ? null
+          : GeoPoint(lat: s.lat!, lon: s.lon!, accuracyM: s.locationAccuracyM),
+      distanceM: s.distanceFromSourceM,
+      farReason: s.distanceOverrideReason,
+      noPhotoReason: s.noPhotoReason,
+      notes: s.notes,
     );
   }
 

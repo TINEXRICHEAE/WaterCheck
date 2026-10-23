@@ -5,7 +5,14 @@ import 'package:drift/drift.dart';
 import '../db/database.dart';
 import 'support.dart';
 
-typedef PhotoSummary = ({String id, bool uploaded});
+/// A picture and what it shows: the source itself, or one of its tests
+/// ([ownerId] is then the test session, ADR-022).
+typedef PhotoSummary = ({
+  String id,
+  bool uploaded,
+  String ownerId,
+  bool ofSource,
+});
 
 typedef InspectionListItem = ({
   String id,
@@ -40,7 +47,13 @@ class StakeholderRepository {
       _db.attachments,
     )..where((a) => a.ownerId.isIn({sourceId, ...sessions}))).get();
     return [
-      for (final a in rows) (id: a.id, uploaded: a.uploadStatus == 'uploaded'),
+      for (final a in rows)
+        (
+          id: a.id,
+          uploaded: a.uploadStatus == 'uploaded',
+          ownerId: a.ownerId,
+          ofSource: a.ownerId == sourceId,
+        ),
     ];
   }
 

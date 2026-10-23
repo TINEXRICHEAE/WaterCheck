@@ -7,6 +7,7 @@ import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
 import 'package:data/data.dart';
+import 'package:domain/domain.dart' show CollectorSnapshot;
 import 'package:data/src/db/database.dart'
     show AttachmentQueueCompanion, OutboxCompanion;
 import 'package:drift/drift.dart' show Value;
@@ -201,6 +202,46 @@ void main() {
       wifi = true;
       expect((await uploader().run()).uploaded, 1);
     });
+
+    test('an unsent photo its author removes simply goes', () async {
+      final id = await add(await photo());
+      final listed = await repo.watchPhotos(PhotoOwner.source, 'src-1').first;
+      expect(listed.single.collectorKey, origin.collectorKey);
+      await repo.removePhoto(id, origin);
+      expect(await repo.watchPhotos(PhotoOwner.source, 'src-1').first, isEmpty);
+      expect(files.files, isEmpty);
+      expect(await db.select(db.outbox).get(), isEmpty);
+    });
+
+    test(
+      'a sent photo is removed by telling the server; not by others',
+      () async {
+        final id = await add(await photo());
+        await metadataSent(id);
+        const other = SubmissionOrigin.collect(
+          installationId: '0199d000-0000-7000-8000-0000000000aa',
+          collector: CollectorSnapshot(
+            collectorKey: '0199d000-0000-7000-8000-0000000000bb',
+            profileVersion: 1,
+            fullName: 'Someone Else',
+            phone: '+256700000001',
+            collectorType: 'vht',
+            village: 'Entebbe',
+            parish: 'TODO-verify parish',
+            subcounty: 'TODO-verify sub-county',
+            district: 'Abim',
+          ),
+        );
+        await expectLater(repo.removePhoto(id, other), throwsStateError);
+        await repo.removePhoto(id, origin);
+        final out = await (db.select(
+          db.outbox,
+        )..where((o) => o.op.equals('update'))).getSingle();
+        expect(out.entity, 'attachment');
+        expect(jsonDecode(out.payload)['removed'], true);
+        expect(await db.select(db.attachments).get(), isEmpty);
+      },
+    );
 
     test('refused metadata ends the upload as rejected', () async {
       final id = await add(await photo());

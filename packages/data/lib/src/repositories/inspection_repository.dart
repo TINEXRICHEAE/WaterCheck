@@ -20,6 +20,10 @@ abstract interface class InspectionRepository {
     SubmissionOrigin origin,
   );
   Stream<InspectionSummary?> watchLatest(String sourceId);
+
+  /// The surroundings as last checked by [at] (a test's time), else the
+  /// first check after it (ADR-022).
+  Future<InspectionSummary?> nearest(String sourceId, DateTime at);
 }
 
 class DriftInspectionRepository implements InspectionRepository {
@@ -65,20 +69,39 @@ class DriftInspectionRepository implements InspectionRepository {
   });
 
   @override
+  Future<InspectionSummary?> nearest(String sourceId, DateTime at) async {
+    final before =
+        await (_db.select(_db.sanitaryInspections)
+              ..where(
+                (i) =>
+                    i.sourceId.equals(sourceId) &
+                    i.inspectedAtDevice.isSmallerOrEqualValue(at),
+              )
+              ..orderBy([(i) => OrderingTerm.desc(i.inspectedAtDevice)])
+              ..limit(1))
+            .getSingleOrNull();
+    final row =
+        before ??
+        await (_db.select(_db.sanitaryInspections)
+              ..where((i) => i.sourceId.equals(sourceId))
+              ..orderBy([(i) => OrderingTerm.asc(i.inspectedAtDevice)])
+              ..limit(1))
+            .getSingleOrNull();
+    return row == null ? null : _summary(row);
+  }
+
+  static InspectionSummary _summary(SanitaryInspectionRow r) => (
+    id: r.id,
+    inspectedAt: r.inspectedAtDevice,
+    answers: (jsonDecode(r.answers) as Map).cast<String, String>(),
+  );
+
+  @override
   Stream<InspectionSummary?> watchLatest(String sourceId) =>
       (_db.select(_db.sanitaryInspections)
             ..where((i) => i.sourceId.equals(sourceId))
             ..orderBy([(i) => OrderingTerm.desc(i.inspectedAtDevice)])
             ..limit(1))
           .watchSingleOrNull()
-          .map(
-            (r) => r == null
-                ? null
-                : (
-                    id: r.id,
-                    inspectedAt: r.inspectedAtDevice,
-                    answers: (jsonDecode(r.answers) as Map)
-                        .cast<String, String>(),
-                  ),
-          );
+          .map((r) => r == null ? null : _summary(r));
 }
