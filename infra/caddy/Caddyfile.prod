@@ -35,6 +35,17 @@
 			reverse_proxy routing:8002
 		}
 
+		# Collect on the web (ADR-022): an installable web app at /collect/,
+		# built with --base-href /collect/; it keeps its work in the browser.
+		redir /collect /collect/
+		handle_path /collect/* {
+			@collectEngine path /canvaskit/* /sqlite3.wasm /assets/fonts/* /assets/packages/* /assets/shaders/*
+			header @collectEngine Cache-Control "public, max-age=86400"
+			root * /srv/collect
+			try_files {path} /index.html
+			file_server
+		}
+
 		# Engine files change only with a Flutter or package upgrade: cache them
 		# for a day, while the app shell is re-checked on every request.
 		@engine path /canvaskit/* /sqlite3.wasm /assets/fonts/* /assets/packages/* /assets/shaders/*
