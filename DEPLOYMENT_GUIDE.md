@@ -814,7 +814,8 @@ dev machine with `.	oolsuild_routes.ps1` (a few minutes; Docker needs about
 2 GB free memory), then copy it to the VM like the map file:
 
 ```powershell
-scp -r infraoutingalhalla azureuser@20.164.216.195:~/WaterCheck/infra/routing/
+scp -r infra
+outingalhalla azureuser@20.164.216.195:~/WaterCheck/infra/routing/
 ```
 
 On the VM, start it (it uses about 60 MB of memory, limited to 512 MB) and
@@ -843,6 +844,21 @@ archived from the VM without secrets on screen:
 docker compose exec db psql -U watercheck -d watercheck -c \
   "SELECT entity, count(*) FROM archive_mark WHERE archived GROUP BY 1;"
 ```
+
+**Migrations 0012 and 0013 (round 3, ADR-022)** add picture authors and
+removal, the no-picture reason, and message threads. They need nothing by
+hand. Back up first, then rebuild as for 0009:
+
+```bash
+mkdir -p ~/backups && cd ~/WaterCheck/infra
+docker compose exec -T db sh -c 'pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Fc'   > ~/backups/watercheck-$(date +%Y%m%d-%H%M).dump
+```
+
+**Collect on the web (ADR-022)** is served at `/collect/` from
+`~/WaterCheck/apps/collect/build/web`. Build it like the Console, with
+`--base-href /collect/` and the same `WC_API_URL`, and ship it the same way
+(§11). If that `build` folder was first created by Docker (owned by `root`),
+fix it once with `sudo chown -R azureuser:azureuser ~/WaterCheck/apps/collect/build`.
 
 ## 17a. Releasing a client version
 
@@ -1052,6 +1068,24 @@ lockfile (`uv lock --upgrade-package certifi` in `backend`), confirm with
 `uvx pip-audit`, push, and rebuild the API and worker on the VM.
 
 ## 20. Current deployment status
+
+Update (2026-10-24), round 3 (ADR-022):
+
+- Backup `~/backups/watercheck-before-0013-20261023-2138.dump` taken first
+  (47 tables of data, `pg_restore --list` checked).
+- The VM is at `aa07c81`, migrations 0009–0013 applied, and the API and worker
+  rebuilt.
+- The routing service (Valhalla 3.5.1) is running with data copied from dev
+  (checksum matched), and `/route/` answers on both hostnames.
+- The web Console is at `/` and Collect on the web at `/collect/`; both are
+  built against `https://watercheck.cooptconnect.app/api` and swapped in
+  (`web.old` kept for rollback).
+- Smoke checks returned 200 for both apps, their service workers, manifests,
+  `sqlite3.wasm`, health on both hosts and a map tile. A road route was
+  computed, and the new admin endpoint asks for sign-in (401).
+- Windows installers and the Android APK were **not** rebuilt; devices on
+  0.1.1 keep working and get the new features with the next client release
+  (§17a).
 
 Update (2026-10-21), release 0.1.1:
 

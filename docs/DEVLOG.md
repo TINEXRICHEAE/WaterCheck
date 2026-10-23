@@ -501,3 +501,15 @@ Decisions are also recorded in [PLAN.md](PLAN.md) (decisions log and §3a), the 
 - **Cause:** a false positive. The made-up collector key `0b9e1f4a-6c2d-4e8f-a1b3-c5d7e9f0c0de` in Collect test data (`fake_server.dart`, `app_test.dart`, commit de46b8e) matched the generic-api-key rule because its field is named `key`. The local pre-commit scan covered only staged changes; CI scans the whole history.
 - **Fix:** `.gitleaks.toml` allowlists that exact value. It is not a secret, and the history is not rewritten. A full-history scan now finds nothing (72 commits).
 - **Watch:** before a push, scan the whole history (`gitleaks git .`) as CI does.
+
+### 32. Round 3 deployed to production (2026-10-24)
+- **Asked:** "now I need to deploy these changes to production".
+- **Outcome:**
+  - **Before:** the VM was at `24dedf7` and migration 0008. A database backup was taken first (`~/backups/watercheck-before-0013-20261023-2138.dump`, verified).
+  - **Server:** `git pull` to `aa07c81`, `docker compose config --quiet`, then `up -d --build migrate api worker`. The database is now at 0013.
+  - **Routing:** the Valhalla data (257 MB) was copied in 50 MB parts after one dropped `scp`, its checksum matched, and `--profile routing` was started.
+  - **Web:** the Console (`/`) and Collect (`/collect/`) were built against the production API, checksummed, uploaded, swapped (`web.old` kept for rollback), and Caddy recreated.
+  - **Smoke checks:** both apps, service workers, manifests, `sqlite3.wasm`, health on both hosts, a map tile and a road route all answer. No errors in the logs.
+- **Issue met:** `apps/collect/build` on the VM was owned by `root`, because Docker created it on 2026-10-17 when the mount had no folder. Fixed with `chown` on that folder only, and noted in DEPLOYMENT_GUIDE §17.
+- **Not done:** the Windows installers and Android APK were not rebuilt; 0.1.1 devices keep working until the next client release.
+- **Watch:** production secrets exposed in the Copilot chat should still be rotated.
