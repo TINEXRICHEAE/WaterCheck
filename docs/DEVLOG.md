@@ -306,3 +306,184 @@ Decisions are also recorded in [PLAN.md](PLAN.md) (decisions log and §3a), the 
   - Bitwise operators behave differently on the web (32-bit, unsigned `~`); test web-only code paths in a browser.
   - The 401 on `/auth/refresh` in that log is normal when the cookie has expired (the page then asks to sign in).
   - A temporary dev account `dbg-admin@example.org` was created for the replay. Remove it, or keep it for later replays.
+
+### 22. Round 3: devices, context and conversations (ADR-022)
+- **Asked:**
+  - **Responsive layout and the web:**
+    - make every Console page responsive from phones to very large screens (screenshot: a source title squeezed into one letter per line on a phone);
+    - include Collect as a web app;
+    - make both web apps installable (PWA);
+    - complete slice C and the rest of the plan before the next rebuild.
+  - **Pictures and test context:**
+    - full-screen pictures in both apps;
+    - authors can remove and re-upload pictures;
+    - a source picture under the source and a picture under each test, the test picture required except for named reasons;
+    - test location and surroundings on every result view.
+  - **"Other" options:** typed "Other" values added to local or global lists.
+  - **Wording:** "device" instead of "phone".
+  - **Linked pages:**
+    - Collect devices › device page › collectors › profile › sources › tests;
+    - Places: assign people, and a link to the map;
+    - Console reference data clickable;
+    - new parameters linked to where they came from;
+    - Source page ↔ map links;
+    - map zoom and scroll for every input, and accessibility.
+  - **Who covers an area:** allocate existing or new people, and track activation codes and accounts with their use.
+  - **Messages:** wire response cards to stakeholders, or else in-app messages between field and office on tests, sources, users or areas.
+- **Found:**
+  - On the web, Collect's database has been in memory only (`WasmDatabase.inMemory`, ADR-008), so reloading or closing the tab loses everything.
+  - This, more than the InPrivate window blamed in entries 13 and 18, is why the lead's collector kept disappearing; the lead was told.
+  - Response cards are the automatic guidance shown after an unsafe result; they are not messages.
+- **Options and decisions:**
+  - Collect on the web = **persistent browser storage** (offered: persistent, online only, keep it dev-only);
+  - messages = **threads on anything** (offered: threads on tests, sources, collectors and areas; comments on tests only);
+  - test picture = **required unless a listed reason is given** (offered: required unless a reason; always required; optional with a reminder);
+  - checkpoint = **commit the tested work first**.
+- **Outcome so far:**
+  - Checkpoint commits 0fb4783..06b2bcf.
+  - The plan for round 3 (sprints 3.1–3.6) is in PLAN.md §3a; ADR-022 is to come.
+- **Watch:**
+  - Browser storage on shared computers is not encrypted at rest.
+  - Typed "Other" values need review to avoid near-duplicates.
+  - Message threads add a new synced table and its privacy rules (who sees which thread).
+
+### 23. Sprint 3.1: every screen, every device (ADR-022)
+- **Asked:** progress checks ("how far"); continuing round 3.
+- **Outcome (built, not yet rebuilt on dev, not committed):**
+  - **Collect on the web keeps its data:** `openAppDatabase(persistOnWeb: true)` uses sqlite3's IndexedDB file system, one store per database file. Erasing the device deletes it. The Console on the web stays in memory.
+  - **Installable web apps:**
+    - `web/sw.js` is a network-first app shell with an offline fallback; it skips `api/`, `tiles/`, `route/` and `collect/`;
+    - `index.html` registers it and keeps the browser's install prompt;
+    - `InstallAppTile` (ui_kit, js_interop) shows in Collect Settings and the Console profile;
+    - the manifests allow any orientation.
+  - **Production:** Caddy serves Collect on the web at `/collect/` (validated).
+  - **Responsive layout:**
+    - Console pages were screenshotted at 390 px in headless Chrome (`scratchpad/capture_pages.py`, contact sheets) to find breakages.
+    - The source page title and actions now wrap (the lead's screenshot).
+    - On narrow screens the top bar shows only the logo, which then names the app for screen readers.
+    - Pages keep a 1440 px reading width on very large screens (the sources map stays full width).
+    - Collect gets a side rail from 800 px and caps at 1280 px.
+  - **"Show on map"** on the Console source page (the map's path chip leads back to the source).
+  - **"Device", not "phone",** in about 70 texts. Phone-number and Android-push wording is kept, and the privacy notice no longer claims encryption on the web.
+  - **Maps:**
+    - shared `mapInteraction` (touch, mouse wheel, arrow/WASD keys, R/F zoom; rotation off);
+    - labelled 48 px zoom buttons in both apps.
+  - **Tests:** Collect 60, Console 40, ui_kit 24 and data 73 pass, with test texts updated for "device".
+- **Watch:**
+  - The browser database is not encrypted at rest; the privacy notice says so.
+  - Two Collect tabs open at once would both write to the same browser store.
+  - The large-screen and Collect phone-width screenshot audit is still to do, on the rebuild.
+
+### 24. Sprint 3.2: everything linked (ADR-022)
+- **Outcome (built, not rebuilt, not committed):**
+  - **Backend:**
+    - `GET /v1/admin/installations/{id}/collectors`: the people seen on a device, from tests, sources, details and recovery codes redeemed there, with counts.
+    - `GET /v1/admin/areas/new` and `POST /v1/admin/areas/{id}/official`: review of places added from devices, with their path, who added them and their sources.
+    - `/admin/parameters/pending` now says where each new parameter was first used: source, test, value and collector.
+    - The API client was regenerated. Test assertions were added to `test_a_phone_works_anywhere_in_uganda_and_adds_new_places`.
+  - **Console:**
+    - **Collect devices › a device:** its details and the people on it, each opening their page.
+    - **Collectors › a collector:** details, mark, sign-in code, their area on the map, edit history, archive; the sources they added and the tests they did (distance and reason), each opening the source.
+    - **Source page:** "Show on map".
+    - **Reference data:** a limit set opens Limit sets; a parameter opens a dialog with its limit in each set and the sources tested for it, each opening the source; an area opens the map.
+    - **Places:** "Show on map", "Who covers it" (opens the area's chain), and "Added from devices" with Accept, Rename and map.
+    - **New parameters:** "First used at …" with links to the source and the collector.
+    - `showAreaOnMap` / `mapAreaFocusProvider` let any page open the map on an area.
+  - **Tests:** the Console collector-page test was added.
+- **Watch:**
+  - People added on a device who have not sent anything are not known to the server, and the device page says so.
+  - Merging duplicate places is not built: devices would need to drop the merged place.
+
+### 25. Sprint 3.3: who covers an area, and the credentials ledger (ADR-022)
+- **Outcome (built, not rebuilt, not committed):**
+  - **Backend:**
+    - `GET /v1/admin/credentials`: every activation code (area, made by, when, expiry, use, withdrawn, and the devices it activated) and every Console account (made by, when, whether the temporary password was ever changed, last sign-in, areas).
+    - `POST /v1/admin/activation-codes/{id}/revoke`: withdraws a code (audited); devices already activated keep working, and activation already refuses withdrawn codes.
+    - Test: `test_the_credentials_ledger_shows_codes_devices_and_accounts`.
+  - **Console:**
+    - **Who covers an area:** opens on an area passed from Places (`?area=`), and adds someone who covers it in one of three ways:
+      - an existing person (their areas plus this one);
+      - a new stakeholder (the person dialog with the area filled in, then the temporary password shown once);
+      - a new collector device (an activation code for the area, with its QR).
+    - **Admin › Codes and accounts:** the ledger. Each code lists its devices, each opening the device page, and can be withdrawn while still usable. Each account shows its first and last use.
+    - `issueActivationCode` and `newPersonIn` are now reusable.
+- **Watch:**
+  - "Existing collector" for an area is not a separate idea: collectors are not accounts. A collector reaches an area through an activation code for a device there, or a recovery code on another device.
+  - Sharing details is still by hand (shown once); email and SMS come with slice D.
+
+### 26. Sprint 3.4: pictures and test context (ADR-022)
+- **Outcome (built, not rebuilt, not committed):**
+  - **Backend (migration 0012):**
+    - `attachment.collector_key`, `removed_at` and `removed_by_installation`; `test_session.no_photo_reason`.
+    - Sync: an `attachment` update `{removed: true}` is accepted only from the collector who added the picture (else `not_creator`). The picture stays on the server, marked removed, and pull tells other devices to drop it.
+    - Test: `test_only_the_author_removes_a_picture_and_a_test_keeps_its_no_photo_reason`.
+  - **Devices (local schema v7):**
+    - Pictures remember who added them. `removePhoto` drops an unsent picture outright, or sends the removal for a sent one. Removed pictures disappear on pull.
+    - `resultDetail` now carries location, accuracy, distance, the reason for testing away from the source, the no-picture reason and notes. `InspectionRepository.nearest` returns the surroundings check closest before the test, else the first one after it.
+  - **UI kit:** `showPhotoViewer`: full screen; pinch, wheel or double-tap to zoom; swipe, arrow keys or buttons to move; Esc to close; remove (after a confirmation) where allowed.
+  - **Collect:**
+    - A tap on any picture opens the viewer, and the author can remove it there and add another.
+    - Review: a test picture is required, or a reason: camera not working, pictures not allowed, too dark, or another reason typed in. The pictures are saved with the test.
+    - Result: "Where and how it was tested": location and accuracy, distance and why, the no-picture reason, the surroundings check with the risks seen, a map link, and a link to check the surroundings again.
+  - **Console:**
+    - Source page: only the source's own pictures, opening the viewer. A test in the history opens its own page.
+    - New test page (`/sources/:id/tests/:resultId`): status, time, source and collector links, limit set, readings with results, the same context as Collect, the test's pictures, and its corrections.
+    - Removed the duplicate `drift` dev dependency.
+  - **Tests:** data 75, UI kit 26, Collect 61, Console 42, all passing. New: picture removal in data, the viewer, Collect remove-and-re-add, the picture-or-reason flows, and the Console test page.
+- **Watch:**
+  - Corrections (amendments) do not ask for a new picture; the original test's pictures stay.
+  - The Console viewer is read-only: stakeholders cannot remove a collector's picture. Archiving the test is the admin's way.
+  - Older tests have no picture and no reason, and they show neither.
+
+### 27. Sprint 3.5: "Other" means type it (ADR-022)
+- **Outcome (built, not rebuilt, not committed):**
+  - **UI kit:** `ChoiceOrTypedField`. Picking "Other (type it)" opens a box to type the value, which is stored as typed. Values already used on the device appear as "… (typed before)". A saved typed value shows as itself, and an old record saved as plain "Other" keeps that until something is typed.
+  - **Data:** `ReferenceDataRepository.usedValues('source_types' | 'collector_types')`.
+  - **Collect:** the type of source (new source) and "I am a…" (collector form) use the field.
+  - **Backend:**
+    - `GET /v1/admin/typed-values` lists the source and collector types in use that the shared lists lack, with use counts and when each was first seen.
+    - `POST /v1/admin/typed-values` adds one before "Other". The code is the typed value, so existing records match it at once. It is marked `added`, the lists document's version goes up (devices get it on the next sync), and the change is audited.
+    - Seeding a newer `lists.json` keeps the admin's added values.
+    - Test: `test_a_typed_other_value_is_listed_until_the_admin_adds_it`.
+  - **Console:**
+    - Admin › Typed list values, with "Add to the list".
+    - Source and collector types show a typed value as itself, not "Other".
+  - **Tests:** UI kit field (3), Collect "typed, saved, offered next time", Console admin page. Two older Console tests now scroll to the lower admin tiles before tapping them.
+- **Watch:**
+  - Custom parameter categories and functional statuses have no "Other", so they are unchanged. No-picture reasons take typed text but are not proposed for a shared list.
+  - The admin cannot rename a typed value when adding it (the API accepts `name`; the page does not ask yet), and there is no "dismiss": an unwanted value stays listed until it is no longer in use.
+
+### 28. Sprint 3.6: conversations in the app (ADR-022)
+- **Outcome (built, not rebuilt, not committed):**
+  - **Backend (migration 0013):**
+    - `message`: insert-only, about a test, source, collector or area.
+    - The server sets the thread's area from its subject: the source's village; the test's source; the area itself; or, for a collector, the place of their last test or source, else the device's area.
+    - Row-level security limits it to the caller's scope, and the area and scope feeds carry it.
+    - Both devices and Console users may send. The author's name comes from the collector snapshot or the account.
+    - Test: `test_threads_on_a_test_and_a_source_reach_both_sides` covers the round trip, an unknown subject, and an empty message.
+  - **Devices (local schema v8):**
+    - A `messages` table. A pulled copy fills in the author and time and never clears this device's "read".
+    - `MessageRepository`: thread, send (outbox), mark read, unread count, inbox with titles.
+  - **UI kit:** `ConversationView`: your messages on the right, a mark on stakeholder and IT admin messages, a "waiting to send" clock, Enter to send.
+  - **Collect:** a thread on each source and test result, and Messages (app bar, with an unread badge) with the inbox and full-page threads.
+  - **Console:**
+    - Threads on the source page, the test page, the collector page and the alert page (the alert's test thread), and Places › Messages for an area.
+    - Messages in the top bar with a badge, opening `/dashboard/messages`. A thread links back to what it is about.
+    - Sending starts a sync.
+  - **ADR-022 written.** PLAN status updated.
+  - **Tests:** data messages (3), Collect messages flow, Console messages flow. One Collect photo test now scrolls back up on the longer source page.
+- **Watch:**
+  - No notification outside the apps until slice D: a reply is seen at the next sync.
+  - District-wide area threads do not reach a device registered to a village below.
+  - Messages cannot be edited or deleted (insert-only, like test records). Archiving a source or test does not hide its thread yet.
+
+### 29. Round 3 checks and dev rebuild (2026-10-23)
+- **Checks, all passing:**
+  - backend: ruff, mypy, and the full pytest suite;
+  - Flutter workspace: `dart analyze --fatal-infos` and format;
+  - tests: data 78, UI kit 29+, Collect 63, Console 45.
+  - The regenerated API client was formatted.
+- **Dev rebuilt:**
+  - `docker compose up -d --build`: the database is at migration 0013, and the `message` table is there.
+  - Both web previews were rebuilt (`/console/`, `/collect/`), and `tools/cleanup.ps1` was run. 13.9 GB is free on C:, down from 22 GB before the image builds.
+- **Next:** the lead checks on dev, then commits in sprint groups (3.1–3.6).

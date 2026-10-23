@@ -25,3 +25,4 @@ Format: context → decision → consequences. Number them sequentially. Never r
 | [021](ADR-021-interactive-maps-and-routes.md) | Interactive maps (one search, fly-to, layers) and self-hosted road routes (Valhalla) | Accepted (on dev) |
 | [020](ADR-020-collector-recovery-codes.md) | Collector recovery codes: the same person on any phone | Accepted (on dev) |
 | [019](ADR-019-anywhere-in-uganda.md) | Anywhere in Uganda: random source codes, places added from phones, district sync, required location check | Accepted (in progress) |
+| [022](ADR-022-devices-context-and-conversations.md) | Every device, linked pages, pictures with context, typed "Other", conversations in the app | Accepted (built, waiting for dev check) |

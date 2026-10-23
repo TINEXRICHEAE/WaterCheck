@@ -11,7 +11,8 @@ Derived from `water-monitoring-app-SPEC.md` (v0.4). The spec is the source of tr
 | P0–P11 automated gates | ✅ done; human/device checks deferred to P12 | §3, PROGRESS.md |
 | Production on Azure (live) | ✅ since 2026-10-17; release 0.1.1 on 2026-10-21 | DEPLOYMENT_GUIDE.md |
 | Refinements round 1: archive, trails, UX (ADR-018) | ✅ built and committed locally; **not yet deployed** (migration 0009) | §3a |
-| Refinements round 2: anywhere in Uganda, sources, location, map, links (ADR-019) | 🔄 slice A committed; slice B built, waiting for the lead's check on dev; slices C–D to come | §3a |
+| Refinements round 2: anywhere in Uganda, sources, location, map, links (ADR-019–021) | ✅ slices A–B, recovery codes, interactive maps and routes committed (up to 06b2bcf) | §3a |
+| Refinements round 3: devices, context and conversations (ADR-022) | 🔄 sprints 3.1–3.6 built and tested; next: rebuild dev (migrations 0012–0013), the lead's check, then commits | §3a |
 | Open discussions with the lead | ⏳ email/phone/SMS settings, password reset, updates without new installers, notifications | §3a |
 | P12 hardening and pilot release | ⏳ not started (operations items listed in §3 P12) | §3 |
 
@@ -190,6 +191,7 @@ P-1 (workstation setup) was done on 2026-10-10; see the decisions log below.
 | 2026-10-21 | Release 0.1.1 | **Map readable and working in production.** Roads outlined and coloured, tracks dashed, minor roads from zoom 11; style id `watercheck-v2` (change the id whenever the style changes: tiles are cached a week); single sources open at zoom 13. Installers fixed (Visual C++ runtime as `vc_redist.x64.exe`, skipped when present). Version 0.1.1+2. Web, Windows installers and APK built against production into `dist\` with SHA-256 checksums; release procedure in DEPLOYMENT_GUIDE.md §17a. |
 | 2026-10-22 | ADR-018 | **Lead: archive, trails and UX refinements.** IT admins archive phones, collectors, sources and tests with a reason; what hangs below goes too (a source another collector used is kept); one batch, restorable, audited; devices drop archived rows (migration 0009). Edits keep a field-level trail (old → new, who, when, why); a test is corrected as a new version, only by the person who made it. Refresh buttons in both apps; dashboard figures open lists that lead to the item; reference data searchable; area entry searches the official list to sub-county and fills the levels above, "Other" for new places, only villages typed. Console PIN optional for stakeholders (Windows/Android), required for IT admins. |
 | 2026-10-22 | ADR-019 | **Lead: anywhere in Uganda (refinements round 2).** Nothing in the apps points to Abim/Entebbe any more. Choices: **source codes are short random codes** (`WC-7Q2K9`, not place codes); **a typed village/parish/sub-county is added at once, marked new**, and the IT admin reviews it; **a phone syncs the whole district** of each person using it and searches further online; **the location is checked for every test**, and a reason is needed beyond **100 m plus the GPS error** or with no fix. Phones may record anywhere in Uganda (scope = the country). Sources list: own first, then nearby, sub-county, elsewhere; search and filters. Slices B–D to follow (§3a). |
+| 2026-10-22 | ADR-022 | **Lead: round 3.** Everything responsive from phones to very large screens; **Collect on the web keeps its data in the browser** (persistent, offline once installed), and both web apps are installable (PWA); "device" instead of "phone"; device, collector, source and place pages all linked; allocation of people from "Who covers an area" with a ledger of codes and accounts; full-screen pictures, editable by their author; **a test picture is required unless a listed reason is given**; test location and surroundings on every result; typed "Other" values proposed to the admin; **message threads on tests, sources, collectors and areas** between field and office. |
 | 2026-10-22 | ADR-021 | **Lead: interactive maps in both apps.** One search for areas and sources; the map flies to the choice; the path runs down to the source; layers for source names, straight-line distance and road route with distance and time, motorbike/car by default with walking as a switch. **Routes are self-hosted:** the lead chose OSRM, which ran Docker out of memory (3.8 GB) and would need about 3 GB of the 4 GB VM, so the lead then chose **Valhalla** (one service for both modes, tiles read from disk, 512 MB limit). |
 | 2026-10-22 | ADR-020 | **Lead: recovery codes.** A collector gets back in as the same person on any phone (lost phone, second device) with a one-time code, valid 24 hours, issued in the Console by an IT admin or by a stakeholder for collectors in their areas. It is passed on by other means for now, and by email or SMS later. Several people, new and recovered, per phone. |
 | 2026-10-22 | Process | **Lead:** commit only after a confirmation on dev; log every prompt and outcome in `docs/DEVLOG.md`; `app/plan.md` frozen, `docs/PLAN.md` is the plan. |
@@ -546,6 +548,69 @@ These came from the lead trying the apps. They sit between P11 and P12. Each rou
 | D2 | Browser and desktop notifications while the Console is open |
 | D3 | Android push (needs a Firebase project) |
 | D4 | Real email (an SMTP provider) and SMS (Africa's Talking) in production |
+
+#### Round 3: devices, context and conversations (ADR-022), 🔄 planned 2026-10-22, built 2026-10-23
+
+The lead's list of 2026-10-22 (DEVLOG entry 22). It absorbs what was left of slice C and comes before the next rebuild and deployment. The lead's choices:
+
+- **Collect on the web:** keep its data in the browser (persistent, works offline once installed).
+- **Messages:** threads on anything.
+- **Test photos:** required, unless a listed reason is given.
+- **Checkpoint:** commit the tested work first (done: 0fb4783..06b2bcf).
+
+**Sprint 3.1: every screen, every device.**
+
+| # | Item |
+|---|------|
+| 3.1a | Console and Collect responsive from small phones to very large screens: no squeezed text (for example the vertical source title on a phone); wide pages capped and laid out in columns; navigation rail or bottom bar by width |
+| 3.1b | Collect as a real web app: persistent browser storage (OPFS, else IndexedDB) instead of in-memory; a production route; a Collect web build in the release |
+| 3.1c | Both web apps installable (PWA): manifests, offline app shell, an "Install app" action where the browser allows it |
+| 3.1d | "Device", not "phone", wherever the app may run on the web, a phone or a computer ("Collect devices", "this device") |
+| 3.1e | Map: zoom and pan by touch, mouse wheel, keyboard and on-screen buttons; accessibility (labels for screen readers, focus order, contrast, target sizes) |
+
+**Sprint 3.2: everything linked.**
+
+| # | Item |
+|---|------|
+| 3.2a | Console › Collect devices: each device opens a page listing the collectors and testers on it |
+| 3.2b | Collector page: full profile, area on the map, sources added, tests done, recovery code, actions |
+| 3.2c | Source page: "Show on map" (and back to the source from the map), the source picture, the latest sanitary inspection |
+| 3.2d | Console reference data clickable: limit sets (calibration, edit, sources tested with them), parameters, areas on the map |
+| 3.2e | Admin › Places: open on the map; assign a collector or stakeholder; review places added from devices (rename, merge, mark official) |
+| 3.2f | New parameters: link to the test, source and collector where each came from |
+
+**Sprint 3.3: who covers an area, and credentials.**
+
+| # | Item |
+|---|------|
+| 3.3a | "Who covers an area": add an existing stakeholder or collector, or a new one (a stakeholder account, or an activation code for a new collector device), from that page |
+| 3.3b | A credentials ledger: every activation code and stakeholder account created, by whom, for which area, used or not, by which devices and people, and when |
+
+**Sprint 3.4: pictures and test context.**
+
+| # | Item |
+|---|------|
+| 3.4a | Pictures open full screen (zoom, swipe) in both apps |
+| 3.4b | Whoever added a picture can remove it and add another, in Collect |
+| 3.4c | Source pictures under the source, test pictures under each test |
+| 3.4d | Each test needs a picture of the kit or reading, unless the collector picks a reason (camera not working, not allowed, no light, other: typed); the reason shows on the result |
+| 3.4e | Every test result view (both apps) shows where the test was made, its distance from the source and the reason if away, and the surroundings (sanitary inspection) |
+
+**Sprint 3.5: "Other" means type it.**
+
+| # | Item |
+|---|------|
+| 3.5a | Every list with "Other" or "Custom" takes a typed value, used at once on that device or account and proposed to the IT admin for the shared list (reviewed like new parameters) |
+
+**Sprint 3.6: conversations in the app.**
+
+| # | Item |
+|---|------|
+| 3.6a | Comment threads on a test, a source, a collector or an area, synced both ways between Collect and the Console, with who wrote and when |
+| 3.6b | An inbox for new messages in both apps; no SMS, email or calls yet |
+| 3.6c | Response cards stay the automatic guidance after an unsafe result; a stakeholder's reply goes in the test's thread |
+
+**Still from slice C:** the editable profile (own phone and email with confirmation, channel details). This waits for slice D, because confirmations need email or SMS.
 
 #### Open discussions with the lead (raised 2026-10-22, no decision yet)
 
