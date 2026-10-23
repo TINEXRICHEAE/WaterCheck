@@ -1,10 +1,13 @@
 import 'package:domain/domain.dart';
 import 'package:flutter/material.dart';
+import 'package:drift/drift.dart' show Variable;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:ui_kit/ui_kit.dart';
 
 import '../../app/providers.dart';
 import '../dashboard/dashboard_state.dart';
+import '../map/sources_map.dart' show showAreaOnMap;
 
 typedef _ReferenceData = ({
   ParameterCatalogue catalogue,
@@ -51,9 +54,83 @@ class ReferenceDataScreen extends ConsumerWidget {
             testerProfiles: d.testers,
             rules: d.rules,
             areas: d.areas,
+            // Each item leads somewhere (ADR-022).
+            onProfile: (_) => context.go('/dashboard/limit-sets'),
+            onParameter: (p) => _showParameter(context, ref, p, d),
+            onArea: (a) => showAreaOnMap(context, ref, a.id),
           ),
         ),
       ),
     );
   }
+}
+
+/// A parameter: its limit in each set and the sources tested for it here.
+Future<void> _showParameter(
+  BuildContext context,
+  WidgetRef ref,
+  ParameterDefinition p,
+  _ReferenceData d,
+) async {
+  final ui = UiKitLocalizations.of(context);
+  final db = ref.read(databaseProvider);
+  final rows = await db
+      .customSelect(
+        'SELECT w.id, coalesce(w.name, w.code) AS name, count(*) AS n '
+        'FROM readings g JOIN test_sessions s ON s.id = g.session_id '
+        'JOIN water_sources w ON w.id = s.source_id '
+        'WHERE g.parameter_code = ? GROUP BY w.id ORDER BY n DESC LIMIT 30',
+        variables: [Variable.withString(p.code)],
+        readsFrom: {db.readings, db.testSessions, db.waterSources},
+      )
+      .get();
+  if (!context.mounted) return;
+  String limit(ParameterLimit? l) {
+    if (l == null || !l.isAssessable) return ui.refNoLimit;
+    if (l.mustBeAbsent) return ui.refMustBeAbsent;
+    if (l.mustBeAcceptable) return ui.refMustBeAcceptable;
+    final unit = l.unit.isEmpty ? '' : ' ${l.unit}';
+    if (l.min != null && l.max != null) return '${l.min}–${l.max}$unit';
+    if (l.max != null) return '≤ ${l.max}$unit';
+    return '≥ ${l.min}$unit';
+  }
+
+  await showDialog<void>(
+    context: context,
+    builder: (dialog) => AlertDialog(
+      title: Text('${p.name} (${p.code})'),
+      content: SizedBox(
+        width: 520,
+        child: ListView(
+          shrinkWrap: true,
+          children: [
+            for (final prof in d.profiles)
+              ListTile(
+                dense: true,
+                title: Text(prof.title),
+                trailing: Text(limit(prof.limitFor(p.code))),
+              ),
+            const Divider(),
+            for (final r in rows)
+              ListTile(
+                dense: true,
+                leading: const Icon(Icons.water_drop_outlined),
+                title: Text(r.read<String>('name')),
+                trailing: Text('${r.read<int>('n')}'),
+                onTap: () {
+                  Navigator.pop(dialog);
+                  context.go('/sources/${r.read<String>('id')}');
+                },
+              ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(dialog),
+          child: Text(MaterialLocalizations.of(dialog).closeButtonLabel),
+        ),
+      ],
+    ),
+  );
 }

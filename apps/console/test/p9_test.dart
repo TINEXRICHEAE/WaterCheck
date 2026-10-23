@@ -63,6 +63,11 @@ List<IncomingChange> _area() {
         'tested_at_device': at,
         'collector_key': _collector,
         'collector_snapshot': {'full_name': 'Example Collector'},
+        'lat': 2.7101,
+        'lon': 33.6601,
+        'location_accuracy_m': 4.0,
+        'distance_from_source_m': 12.0,
+        'no_photo_reason': 'too_dark',
       },
     ),
     IncomingChange(
@@ -171,6 +176,82 @@ void main() {
     await disposeConsole(tester, db);
   });
 
+  testWidgets('a test has its own page: readings, where, why no picture', (
+    tester,
+  ) async {
+    final db = await _open(tester);
+    await tester.tap(find.text('Sources').last);
+    await settle(tester);
+    await tester.tap(find.text('Main borehole (ABIM-ENT-001)'));
+    await settle(tester);
+    expect(find.text('Pictures of the source'), findsOneWidget);
+    await tester.tap(find.textContaining('Example Collector ·'));
+    await settle(tester);
+    expect(find.text('Where and how it was tested'), findsOneWidget);
+    expect(find.text('9.4 pH'), findsOneWidget);
+    expect(find.text('Too high'), findsOneWidget);
+    expect(find.text('2.710100, 33.660100'), findsOneWidget);
+    expect(
+      find.text('location within 4 m · 12 m from the source'),
+      findsOneWidget,
+    );
+    expect(find.text('No test picture: Too dark to see'), findsOneWidget);
+    expect(find.text('Surroundings not checked'), findsOneWidget);
+    expect(find.text('Pictures of the test'), findsOneWidget);
+    await tester.tap(find.text('Example Collector'));
+    await settle(tester);
+    expect(find.textContaining('Example Collector'), findsWidgets);
+    await disposeConsole(tester, db);
+  });
+
+  testWidgets('messages: a collector asks on a source; the officer replies', (
+    tester,
+  ) async {
+    final env = ConsoleTestEnv(cookieMode: true);
+    env.api.sessionFor('admin@example.org');
+    env.sync.serve['scope'] = [
+      ..._area(),
+      IncomingChange(
+        entity: 'message',
+        op: 'upsert',
+        id: _id(9),
+        data: {
+          'id': _id(9),
+          'subject_type': 'source',
+          'subject_id': _id(1),
+          'body': 'The handle is broken.',
+          'collector_key': _collector,
+          'author_name': 'Example Collector',
+          'written_at_device': DateTime.now().toUtc().toIso8601String(),
+        },
+      ),
+    ];
+    _env = env;
+    final db = await pumpConsole(tester, env: env);
+    expect(find.byTooltip('Messages: 1 new'), findsOneWidget);
+    await tester.tap(find.byTooltip('Messages: 1 new'));
+    await settle(tester);
+    expect(find.text('Source: Main borehole'), findsOneWidget);
+    await tester.tap(find.text('Source: Main borehole'));
+    await settle(tester);
+    expect(find.text('The handle is broken.'), findsOneWidget);
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Write a message'),
+      'A mechanic comes on Monday.',
+    );
+    await tester.tap(find.byTooltip('Send'));
+    await settle(tester);
+    final sent = env.sync.pushed.singleWhere((c) => c.entity == 'message');
+    expect(sent.data['subject_type'], 'source');
+    expect(sent.data['subject_id'], _id(1));
+    expect(sent.data['body'], 'A mechanic comes on Monday.');
+    expect(find.byTooltip('Messages'), findsOneWidget, reason: 'read');
+    await tester.tap(find.text('Open the source'));
+    await settle(tester);
+    expect(find.text('Test history'), findsOneWidget);
+    await disposeConsole(tester, db);
+  });
+
   testWidgets('map: coloured dots with names, distance from the device, '
       'the latest issue; a dot opens the source', (tester) async {
     final env = ConsoleTestEnv(cookieMode: true)
@@ -246,7 +327,22 @@ void main() {
     await disposeConsole(tester, db);
   });
 
-  testWidgets('collectors: a sign-in code for another phone (ADR-020)', (
+  testWidgets('a collector has a page: their tests lead to the source '
+      '(ADR-022)', (tester) async {
+    final db = await _open(tester, size: const Size(1200, 1000));
+    await tester.tap(find.text('Collectors').last);
+    await settle(tester);
+    await tester.tap(find.text('Example Collector'));
+    await settle(tester);
+    expect(find.text('1 test'), findsOneWidget);
+    expect(find.text('Sign-in code for another device'), findsOneWidget);
+    await tester.tap(find.text('Main borehole'));
+    await settle(tester);
+    expect(find.text('Show on map'), findsOneWidget);
+    await disposeConsole(tester, db);
+  });
+
+  testWidgets('collectors: a sign-in code for another device (ADR-020)', (
     tester,
   ) async {
     final server = _CodeServer();
@@ -265,7 +361,7 @@ void main() {
     await settle(tester);
     await tester.tap(find.byTooltip('Mark collector'));
     await settle(tester);
-    await tester.tap(find.text('Sign-in code for another phone'));
+    await tester.tap(find.text('Sign-in code for another device'));
     await settle(tester);
     expect(server.paths, ['/v1/collectors/$_collector/recovery-code']);
     expect(find.text('Code for Example Collector'), findsOneWidget);

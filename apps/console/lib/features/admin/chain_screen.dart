@@ -4,10 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ui_kit/ui_kit.dart';
 
+import '../../app/providers.dart';
 import '../../l10n/app_localizations.dart';
 import '../dashboard/dashboard_state.dart';
 import 'admin_api.dart';
 import 'area_picker.dart';
+import 'phones_screen.dart' show issueActivationCode;
+import 'users_screen.dart' show newPersonIn;
 
 final _chainProvider = FutureProvider.autoDispose.family<ChainOut, String>((
   ref,
@@ -21,7 +24,10 @@ final _chainProvider = FutureProvider.autoDispose.family<ChainOut, String>((
 /// (docs/PLAN.md §3). Empty levels are skipped; the first level with
 /// someone gets the first notice.
 class ChainScreen extends ConsumerStatefulWidget {
-  const ChainScreen({super.key});
+  const ChainScreen({super.key, this.initialAreaId});
+
+  /// Opened from Places ("Who covers it", ADR-022).
+  final String? initialAreaId;
 
   @override
   ConsumerState<ChainScreen> createState() => _ChainScreenState();
@@ -29,6 +35,75 @@ class ChainScreen extends ConsumerStatefulWidget {
 
 class _ChainScreenState extends ConsumerState<ChainScreen> {
   AdminUnit? _area;
+
+  @override
+  void initState() {
+    super.initState();
+    final id = widget.initialAreaId;
+    if (id != null) {
+      ref.read(referenceDataRepositoryProvider).adminUnits().then((units) {
+        final u = units.where((x) => x.id == id).firstOrNull;
+        if (u != null && mounted) setState(() => _area = u);
+      });
+    }
+  }
+
+  /// Gives an existing stakeholder this area too.
+  Future<void> _addExisting(AdminUnit area) async {
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final users = await ref.read(adminUsersProvider.future);
+    if (!mounted) return;
+    final candidates = [
+      for (final u in users)
+        if (u.isActive && !u.areas.any((a) => a.id == area.id)) u,
+    ];
+    final picked = await showDialog<UserOut>(
+      context: context,
+      builder: (dialog) => SimpleDialog(
+        title: Text(l10n.chainAddExisting),
+        children: [
+          if (candidates.isEmpty)
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Text(l10n.chainNoCandidates),
+            ),
+          for (final u in candidates)
+            SimpleDialogOption(
+              onPressed: () => Navigator.pop(dialog, u),
+              child: ListTile(
+                title: Text(u.fullName),
+                subtitle: Text(
+                  [u.username, for (final a in u.areas) a.name].join(' · '),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+    if (picked == null) return;
+    try {
+      await ref
+          .read(adminApiProvider)
+          .admin
+          .changeUser(
+            userId: picked.id,
+            body: UserChangesIn(
+              areaIds: [for (final a in picked.areas) a.id, area.id],
+            ),
+          );
+      ref
+        ..invalidate(adminUsersProvider)
+        ..invalidate(_chainProvider(area.id));
+      messenger.showSnackBar(
+        SnackBar(content: Text(l10n.chainAdded(picked.fullName, area.name))),
+      );
+    } on Object {
+      messenger.showSnackBar(
+        SnackBar(content: Text(l10n.adminNeedsConnection)),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,6 +131,35 @@ class _ChainScreenState extends ConsumerState<ChainScreen> {
             label: Text(area == null ? l10n.chainPick : area.name),
           ),
         ),
+        if (area != null) ...[
+          const SizedBox(height: 12),
+          // Someone to cover it: an existing person, a new stakeholder, or
+          // a new collector device for the area (ADR-022).
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              OutlinedButton.icon(
+                onPressed: () => _addExisting(area),
+                icon: const Icon(Icons.person_add_alt),
+                label: Text(l10n.chainAddExisting),
+              ),
+              OutlinedButton.icon(
+                onPressed: () async {
+                  await newPersonIn(context, ref, area);
+                  ref.invalidate(_chainProvider(area.id));
+                },
+                icon: const Icon(Icons.badge_outlined),
+                label: Text(l10n.chainAddStakeholder),
+              ),
+              OutlinedButton.icon(
+                onPressed: () => issueActivationCode(context, ref, area: area),
+                icon: const Icon(Icons.qr_code_2),
+                label: Text(l10n.chainAddCollector),
+              ),
+            ],
+          ),
+        ],
         const SizedBox(height: 12),
         if (chain != null)
           ...chain.when(

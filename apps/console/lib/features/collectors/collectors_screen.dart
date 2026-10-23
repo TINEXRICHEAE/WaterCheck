@@ -3,12 +3,14 @@ import 'package:data/data.dart';
 import 'package:flutter/material.dart';
 import 'package:ui_kit/ui_kit.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../app/console_sync.dart';
 import '../../app/providers.dart';
 import '../../app/session.dart';
 import '../../l10n/app_localizations.dart';
+import '../sources/type_labels.dart';
 import '../admin/archive_actions.dart';
 import 'recovery_code.dart';
 import '../dashboard/dashboard_state.dart';
@@ -42,6 +44,8 @@ class CollectorsScreen extends ConsumerWidget {
         for (final c in rows)
           Card(
             child: ListTile(
+              // Their page: profile, sources, tests (ADR-022).
+              onTap: () => context.go('/collectors/${c.collectorKey}'),
               leading: Icon(switch (c.mark) {
                 'known' => Icons.verified_outlined,
                 'flagged' => Icons.flag_outlined,
@@ -55,7 +59,7 @@ class CollectorsScreen extends ConsumerWidget {
                     when.format(WcTime.local(c.lastSubmission, context)),
                   ),
                   if (c.collectorType != null)
-                    l10n.collectorType(c.collectorType!),
+                    collectorTypeLabel(l10n, c.collectorType!),
                   ?c.village,
                   ?c.phone,
                   if (c.mark == 'known') l10n.markKnown,

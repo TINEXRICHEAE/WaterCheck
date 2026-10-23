@@ -187,7 +187,7 @@ abstract class AppLocalizations {
   /// No description provided for @adminMoreHint.
   ///
   /// In en, this message translates to:
-  /// **'Changes here reach the phones with their next sync.'**
+  /// **'Changes here reach the devices with their next sync.'**
   String get adminMoreHint;
 
   /// No description provided for @startupFailed.
@@ -457,7 +457,7 @@ abstract class AppLocalizations {
   /// No description provided for @recentHint.
   ///
   /// In en, this message translates to:
-  /// **'Synced from Collect phones in your areas.'**
+  /// **'Synced from Collect devices in your areas.'**
   String get recentHint;
 
   /// No description provided for @recentEmpty.
@@ -1333,7 +1333,7 @@ abstract class AppLocalizations {
   /// No description provided for @conflictBody.
   ///
   /// In en, this message translates to:
-  /// **'A phone set the working status to \"{phone}\", but it is now \"{current}\" from a newer change. Which is right?'**
+  /// **'A device set the working status to \"{phone}\", but it is now \"{current}\" from a newer change. Which is right?'**
   String conflictBody(String phone, String current);
 
   /// No description provided for @conflictKeep.
@@ -1345,7 +1345,7 @@ abstract class AppLocalizations {
   /// No description provided for @conflictUsePhone.
   ///
   /// In en, this message translates to:
-  /// **'Use the phone\'s value'**
+  /// **'Use the device\'s value'**
   String get conflictUsePhone;
 
   /// No description provided for @conflictActive.
@@ -1885,7 +1885,7 @@ abstract class AppLocalizations {
   /// No description provided for @adminNeedsConnection.
   ///
   /// In en, this message translates to:
-  /// **'Managing people and phones needs a connection to the server.'**
+  /// **'Managing people and devices needs a connection to the server.'**
   String get adminNeedsConnection;
 
   /// No description provided for @areaLevel.
@@ -1933,13 +1933,13 @@ abstract class AppLocalizations {
   /// No description provided for @adminPhones.
   ///
   /// In en, this message translates to:
-  /// **'Collect phones'**
+  /// **'Collect devices'**
   String get adminPhones;
 
   /// No description provided for @adminPhonesHint.
   ///
   /// In en, this message translates to:
-  /// **'Activation codes, phones in use, revoking a lost phone.'**
+  /// **'Activation codes, devices in use, revoking a lost device.'**
   String get adminPhonesHint;
 
   /// No description provided for @adminChain.
@@ -2143,19 +2143,19 @@ abstract class AppLocalizations {
   /// No description provided for @phonesTitle.
   ///
   /// In en, this message translates to:
-  /// **'Collect phones'**
+  /// **'Collect devices'**
   String get phonesTitle;
 
   /// No description provided for @phonesHint.
   ///
   /// In en, this message translates to:
-  /// **'Phones activated with a code for an area. Revoke a lost or stolen phone: it stops syncing and locks itself.'**
+  /// **'Devices activated with a code for an area. Revoke a lost or stolen device: it stops syncing and locks itself.'**
   String get phonesHint;
 
   /// No description provided for @phonesNone.
   ///
   /// In en, this message translates to:
-  /// **'No phones activated yet.'**
+  /// **'No devices activated yet.'**
   String get phonesNone;
 
   /// No description provided for @phonesNewCode.
@@ -2197,7 +2197,7 @@ abstract class AppLocalizations {
   /// No description provided for @phonesRevokeTitle.
   ///
   /// In en, this message translates to:
-  /// **'Revoke this phone?'**
+  /// **'Revoke this device?'**
   String get phonesRevokeTitle;
 
   /// No description provided for @phonesRevokeHint.
@@ -2221,7 +2221,7 @@ abstract class AppLocalizations {
   /// No description provided for @phonesCodeLine.
   ///
   /// In en, this message translates to:
-  /// **'{used} of {max} phones · valid until {until}'**
+  /// **'{used} of {max} devices · valid until {until}'**
   String phonesCodeLine(int used, int max, String until);
 
   /// No description provided for @phonesNewCodeFor.
@@ -2233,7 +2233,7 @@ abstract class AppLocalizations {
   /// No description provided for @phonesMax.
   ///
   /// In en, this message translates to:
-  /// **'Up to {n} phones'**
+  /// **'Up to {n} devices'**
   String phonesMax(int n);
 
   /// No description provided for @phonesValidDays.
@@ -2257,7 +2257,7 @@ abstract class AppLocalizations {
   /// No description provided for @phonesCodeHint.
   ///
   /// In en, this message translates to:
-  /// **'Shown only now. On the phone, open WaterCheck Collect and scan the QR code or type the code.'**
+  /// **'Shown only now. On the device, open WaterCheck Collect and scan the QR code or type the code.'**
   String get phonesCodeHint;
 
   /// No description provided for @phonesQrLabel.
@@ -2317,7 +2317,7 @@ abstract class AppLocalizations {
   /// No description provided for @limitSetsHintAdmin.
   ///
   /// In en, this message translates to:
-  /// **'Published and custom sets. Only stakeholders create custom sets (in the Console, or on a phone at calibration after signing in).'**
+  /// **'Published and custom sets. Only stakeholders create custom sets (in the Console, or on a device at calibration after signing in).'**
   String get limitSetsHintAdmin;
 
   /// No description provided for @limitSetsNew.
@@ -2485,7 +2485,7 @@ abstract class AppLocalizations {
   /// No description provided for @systemAuditHint.
   ///
   /// In en, this message translates to:
-  /// **'Every change by a person or phone, newest first. Filter by action (for example user. or reference_profile.) and dates.'**
+  /// **'Every change by a person or device, newest first. Filter by action (for example user. or reference_profile.) and dates.'**
   String get systemAuditHint;
 
   /// No description provided for @systemAuditAction.
@@ -2581,7 +2581,7 @@ abstract class AppLocalizations {
   /// No description provided for @healthPhones.
   ///
   /// In en, this message translates to:
-  /// **'Phones active (7 days)'**
+  /// **'Devices active (7 days)'**
   String get healthPhones;
 
   /// No description provided for @healthPhonesValue.
@@ -2761,7 +2761,7 @@ abstract class AppLocalizations {
   /// No description provided for @placesHint.
   ///
   /// In en, this message translates to:
-  /// **'The official list ends at sub-county. Add parishes and villages below it, fix names, and choose the limit set phones in an area start with.'**
+  /// **'The official list ends at sub-county. Add parishes and villages below it, fix names, and choose the limit set devices in an area start with.'**
   String get placesHint;
 
   /// No description provided for @placesAdd.
@@ -2827,7 +2827,7 @@ abstract class AppLocalizations {
   /// No description provided for @placesDefaultHint.
   ///
   /// In en, this message translates to:
-  /// **'Phones in this area, and the areas below it, start with this set. Tests already taken keep the set they were judged by.'**
+  /// **'Devices in this area, and the areas below it, start with this set. Tests already taken keep the set they were judged by.'**
   String get placesDefaultHint;
 
   /// No description provided for @placesInherit.
@@ -2917,7 +2917,7 @@ abstract class AppLocalizations {
   /// No description provided for @cardsHint.
   ///
   /// In en, this message translates to:
-  /// **'Shown to collectors after a result. Each save makes a new version; phones get it with their next sync.'**
+  /// **'Shown to collectors after a result. Each save makes a new version; devices get it with their next sync.'**
   String get cardsHint;
 
   /// No description provided for @cardsVersion.
@@ -3037,7 +3037,7 @@ abstract class AppLocalizations {
   /// No description provided for @adminArchivedHint.
   ///
   /// In en, this message translates to:
-  /// **'Phones, collectors, sources and tests that were archived; restore them here'**
+  /// **'Devices, collectors, sources and tests that were archived; restore them here'**
   String get adminArchivedHint;
 
   /// No description provided for @archiveAction.
@@ -3073,13 +3073,13 @@ abstract class AppLocalizations {
   /// No description provided for @archiveCascade.
   ///
   /// In en, this message translates to:
-  /// **'{entity, select, installation{The phone is revoked, and its collectors, their tests and the sources only they used are archived too.} collector{Their tests and the sources only they used are archived too. Sources others have tested stay.} water_source{Its tests and alerts are archived too.} test_session{Its results and alerts are archived too.} other{Related records are archived too.}}'**
+  /// **'{entity, select, installation{The device is revoked, and its collectors, their tests and the sources only they used are archived too.} collector{Their tests and the sources only they used are archived too. Sources others have tested stay.} water_source{Its tests and alerts are archived too.} test_session{Its results and alerts are archived too.} other{Related records are archived too.}}'**
   String archiveCascade(String entity);
 
   /// No description provided for @archiveRestorable.
   ///
   /// In en, this message translates to:
-  /// **'Archived records disappear from lists, maps, dashboards, reports and phones. Nothing is deleted: Admin › Archived can restore them.'**
+  /// **'Archived records disappear from lists, maps, dashboards, reports and devices. Nothing is deleted: Admin › Archived can restore them.'**
   String get archiveRestorable;
 
   /// No description provided for @archiveReason.
@@ -3169,13 +3169,13 @@ abstract class AppLocalizations {
   /// No description provided for @archiveRestoreBody.
   ///
   /// In en, this message translates to:
-  /// **'Everything this action archived comes back to lists, dashboards, reports and phones.'**
+  /// **'Everything this action archived comes back to lists, dashboards, reports and devices.'**
   String get archiveRestoreBody;
 
   /// No description provided for @archiveRestorePhone.
   ///
   /// In en, this message translates to:
-  /// **'Its records come back. The phone itself stays revoked: issue a new activation code to use it again.'**
+  /// **'Its records come back. The device itself stays revoked: issue a new activation code to use it again.'**
   String get archiveRestorePhone;
 
   /// No description provided for @archiveRestored.
@@ -3193,13 +3193,13 @@ abstract class AppLocalizations {
   /// No description provided for @phonesName.
   ///
   /// In en, this message translates to:
-  /// **'Name this phone'**
+  /// **'Name this device'**
   String get phonesName;
 
   /// No description provided for @phonesNameHint.
   ///
   /// In en, this message translates to:
-  /// **'e.g. Nalongo\'s phone'**
+  /// **'e.g. Health centre tablet'**
   String get phonesNameHint;
 
   /// No description provided for @trailTitle.
@@ -3235,7 +3235,7 @@ abstract class AppLocalizations {
   /// No description provided for @trailField.
   ///
   /// In en, this message translates to:
-  /// **'{field, select, name{Name} households_served{Households} functional_status{Working} is_active{In use} source_type{Type} lat{Latitude} lon{Longitude} location_accuracy_m{GPS accuracy} label{Phone name} full_name{Full name} phone{Phone} collector_type{Role} village{Village} parish{Parish} subcounty{Sub-county} district{District} organisation{Organisation} overall{Result} other{{field}}}'**
+  /// **'{field, select, name{Name} households_served{Households} functional_status{Working} is_active{In use} source_type{Type} lat{Latitude} lon{Longitude} location_accuracy_m{GPS accuracy} label{Device name} full_name{Full name} phone{Phone} collector_type{Role} village{Village} parish{Parish} subcounty{Sub-county} district{District} organisation{Organisation} overall{Result} other{{field}}}'**
   String trailField(String field);
 
   /// No description provided for @refresh.
@@ -3331,7 +3331,7 @@ abstract class AppLocalizations {
   /// No description provided for @lockAdminRequired.
   ///
   /// In en, this message translates to:
-  /// **'Required for IT admins, who can change people, phones and records.'**
+  /// **'Required for IT admins, who can change people, devices and records.'**
   String get lockAdminRequired;
 
   /// No description provided for @lockOffTitle.
@@ -3355,7 +3355,7 @@ abstract class AppLocalizations {
   /// No description provided for @recoveryAction.
   ///
   /// In en, this message translates to:
-  /// **'Sign-in code for another phone'**
+  /// **'Sign-in code for another device'**
   String get recoveryAction;
 
   /// No description provided for @recoveryTitle.
@@ -3387,6 +3387,486 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This collector does not work in your areas. Ask the IT admin.'**
   String get recoveryNotYours;
+
+  /// No description provided for @showOnMap.
+  ///
+  /// In en, this message translates to:
+  /// **'Show on map'**
+  String get showOnMap;
+
+  /// No description provided for @deviceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Device'**
+  String get deviceTitle;
+
+  /// No description provided for @deviceActivated.
+  ///
+  /// In en, this message translates to:
+  /// **'Activated {when}'**
+  String deviceActivated(String when);
+
+  /// No description provided for @deviceCollectors.
+  ///
+  /// In en, this message translates to:
+  /// **'Collectors and testers on this device'**
+  String get deviceCollectors;
+
+  /// No description provided for @deviceCollectorsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'From what they sent. Someone added on the device who has not sent anything yet is not known here.'**
+  String get deviceCollectorsHint;
+
+  /// No description provided for @deviceNoCollectors.
+  ///
+  /// In en, this message translates to:
+  /// **'Nobody has sent anything from this device yet.'**
+  String get deviceNoCollectors;
+
+  /// No description provided for @deviceCollectorWork.
+  ///
+  /// In en, this message translates to:
+  /// **'{tests, plural, =1{1 test} other{{tests} tests}}, {sources, plural, =1{1 source} other{{sources} sources}}'**
+  String deviceCollectorWork(int tests, int sources);
+
+  /// No description provided for @deviceRecoveredHere.
+  ///
+  /// In en, this message translates to:
+  /// **'came back here with a code'**
+  String get deviceRecoveredHere;
+
+  /// No description provided for @collectorShowArea.
+  ///
+  /// In en, this message translates to:
+  /// **'Their area on the map'**
+  String get collectorShowArea;
+
+  /// No description provided for @collectorSources.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Sources added} =1{1 source added} other{{count} sources added}}'**
+  String collectorSources(int count);
+
+  /// No description provided for @collectorNoSources.
+  ///
+  /// In en, this message translates to:
+  /// **'No source added by them on record here.'**
+  String get collectorNoSources;
+
+  /// No description provided for @collectorTests.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Tests} =1{1 test} other{{count} tests}}'**
+  String collectorTests(int count);
+
+  /// No description provided for @collectorNoTests.
+  ///
+  /// In en, this message translates to:
+  /// **'No test by them in your areas yet.'**
+  String get collectorNoTests;
+
+  /// No description provided for @testDistance.
+  ///
+  /// In en, this message translates to:
+  /// **'{metres} m from the source'**
+  String testDistance(int metres);
+
+  /// No description provided for @testAwayReason.
+  ///
+  /// In en, this message translates to:
+  /// **'away: {reason}'**
+  String testAwayReason(String reason);
+
+  /// No description provided for @placesAssign.
+  ///
+  /// In en, this message translates to:
+  /// **'Who covers it'**
+  String get placesAssign;
+
+  /// No description provided for @placesNewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Added from devices} =1{1 place added from devices} other{{count} places added from devices}}'**
+  String placesNewTitle(int count);
+
+  /// No description provided for @placesNewHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Collectors typed these because they were not in the list. Accept them, fix their names, or look at them on the map.'**
+  String get placesNewHint;
+
+  /// No description provided for @placesNewNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing waiting.'**
+  String get placesNewNone;
+
+  /// No description provided for @placesNewBy.
+  ///
+  /// In en, this message translates to:
+  /// **'added by {name}'**
+  String placesNewBy(String name);
+
+  /// No description provided for @placesAccept.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept into the list'**
+  String get placesAccept;
+
+  /// No description provided for @placesAccepted.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is now in the list.'**
+  String placesAccepted(String name);
+
+  /// No description provided for @paramsFirstAt.
+  ///
+  /// In en, this message translates to:
+  /// **'First used at {source}: {value}'**
+  String paramsFirstAt(String source, String value);
+
+  /// No description provided for @paramsOpenSource.
+  ///
+  /// In en, this message translates to:
+  /// **'The source and its test'**
+  String get paramsOpenSource;
+
+  /// No description provided for @paramsOpenCollector.
+  ///
+  /// In en, this message translates to:
+  /// **'The collector'**
+  String get paramsOpenCollector;
+
+  /// No description provided for @chainAddExisting.
+  ///
+  /// In en, this message translates to:
+  /// **'An existing person'**
+  String get chainAddExisting;
+
+  /// No description provided for @chainAddStakeholder.
+  ///
+  /// In en, this message translates to:
+  /// **'A new stakeholder'**
+  String get chainAddStakeholder;
+
+  /// No description provided for @chainAddCollector.
+  ///
+  /// In en, this message translates to:
+  /// **'A new collector device (activation code)'**
+  String get chainAddCollector;
+
+  /// No description provided for @chainNoCandidates.
+  ///
+  /// In en, this message translates to:
+  /// **'Everyone active already covers this area.'**
+  String get chainNoCandidates;
+
+  /// No description provided for @chainAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} now covers {area}.'**
+  String chainAdded(String name, String area);
+
+  /// No description provided for @ledgerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Codes and accounts'**
+  String get ledgerTitle;
+
+  /// No description provided for @ledgerMenuHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Every activation code and account made, and who and what used them'**
+  String get ledgerMenuHint;
+
+  /// No description provided for @ledgerHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Made by whom, for which area, and how each was used. The codes and passwords themselves are never kept.'**
+  String get ledgerHint;
+
+  /// No description provided for @ledgerCodes.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 activation code} other{{count} activation codes}}'**
+  String ledgerCodes(int count);
+
+  /// No description provided for @ledgerAccounts.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 account} other{{count} accounts}}'**
+  String ledgerAccounts(int count);
+
+  /// No description provided for @ledgerMadeBy.
+  ///
+  /// In en, this message translates to:
+  /// **'made by {name}, {when}'**
+  String ledgerMadeBy(String name, String when);
+
+  /// No description provided for @ledgerWithdrawn.
+  ///
+  /// In en, this message translates to:
+  /// **'withdrawn {when}'**
+  String ledgerWithdrawn(String when);
+
+  /// No description provided for @ledgerExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'expired'**
+  String get ledgerExpired;
+
+  /// No description provided for @ledgerUsedUp.
+  ///
+  /// In en, this message translates to:
+  /// **'used up'**
+  String get ledgerUsedUp;
+
+  /// No description provided for @ledgerNoDevices.
+  ///
+  /// In en, this message translates to:
+  /// **'No device has used this code yet.'**
+  String get ledgerNoDevices;
+
+  /// No description provided for @ledgerWithdraw.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdraw this code'**
+  String get ledgerWithdraw;
+
+  /// No description provided for @ledgerNotUsed.
+  ///
+  /// In en, this message translates to:
+  /// **'not used yet (temporary password never changed)'**
+  String get ledgerNotUsed;
+
+  /// No description provided for @ledgerLastSignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'last signed in {when}'**
+  String ledgerLastSignIn(String when);
+
+  /// No description provided for @photoOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open picture'**
+  String get photoOpen;
+
+  /// No description provided for @testNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'This test is not on this device yet. Sync, then try again.'**
+  String get testNotFound;
+
+  /// No description provided for @testUncalibrated.
+  ///
+  /// In en, this message translates to:
+  /// **'tester not calibrated'**
+  String get testUncalibrated;
+
+  /// No description provided for @testIsCorrection.
+  ///
+  /// In en, this message translates to:
+  /// **'a correction of an earlier result'**
+  String get testIsCorrection;
+
+  /// No description provided for @testReadings.
+  ///
+  /// In en, this message translates to:
+  /// **'Readings'**
+  String get testReadings;
+
+  /// No description provided for @testDetected.
+  ///
+  /// In en, this message translates to:
+  /// **'{value, select, true{Found} other{Not found}}'**
+  String testDetected(String value);
+
+  /// No description provided for @testAcceptable.
+  ///
+  /// In en, this message translates to:
+  /// **'{value, select, true{Acceptable} other{Not acceptable}}'**
+  String testAcceptable(String value);
+
+  /// No description provided for @testContextTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Where and how it was tested'**
+  String get testContextTitle;
+
+  /// No description provided for @testNoLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'No location recorded'**
+  String get testNoLocation;
+
+  /// No description provided for @testAccuracy.
+  ///
+  /// In en, this message translates to:
+  /// **'location within {metres} m'**
+  String testAccuracy(int metres);
+
+  /// No description provided for @testFarReason.
+  ///
+  /// In en, this message translates to:
+  /// **'away from the source because: {reason}'**
+  String testFarReason(String reason);
+
+  /// No description provided for @testNoPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'No test picture: {reason}'**
+  String testNoPhoto(String reason);
+
+  /// No description provided for @testNoInspection.
+  ///
+  /// In en, this message translates to:
+  /// **'Surroundings not checked'**
+  String get testNoInspection;
+
+  /// No description provided for @testInspection.
+  ///
+  /// In en, this message translates to:
+  /// **'Surroundings checked {date}: {count, plural, =0{no risks found} =1{1 risk found} other{{count} risks found}}'**
+  String testInspection(String date, int count);
+
+  /// No description provided for @testPictures.
+  ///
+  /// In en, this message translates to:
+  /// **'Pictures of the test'**
+  String get testPictures;
+
+  /// No description provided for @sourcePictures.
+  ///
+  /// In en, this message translates to:
+  /// **'Pictures of the source'**
+  String get sourcePictures;
+
+  /// No description provided for @testOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open this test'**
+  String get testOpen;
+
+  /// No description provided for @noPhotoCameraBroken.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera not working'**
+  String get noPhotoCameraBroken;
+
+  /// No description provided for @noPhotoNotAllowed.
+  ///
+  /// In en, this message translates to:
+  /// **'Pictures not allowed here'**
+  String get noPhotoNotAllowed;
+
+  /// No description provided for @noPhotoTooDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Too dark to see'**
+  String get noPhotoTooDark;
+
+  /// No description provided for @typedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Typed list values'**
+  String get typedTitle;
+
+  /// No description provided for @typedMenuHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Source and collector types typed under \"Other\"; add them to the shared list'**
+  String get typedMenuHint;
+
+  /// No description provided for @typedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Collectors type a value when the list has nothing that fits. It is used at once on their device. Add it here to offer it on every device after the next sync; records that already hold it keep it.'**
+  String get typedHint;
+
+  /// No description provided for @typedNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing typed under \"Other\" yet.'**
+  String get typedNone;
+
+  /// No description provided for @typedList.
+  ///
+  /// In en, this message translates to:
+  /// **'{list, select, source_types{Source type} collector_types{Collector type} other{List}}'**
+  String typedList(String list);
+
+  /// No description provided for @typedUses.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{used once} other{used {count} times}}'**
+  String typedUses(int count);
+
+  /// No description provided for @typedFirstSeen.
+  ///
+  /// In en, this message translates to:
+  /// **'first {date}'**
+  String typedFirstSeen(String date);
+
+  /// No description provided for @typedAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to the list'**
+  String get typedAdd;
+
+  /// No description provided for @typedAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'\"{value}\" is now in the shared list.'**
+  String typedAdded(String value);
+
+  /// No description provided for @messagesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Messages'**
+  String get messagesTitle;
+
+  /// No description provided for @messagesUnread.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Messages: 1 new} other{Messages: {count} new}}'**
+  String messagesUnread(int count);
+
+  /// No description provided for @messagesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Conversations with collectors about tests, sources, collectors and areas. No SMS or email: everyone reads them in the apps.'**
+  String get messagesHint;
+
+  /// No description provided for @messagesNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No messages yet.'**
+  String get messagesNone;
+
+  /// No description provided for @messagesEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No messages yet. Write to the collectors here; they read it in Collect after their next sync.'**
+  String get messagesEmpty;
+
+  /// No description provided for @messagesAbout.
+  ///
+  /// In en, this message translates to:
+  /// **'{kind, select, test{Test} source{Source} collector{Collector} area{Area} other{Thread}}'**
+  String messagesAbout(String kind);
+
+  /// No description provided for @messagesOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'{kind, select, test{Open the test} source{Open the source} collector{Open the collector} area{Open Places} other{Open}}'**
+  String messagesOpen(String kind);
+
+  /// No description provided for @messagesSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Messages'**
+  String get messagesSectionTitle;
 }
 
 class _AppLocalizationsDelegate

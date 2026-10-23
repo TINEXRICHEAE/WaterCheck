@@ -28,6 +28,7 @@ dependencies:
     path: ../../packages/api_client
   flutter_map: 8.3.2
   latlong2: 0.10.1
+  drift: ^2.35.2
   sqlite3: 3.7.0
   path_provider: 2.1.6
   geolocator: 14.1.1
@@ -40,7 +41,6 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
-  drift: ^2.35.2
 
 flutter:
   uses-material-design: true

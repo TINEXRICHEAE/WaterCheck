@@ -129,6 +129,24 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
 
 typedef _Saved = ({String username, String? password});
 
+/// A new stakeholder (or IT admin) who covers [area]: the person dialog
+/// with the area filled in, then the temporary password, shown once.
+Future<void> newPersonIn(
+  BuildContext context,
+  WidgetRef ref,
+  AdminUnit area,
+) async {
+  final result = await showDialog<_Saved>(
+    context: context,
+    builder: (_) => _UserDialog(presetAreas: [area]),
+  );
+  if (result == null || !context.mounted) return;
+  ref.invalidate(adminUsersProvider);
+  if (result.password case final p?) {
+    await showCredentials(context, result.username, p);
+  }
+}
+
 /// The temporary password, shown once, to pass on in person, by SMS or by
 /// email; it must be changed at first sign-in (F-AUTH-6).
 Future<void> showCredentials(
@@ -173,9 +191,12 @@ Future<void> showCredentials(
 }
 
 class _UserDialog extends ConsumerStatefulWidget {
-  const _UserDialog({this.user});
+  const _UserDialog({this.user, this.presetAreas = const []});
 
   final UserOut? user;
+
+  /// A new person's first area (from "Who covers an area", ADR-022).
+  final List<AdminUnit> presetAreas;
 
   @override
   ConsumerState<_UserDialog> createState() => _UserDialogState();
@@ -193,6 +214,8 @@ class _UserDialogState extends ConsumerState<_UserDialog> {
   late var _active = u?.isActive ?? true;
   late List<({String id, String name, String level})> _areas = [
     for (final a in u?.areas ?? const <AreaOut>[])
+      (id: a.id, name: a.name, level: a.level),
+    for (final a in widget.presetAreas)
       (id: a.id, name: a.name, level: a.level),
   ];
   late final Set<String> _resp = {...?u?.responsibilities};

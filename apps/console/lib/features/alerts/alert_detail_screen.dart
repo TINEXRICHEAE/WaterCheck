@@ -7,8 +7,10 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../app/console_sync.dart';
+import '../../app/providers.dart';
 import '../../app/session.dart';
 import '../../l10n/app_localizations.dart';
+import '../messages/messages.dart';
 import 'alerts_screen.dart';
 
 typedef _Detail = ({
@@ -262,12 +264,34 @@ class _AlertDetailScreenState extends ConsumerState<AlertDetailScreen> {
                   ].join(' · '),
                 ),
               ),
+            // Replies to the collector go in the test's thread (ADR-022);
+            // the response card stays the automatic guidance.
+            if (a.triggerResultId case final resultId?)
+              if (ref.watch(_sessionOfProvider(resultId)).value
+                  case final sessionId?) ...[
+                const Divider(height: 32),
+                Text(l10n.messagesSectionTitle, style: text.titleMedium),
+                const SizedBox(height: 8),
+                ThreadSection(kind: ThreadKind.test, subjectId: sessionId),
+              ],
           ],
         );
       },
     );
   }
 }
+
+/// The test session a result belongs to.
+final _sessionOfProvider = FutureProvider.autoDispose.family<String?, String>((
+  ref,
+  resultId,
+) async {
+  final db = ref.watch(databaseProvider);
+  final r = await (db.select(
+    db.testResults,
+  )..where((t) => t.id.equals(resultId))).getSingleOrNull();
+  return r?.sessionId;
+});
 
 class _NoteDialog extends StatefulWidget {
   const _NoteDialog({

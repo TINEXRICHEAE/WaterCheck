@@ -4,12 +4,15 @@ import 'package:dio/dio.dart';
 import 'package:domain/domain.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:ui_kit/ui_kit.dart';
 
 import '../../app/console_sync.dart';
 import '../../app/providers.dart';
 import '../../l10n/app_localizations.dart';
 import '../dashboard/dashboard_state.dart';
+import '../map/sources_map.dart' show showAreaOnMap;
 import 'admin_api.dart';
 import 'area_picker.dart';
 
@@ -177,6 +180,23 @@ class _PlacesScreenState extends ConsumerState<PlacesScreen> {
                   icon: const Icon(Icons.edit_outlined),
                   label: Text(l10n.placesRename),
                 ),
+              // The place on the map, and who covers it (ADR-022).
+              OutlinedButton.icon(
+                onPressed: () => showAreaOnMap(context, ref, area.id),
+                icon: const Icon(Icons.map_outlined),
+                label: Text(l10n.showOnMap),
+              ),
+              OutlinedButton.icon(
+                onPressed: () => context.go('/admin/chain?area=${area.id}'),
+                icon: const Icon(Icons.person_add_alt),
+                label: Text(l10n.placesAssign),
+              ),
+              OutlinedButton.icon(
+                onPressed: () =>
+                    context.go('/dashboard/messages/area/${area.id}'),
+                icon: const Icon(Icons.forum_outlined),
+                label: Text(l10n.messagesSectionTitle),
+              ),
             ],
           ),
           const SizedBox(height: 16),
@@ -219,6 +239,114 @@ class _PlacesScreenState extends ConsumerState<PlacesScreen> {
             ],
           ),
         ],
+        const Divider(height: 32),
+        _NewPlaces(
+          onRename: (p) => _rename((
+            id: p.id,
+            code: p.code,
+            level: p.level,
+            name: p.name,
+            parentId: null,
+            lat: null,
+            lon: null,
+          )),
+        ),
+      ],
+    );
+  }
+}
+
+final _newPlacesProvider = FutureProvider.autoDispose<List<NewPlace>>((ref) {
+  ref.watch(dataVersionProvider);
+  return ref.watch(adminApiProvider).admin.newPlaces();
+});
+
+/// Places added from devices (ADR-019), for the IT admin to accept into
+/// the list, rename or look at on the map.
+class _NewPlaces extends ConsumerWidget {
+  const _NewPlaces({required this.onRename});
+
+  final void Function(NewPlace) onRename;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final when = DateFormat('d MMM y');
+    final places = ref.watch(_newPlacesProvider);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          l10n.placesNewTitle(places.value?.length ?? 0),
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
+        Text(l10n.placesNewHint),
+        ...places.when(
+          loading: () => [const LinearProgressIndicator()],
+          error: (e, _) => [
+            ErrorView(
+              error: e,
+              compact: true,
+              onRetry: () => ref.invalidate(_newPlacesProvider),
+            ),
+          ],
+          data: (list) => [
+            if (list.isEmpty) Text(l10n.placesNewNone),
+            for (final p in list)
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: const Icon(Icons.fiber_new_outlined),
+                title: Text('${p.name} (${l10n.areaLevel(p.level)})'),
+                subtitle: Text(
+                  [
+                    if (p.path.isNotEmpty) p.path,
+                    if (p.addedBy != null) l10n.placesNewBy(p.addedBy!),
+                    if (p.addedAt != null)
+                      when.format(WcTime.local(p.addedAt!, context)),
+                    l10n.collectorSources(p.sources),
+                  ].join(' · '),
+                ),
+                trailing: Wrap(
+                  spacing: 4,
+                  children: [
+                    IconButton(
+                      tooltip: l10n.showOnMap,
+                      icon: const Icon(Icons.map_outlined),
+                      onPressed: () => showAreaOnMap(context, ref, p.id),
+                    ),
+                    IconButton(
+                      tooltip: l10n.placesRename,
+                      icon: const Icon(Icons.edit_outlined),
+                      onPressed: () => onRename(p),
+                    ),
+                    IconButton(
+                      tooltip: l10n.placesAccept,
+                      icon: const Icon(Icons.check_circle_outline),
+                      onPressed: () async {
+                        final messenger = ScaffoldMessenger.of(context);
+                        try {
+                          await ref
+                              .read(adminApiProvider)
+                              .admin
+                              .markPlaceOfficial(areaId: p.id);
+                          ref.invalidate(_newPlacesProvider);
+                          messenger.showSnackBar(
+                            SnackBar(
+                              content: Text(l10n.placesAccepted(p.name)),
+                            ),
+                          );
+                        } on Object {
+                          messenger.showSnackBar(
+                            SnackBar(content: Text(l10n.adminNeedsConnection)),
+                          );
+                        }
+                      },
+                    ),
+                  ],
+                ),
+              ),
+          ],
+        ),
       ],
     );
   }

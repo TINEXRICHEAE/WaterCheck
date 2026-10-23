@@ -2,6 +2,7 @@ import 'package:api_client/api_client.dart';
 import 'package:domain/domain.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:ui_kit/ui_kit.dart';
 
 import '../../app/console_sync.dart';
@@ -81,6 +82,34 @@ class ParametersScreen extends ConsumerWidget {
                           p.collectorName ?? l10n.systemAuditSystem,
                           p.readings,
                         ),
+                      ),
+                      // Where it came from, to review it in context
+                      // before deciding (ADR-022).
+                      if (p.sourceName != null)
+                        Text(
+                          l10n.paramsFirstAt(
+                            p.sourceName!,
+                            p.firstValue ?? '–',
+                          ),
+                        ),
+                      Wrap(
+                        spacing: 8,
+                        children: [
+                          if (p.sourceId != null)
+                            TextButton.icon(
+                              onPressed: () =>
+                                  context.go('/sources/${p.sourceId}'),
+                              icon: const Icon(Icons.water_drop_outlined),
+                              label: Text(l10n.paramsOpenSource),
+                            ),
+                          if (p.collectorKey != null)
+                            TextButton.icon(
+                              onPressed: () =>
+                                  context.go('/collectors/${p.collectorKey}'),
+                              icon: const Icon(Icons.person_outline),
+                              label: Text(l10n.paramsOpenCollector),
+                            ),
+                        ],
                       ),
                       const SizedBox(height: 8),
                       Wrap(

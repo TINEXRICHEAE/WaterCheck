@@ -64,7 +64,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get adminMoreHint =>
-      'Changes here reach the phones with their next sync.';
+      'Changes here reach the devices with their next sync.';
 
   @override
   String get startupFailed =>
@@ -219,7 +219,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get recentTitle => 'Latest tests';
 
   @override
-  String get recentHint => 'Synced from Collect phones in your areas.';
+  String get recentHint => 'Synced from Collect devices in your areas.';
 
   @override
   String get recentEmpty => 'No tests have reached this device yet.';
@@ -777,14 +777,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String conflictBody(String phone, String current) {
-    return 'A phone set the working status to \"$phone\", but it is now \"$current\" from a newer change. Which is right?';
+    return 'A device set the working status to \"$phone\", but it is now \"$current\" from a newer change. Which is right?';
   }
 
   @override
   String get conflictKeep => 'Keep current';
 
   @override
-  String get conflictUsePhone => 'Use the phone\'s value';
+  String get conflictUsePhone => 'Use the device\'s value';
 
   @override
   String get conflictActive => 'In use';
@@ -1124,7 +1124,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get adminNeedsConnection =>
-      'Managing people and phones needs a connection to the server.';
+      'Managing people and devices needs a connection to the server.';
 
   @override
   String areaLevel(String level) {
@@ -1163,11 +1163,11 @@ class AppLocalizationsEn extends AppLocalizations {
       'Create stakeholders and IT admins at any level, reset passwords, disable accounts.';
 
   @override
-  String get adminPhones => 'Collect phones';
+  String get adminPhones => 'Collect devices';
 
   @override
   String get adminPhonesHint =>
-      'Activation codes, phones in use, revoking a lost phone.';
+      'Activation codes, devices in use, revoking a lost device.';
 
   @override
   String get adminChain => 'Who covers an area';
@@ -1281,14 +1281,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get credentialsDone => 'Done';
 
   @override
-  String get phonesTitle => 'Collect phones';
+  String get phonesTitle => 'Collect devices';
 
   @override
   String get phonesHint =>
-      'Phones activated with a code for an area. Revoke a lost or stolen phone: it stops syncing and locks itself.';
+      'Devices activated with a code for an area. Revoke a lost or stolen device: it stops syncing and locks itself.';
 
   @override
-  String get phonesNone => 'No phones activated yet.';
+  String get phonesNone => 'No devices activated yet.';
 
   @override
   String get phonesNewCode => 'New activation code';
@@ -1315,7 +1315,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get phonesRevoke => 'Revoke';
 
   @override
-  String get phonesRevokeTitle => 'Revoke this phone?';
+  String get phonesRevokeTitle => 'Revoke this device?';
 
   @override
   String get phonesRevokeHint =>
@@ -1329,7 +1329,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String phonesCodeLine(int used, int max, String until) {
-    return '$used of $max phones · valid until $until';
+    return '$used of $max devices · valid until $until';
   }
 
   @override
@@ -1339,7 +1339,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String phonesMax(int n) {
-    return 'Up to $n phones';
+    return 'Up to $n devices';
   }
 
   @override
@@ -1357,7 +1357,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get phonesCodeHint =>
-      'Shown only now. On the phone, open WaterCheck Collect and scan the QR code or type the code.';
+      'Shown only now. On the device, open WaterCheck Collect and scan the QR code or type the code.';
 
   @override
   String get phonesQrLabel => 'Activation QR code';
@@ -1391,7 +1391,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get limitSetsHintAdmin =>
-      'Published and custom sets. Only stakeholders create custom sets (in the Console, or on a phone at calibration after signing in).';
+      'Published and custom sets. Only stakeholders create custom sets (in the Console, or on a device at calibration after signing in).';
 
   @override
   String get limitSetsNew => 'New custom limit set';
@@ -1494,7 +1494,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get systemAuditHint =>
-      'Every change by a person or phone, newest first. Filter by action (for example user. or reference_profile.) and dates.';
+      'Every change by a person or device, newest first. Filter by action (for example user. or reference_profile.) and dates.';
 
   @override
   String get systemAuditAction => 'Action starts with';
@@ -1546,7 +1546,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get healthFailed => 'Failures (24 h)';
 
   @override
-  String get healthPhones => 'Phones active (7 days)';
+  String get healthPhones => 'Devices active (7 days)';
 
   @override
   String healthPhonesValue(int active, int total) {
@@ -1657,7 +1657,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get placesHint =>
-      'The official list ends at sub-county. Add parishes and villages below it, fix names, and choose the limit set phones in an area start with.';
+      'The official list ends at sub-county. Add parishes and villages below it, fix names, and choose the limit set devices in an area start with.';
 
   @override
   String get placesAdd => 'Add a place below';
@@ -1695,7 +1695,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get placesDefaultHint =>
-      'Phones in this area, and the areas below it, start with this set. Tests already taken keep the set they were judged by.';
+      'Devices in this area, and the areas below it, start with this set. Tests already taken keep the set they were judged by.';
 
   @override
   String get placesInherit => 'Same as the area above';
@@ -1751,7 +1751,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cardsHint =>
-      'Shown to collectors after a result. Each save makes a new version; phones get it with their next sync.';
+      'Shown to collectors after a result. Each save makes a new version; devices get it with their next sync.';
 
   @override
   String cardsVersion(int v) {
@@ -1827,7 +1827,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get adminArchivedHint =>
-      'Phones, collectors, sources and tests that were archived; restore them here';
+      'Devices, collectors, sources and tests that were archived; restore them here';
 
   @override
   String get archiveAction => 'Archive…';
@@ -1849,7 +1849,7 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String archiveCascade(String entity) {
     String _temp0 = intl.Intl.selectLogic(entity, {
-      'installation': 'The phone is revoked, and its collectors, their tests and the sources only they used are archived too.',
+      'installation': 'The device is revoked, and its collectors, their tests and the sources only they used are archived too.',
       'collector': 'Their tests and the sources only they used are archived too. Sources others have tested stay.',
       'water_source': 'Its tests and alerts are archived too.',
       'test_session': 'Its results and alerts are archived too.',
@@ -1860,7 +1860,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get archiveRestorable =>
-      'Archived records disappear from lists, maps, dashboards, reports and phones. Nothing is deleted: Admin › Archived can restore them.';
+      'Archived records disappear from lists, maps, dashboards, reports and devices. Nothing is deleted: Admin › Archived can restore them.';
 
   @override
   String get archiveReason => 'Reason';
@@ -1938,11 +1938,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get archiveRestoreBody =>
-      'Everything this action archived comes back to lists, dashboards, reports and phones.';
+      'Everything this action archived comes back to lists, dashboards, reports and devices.';
 
   @override
   String get archiveRestorePhone =>
-      'Its records come back. The phone itself stays revoked: issue a new activation code to use it again.';
+      'Its records come back. The device itself stays revoked: issue a new activation code to use it again.';
 
   @override
   String get archiveRestored => 'Restored';
@@ -1951,10 +1951,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get moreActions => 'More actions';
 
   @override
-  String get phonesName => 'Name this phone';
+  String get phonesName => 'Name this device';
 
   @override
-  String get phonesNameHint => 'e.g. Nalongo\'s phone';
+  String get phonesNameHint => 'e.g. Health centre tablet';
 
   @override
   String get trailTitle => 'Edit history';
@@ -1984,7 +1984,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'lat': 'Latitude',
       'lon': 'Longitude',
       'location_accuracy_m': 'GPS accuracy',
-      'label': 'Phone name',
+      'label': 'Device name',
       'full_name': 'Full name',
       'phone': 'Phone',
       'collector_type': 'Role',
@@ -2055,7 +2055,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get lockAdminRequired =>
-      'Required for IT admins, who can change people, phones and records.';
+      'Required for IT admins, who can change people, devices and records.';
 
   @override
   String get lockOffTitle => 'Turn off the PIN?';
@@ -2068,7 +2068,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get lockOffConfirm => 'Turn off';
 
   @override
-  String get recoveryAction => 'Sign-in code for another phone';
+  String get recoveryAction => 'Sign-in code for another device';
 
   @override
   String recoveryTitle(String name) {
@@ -2090,4 +2090,403 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get recoveryNotYours =>
       'This collector does not work in your areas. Ask the IT admin.';
+
+  @override
+  String get showOnMap => 'Show on map';
+
+  @override
+  String get deviceTitle => 'Device';
+
+  @override
+  String deviceActivated(String when) {
+    return 'Activated $when';
+  }
+
+  @override
+  String get deviceCollectors => 'Collectors and testers on this device';
+
+  @override
+  String get deviceCollectorsHint =>
+      'From what they sent. Someone added on the device who has not sent anything yet is not known here.';
+
+  @override
+  String get deviceNoCollectors =>
+      'Nobody has sent anything from this device yet.';
+
+  @override
+  String deviceCollectorWork(int tests, int sources) {
+    String _temp0 = intl.Intl.pluralLogic(
+      tests,
+      locale: localeName,
+      other: '$tests tests',
+      one: '1 test',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      sources,
+      locale: localeName,
+      other: '$sources sources',
+      one: '1 source',
+    );
+    return '$_temp0, $_temp1';
+  }
+
+  @override
+  String get deviceRecoveredHere => 'came back here with a code';
+
+  @override
+  String get collectorShowArea => 'Their area on the map';
+
+  @override
+  String collectorSources(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count sources added',
+      one: '1 source added',
+      zero: 'Sources added',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get collectorNoSources => 'No source added by them on record here.';
+
+  @override
+  String collectorTests(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count tests',
+      one: '1 test',
+      zero: 'Tests',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get collectorNoTests => 'No test by them in your areas yet.';
+
+  @override
+  String testDistance(int metres) {
+    return '$metres m from the source';
+  }
+
+  @override
+  String testAwayReason(String reason) {
+    return 'away: $reason';
+  }
+
+  @override
+  String get placesAssign => 'Who covers it';
+
+  @override
+  String placesNewTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count places added from devices',
+      one: '1 place added from devices',
+      zero: 'Added from devices',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get placesNewHint =>
+      'Collectors typed these because they were not in the list. Accept them, fix their names, or look at them on the map.';
+
+  @override
+  String get placesNewNone => 'Nothing waiting.';
+
+  @override
+  String placesNewBy(String name) {
+    return 'added by $name';
+  }
+
+  @override
+  String get placesAccept => 'Accept into the list';
+
+  @override
+  String placesAccepted(String name) {
+    return '$name is now in the list.';
+  }
+
+  @override
+  String paramsFirstAt(String source, String value) {
+    return 'First used at $source: $value';
+  }
+
+  @override
+  String get paramsOpenSource => 'The source and its test';
+
+  @override
+  String get paramsOpenCollector => 'The collector';
+
+  @override
+  String get chainAddExisting => 'An existing person';
+
+  @override
+  String get chainAddStakeholder => 'A new stakeholder';
+
+  @override
+  String get chainAddCollector => 'A new collector device (activation code)';
+
+  @override
+  String get chainNoCandidates => 'Everyone active already covers this area.';
+
+  @override
+  String chainAdded(String name, String area) {
+    return '$name now covers $area.';
+  }
+
+  @override
+  String get ledgerTitle => 'Codes and accounts';
+
+  @override
+  String get ledgerMenuHint =>
+      'Every activation code and account made, and who and what used them';
+
+  @override
+  String get ledgerHint =>
+      'Made by whom, for which area, and how each was used. The codes and passwords themselves are never kept.';
+
+  @override
+  String ledgerCodes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count activation codes',
+      one: '1 activation code',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String ledgerAccounts(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count accounts',
+      one: '1 account',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String ledgerMadeBy(String name, String when) {
+    return 'made by $name, $when';
+  }
+
+  @override
+  String ledgerWithdrawn(String when) {
+    return 'withdrawn $when';
+  }
+
+  @override
+  String get ledgerExpired => 'expired';
+
+  @override
+  String get ledgerUsedUp => 'used up';
+
+  @override
+  String get ledgerNoDevices => 'No device has used this code yet.';
+
+  @override
+  String get ledgerWithdraw => 'Withdraw this code';
+
+  @override
+  String get ledgerNotUsed => 'not used yet (temporary password never changed)';
+
+  @override
+  String ledgerLastSignIn(String when) {
+    return 'last signed in $when';
+  }
+
+  @override
+  String get photoOpen => 'Open picture';
+
+  @override
+  String get testNotFound =>
+      'This test is not on this device yet. Sync, then try again.';
+
+  @override
+  String get testUncalibrated => 'tester not calibrated';
+
+  @override
+  String get testIsCorrection => 'a correction of an earlier result';
+
+  @override
+  String get testReadings => 'Readings';
+
+  @override
+  String testDetected(String value) {
+    String _temp0 = intl.Intl.selectLogic(value, {
+      'true': 'Found',
+      'other': 'Not found',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String testAcceptable(String value) {
+    String _temp0 = intl.Intl.selectLogic(value, {
+      'true': 'Acceptable',
+      'other': 'Not acceptable',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get testContextTitle => 'Where and how it was tested';
+
+  @override
+  String get testNoLocation => 'No location recorded';
+
+  @override
+  String testAccuracy(int metres) {
+    return 'location within $metres m';
+  }
+
+  @override
+  String testFarReason(String reason) {
+    return 'away from the source because: $reason';
+  }
+
+  @override
+  String testNoPhoto(String reason) {
+    return 'No test picture: $reason';
+  }
+
+  @override
+  String get testNoInspection => 'Surroundings not checked';
+
+  @override
+  String testInspection(String date, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count risks found',
+      one: '1 risk found',
+      zero: 'no risks found',
+    );
+    return 'Surroundings checked $date: $_temp0';
+  }
+
+  @override
+  String get testPictures => 'Pictures of the test';
+
+  @override
+  String get sourcePictures => 'Pictures of the source';
+
+  @override
+  String get testOpen => 'Open this test';
+
+  @override
+  String get noPhotoCameraBroken => 'Camera not working';
+
+  @override
+  String get noPhotoNotAllowed => 'Pictures not allowed here';
+
+  @override
+  String get noPhotoTooDark => 'Too dark to see';
+
+  @override
+  String get typedTitle => 'Typed list values';
+
+  @override
+  String get typedMenuHint =>
+      'Source and collector types typed under \"Other\"; add them to the shared list';
+
+  @override
+  String get typedHint =>
+      'Collectors type a value when the list has nothing that fits. It is used at once on their device. Add it here to offer it on every device after the next sync; records that already hold it keep it.';
+
+  @override
+  String get typedNone => 'Nothing typed under \"Other\" yet.';
+
+  @override
+  String typedList(String list) {
+    String _temp0 = intl.Intl.selectLogic(list, {
+      'source_types': 'Source type',
+      'collector_types': 'Collector type',
+      'other': 'List',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String typedUses(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'used $count times',
+      one: 'used once',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String typedFirstSeen(String date) {
+    return 'first $date';
+  }
+
+  @override
+  String get typedAdd => 'Add to the list';
+
+  @override
+  String typedAdded(String value) {
+    return '\"$value\" is now in the shared list.';
+  }
+
+  @override
+  String get messagesTitle => 'Messages';
+
+  @override
+  String messagesUnread(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Messages: $count new',
+      one: 'Messages: 1 new',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get messagesHint =>
+      'Conversations with collectors about tests, sources, collectors and areas. No SMS or email: everyone reads them in the apps.';
+
+  @override
+  String get messagesNone => 'No messages yet.';
+
+  @override
+  String get messagesEmpty =>
+      'No messages yet. Write to the collectors here; they read it in Collect after their next sync.';
+
+  @override
+  String messagesAbout(String kind) {
+    String _temp0 = intl.Intl.selectLogic(kind, {
+      'test': 'Test',
+      'source': 'Source',
+      'collector': 'Collector',
+      'area': 'Area',
+      'other': 'Thread',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String messagesOpen(String kind) {
+    String _temp0 = intl.Intl.selectLogic(kind, {
+      'test': 'Open the test',
+      'source': 'Open the source',
+      'collector': 'Open the collector',
+      'area': 'Open Places',
+      'other': 'Open',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get messagesSectionTitle => 'Messages';
 }

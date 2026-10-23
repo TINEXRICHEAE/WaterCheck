@@ -103,6 +103,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       padding: const EdgeInsets.all(16),
       children: [
         Text(l10n.profileTitle, style: text.headlineSmall),
+        const InstallAppTile(),
         const SizedBox(height: 12),
         ListTile(
           contentPadding: EdgeInsets.zero,

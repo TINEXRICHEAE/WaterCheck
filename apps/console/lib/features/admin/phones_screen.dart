@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:ui_kit/ui_kit.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:qr/qr.dart';
 
@@ -26,7 +27,7 @@ class PhonesScreen extends ConsumerWidget {
     final when = DateFormat('d MMM y, HH:mm');
     return Scaffold(
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _newCode(context, ref),
+        onPressed: () => issueActivationCode(context, ref),
         icon: const Icon(Icons.qr_code_2),
         label: Text(l10n.phonesNewCode),
       ),
@@ -83,6 +84,8 @@ class PhonesScreen extends ConsumerWidget {
                       ].where((s) => s.isNotEmpty).join('\n'),
                     ),
                     isThreeLine: true,
+                    // The device's page: who used it (ADR-022).
+                    onTap: () => context.go('/admin/phones/${p.id}'),
                     trailing: PopupMenuButton<String>(
                       tooltip: l10n.moreActions,
                       onSelected: (a) => switch (a) {
@@ -233,41 +236,52 @@ class PhonesScreen extends ConsumerWidget {
         .revokeInstallation(installationId: p.id);
     ref.invalidate(adminInstallationsProvider);
   }
+}
 
-  Future<void> _newCode(BuildContext context, WidgetRef ref) async {
-    final l10n = AppLocalizations.of(context);
+/// A new activation code, for [area] or a picked one ("Who covers an
+/// area" passes the area, ADR-022); shown once with its QR code.
+Future<void> issueActivationCode(
+  BuildContext context,
+  WidgetRef ref, {
+  AdminUnit? area,
+}) async {
+  final l10n = AppLocalizations.of(context);
+  final AdminUnit at;
+  if (area != null) {
+    at = area;
+  } else {
     final picked = await pickAreas(context, multiple: false);
     if (picked == null || picked.isEmpty || !context.mounted) return;
-    final area = picked.single;
-    final settings = await showDialog<({int max, int days})>(
-      context: context,
-      builder: (_) => _CodeSettings(area: area),
-    );
-    if (settings == null || !context.mounted) return;
-    try {
-      final issued = await ref
-          .read(adminApiProvider)
-          .installations
-          .newActivationCode(
-            body: NewCodeRequest(
-              areaCode: area.code,
-              maxInstallations: settings.max,
-              expiresInDays: settings.days,
-            ),
-          );
-      ref.invalidate(adminCodesProvider);
-      if (!context.mounted) return;
-      await showDialog<void>(
-        context: context,
-        barrierDismissible: false,
-        builder: (_) => _CodeShown(area: area, issued: issued),
-      );
-    } on Object catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.usersFailed(ApiFailure.from(e).code))),
+    at = picked.single;
+  }
+  final settings = await showDialog<({int max, int days})>(
+    context: context,
+    builder: (_) => _CodeSettings(area: at),
+  );
+  if (settings == null || !context.mounted) return;
+  try {
+    final issued = await ref
+        .read(adminApiProvider)
+        .installations
+        .newActivationCode(
+          body: NewCodeRequest(
+            areaCode: at.code,
+            maxInstallations: settings.max,
+            expiresInDays: settings.days,
+          ),
         );
-      }
+    ref.invalidate(adminCodesProvider);
+    if (!context.mounted) return;
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => _CodeShown(area: at, issued: issued),
+    );
+  } on Object catch (e) {
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.usersFailed(ApiFailure.from(e).code))),
+      );
     }
   }
 }

@@ -192,7 +192,7 @@ void main() {
     // Phones: revoke one.
     await tester.tap(find.text('Admin').last);
     await settle(tester);
-    await tester.tap(find.text('Collect phones'));
+    await tester.tap(find.text('Collect devices'));
     await settle(tester);
     expect(find.textContaining('2 collectors, 14 tests'), findsOneWidget);
     await tester.tap(find.byTooltip('More actions'));
@@ -212,7 +212,7 @@ void main() {
     await settle(tester);
     await tester.tap(find.text('Archive…'));
     await settle(tester);
-    expect(find.textContaining('The phone is revoked'), findsOneWidget);
+    expect(find.textContaining('The device is revoked'), findsOneWidget);
     await tester.enterText(
       find.widgetWithText(TextField, 'Reason'),
       'test phone',
@@ -232,6 +232,8 @@ void main() {
     await tester.tap(find.text('Admin').last);
     await settle(tester);
     await tester.scrollUntilVisible(find.text('Archived'), 100);
+    await tester.ensureVisible(find.text('Archived'));
+    await settle(tester);
     await tester.tap(find.text('Archived'));
     await settle(tester);
     expect(find.text('K7QM'), findsOneWidget);

@@ -1,4 +1,4 @@
-import 'package:data/data.dart' show SyncFailureKind;
+import 'package:data/data.dart' show SyncFailureKind, ThreadKind;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -6,6 +6,10 @@ import 'package:ui_kit/ui_kit.dart';
 
 import '../features/admin/admin_screen.dart';
 import '../features/admin/archived_screen.dart';
+import '../features/admin/credentials_screen.dart';
+import '../features/admin/typed_values_screen.dart';
+import '../features/admin/device_screen.dart';
+import '../features/collectors/collector_screen.dart';
 import '../features/admin/system_screen.dart';
 import '../features/admin/security_screen.dart';
 import '../features/admin/routing_screen.dart';
@@ -28,11 +32,13 @@ import '../features/limits/limit_sets_screen.dart';
 import '../features/profile/profile_screen.dart';
 import '../features/reports/reports_screen.dart';
 import '../features/sources/source_detail_screen.dart';
+import '../features/sources/test_detail_screen.dart';
 import '../features/sources/sources_screen.dart';
 import 'console_sync.dart';
 import '../l10n/app_localizations.dart';
 import 'providers.dart';
 import 'session.dart';
+import '../features/messages/messages.dart';
 
 /// Shown in "About" (pubspec version).
 const consoleVersion = '0.1.1';
@@ -97,6 +103,21 @@ final routerProvider = Provider<GoRouter>((ref) {
                     builder: (_, _) => const ProfileScreen(),
                   ),
                   GoRoute(
+                    path: 'messages',
+                    builder: (_, _) => const MessagesScreen(),
+                    routes: [
+                      GoRoute(
+                        path: ':kind/:id',
+                        builder: (_, state) => ThreadScreen(
+                          kind:
+                              ThreadKind.parse(state.pathParameters['kind']!) ??
+                              ThreadKind.source,
+                          subjectId: state.pathParameters['id']!,
+                        ),
+                      ),
+                    ],
+                  ),
+                  GoRoute(
                     path: 'limit-sets',
                     builder: (_, _) => const LimitSetsScreen(),
                   ),
@@ -115,6 +136,15 @@ final routerProvider = Provider<GoRouter>((ref) {
                     builder: (_, state) => SourceDetailScreen(
                       sourceId: state.pathParameters['id']!,
                     ),
+                    routes: [
+                      GoRoute(
+                        path: 'tests/:resultId',
+                        builder: (_, state) => TestDetailScreen(
+                          sourceId: state.pathParameters['id']!,
+                          resultId: state.pathParameters['resultId']!,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -140,6 +170,14 @@ final routerProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: '/collectors',
                 builder: (_, _) => const CollectorsScreen(),
+                routes: [
+                  GoRoute(
+                    path: ':key',
+                    builder: (_, state) => CollectorScreen(
+                      collectorKey: state.pathParameters['key']!,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -169,10 +207,20 @@ final routerProvider = Provider<GoRouter>((ref) {
                   GoRoute(
                     path: 'phones',
                     builder: (_, _) => const PhonesScreen(),
+                    routes: [
+                      GoRoute(
+                        path: ':id',
+                        builder: (_, state) => DeviceScreen(
+                          installationId: state.pathParameters['id']!,
+                        ),
+                      ),
+                    ],
                   ),
                   GoRoute(
                     path: 'chain',
-                    builder: (_, _) => const ChainScreen(),
+                    builder: (_, state) => ChainScreen(
+                      initialAreaId: state.uri.queryParameters['area'],
+                    ),
                   ),
                   GoRoute(
                     path: 'system',
@@ -195,8 +243,16 @@ final routerProvider = Provider<GoRouter>((ref) {
                     builder: (_, _) => const ParametersScreen(),
                   ),
                   GoRoute(
+                    path: 'typed-values',
+                    builder: (_, _) => const TypedValuesScreen(),
+                  ),
+                  GoRoute(
                     path: 'cards',
                     builder: (_, _) => const CardsScreen(),
+                  ),
+                  GoRoute(
+                    path: 'credentials',
+                    builder: (_, _) => const CredentialsScreen(),
                   ),
                   GoRoute(
                     path: 'archived',
@@ -278,13 +334,20 @@ class _ConsoleShell extends ConsumerWidget {
       ),
     );
     final parent = parentPath(path);
+    final wide = MediaQuery.sizeOf(context).width >= 520;
     return AdaptiveScaffold(
       title: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const AppLogo(size: 28, decorative: true),
-          const SizedBox(width: 10),
-          Flexible(child: Text(l10n.appTitle, overflow: TextOverflow.ellipsis)),
+          // On a phone the actions need the room; the logo says enough, and
+          // then names the app for screen readers.
+          AppLogo(size: 28, decorative: wide),
+          if (wide) ...[
+            const SizedBox(width: 10),
+            Flexible(
+              child: Text(l10n.appTitle, overflow: TextOverflow.ellipsis),
+            ),
+          ],
         ],
       ),
       onBack: parent == null ? null : () => context.go(parent),
@@ -298,6 +361,7 @@ class _ConsoleShell extends ConsumerWidget {
           rejected: sync?.rejected ?? 0,
         ),
         const _RefreshButton(),
+        const MessagesButton(),
         const InboxButton(),
         const _AccountButton(),
       ],
@@ -340,7 +404,19 @@ class _ConsoleShell extends ConsumerWidget {
             const _OfflineBanner()
           else if (lost)
             const _ConnectionLostBanner(),
-          Expanded(child: shell),
+          Expanded(
+            // Very large screens: pages keep a readable width, centred;
+            // the sources page (and its map) uses the whole screen.
+            child: path == '/sources'
+                ? shell
+                : Align(
+                    alignment: Alignment.topCenter,
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 1440),
+                      child: shell,
+                    ),
+                  ),
+          ),
         ],
       ),
     );

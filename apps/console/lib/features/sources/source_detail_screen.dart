@@ -1,8 +1,5 @@
-import 'dart:typed_data';
-
 import 'package:api_client/api_client.dart';
 import 'package:data/data.dart';
-import 'package:dio/dio.dart';
 import 'package:domain/domain.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -14,10 +11,14 @@ import '../../app/console_sync.dart';
 import '../../app/providers.dart';
 import '../../app/session.dart';
 import '../../l10n/app_localizations.dart';
+import '../map/sources_map.dart' show showSourceOnMap;
 import '../dashboard/dashboard_state.dart';
 import '../dashboard/filter_bar.dart';
 import '../admin/archive_actions.dart';
 import '../reports/notice_button.dart';
+import 'photos.dart';
+import 'type_labels.dart';
+import '../messages/messages.dart';
 
 typedef _Extras = ({
   List<PhotoSummary> photos,
@@ -53,24 +54,6 @@ final _conflictsProvider = FutureProvider.autoDispose
       }
     });
 
-/// Photo bytes from the server (online only; cached while the app runs).
-final _photoProvider = FutureProvider.family<Uint8List?, String>((
-  ref,
-  id,
-) async {
-  try {
-    final r = await ref
-        .watch(consoleDioProvider)
-        .get<List<int>>(
-          '/v1/attachments/$id/content',
-          options: Options(responseType: ResponseType.bytes),
-        );
-    return Uint8List.fromList(r.data!);
-  } catch (_) {
-    return null;
-  }
-});
-
 /// One source (SPEC P9): status, results under the chosen profile, history
 /// chart, photos, inspections, who submitted; stakeholders can update the
 /// source and flag a suspicious submission.
@@ -89,6 +72,10 @@ class SourceDetailScreen extends ConsumerWidget {
       return Center(child: Text(l10n.sourceNotFound));
     }
     final extras = ref.watch(_extrasProvider(sourceId)).value;
+    final sourcePhotos = [
+      for (final p in extras?.photos ?? const <PhotoSummary>[])
+        if (p.ofSource) p,
+    ];
     final when = DateFormat('d MMM y, HH:mm');
     final admin = ref.watch(sessionProvider).isAdmin;
     final collectors = {
@@ -98,7 +85,10 @@ class SourceDetailScreen extends ConsumerWidget {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
+        // Title, then the actions underneath, wrapping on narrow screens
+        // (2026-10-22: a phone squeezed the title to one letter per line).
         Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             StatusBadge(
               s.latest?.overall.display ?? SourceStatus.notTested,
@@ -111,15 +101,27 @@ class SourceDetailScreen extends ConsumerWidget {
                 style: text.titleLarge,
               ),
             ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
             FilledButton.tonalIcon(
               onPressed: () => _edit(context, ref, s),
               icon: const Icon(Icons.edit_outlined),
               label: Text(l10n.sourceUpdate),
             ),
-            const SizedBox(width: 8),
             NoticeButton(sourceId: s.id),
-            if (admin) ...[
-              const SizedBox(width: 8),
+            if (s.lat != null)
+              OutlinedButton.icon(
+                onPressed: () => showSourceOnMap(context, ref, s.id),
+                icon: const Icon(Icons.map_outlined),
+                label: Text(l10n.showOnMap),
+              ),
+            if (admin)
               IconButton(
                 tooltip: l10n.archiveSource,
                 icon: const Icon(Icons.archive_outlined),
@@ -136,13 +138,12 @@ class SourceDetailScreen extends ConsumerWidget {
                   }
                 },
               ),
-            ],
           ],
         ),
         const SizedBox(height: 8),
         Text(
           [
-            l10n.sourceType(s.sourceType),
+            sourceTypeLabel(l10n, s.sourceType),
             l10n.functionalStatus(s.functionalStatus),
             if (s.lat != null)
               '${s.lat!.toStringAsFixed(5)}, ${s.lon!.toStringAsFixed(5)}',
@@ -160,13 +161,8 @@ class SourceDetailScreen extends ConsumerWidget {
         for (final h in s.history)
           ListTile(
             contentPadding: EdgeInsets.zero,
-            // Tap: the corrections of this test, old → new (ADR-018).
-            onTap: () => showTrail(
-              context,
-              title: l10n.trailCorrections,
-              entity: 'test',
-              id: h.sessionId,
-            ),
+            // Tap: the whole test, with its corrections (ADR-022).
+            onTap: () => context.go('/sources/$sourceId/tests/${h.resultId}'),
             leading: StatusBadge(h.overall.display),
             title: Text(when.format(WcTime.local(h.testedAt, context))),
             subtitle: Text(
@@ -228,22 +224,12 @@ class SourceDetailScreen extends ConsumerWidget {
               ),
             ],
         const Divider(height: 32),
-        Text(l10n.photosTitle, style: text.titleMedium),
-        if (extras == null || extras.photos.isEmpty) Text(l10n.photosNone),
-        if (extras != null && extras.photos.isNotEmpty)
-          SizedBox(
-            height: 120,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              children: [
-                for (final p in extras.photos)
-                  Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: _Photo(attachment: p),
-                  ),
-              ],
-            ),
-          ),
+        // The source's own pictures here; each test's under the test.
+        Text(l10n.sourcePictures, style: text.titleMedium),
+        if (sourcePhotos.isEmpty)
+          Text(l10n.photosNone)
+        else
+          PhotoRow(photos: sourcePhotos, caption: l10n.sourcePictures),
         const Divider(height: 32),
         Text(l10n.inspectionsTitle, style: text.titleMedium),
         if (extras == null || extras.inspections.isEmpty)
@@ -255,6 +241,10 @@ class SourceDetailScreen extends ConsumerWidget {
             title: Text(when.format(WcTime.local(i.inspectedAt, context))),
             subtitle: Text(l10n.inspectionRisks(i.risks, i.answered)),
           ),
+        const Divider(height: 32),
+        Text(l10n.messagesSectionTitle, style: text.titleMedium),
+        const SizedBox(height: 8),
+        ThreadSection(kind: ThreadKind.source, subjectId: sourceId),
         const Divider(height: 32),
         Text(l10n.trailTitle, style: text.titleMedium),
         TrailList(entity: 'water_source', id: s.id),
@@ -376,42 +366,6 @@ class _ConflictCard extends ConsumerWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _Photo extends ConsumerWidget {
-  const _Photo({required this.attachment});
-
-  final PhotoSummary attachment;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context);
-    final bytes = attachment.uploaded
-        ? ref.watch(_photoProvider(attachment.id)).value
-        : null;
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(8),
-      child: SizedBox.square(
-        dimension: 120,
-        child: bytes != null
-            ? Image.memory(bytes, fit: BoxFit.cover, cacheWidth: 240)
-            : ColoredBox(
-                color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                child: Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(8),
-                    child: Text(
-                      attachment.uploaded
-                          ? l10n.photoNeedsConnection
-                          : l10n.photoNotUploaded,
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                ),
-              ),
       ),
     );
   }

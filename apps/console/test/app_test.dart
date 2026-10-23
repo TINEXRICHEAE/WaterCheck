@@ -204,6 +204,9 @@ void main() {
     expect(find.text('IT admin: all areas'), findsOneWidget);
     await tester.tap(find.text('Admin'));
     await settle(tester);
+    await tester.scrollUntilVisible(find.text('Reference data'), 100);
+    await tester.ensureVisible(find.text('Reference data'));
+    await settle(tester);
     await tester.tap(find.text('Reference data'));
     await settle(tester);
     expect(find.text('Reference profiles (2)'), findsOneWidget);

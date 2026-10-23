@@ -36,6 +36,33 @@ class MapFocus extends Notifier<String?> {
 
 final mapFocusProvider = NotifierProvider<MapFocus, String?>(MapFocus.new);
 
+/// An area the map should open on, chosen on another page.
+class MapAreaFocus extends Notifier<String?> {
+  @override
+  String? build() => null;
+
+  void focus(String? areaId) => state = areaId;
+}
+
+final mapAreaFocusProvider = NotifierProvider<MapAreaFocus, String?>(
+  MapAreaFocus.new,
+);
+
+/// Opens Sources › Map on an area (a collector's or a place, ADR-022).
+void showAreaOnMap(BuildContext context, WidgetRef ref, String areaId) {
+  ref.read(mapFocusProvider.notifier).focus(null);
+  ref.read(mapAreaFocusProvider.notifier).focus(areaId);
+  ref.read(sourcesQueryProvider.notifier).map(true);
+  context.go('/sources');
+}
+
+/// Opens Sources › Map flying to [sourceId] ("Show on map", 2026-10-22).
+void showSourceOnMap(BuildContext context, WidgetRef ref, String sourceId) {
+  ref.read(mapFocusProvider.notifier).focus(sourceId);
+  ref.read(sourcesQueryProvider.notifier).map(true);
+  context.go('/sources');
+}
+
 /// The area list, for the map search and the path to a chosen place.
 final _mapAreasProvider = FutureProvider<List<AdminUnit>>(
   (ref) => ref.watch(referenceDataRepositoryProvider).adminUnits(),
@@ -252,6 +279,16 @@ class _SourcesMapState extends ConsumerState<SourcesMap>
     final focus = dots.where((d) => d.id == focusId).firstOrNull;
     final units = ref.watch(_mapAreasProvider).value ?? const <AdminUnit>[];
     final tree = AreaTree(units);
+    // An area asked for by another page: choose it once the map is there.
+    final askedArea = ref.watch(mapAreaFocusProvider);
+    if (askedArea != null && tree.byId[askedArea] != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        ref.read(mapAreaFocusProvider.notifier).focus(null);
+        final u = tree.byId[askedArea]!;
+        _choose(MapPlace(id: u.id, name: u.name, isSource: false), tree);
+      });
+    }
     final chosenSource = widget.sources
         .where((s) => s.id == focusId)
         .firstOrNull;
@@ -311,6 +348,7 @@ class _SourcesMapState extends ConsumerState<SourcesMap>
           key: ValueKey(Object.hash(Object.hashAll(points), home)),
           options: MapOptions(
             crs: const NoRepeatCrs(),
+            interactionOptions: mapInteraction,
             initialCenter: focus != null
                 ? LatLng(focus.lat, focus.lon)
                 : points.length == 1
@@ -429,6 +467,8 @@ class _SourcesMapState extends ConsumerState<SourcesMap>
                     ? () => ref.invalidate(deviceLocationProvider)
                     : () => _map.move(me, 14),
               ),
+              const SizedBox(height: 8),
+              MapZoomButtons(motion: _motion),
               const SizedBox(height: 8),
               MapLayersButton(
                 layers: _layers,

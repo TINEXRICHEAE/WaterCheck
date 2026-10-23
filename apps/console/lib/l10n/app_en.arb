@@ -22,7 +22,7 @@
   "reportsHint": "Made on this device from the data synced to it; works offline on Windows and Android.",
   "adminReferenceData": "Reference data",
   "adminReferenceDataHint": "Parameters, limits, tester profiles and areas loaded on this device",
-  "adminMoreHint": "Changes here reach the phones with their next sync.",
+  "adminMoreHint": "Changes here reach the devices with their next sync.",
   "startupFailed": "WaterCheck Console could not open its local data.",
   "startupRetry": "Try again",
   "cancel": "Cancel",
@@ -95,7 +95,7 @@
   "dashboardNoAreas": "No areas have been assigned to you yet. Ask the IT admin.",
   "dashboardAdminScope": "IT admin: all areas",
   "recentTitle": "Latest tests",
-  "recentHint": "Synced from Collect phones in your areas.",
+  "recentHint": "Synced from Collect devices in your areas.",
   "recentEmpty": "No tests have reached this device yet.",
   "recentLine": "{when} · by {collector}",
   "@recentLine": {
@@ -418,7 +418,7 @@
     }
   },
   "conflictTitle": "Two changes disagree",
-  "conflictBody": "A phone set the working status to \"{phone}\", but it is now \"{current}\" from a newer change. Which is right?",
+  "conflictBody": "A device set the working status to \"{phone}\", but it is now \"{current}\" from a newer change. Which is right?",
   "@conflictBody": {
     "placeholders": {
       "phone": {
@@ -430,7 +430,7 @@
     }
   },
   "conflictKeep": "Keep current",
-  "conflictUsePhone": "Use the phone's value",
+  "conflictUsePhone": "Use the device's value",
   "conflictActive": "In use",
   "conflictInactive": "No longer in use",
   "mapUnsafe": "Unsafe",
@@ -657,7 +657,7 @@
   "noticeSize": "Paper size",
   "colIndicator": "Indicator",
   "colValue": "Value",
-  "adminNeedsConnection": "Managing people and phones needs a connection to the server.",
+  "adminNeedsConnection": "Managing people and devices needs a connection to the server.",
   "areaLevel": "{level, select, country{national} region{region} district{district} subcounty{sub-county} parish{parish} village{village} other{{level}}}",
   "@areaLevel": {
     "placeholders": {
@@ -679,8 +679,8 @@
   },
   "adminPeople": "People",
   "adminPeopleHint": "Create stakeholders and IT admins at any level, reset passwords, disable accounts.",
-  "adminPhones": "Collect phones",
-  "adminPhonesHint": "Activation codes, phones in use, revoking a lost phone.",
+  "adminPhones": "Collect devices",
+  "adminPhonesHint": "Activation codes, devices in use, revoking a lost device.",
   "adminChain": "Who covers an area",
   "adminChainHint": "The chain of people an alert reaches, level by level, and the gaps.",
   "usersTitle": "People",
@@ -735,9 +735,9 @@
   },
   "credentialsCopy": "Copy",
   "credentialsDone": "Done",
-  "phonesTitle": "Collect phones",
-  "phonesHint": "Phones activated with a code for an area. Revoke a lost or stolen phone: it stops syncing and locks itself.",
-  "phonesNone": "No phones activated yet.",
+  "phonesTitle": "Collect devices",
+  "phonesHint": "Devices activated with a code for an area. Revoke a lost or stolen device: it stops syncing and locks itself.",
+  "phonesNone": "No devices activated yet.",
   "phonesNewCode": "New activation code",
   "phonesActivity": "{collectors} collectors, {tests} tests",
   "@phonesActivity": {
@@ -768,11 +768,11 @@
     }
   },
   "phonesRevoke": "Revoke",
-  "phonesRevokeTitle": "Revoke this phone?",
+  "phonesRevokeTitle": "Revoke this device?",
   "phonesRevokeHint": "It stops syncing at once. Unsent records on it are saved to an encrypted file only the server can read.",
   "phonesCodes": "Recent activation codes",
   "phonesNoCodes": "No codes yet.",
-  "phonesCodeLine": "{used} of {max} phones · valid until {until}",
+  "phonesCodeLine": "{used} of {max} devices · valid until {until}",
   "@phonesCodeLine": {
     "placeholders": {
       "used": {
@@ -794,7 +794,7 @@
       }
     }
   },
-  "phonesMax": "Up to {n} phones",
+  "phonesMax": "Up to {n} devices",
   "@phonesMax": {
     "placeholders": {
       "n": {
@@ -819,7 +819,7 @@
       }
     }
   },
-  "phonesCodeHint": "Shown only now. On the phone, open WaterCheck Collect and scan the QR code or type the code.",
+  "phonesCodeHint": "Shown only now. On the device, open WaterCheck Collect and scan the QR code or type the code.",
   "phonesQrLabel": "Activation QR code",
   "chainTitle": "Who covers an area",
   "chainHint": "Pick any area to see who an alert from it reaches, level by level. Levels with nobody are skipped; the IT admins are told only when nobody covers it.",
@@ -829,7 +829,7 @@
   "chainNobody": "Nobody covers this area: alerts from it go to the IT admins.",
   "limitSetsTitle": "Limit sets",
   "limitSetsHint": "Published sets come from the standards. A custom set changes some limits for tests from now on; it is recorded under your name with your comment, and earlier results keep the limits they were judged under.",
-  "limitSetsHintAdmin": "Published and custom sets. Only stakeholders create custom sets (in the Console, or on a phone at calibration after signing in).",
+  "limitSetsHintAdmin": "Published and custom sets. Only stakeholders create custom sets (in the Console, or on a device at calibration after signing in).",
   "limitSetsNew": "New custom limit set",
   "limitSetsCustomOf": "Custom, based on {base}",
   "@limitSetsCustomOf": {
@@ -878,7 +878,7 @@
   "systemHealth": "System health",
   "systemRefresh": "Refresh",
   "systemAudit": "Audit log",
-  "systemAuditHint": "Every change by a person or phone, newest first. Filter by action (for example user. or reference_profile.) and dates.",
+  "systemAuditHint": "Every change by a person or device, newest first. Filter by action (for example user. or reference_profile.) and dates.",
   "systemAuditAction": "Action starts with",
   "systemAuditAnyDate": "Any date",
   "systemAuditApply": "Apply",
@@ -911,7 +911,7 @@
     }
   },
   "healthFailed": "Failures (24 h)",
-  "healthPhones": "Phones active (7 days)",
+  "healthPhones": "Devices active (7 days)",
   "healthPhonesValue": "{active} of {total}",
   "@healthPhonesValue": {
     "placeholders": {
@@ -985,7 +985,7 @@
   "routingAddCreate": "Create",
   "routingExists": "That responsibility exists already, or the server is not reachable.",
   "placesTitle": "Places",
-  "placesHint": "The official list ends at sub-county. Add parishes and villages below it, fix names, and choose the limit set phones in an area start with.",
+  "placesHint": "The official list ends at sub-county. Add parishes and villages below it, fix names, and choose the limit set devices in an area start with.",
   "placesAdd": "Add a place below",
   "placesRename": "Rename",
   "placesLevel": "Level",
@@ -1010,7 +1010,7 @@
   },
   "placesExists": "A place with that name is already there.",
   "placesDefault": "Default limit set",
-  "placesDefaultHint": "Phones in this area, and the areas below it, start with this set. Tests already taken keep the set they were judged by.",
+  "placesDefaultHint": "Devices in this area, and the areas below it, start with this set. Tests already taken keep the set they were judged by.",
   "placesInherit": "Same as the area above",
   "placesDefaultSaved": "Default limit set saved",
   "paramsTitle": "New parameters",
@@ -1035,7 +1035,7 @@
   "paramsSaveName": "Save",
   "paramsDone": "Review saved",
   "cardsTitle": "Response cards",
-  "cardsHint": "Shown to collectors after a result. Each save makes a new version; phones get it with their next sync.",
+  "cardsHint": "Shown to collectors after a result. Each save makes a new version; devices get it with their next sync.",
   "cardsVersion": "version {v}",
   "@cardsVersion": {
     "placeholders": {
@@ -1076,7 +1076,7 @@
   },
   "paramsRejectBody": "Collectors can no longer pick it. Readings already taken keep their values.",
   "adminArchived": "Archived",
-  "adminArchivedHint": "Phones, collectors, sources and tests that were archived; restore them here",
+  "adminArchivedHint": "Devices, collectors, sources and tests that were archived; restore them here",
   "archiveAction": "Archive…",
   "archiveSource": "Archive this source",
   "archiveTest": "Archive this test",
@@ -1089,7 +1089,7 @@
       }
     }
   },
-  "archiveCascade": "{entity, select, installation{The phone is revoked, and its collectors, their tests and the sources only they used are archived too.} collector{Their tests and the sources only they used are archived too. Sources others have tested stay.} water_source{Its tests and alerts are archived too.} test_session{Its results and alerts are archived too.} other{Related records are archived too.}}",
+  "archiveCascade": "{entity, select, installation{The device is revoked, and its collectors, their tests and the sources only they used are archived too.} collector{Their tests and the sources only they used are archived too. Sources others have tested stay.} water_source{Its tests and alerts are archived too.} test_session{Its results and alerts are archived too.} other{Related records are archived too.}}",
   "@archiveCascade": {
     "placeholders": {
       "entity": {
@@ -1097,7 +1097,7 @@
       }
     }
   },
-  "archiveRestorable": "Archived records disappear from lists, maps, dashboards, reports and phones. Nothing is deleted: Admin › Archived can restore them.",
+  "archiveRestorable": "Archived records disappear from lists, maps, dashboards, reports and devices. Nothing is deleted: Admin › Archived can restore them.",
   "archiveReason": "Reason",
   "archiveReasonHint": "At least 5 characters, e.g. \"test data\"",
   "archiveConfirm": "Archive",
@@ -1153,12 +1153,12 @@
       }
     }
   },
-  "archiveRestoreBody": "Everything this action archived comes back to lists, dashboards, reports and phones.",
-  "archiveRestorePhone": "Its records come back. The phone itself stays revoked: issue a new activation code to use it again.",
+  "archiveRestoreBody": "Everything this action archived comes back to lists, dashboards, reports and devices.",
+  "archiveRestorePhone": "Its records come back. The device itself stays revoked: issue a new activation code to use it again.",
   "archiveRestored": "Restored",
   "moreActions": "More actions",
-  "phonesName": "Name this phone",
-  "phonesNameHint": "e.g. Nalongo's phone",
+  "phonesName": "Name this device",
+  "phonesNameHint": "e.g. Health centre tablet",
   "trailTitle": "Edit history",
   "trailCorrections": "Corrections of this test",
   "trailNone": "No changes recorded.",
@@ -1177,7 +1177,7 @@
       }
     }
   },
-  "trailField": "{field, select, name{Name} households_served{Households} functional_status{Working} is_active{In use} source_type{Type} lat{Latitude} lon{Longitude} location_accuracy_m{GPS accuracy} label{Phone name} full_name{Full name} phone{Phone} collector_type{Role} village{Village} parish{Parish} subcounty{Sub-county} district{District} organisation{Organisation} overall{Result} other{{field}}}",
+  "trailField": "{field, select, name{Name} households_served{Households} functional_status{Working} is_active{In use} source_type{Type} lat{Latitude} lon{Longitude} location_accuracy_m{GPS accuracy} label{Device name} full_name{Full name} phone{Phone} collector_type{Role} village{Village} parish{Parish} subcounty{Sub-county} district{District} organisation{Organisation} overall{Result} other{{field}}}",
   "@trailField": {
     "placeholders": {
       "field": {
@@ -1207,11 +1207,11 @@
   "lockTitle": "App lock",
   "lockSwitch": "Ask for a PIN on this device",
   "lockHint": "Optional. Turn it off on an office computer shared with colleagues; anyone using this device then sees your areas.",
-  "lockAdminRequired": "Required for IT admins, who can change people, phones and records.",
+  "lockAdminRequired": "Required for IT admins, who can change people, devices and records.",
   "lockOffTitle": "Turn off the PIN?",
   "lockOffBody": "WaterCheck will open on this device without a PIN, and stay open when no one is using it. Sign out when you leave a shared computer.",
   "lockOffConfirm": "Turn off",
-  "recoveryAction": "Sign-in code for another phone",
+  "recoveryAction": "Sign-in code for another device",
   "recoveryTitle": "Code for {name}",
   "@recoveryTitle": {
     "placeholders": {
@@ -1230,5 +1230,303 @@
     }
   },
   "recoveryCopy": "Copy",
-  "recoveryNotYours": "This collector does not work in your areas. Ask the IT admin."
+  "recoveryNotYours": "This collector does not work in your areas. Ask the IT admin.",
+  "showOnMap": "Show on map",
+  "deviceTitle": "Device",
+  "deviceActivated": "Activated {when}",
+  "@deviceActivated": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "deviceCollectors": "Collectors and testers on this device",
+  "deviceCollectorsHint": "From what they sent. Someone added on the device who has not sent anything yet is not known here.",
+  "deviceNoCollectors": "Nobody has sent anything from this device yet.",
+  "deviceCollectorWork": "{tests, plural, =1{1 test} other{{tests} tests}}, {sources, plural, =1{1 source} other{{sources} sources}}",
+  "@deviceCollectorWork": {
+    "placeholders": {
+      "tests": {
+        "type": "int"
+      },
+      "sources": {
+        "type": "int"
+      }
+    }
+  },
+  "deviceRecoveredHere": "came back here with a code",
+  "collectorShowArea": "Their area on the map",
+  "collectorSources": "{count, plural, =0{Sources added} =1{1 source added} other{{count} sources added}}",
+  "@collectorSources": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "collectorNoSources": "No source added by them on record here.",
+  "collectorTests": "{count, plural, =0{Tests} =1{1 test} other{{count} tests}}",
+  "@collectorTests": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "collectorNoTests": "No test by them in your areas yet.",
+  "testDistance": "{metres} m from the source",
+  "@testDistance": {
+    "placeholders": {
+      "metres": {
+        "type": "int"
+      }
+    }
+  },
+  "testAwayReason": "away: {reason}",
+  "@testAwayReason": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "placesAssign": "Who covers it",
+  "placesNewTitle": "{count, plural, =0{Added from devices} =1{1 place added from devices} other{{count} places added from devices}}",
+  "@placesNewTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "placesNewHint": "Collectors typed these because they were not in the list. Accept them, fix their names, or look at them on the map.",
+  "placesNewNone": "Nothing waiting.",
+  "placesNewBy": "added by {name}",
+  "@placesNewBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "placesAccept": "Accept into the list",
+  "placesAccepted": "{name} is now in the list.",
+  "@placesAccepted": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "paramsFirstAt": "First used at {source}: {value}",
+  "@paramsFirstAt": {
+    "placeholders": {
+      "source": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "paramsOpenSource": "The source and its test",
+  "paramsOpenCollector": "The collector",
+  "chainAddExisting": "An existing person",
+  "chainAddStakeholder": "A new stakeholder",
+  "chainAddCollector": "A new collector device (activation code)",
+  "chainNoCandidates": "Everyone active already covers this area.",
+  "chainAdded": "{name} now covers {area}.",
+  "@chainAdded": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "area": {
+        "type": "String"
+      }
+    }
+  },
+  "ledgerTitle": "Codes and accounts",
+  "ledgerMenuHint": "Every activation code and account made, and who and what used them",
+  "ledgerHint": "Made by whom, for which area, and how each was used. The codes and passwords themselves are never kept.",
+  "ledgerCodes": "{count, plural, =1{1 activation code} other{{count} activation codes}}",
+  "@ledgerCodes": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "ledgerAccounts": "{count, plural, =1{1 account} other{{count} accounts}}",
+  "@ledgerAccounts": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "ledgerMadeBy": "made by {name}, {when}",
+  "@ledgerMadeBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "ledgerWithdrawn": "withdrawn {when}",
+  "@ledgerWithdrawn": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "ledgerExpired": "expired",
+  "ledgerUsedUp": "used up",
+  "ledgerNoDevices": "No device has used this code yet.",
+  "ledgerWithdraw": "Withdraw this code",
+  "ledgerNotUsed": "not used yet (temporary password never changed)",
+  "ledgerLastSignIn": "last signed in {when}",
+  "@ledgerLastSignIn": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "photoOpen": "Open picture",
+  "testNotFound": "This test is not on this device yet. Sync, then try again.",
+  "testUncalibrated": "tester not calibrated",
+  "testIsCorrection": "a correction of an earlier result",
+  "testReadings": "Readings",
+  "testDetected": "{value, select, true{Found} other{Not found}}",
+  "@testDetected": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "testAcceptable": "{value, select, true{Acceptable} other{Not acceptable}}",
+  "@testAcceptable": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "testContextTitle": "Where and how it was tested",
+  "testNoLocation": "No location recorded",
+  "testAccuracy": "location within {metres} m",
+  "@testAccuracy": {
+    "placeholders": {
+      "metres": {
+        "type": "int"
+      }
+    }
+  },
+  "testFarReason": "away from the source because: {reason}",
+  "@testFarReason": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "testNoPhoto": "No test picture: {reason}",
+  "@testNoPhoto": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "testNoInspection": "Surroundings not checked",
+  "testInspection": "Surroundings checked {date}: {count, plural, =0{no risks found} =1{1 risk found} other{{count} risks found}}",
+  "@testInspection": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "testPictures": "Pictures of the test",
+  "sourcePictures": "Pictures of the source",
+  "testOpen": "Open this test",
+  "noPhotoCameraBroken": "Camera not working",
+  "noPhotoNotAllowed": "Pictures not allowed here",
+  "noPhotoTooDark": "Too dark to see",
+  "typedTitle": "Typed list values",
+  "typedMenuHint": "Source and collector types typed under \"Other\"; add them to the shared list",
+  "typedHint": "Collectors type a value when the list has nothing that fits. It is used at once on their device. Add it here to offer it on every device after the next sync; records that already hold it keep it.",
+  "typedNone": "Nothing typed under \"Other\" yet.",
+  "typedList": "{list, select, source_types{Source type} collector_types{Collector type} other{List}}",
+  "@typedList": {
+    "placeholders": {
+      "list": {
+        "type": "String"
+      }
+    }
+  },
+  "typedUses": "{count, plural, =1{used once} other{used {count} times}}",
+  "@typedUses": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "typedFirstSeen": "first {date}",
+  "@typedFirstSeen": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "typedAdd": "Add to the list",
+  "typedAdded": "\"{value}\" is now in the shared list.",
+  "@typedAdded": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "messagesTitle": "Messages",
+  "messagesUnread": "{count, plural, =1{Messages: 1 new} other{Messages: {count} new}}",
+  "@messagesUnread": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "messagesHint": "Conversations with collectors about tests, sources, collectors and areas. No SMS or email: everyone reads them in the apps.",
+  "messagesNone": "No messages yet.",
+  "messagesEmpty": "No messages yet. Write to the collectors here; they read it in Collect after their next sync.",
+  "messagesAbout": "{kind, select, test{Test} source{Source} collector{Collector} area{Area} other{Thread}}",
+  "@messagesAbout": {
+    "placeholders": {
+      "kind": {
+        "type": "String"
+      }
+    }
+  },
+  "messagesOpen": "{kind, select, test{Open the test} source{Open the source} collector{Open the collector} area{Open Places} other{Open}}",
+  "@messagesOpen": {
+    "placeholders": {
+      "kind": {
+        "type": "String"
+      }
+    }
+  },
+  "messagesSectionTitle": "Messages"
 }

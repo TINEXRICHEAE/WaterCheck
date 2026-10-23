@@ -12,6 +12,7 @@ import 'support/harness.dart';
 /// A scripted server for the IT admin's settings: records what is sent.
 class _ConfigServer implements HttpClientAdapter {
   final requests = <(String, String, Object?)>[];
+  var typedAdded = false;
   var security = <String, Object?>{
     'max_failed_logins': 5,
     'lockout_minutes': 15,
@@ -86,6 +87,19 @@ class _ConfigServer implements HttpClientAdapter {
           },
         ];
       case ('POST', '/v1/admin/parameters/custom:1/review'):
+        return null;
+      case ('GET', '/v1/admin/typed-values'):
+        return [
+          if (!typedAdded)
+            {
+              'list': 'source_types',
+              'value': 'Hand-dug well',
+              'uses': 3,
+              'first_seen': '2026-10-20T08:00:00Z',
+            },
+        ];
+      case ('POST', '/v1/admin/typed-values'):
+        typedAdded = true;
         return null;
       case ('GET', '/v1/admin/response-cards'):
         return [
@@ -221,6 +235,37 @@ void main() {
     final card = server.requests.lastWhere((r) => r.$1 == 'PUT');
     expect((card.$3! as Map)['actions'], ['Test again.', 'Boil the water.']);
     expect((card.$3! as Map)['report_to'], ['Health Inspector']);
+    await disposeConsole(tester, db);
+  });
+
+  testWidgets('typed list values: the IT admin adds one to the shared list', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1400, 1000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final server = _ConfigServer();
+    final dio = Dio(BaseOptions(baseUrl: 'http://test'))
+      ..httpClientAdapter = server;
+    final env = ConsoleTestEnv(cookieMode: true)
+      ..extraOverrides.add(
+        adminApiProvider.overrideWithValue(WaterCheckApi(dio)),
+      );
+    env.api.sessionFor('admin@example.org');
+    final db = await pumpConsole(tester, env: env);
+    await _open(tester, 'Typed list values');
+    expect(find.text('Hand-dug well'), findsOneWidget);
+    expect(find.textContaining('Source type · used 3 times'), findsOneWidget);
+    await tester.tap(find.text('Add to the list'));
+    await settle(tester);
+    final sent = server.requests.lastWhere((r) => r.$1 == 'POST');
+    expect(jsonDecode(jsonEncode(sent.$3)), {
+      'list': 'source_types',
+      'value': 'Hand-dug well',
+      'name': null,
+    });
+    expect(find.text('Hand-dug well'), findsNothing);
+    expect(find.textContaining('Nothing typed'), findsOneWidget);
     await disposeConsole(tester, db);
   });
 }

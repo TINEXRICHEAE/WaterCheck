@@ -68,11 +68,25 @@ class AdminScreen extends StatelessWidget {
           onTap: () => context.go('/admin/parameters'),
         ),
         ListTile(
+          leading: const Icon(Icons.playlist_add),
+          title: Text(l10n.typedTitle),
+          subtitle: Text(l10n.typedMenuHint),
+          trailing: const Icon(Icons.chevron_right),
+          onTap: () => context.go('/admin/typed-values'),
+        ),
+        ListTile(
           leading: const Icon(Icons.assignment_outlined),
           title: Text(l10n.adminCards),
           subtitle: Text(l10n.adminCardsHint),
           trailing: const Icon(Icons.chevron_right),
           onTap: () => context.go('/admin/cards'),
+        ),
+        ListTile(
+          leading: const Icon(Icons.key_outlined),
+          title: Text(l10n.ledgerTitle),
+          subtitle: Text(l10n.ledgerMenuHint),
+          trailing: const Icon(Icons.chevron_right),
+          onTap: () => context.go('/admin/credentials'),
         ),
         ListTile(
           leading: const Icon(Icons.archive_outlined),
