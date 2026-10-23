@@ -487,3 +487,11 @@ Decisions are also recorded in [PLAN.md](PLAN.md) (decisions log and §3a), the 
   - `docker compose up -d --build`: the database is at migration 0013, and the `message` table is there.
   - Both web previews were rebuilt (`/console/`, `/collect/`), and `tools/cleanup.ps1` was run. 13.9 GB is free on C:, down from 22 GB before the image builds.
 - **Next:** the lead checks on dev, then commits in sprint groups (3.1–3.6).
+
+### 30. Commit round 3 (2026-10-23)
+- **Asked:** "first commit all the changes".
+- **Outcome:**
+  - The gitleaks scan of the staged changes found no secrets.
+  - Six local commits on `main`, grouped by layer, because many files carry more than one sprint: 6f01b98 backend, 5d74c4f packages, ac66c0c Collect, ff791b6 Console, 10936d0 infra, e21c951 docs.
+  - Not pushed; the user pushes.
+- **Watch:** the lead's check on dev is still to come. Fixes from it go in new commits.
