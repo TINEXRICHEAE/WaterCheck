@@ -40,6 +40,7 @@ class SettingsScreen extends ConsumerWidget {
       appBar: AppBar(title: Text(l10n.settingsTitle)),
       body: ListView(
         children: [
+          const InstallAppTile(),
           if (credentials != null)
             ListTile(
               leading: const Icon(Icons.verified_user_outlined),

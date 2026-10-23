@@ -3,6 +3,7 @@ import 'package:domain/domain.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:ui_kit/ui_kit.dart';
 
 import '../../app/providers.dart';
 import '../../l10n/app_localizations.dart';
@@ -233,18 +234,19 @@ class _SourceFormScreenState extends ConsumerState<SourceFormScreen> {
               textCapitalization: TextCapitalization.sentences,
             ),
             const SizedBox(height: 12),
-            DropdownButtonFormField<String>(
+            ChoiceOrTypedField(
+              label: l10n.sourceType,
               initialValue: _type,
-              decoration: InputDecoration(labelText: l10n.sourceType),
-              items: [
+              enabled: !_editing,
+              isRequired: !_editing,
+              choices: [
                 for (final t in list('source_types'))
-                  DropdownMenuItem(
-                    value: t['code']! as String,
-                    child: Text(t['name']! as String),
-                  ),
+                  (t['code']! as String, t['name']! as String),
               ],
-              onChanged: _editing ? null : (v) => setState(() => _type = v),
-              validator: (v) => _editing ? null : required(v),
+              usedBefore:
+                  ref.watch(usedValuesProvider('source_types')).value ??
+                  const [],
+              onChanged: (v) => setState(() => _type = v),
             ),
             const SizedBox(height: 12),
             TextFormField(

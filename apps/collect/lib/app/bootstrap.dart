@@ -29,7 +29,8 @@ Future<BootState> openLocalData({
   required SecureValues values,
   required DatabaseKeyStore keys,
 }) async {
-  final db = await openAppDatabase(keys: keys);
+  // The web keeps its work in the browser too (ADR-022).
+  final db = await openAppDatabase(keys: keys, persistOnWeb: true);
   await SeedImporter(db).importBundle(await SeedBundle.fromAssets());
   return loadBootState(
     db,

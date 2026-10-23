@@ -3,6 +3,7 @@ import 'package:domain/domain.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:ui_kit/ui_kit.dart';
 
 import '../../app/gate.dart';
 import '../../app/providers.dart';
@@ -157,18 +158,18 @@ class _CollectorFormScreenState extends ConsumerState<CollectorFormScreen> {
                   (normalizeUgandaPhone(v!) == null ? l10n.phoneInvalid : null),
             ),
             const SizedBox(height: 12),
-            DropdownButtonFormField<String>(
+            ChoiceOrTypedField(
+              label: l10n.profileCollectorType,
               initialValue: _type,
-              decoration: InputDecoration(labelText: l10n.profileCollectorType),
-              items: [
+              isRequired: true,
+              choices: [
                 for (final t in types)
-                  DropdownMenuItem(
-                    value: t['code']! as String,
-                    child: Text(t['name']! as String),
-                  ),
+                  (t['code']! as String, t['name']! as String),
               ],
+              usedBefore:
+                  ref.watch(usedValuesProvider('collector_types')).value ??
+                  const [],
               onChanged: (v) => setState(() => _type = v),
-              validator: required,
             ),
             const SizedBox(height: 12),
             AreaFields(

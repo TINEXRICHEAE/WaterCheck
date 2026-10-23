@@ -97,27 +97,44 @@ final photoNetworkAllowedProvider = Provider<Future<bool> Function()>((ref) {
 
 enum PhotoOutcome { saved, cancelled, lowStorage, notAnImage, noCollector }
 
-/// Takes or chooses a photo, compresses it (≤ 300 KB, no EXIF) and queues
-/// it. Refuses below 100 MB free so readings can still be saved (chaos #7).
+/// Takes or chooses a photo and compresses it (≤ 300 KB, no EXIF), not yet
+/// saved: a test's picture waits for the test (ADR-022). Refuses below
+/// 100 MB free so readings can still be saved (chaos #7).
+Future<(PhotoOutcome, Uint8List?)> preparePhoto(
+  WidgetRef ref,
+  PhotoFrom from,
+) async {
+  final free = await ref.read(freeSpaceProvider).bytes();
+  if (free != null && free < minFreeBytesForPhotos) {
+    return (PhotoOutcome.lowStorage, null);
+  }
+  if (ref.read(submissionOriginProvider) == null) {
+    return (PhotoOutcome.noCollector, null);
+  }
+  final picked = await ref.read(photoPickerProvider).pick(from);
+  if (picked == null) return (PhotoOutcome.cancelled, null);
+  final jpeg = await ref.read(photoCompressorProvider)(picked);
+  if (jpeg == null) return (PhotoOutcome.notAnImage, null);
+  return (PhotoOutcome.saved, jpeg);
+}
+
+/// Takes or chooses a photo, compresses it and queues it.
 Future<PhotoOutcome> addPhoto(
   WidgetRef ref, {
   required PhotoOwner owner,
   required String ownerId,
   required PhotoFrom from,
 }) async {
-  final free = await ref.read(freeSpaceProvider).bytes();
-  if (free != null && free < minFreeBytesForPhotos) {
-    return PhotoOutcome.lowStorage;
-  }
-  final origin = ref.read(submissionOriginProvider);
-  if (origin == null) return PhotoOutcome.noCollector;
-  final picked = await ref.read(photoPickerProvider).pick(from);
-  if (picked == null) return PhotoOutcome.cancelled;
-  final jpeg = await ref.read(photoCompressorProvider)(picked);
-  if (jpeg == null) return PhotoOutcome.notAnImage;
+  final (outcome, jpeg) = await preparePhoto(ref, from);
+  if (jpeg == null) return outcome;
   await ref
       .read(attachmentRepositoryProvider)
-      .addPhoto(owner: owner, ownerId: ownerId, jpeg: jpeg, origin: origin);
+      .addPhoto(
+        owner: owner,
+        ownerId: ownerId,
+        jpeg: jpeg,
+        origin: ref.read(submissionOriginProvider)!,
+      );
   return PhotoOutcome.saved;
 }
 

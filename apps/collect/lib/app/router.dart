@@ -1,3 +1,4 @@
+import 'package:data/data.dart' show ThreadKind;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ui_kit/ui_kit.dart';
@@ -27,6 +28,7 @@ import '../features/testing/pick_source_screen.dart';
 import '../features/testing/result_screen.dart';
 import '../features/testing/review_screen.dart';
 import '../features/testing/session_setup_screen.dart';
+import '../features/messages/messages.dart';
 import '../l10n/app_localizations.dart';
 import 'gate.dart';
 
@@ -134,6 +136,21 @@ final routerProvider = Provider<GoRouter>((ref) {
         ],
       ),
       GoRoute(
+        path: '/messages',
+        builder: (_, _) => const InboxScreen(),
+        routes: [
+          GoRoute(
+            path: ':kind/:id',
+            builder: (_, state) => ThreadScreen(
+              kind:
+                  ThreadKind.parse(state.pathParameters['kind']!) ??
+                  ThreadKind.source,
+              subjectId: state.pathParameters['id']!,
+            ),
+          ),
+        ],
+      ),
+      GoRoute(
         path: '/alerts/:id',
         builder: (_, state) =>
             ResponseCardScreen(alertId: state.pathParameters['id']!),
@@ -229,33 +246,54 @@ class _CollectShell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final items = [
+      (Icons.water_drop_outlined, Icons.water_drop, l10n.navHome),
+      (Icons.map_outlined, Icons.map, l10n.navMap),
+      (Icons.cloud_upload_outlined, Icons.cloud_upload, l10n.navSync),
+      (Icons.settings_outlined, Icons.settings, l10n.navSettings),
+    ];
+    void go(int i) =>
+        shell.goBranch(i, initialLocation: i == shell.currentIndex);
+    // Tablets and computers: a side rail; phones: the bottom bar.
+    if (MediaQuery.sizeOf(context).width >= 800) {
+      return Scaffold(
+        body: Row(
+          children: [
+            NavigationRail(
+              selectedIndex: shell.currentIndex,
+              onDestinationSelected: go,
+              labelType: NavigationRailLabelType.all,
+              leading: const Padding(
+                padding: EdgeInsets.symmetric(vertical: 8),
+                child: AppLogo(size: 36),
+              ),
+              destinations: [
+                for (final (icon, selected, label) in items)
+                  NavigationRailDestination(
+                    icon: Icon(icon),
+                    selectedIcon: Icon(selected),
+                    label: Text(label),
+                  ),
+              ],
+            ),
+            const VerticalDivider(width: 1),
+            Expanded(child: shell),
+          ],
+        ),
+      );
+    }
     return Scaffold(
       body: shell,
       bottomNavigationBar: NavigationBar(
         selectedIndex: shell.currentIndex,
-        onDestinationSelected: (i) =>
-            shell.goBranch(i, initialLocation: i == shell.currentIndex),
+        onDestinationSelected: go,
         destinations: [
-          NavigationDestination(
-            icon: const Icon(Icons.water_drop_outlined),
-            selectedIcon: const Icon(Icons.water_drop),
-            label: l10n.navHome,
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.map_outlined),
-            selectedIcon: const Icon(Icons.map),
-            label: l10n.navMap,
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.cloud_upload_outlined),
-            selectedIcon: const Icon(Icons.cloud_upload),
-            label: l10n.navSync,
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.settings_outlined),
-            selectedIcon: const Icon(Icons.settings),
-            label: l10n.navSettings,
-          ),
+          for (final (icon, selected, label) in items)
+            NavigationDestination(
+              icon: Icon(icon),
+              selectedIcon: Icon(selected),
+              label: label,
+            ),
         ],
       ),
     );

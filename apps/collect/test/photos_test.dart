@@ -56,7 +56,10 @@ void main() {
       await openSource(tester);
       await tapAndSettle(tester, find.text('Choose photo'));
       expect(find.textContaining('Photo saved'), findsOneWidget);
-      expect(find.bySemanticsLabel('Waiting to upload'), findsOneWidget);
+      expect(
+        find.bySemanticsLabel(RegExp('Waiting to upload')),
+        findsOneWidget,
+      );
       final stored = svc.photos.files.values.single;
       expect(stored.length, lessThanOrEqualTo(maxPhotoBytes));
 
@@ -81,6 +84,35 @@ void main() {
       await disposeApp(tester, db);
     },
   );
+
+  testWidgets('a picture opens full screen; its author removes and re-adds', (
+    tester,
+  ) async {
+    final svc = TestServices()..picker.next = cameraPhoto();
+    final db = await pumpCollect(tester, services: svc, prepare: addSource);
+    await openSource(tester);
+    await tapAndSettle(tester, find.text('Choose photo'));
+    await tapAndSettle(tester, find.bySemanticsLabel(RegExp('Open picture')));
+    expect(find.text('Picture 1 of 1'), findsOneWidget);
+    await tapAndSettle(tester, find.byTooltip('Remove picture'));
+    await tapAndSettle(
+      tester,
+      find.widgetWithText(FilledButton, 'Remove picture'),
+    );
+    expect(find.text('Photos of this source'), findsOneWidget);
+    expect(find.bySemanticsLabel(RegExp('Open picture')), findsNothing);
+    expect(svc.photos.files, isEmpty);
+    final queued = (await tester.runAsync(() => db.select(db.outbox).get()))!;
+    expect(
+      queued.where((o) => o.entity == 'attachment'),
+      isEmpty,
+      reason: 'never sent: nothing to tell the server',
+    );
+
+    await tapAndSettle(tester, find.text('Choose photo'));
+    expect(find.bySemanticsLabel(RegExp('Open picture')), findsOneWidget);
+    await disposeApp(tester, db);
+  });
 
   testWidgets('mobile data allowed in Settings: the photo uploads at once', (
     tester,
@@ -116,6 +148,15 @@ void main() {
       expect(svc.photos.files, isEmpty);
       // The guard only touches photos: testing stays available, and the
       // source's records are queued as usual.
+      await tester.scrollUntilVisible(
+        find.widgetWithText(FilledButton, 'Test a source'),
+        -200,
+        scrollable: find
+            .byWidgetPredicate(
+              (w) => w is Scrollable && w.axisDirection == AxisDirection.down,
+            )
+            .last,
+      );
       expect(
         tester
             .widget<FilledButton>(

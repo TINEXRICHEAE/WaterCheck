@@ -3,7 +3,9 @@ import 'dart:typed_data';
 import 'package:data/data.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ui_kit/ui_kit.dart';
 
+import '../../app/providers.dart';
 import '../../l10n/app_localizations.dart';
 import 'photo_service.dart';
 
@@ -18,7 +20,9 @@ final _bytesProvider = FutureProvider.autoDispose.family<Uint8List?, String>(
 );
 
 /// Photos of a source or a test (F-SRC-1, F-TST-6): thumbnails with their
-/// upload state, and a button to add one. Photos are optional.
+/// upload state, and buttons to add one. A tap shows them full screen; the
+/// collector who added a picture can remove it there and add a new one
+/// (ADR-022).
 class PhotoStrip extends ConsumerStatefulWidget {
   const PhotoStrip({
     super.key,
@@ -61,6 +65,31 @@ class _PhotoStripState extends ConsumerState<PhotoStrip> {
     }
   }
 
+  void _view(List<LocalPhoto> photos, int at) {
+    final repo = ref.read(attachmentRepositoryProvider);
+    final origin = ref.read(submissionOriginProvider);
+    showPhotoViewer(
+      context,
+      initial: at,
+      photos: [
+        for (final p in photos)
+          ViewedPhoto(
+            load: () => repo.read(p.path),
+            caption: widget.title,
+            onRemove:
+                origin != null &&
+                    (p.collectorKey == null ||
+                        p.collectorKey == origin.collectorKey)
+                ? () async {
+                    await repo.removePhoto(p.id, origin);
+                    return true;
+                  }
+                : null,
+          ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -81,7 +110,8 @@ class _PhotoStripState extends ConsumerState<PhotoStrip> {
                 scrollDirection: Axis.horizontal,
                 itemCount: photos.length,
                 separatorBuilder: (_, _) => const SizedBox(width: 8),
-                itemBuilder: (context, i) => _Thumb(photo: photos[i]),
+                itemBuilder: (context, i) =>
+                    _Thumb(photo: photos[i], onTap: () => _view(photos, i)),
               ),
             ),
           Wrap(
@@ -115,9 +145,10 @@ class _PhotoStripState extends ConsumerState<PhotoStrip> {
 }
 
 class _Thumb extends ConsumerWidget {
-  const _Thumb({required this.photo});
+  const _Thumb({required this.photo, required this.onTap});
 
   final LocalPhoto photo;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -129,29 +160,34 @@ class _Thumb extends ConsumerWidget {
       _ => (Icons.cloud_upload_outlined, l10n.photoWaiting),
     };
     return Semantics(
-      label: label,
+      label: '${l10n.photoOpen} · $label',
       image: true,
-      child: Stack(
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: SizedBox.square(
-              dimension: 96,
-              child: bytes == null
-                  ? const ColoredBox(color: Colors.black12)
-                  : Image.memory(bytes, fit: BoxFit.cover, cacheWidth: 192),
+      button: true,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(8),
+        child: Stack(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: SizedBox.square(
+                dimension: 96,
+                child: bytes == null
+                    ? const ColoredBox(color: Colors.black12)
+                    : Image.memory(bytes, fit: BoxFit.cover, cacheWidth: 192),
+              ),
             ),
-          ),
-          Positioned(
-            right: 4,
-            bottom: 4,
-            child: CircleAvatar(
-              radius: 12,
-              backgroundColor: Colors.black54,
-              child: Icon(icon, size: 16, color: Colors.white),
+            Positioned(
+              right: 4,
+              bottom: 4,
+              child: CircleAvatar(
+                radius: 12,
+                backgroundColor: Colors.black54,
+                child: Icon(icon, size: 16, color: Colors.white),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -40,7 +40,7 @@ void main() {
     await tapAndSettle(tester, find.text('I understand and agree'));
     expect(find.text('Who is testing?'), findsOneWidget);
     expect(
-      find.text('No one has been added on this phone yet.'),
+      find.text('No one has been added on this device yet.'),
       findsOneWidget,
     );
 
@@ -169,7 +169,7 @@ void main() {
   testWidgets('theme and time zone are kept for the collector', (tester) async {
     final db = await pumpCollect(tester);
     await tapAndSettle(tester, find.text('Settings'));
-    expect(find.textContaining('Saved on this phone for'), findsOneWidget);
+    expect(find.textContaining('Saved on this device for'), findsOneWidget);
     await tapAndSettle(tester, find.text('Dark'));
     expect(
       tester.widget<MaterialApp>(find.byType(MaterialApp)).themeMode,
@@ -207,7 +207,7 @@ void main() {
     final db = await pumpCollect(tester);
     await tapAndSettle(tester, find.text('Sync'));
     expect(find.text('Everything is sent'), findsOneWidget);
-    expect(find.textContaining('saved on this phone first'), findsOneWidget);
+    expect(find.textContaining('saved on this device first'), findsOneWidget);
     expect(find.text('Sync now'), findsOneWidget);
     await disposeApp(tester, db);
   });

@@ -73,7 +73,7 @@ void main() {
     await tapAndSettle(tester, find.text('Sync now'));
     expect(find.text('1 item was refused'), findsOneWidget);
     expect(find.text('Not accepted by the server'), findsOneWidget);
-    expect(find.textContaining("outside this phone's area"), findsOneWidget);
+    expect(find.textContaining("outside this device's area"), findsOneWidget);
     final row = (await tester.runAsync(
       () => db.select(db.outbox).getSingle(),
     ))!;
@@ -81,7 +81,7 @@ void main() {
     await disposeApp(tester, db);
   });
 
-  testWidgets('a source added on another phone arrives by pull', (
+  testWidgets('a source added on another device arrives by pull', (
     tester,
   ) async {
     final svc = TestServices();
@@ -129,7 +129,7 @@ void main() {
     svc.server.revoked.add(FakeServer.installationId);
     await tapAndSettle(tester, find.text('Sync'));
     await tapAndSettle(tester, find.text('Sync now'));
-    expect(find.text('This phone has been switched off'), findsOneWidget);
+    expect(find.text('This device has been switched off'), findsOneWidget);
     await disposeApp(tester, db);
   });
 }

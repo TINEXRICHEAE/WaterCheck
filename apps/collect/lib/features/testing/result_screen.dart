@@ -1,4 +1,5 @@
-import 'package:data/data.dart' show AlertSummary, PhotoOwner;
+import 'package:data/data.dart'
+    show AlertSummary, InspectionSummary, PhotoOwner, ThreadKind;
 import 'package:domain/domain.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,7 +9,10 @@ import 'package:ui_kit/ui_kit.dart';
 import '../../app/providers.dart';
 import '../../l10n/app_localizations.dart';
 import '../alerts/response_card_screen.dart';
+import '../messages/messages.dart';
 import '../photos/photo_strip.dart';
+import '../sources/inspection_screen.dart' show riskCount;
+import '../sources/source_status.dart' show formatDate;
 import '../sources/trail_view.dart';
 import 'result_labels.dart';
 import 'test_draft.dart';
@@ -25,6 +29,11 @@ typedef _SavedResult = ({
   bool corrected,
   String? collectorKey,
   String? collectorName,
+  GeoPoint? location,
+  double? distanceM,
+  String? farReason,
+  String? noPhotoReason,
+  InspectionSummary? inspection,
 });
 
 /// Re-classifies a saved result from its stored readings and profile, so the
@@ -56,6 +65,13 @@ final _savedResultProvider = FutureProvider.family<_SavedResult, String>((
     calibrated: detail.calibrated,
     collectorKey: detail.collectorKey,
     collectorName: detail.collectorName,
+    location: detail.location,
+    distanceM: detail.distanceM,
+    farReason: detail.farReason,
+    noPhotoReason: detail.noPhotoReason,
+    inspection: await ref
+        .watch(inspectionRepositoryProvider)
+        .nearest(detail.sourceId, detail.testedAt),
     corrected:
         (await ref.watch(testingRepositoryProvider).history(detail.sourceId))
             .any((h) => h.amendmentOf == resultId),
@@ -184,6 +200,8 @@ class ResultScreen extends ConsumerWidget {
                   ),
                 ),
               const Divider(height: 32),
+              _TestContext(saved: s),
+              const Divider(height: 32),
               Text(
                 l10n.trailCorrections,
                 style: Theme.of(context).textTheme.titleMedium,
@@ -195,6 +213,13 @@ class ResultScreen extends ConsumerWidget {
                 ownerId: s.sessionId,
                 title: l10n.photoTesterTitle,
               ),
+              const Divider(height: 32),
+              Text(
+                l10n.messagesTestTitle,
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 8),
+              ThreadSection(kind: ThreadKind.test, subjectId: s.sessionId),
               const SizedBox(height: 24),
               if (s.corrected)
                 Text(l10n.amendSuperseded)
@@ -245,6 +270,90 @@ class ResultScreen extends ConsumerWidget {
           );
         },
       ),
+    );
+  }
+}
+
+/// Where and how the test was taken (ADR-022): location and its accuracy,
+/// distance from the source and why, why there is no picture, and the
+/// surroundings check nearest the test.
+class _TestContext extends ConsumerWidget {
+  const _TestContext({required this.saved});
+
+  final _SavedResult saved;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final s = saved;
+    final where = s.location;
+    final items =
+        ((ref.watch(listsProvider).value?['sanitary_checklist'] as List?) ??
+                const [])
+            .cast<Map<String, Object?>>();
+    final inspection = s.inspection;
+    final risks = inspection == null
+        ? const <String>[]
+        : [
+            for (final i in items)
+              if (inspection.answers[i['code']] == i['risk_if'])
+                i['question']! as String,
+          ];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          l10n.resultContextTitle,
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
+        ListTile(
+          contentPadding: EdgeInsets.zero,
+          leading: const Icon(Icons.place_outlined),
+          title: Text(
+            where == null
+                ? l10n.reviewNoLocation
+                : '${where.lat.toStringAsFixed(6)}, ${where.lon.toStringAsFixed(6)}',
+          ),
+          subtitle: Text(
+            [
+              if (where?.accuracyM case final a?)
+                l10n.resultAccuracy(a.round()),
+              if (s.distanceM case final d?)
+                l10n.setupDistance(d.round().toString()),
+              if (s.farReason case final why?) l10n.resultFarReason(why),
+            ].join(' · '),
+          ),
+          trailing: IconButton(
+            tooltip: l10n.resultShowOnMap,
+            icon: const Icon(Icons.map_outlined),
+            onPressed: () => context.go('/map?source=${s.sourceId}'),
+          ),
+        ),
+        if (s.noPhotoReason case final why?)
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.no_photography_outlined),
+            title: Text(l10n.resultNoPhoto(noPhotoReasonLabel(l10n, why))),
+          ),
+        ListTile(
+          contentPadding: EdgeInsets.zero,
+          leading: const Icon(Icons.fact_check_outlined),
+          title: Text(
+            inspection == null
+                ? l10n.inspectionNone
+                : l10n.inspectionLast(
+                    formatDate(inspection.inspectedAt),
+                    riskCount(items, inspection.answers),
+                  ),
+          ),
+          subtitle: risks.isEmpty ? null : Text(risks.join('\n')),
+          trailing: IconButton(
+            tooltip: l10n.inspectionStart,
+            icon: const Icon(Icons.edit_note),
+            onPressed: () => context.push('/sources/${s.sourceId}/inspection'),
+          ),
+        ),
+      ],
     );
   }
 }

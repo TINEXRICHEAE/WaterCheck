@@ -7,6 +7,7 @@ import 'package:ui_kit/ui_kit.dart';
 
 import '../../app/providers.dart';
 import '../../l10n/app_localizations.dart';
+import '../photos/photo_service.dart';
 import '../sources/source_providers.dart';
 import 'result_labels.dart';
 import 'test_draft.dart';
@@ -22,12 +23,77 @@ class ReviewScreen extends ConsumerStatefulWidget {
 
 class _ReviewScreenState extends ConsumerState<ReviewScreen> {
   final _reason = TextEditingController();
+  final _otherWhy = TextEditingController();
   bool _saving = false;
+  bool _picking = false;
+
+  /// Why there is no test picture: a code, or 'other' with typed words.
+  String? _why;
 
   @override
   void dispose() {
     _reason.dispose();
+    _otherWhy.dispose();
     super.dispose();
+  }
+
+  /// The reason to store when the test has no picture, or null.
+  String? get _noPhotoReason => switch (_why) {
+    null => null,
+    'other' => _otherWhy.text.trim().isEmpty ? null : _otherWhy.text.trim(),
+    final code => code,
+  };
+
+  Future<void> _addPicture(PhotoFrom from) async {
+    final l10n = AppLocalizations.of(context);
+    setState(() => _picking = true);
+    final (outcome, jpeg) = await preparePhoto(ref, from);
+    if (!mounted) return;
+    setState(() => _picking = false);
+    if (jpeg != null) {
+      ref
+          .read(testDraftProvider.notifier)
+          .update((d) => d.copyWith(photos: [...d.photos, jpeg]));
+      return;
+    }
+    final message = switch (outcome) {
+      PhotoOutcome.lowStorage => l10n.photoLowStorage,
+      PhotoOutcome.notAnImage => l10n.photoNotImage,
+      _ => null,
+    };
+    if (message != null) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(message)));
+    }
+  }
+
+  void _viewPictures(int at) {
+    final l10n = AppLocalizations.of(context);
+    final photos = ref.read(testDraftProvider).photos;
+    showPhotoViewer(
+      context,
+      initial: at,
+      photos: [
+        for (final jpeg in photos)
+          ViewedPhoto(
+            load: () async => jpeg,
+            caption: l10n.reviewPicture,
+            onRemove: () async {
+              ref
+                  .read(testDraftProvider.notifier)
+                  .update(
+                    (d) => d.copyWith(
+                      photos: [
+                        for (final p in d.photos)
+                          if (!identical(p, jpeg)) p,
+                      ],
+                    ),
+                  );
+              return true;
+            },
+          ),
+      ],
+    );
   }
 
   Future<void> _submit() async {
@@ -51,6 +117,7 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
       if (mounted) context.go('/test/result/$id');
       return;
     }
+    final origin = ref.read(submissionOriginProvider)!;
     final ids = await ref
         .read(testingRepositoryProvider)
         .submit(
@@ -67,9 +134,19 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
             distanceOverrideReason: draft.farReason,
             retestOf: draft.retestOf,
             alertTriggers: alertTriggers(result),
+            noPhotoReason: draft.photos.isEmpty ? _noPhotoReason : null,
           ),
-          ref.read(submissionOriginProvider)!,
+          origin,
         );
+    final attachments = ref.read(attachmentRepositoryProvider);
+    for (final jpeg in draft.photos) {
+      await attachments.addPhoto(
+        owner: PhotoOwner.test,
+        ownerId: ids.sessionId,
+        jpeg: jpeg,
+        origin: origin,
+      );
+    }
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(AppLocalizations.of(context).reviewSaved)),
@@ -171,6 +248,86 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
                 style: const TextStyle(fontWeight: FontWeight.w700),
               ),
           ]),
+          if (draft.amendmentOf == null)
+            section(l10n.reviewPicture, [
+              Text(l10n.reviewPictureHint),
+              const SizedBox(height: 8),
+              if (draft.photos.isNotEmpty)
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    for (final (i, jpeg) in draft.photos.indexed)
+                      Semantics(
+                        button: true,
+                        image: true,
+                        label: l10n.photoOpen,
+                        child: InkWell(
+                          onTap: () => _viewPictures(i),
+                          borderRadius: BorderRadius.circular(8),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Image.memory(
+                              jpeg,
+                              width: 88,
+                              height: 88,
+                              fit: BoxFit.cover,
+                              cacheWidth: 176,
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              Wrap(
+                spacing: 8,
+                children: [
+                  if (canUseCamera)
+                    OutlinedButton.icon(
+                      onPressed: _picking
+                          ? null
+                          : () => _addPicture(PhotoFrom.camera),
+                      icon: const Icon(Icons.photo_camera_outlined),
+                      label: Text(l10n.photoTake),
+                    ),
+                  OutlinedButton.icon(
+                    onPressed: _picking
+                        ? null
+                        : () => _addPicture(PhotoFrom.gallery),
+                    icon: const Icon(Icons.photo_library_outlined),
+                    label: Text(l10n.photoChoose),
+                  ),
+                ],
+              ),
+              if (draft.photos.isEmpty) ...[
+                const SizedBox(height: 8),
+                Text(l10n.reviewNoPictureWhy, style: text.labelLarge),
+                Wrap(
+                  spacing: 8,
+                  children: [
+                    for (final code in [...noPhotoReasonCodes, 'other'])
+                      ChoiceChip(
+                        label: Text(
+                          code == 'other'
+                              ? l10n.noPhotoOther
+                              : noPhotoReasonLabel(l10n, code),
+                        ),
+                        selected: _why == code,
+                        onSelected: (on) =>
+                            setState(() => _why = on ? code : null),
+                      ),
+                  ],
+                ),
+                if (_why == 'other')
+                  TextField(
+                    controller: _otherWhy,
+                    decoration: InputDecoration(
+                      labelText: l10n.noPhotoOtherHint,
+                    ),
+                    onChanged: (_) => setState(() {}),
+                  ),
+              ],
+            ]),
           section(l10n.reviewReadings, [
             for (final r in readings)
               ListTile(
@@ -218,16 +375,35 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
       bottomNavigationBar: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(12),
-          child: FilledButton.icon(
-            onPressed:
-                _saving ||
-                    (draft.amendmentOf != null && _reason.text.trim().isEmpty)
-                ? null
-                : _submit,
-            icon: const Icon(Icons.save_outlined),
-            label: Text(
-              draft.amendmentOf == null ? l10n.reviewSubmit : l10n.amendSubmit,
-            ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (draft.amendmentOf == null &&
+                  draft.photos.isEmpty &&
+                  _noPhotoReason == null)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Text(
+                    l10n.reviewPictureNeeded,
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              FilledButton.icon(
+                onPressed:
+                    _saving ||
+                        (draft.amendmentOf != null
+                            ? _reason.text.trim().isEmpty
+                            : draft.photos.isEmpty && _noPhotoReason == null)
+                    ? null
+                    : _submit,
+                icon: const Icon(Icons.save_outlined),
+                label: Text(
+                  draft.amendmentOf == null
+                      ? l10n.reviewSubmit
+                      : l10n.amendSubmit,
+                ),
+              ),
+            ],
           ),
         ),
       ),

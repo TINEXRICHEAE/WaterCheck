@@ -89,6 +89,13 @@ final listsProvider = FutureProvider<JsonMap>(
   (ref) => ref.watch(referenceDataRepositoryProvider).lists(),
 );
 
+/// Values used on this device for a list, typed ones included (ADR-022).
+final usedValuesProvider = FutureProvider.autoDispose
+    .family<List<String>, String>(
+      (ref, list) =>
+          ref.watch(referenceDataRepositoryProvider).usedValues(list),
+    );
+
 final adminUnitsProvider = FutureProvider<List<AdminUnit>>(
   (ref) => ref.watch(referenceDataRepositoryProvider).adminUnits(),
 );

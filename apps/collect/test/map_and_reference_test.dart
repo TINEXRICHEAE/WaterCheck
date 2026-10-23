@@ -18,7 +18,7 @@ void main() {
     expect(find.textContaining('Within 100 m of the source'), findsOneWidget);
     await tapAndSettle(tester, find.text('pH'));
     expect(find.text('Limit in each limit set'), findsOneWidget);
-    expect(find.text('No readings on this phone yet.'), findsOneWidget);
+    expect(find.text('No readings on this device yet.'), findsOneWidget);
     await tapAndSettle(
       tester,
       find.textContaining('Class II (untreated').first,
@@ -43,7 +43,7 @@ void main() {
     expect(find.text('Uganda'), findsOneWidget);
     expect(find.text('12 areas within'), findsOneWidget);
     await tapAndSettle(tester, find.text('Budondo'));
-    expect(find.textContaining('No source on this phone'), findsOneWidget);
+    expect(find.textContaining('No source on this device'), findsOneWidget);
     await disposeApp(tester, db);
   });
 

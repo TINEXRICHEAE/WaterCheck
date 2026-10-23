@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:domain/domain.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -42,6 +44,7 @@ class TestDraft {
     this.farReason,
     this.values = const {},
     this.revealed = const {},
+    this.photos = const [],
   });
 
   final String? sourceId;
@@ -61,6 +64,9 @@ class TestDraft {
   /// Parameters the collector opened from the category panels.
   final Set<String> revealed;
 
+  /// Pictures of the test, saved with it (ADR-022).
+  final List<Uint8List> photos;
+
   TestDraft copyWith({
     String? sourceId,
     String? calibrationId,
@@ -72,6 +78,7 @@ class TestDraft {
     String? farReason,
     Map<String, FieldInput>? values,
     Set<String>? revealed,
+    List<Uint8List>? photos,
   }) => TestDraft(
     sourceId: sourceId ?? this.sourceId,
     retestOf: retestOf,
@@ -85,6 +92,7 @@ class TestDraft {
     farReason: farReason ?? this.farReason,
     values: values ?? this.values,
     revealed: revealed ?? this.revealed,
+    photos: photos ?? this.photos,
   );
 
   /// Parameter codes shown on the entry screen, in display order:

@@ -9,10 +9,10 @@
   "homeTestSource": "Test a source",
   "homeComingSoon": "Testing arrives in the next build (P3).",
   "syncTitle": "Sync",
-  "syncExplainer": "Records are saved on this phone first. They are sent automatically when there is a connection, and nothing is lost if the connection drops. Use Sync now to send straight away.",
+  "syncExplainer": "Records are saved on this device first. They are sent automatically when there is a connection, and nothing is lost if the connection drops. Use Sync now to send straight away.",
   "settingsTitle": "Settings",
   "settingsReferenceData": "Reference data",
-  "settingsReferenceDataHint": "Parameters, limits, tester profiles and areas on this phone",
+  "settingsReferenceDataHint": "Parameters, limits, tester profiles and areas on this device",
   "settingsAbout": "About",
   "settingsAboutBody": "WaterCheck Collect {version}. Water quality screening for communities across Uganda. Results are screening only, not laboratory confirmation.",
   "@settingsAboutBody": {
@@ -22,11 +22,11 @@
       }
     }
   },
-  "startupFailed": "WaterCheck could not open its data on this phone.",
+  "startupFailed": "WaterCheck could not open its data on this device.",
   "startupRetry": "Try again",
   "welcomeTitle": "Welcome to WaterCheck",
   "privacyHeading": "How your information is used",
-  "privacyBody": "WaterCheck records water test results for shared water sources.\n\nWith every result it saves your name, phone number, collector type, village and the place where you tested. This lets the district trust the result and contact you about it.\n\nWaterCheck does not ask for national ID numbers or information about households.\n\nEverything is kept locked (encrypted) on this phone and sent to the WaterCheck service when there is internet. You can stop taking part at any time by telling your coordinator.",
+  "privacyBody": "WaterCheck records water test results for shared water sources.\n\nWith every result it saves your name, phone number, collector type, village and the place where you tested. This lets the district trust the result and contact you about it.\n\nWaterCheck does not ask for national ID numbers or information about households.\n\nEverything is kept on this device (encrypted in the Android and Windows apps) and sent to the WaterCheck service when there is internet. You can stop taking part at any time by telling your coordinator.",
   "privacyVersion": "Privacy notice version {version}",
   "@privacyVersion": {
     "placeholders": {
@@ -38,7 +38,7 @@
   "privacyAgree": "I understand and agree",
   "whoTitle": "Who is testing?",
   "whoIntro": "Choose your name. Everything you save is recorded with it.",
-  "whoEmpty": "No one has been added on this phone yet.",
+  "whoEmpty": "No one has been added on this device yet.",
   "whoAdd": "Add a person",
   "whoEdit": "Edit details",
   "whoCurrent": "Testing now",
@@ -92,9 +92,9 @@
   "sourceLongitude": "Longitude",
   "sourceLocationInvalid": "Enter a number between -90 and 90 (latitude) or -180 and 180 (longitude)",
   "sourceLocationPoorAccuracy": "Accuracy is poor. Stand in the open near the source and try again if you can.",
-  "locationServiceOff": "Location is switched off on this phone. Switch it on in the phone settings.",
+  "locationServiceOff": "Location is switched off on this device. Switch it on in the device settings.",
   "locationDenied": "WaterCheck may not use your location. Allow it to record where the source is.",
-  "locationDeniedForever": "Location access is blocked for WaterCheck. Allow it in the phone settings.",
+  "locationDeniedForever": "Location access is blocked for WaterCheck. Allow it in the device settings.",
   "locationTimeout": "No GPS signal yet. Move into the open and try again.",
   "locationUnavailable": "The location could not be found on this device. You can type the coordinates.",
   "sourceSave": "Save source",
@@ -262,7 +262,7 @@
   },
   "reviewUncalibrated": "Tester not calibrated today",
   "reviewSubmit": "Submit",
-  "reviewSaved": "Saved on this phone. It will be sent when the internet returns.",
+  "reviewSaved": "Saved on this device. It will be sent when the internet returns.",
   "resultTitle": "Result",
   "limitationNoGermTest": "Safe on the measured parameters. This test cannot detect germs — boil or treat drinking water.",
   "limitationEcoliNegative": "No E. coli found in this test. Still boil or treat drinking water to be safe.",
@@ -329,7 +329,7 @@
       }
     }
   },
-  "activationTitle": "Activate this phone",
+  "activationTitle": "Activate this device",
   "activationIntro": "Enter the activation code from your IT admin. This needs the internet once. After that, WaterCheck works without internet and nobody needs to log in.",
   "activationCodeLabel": "Activation code",
   "activationScan": "Scan QR code",
@@ -343,7 +343,7 @@
   "activationBadQr": "That QR code is not a WaterCheck activation code.",
   "activationInvalidCode": "This code is not recognised. Check it and try again.",
   "activationExpiredCode": "This code has expired. Ask the IT admin for a new one.",
-  "activationUsedUp": "This code has already been used on as many phones as allowed. Ask the IT admin for a new one.",
+  "activationUsedUp": "This code has already been used on as many devices as allowed. Ask the IT admin for a new one.",
   "activationOffline": "Could not reach the server. Activation needs the internet once: check the connection and the server address, then try again.",
   "activationFailed": "Activation failed ({code}). Try again, or contact the IT admin.",
   "@activationFailed": {
@@ -359,21 +359,21 @@
   "lockBiometricReason": "Unlock WaterCheck",
   "lockForgot": "Forgot PIN?",
   "lockForgotTitle": "Forgot your PIN?",
-  "lockForgotBody": "The PIN cannot be recovered. Resetting the app saves unsent records to an encrypted file for the IT admin, then erases WaterCheck from this phone so it can be activated again.",
+  "lockForgotBody": "The PIN cannot be recovered. Resetting the app saves unsent records to an encrypted file for the IT admin, then erases WaterCheck from this device so it can be activated again.",
   "lockForgotReset": "Reset the app",
   "lockSetupTitle": "Choose a PIN to protect WaterCheck",
   "lockTurnOff": "Turn off app lock",
   "lockOffTitle": "Turn off the app lock?",
-  "lockOffBody": "Anyone who picks up this phone can then open WaterCheck and see the records on it.",
+  "lockOffBody": "Anyone who picks up this device can then open WaterCheck and see the records on it.",
   "lockBiometricOfferTitle": "Use your fingerprint too?",
   "lockBiometricOfferBody": "You can unlock with your fingerprint or face. The PIN still works.",
   "lockBiometricYes": "Yes",
   "lockBiometricNo": "No, PIN only",
   "lockCurrentPin": "Enter your current PIN",
-  "revokedTitle": "This phone has been switched off",
-  "revokedBody": "The IT admin has stopped this phone from sending data. Save any unsent records to a file and give it to the IT admin. Then erase WaterCheck from this phone.",
-  "resetTitle": "Reset this phone",
-  "resetBody": "This erases all WaterCheck data from this phone and returns it to activation. Save unsent records to a file first and give it to the IT admin.",
+  "revokedTitle": "This device has been switched off",
+  "revokedBody": "The IT admin has stopped this device from sending data. Save any unsent records to a file and give it to the IT admin. Then erase WaterCheck from this device.",
+  "resetTitle": "Reset this device",
+  "resetBody": "This erases all WaterCheck data from this device and returns it to activation. Save unsent records to a file first and give it to the IT admin.",
   "resetCounting": "Checking for unsent records…",
   "resetNothingUnsent": "Everything has been sent.",
   "resetUnsent": "{count, plural, =1{1 record not sent} other{{count} records not sent}}",
@@ -390,9 +390,9 @@
   "resetSaved": "File saved.",
   "resetNotSaved": "Not saved.",
   "resetSaveFailed": "The file could not be saved. Try again.",
-  "resetErase": "Erase this phone",
-  "resetConfirmTitle": "Erase WaterCheck from this phone?",
-  "resetConfirmBody": "All WaterCheck data on this phone will be erased. This cannot be undone.",
+  "resetErase": "Erase this device",
+  "resetConfirmTitle": "Erase WaterCheck from this device?",
+  "resetConfirmBody": "All WaterCheck data on this device will be erased. This cannot be undone.",
   "resetConfirmLoses": "{count, plural, =1{1 record has not been sent or saved and will be lost.} other{{count} records have not been sent or saved and will be lost.}} This cannot be undone.",
   "@resetConfirmLoses": {
     "placeholders": {
@@ -421,7 +421,7 @@
   "settingsAppLockHint": "Ask for a PIN when WaterCheck opens",
   "settingsChangePin": "Change PIN",
   "settingsBiometric": "Unlock with fingerprint or face",
-  "settingsReset": "Reset this phone",
+  "settingsReset": "Reset this device",
   "settingsResetHint": "Save unsent records, then erase WaterCheck",
   "syncNow": "Sync now",
   "syncRunning": "Sending and receiving…",
@@ -445,7 +445,7 @@
     }
   },
   "syncRejectedTitle": "Not accepted by the server",
-  "syncRejectedHint": "These records stay on this phone. Show this list to your IT admin.",
+  "syncRejectedHint": "These records stay on this device. Show this list to your IT admin.",
   "entitySource": "Water source",
   "entityTest": "Test",
   "entityResult": "Result",
@@ -457,10 +457,10 @@
   "entityCustomLimits": "Custom limits",
   "entityCustomParameter": "Custom parameter",
   "rejectMissingParent": "Something it belongs to was not accepted.",
-  "rejectOutOfScope": "It is outside this phone's area.",
+  "rejectOutOfScope": "It is outside this device's area.",
   "rejectNoCollector": "No collector was recorded for it.",
   "rejectDuplicate": "A record with the same code already exists.",
-  "rejectNotAccepted": "This kind of change is not accepted from a phone.",
+  "rejectNotAccepted": "This kind of change is not accepted from a device.",
   "rejectInvalid": "Some of its information was not valid.",
   "rejectOther": "The server refused it ({reason}).",
   "@rejectOther": {
@@ -474,8 +474,8 @@
   "photoTesterTitle": "Photo of the tester display (optional)",
   "photoTake": "Take photo",
   "photoChoose": "Choose photo",
-  "photoSaved": "Photo saved. It will upload when the phone is on Wi-Fi.",
-  "photoLowStorage": "This phone is almost full (less than 100 MB free). Photos are switched off so readings can still be saved. Free some space to add photos.",
+  "photoSaved": "Photo saved. It will upload when the device is on Wi-Fi.",
+  "photoLowStorage": "This device is almost full (less than 100 MB free). Photos are switched off so readings can still be saved. Free some space to add photos.",
   "photoNotImage": "That file is not a photo WaterCheck can use.",
   "photoWaiting": "Waiting to upload",
   "photoUploaded": "Uploaded",
@@ -522,8 +522,8 @@
     }
   },
   "settingsAppearance": "Appearance and time",
-  "settingsAppearanceDevice": "Saved on this phone.",
-  "settingsAppearanceFor": "Saved on this phone for {name}.",
+  "settingsAppearanceDevice": "Saved on this device.",
+  "settingsAppearanceFor": "Saved on this device for {name}.",
   "@settingsAppearanceFor": {
     "placeholders": {
       "name": {
@@ -538,7 +538,7 @@
   "trailCorrections": "Corrections of this test",
   "trailNone": "No changes recorded.",
   "trailUnknown": "Unknown",
-  "trailField": "{field, select, name{Name} households_served{Households} functional_status{Working} is_active{In use} source_type{Type} lat{Latitude} lon{Longitude} location_accuracy_m{GPS accuracy} label{Phone name} full_name{Full name} phone{Phone} collector_type{Role} village{Village} parish{Parish} subcounty{Sub-county} district{District} organisation{Organisation} overall{Result} other{{field}}}",
+  "trailField": "{field, select, name{Name} households_served{Households} functional_status{Working} is_active{In use} source_type{Type} lat{Latitude} lon{Longitude} location_accuracy_m{GPS accuracy} label{Device name} full_name{Full name} phone{Phone} collector_type{Role} village{Village} parish{Parish} subcounty{Sub-county} district{District} organisation{Organisation} overall{Result} other{{field}}}",
   "@trailField": {
     "placeholders": {
       "field": {
@@ -642,7 +642,7 @@
       }
     }
   },
-  "mapNoSources": "No source on this phone is in this area yet. Search online from Home to find others.",
+  "mapNoSources": "No source on this device is in this area yet. Search online from Home to find others.",
   "mapNoLocation": "no location saved",
   "mapShowOnMap": "Show on the map",
   "mapFindArea": "Find an area",
@@ -654,9 +654,9 @@
   "levelSubcounty": "sub-county",
   "levelParish": "parish",
   "levelVillage": "village",
-  "refNotFound": "Not found on this phone. Sync and try again.",
+  "refNotFound": "Not found on this device. Sync and try again.",
   "rulesTitle": "Testing rules",
-  "rulesIntro": "What every test needs and how often a source is due. Set by the IT admin; they reach this phone with sync.",
+  "rulesIntro": "What every test needs and how often a source is due. Set by the IT admin; they reach this device with sync.",
   "rulesRequired": "Readings every test needs",
   "rulesSchedule": "When a source is due",
   "rulesRoutine": "Every {days} days normally",
@@ -713,7 +713,7 @@
   "limitsCalibrate": "Calibrate with these limits",
   "limitsTestWith": "Test a source with these limits",
   "limitsUsedFor": "Where it is used",
-  "limitsTestsHere": "{count, plural, =0{No test on this phone used it yet.} =1{1 test on this phone used it.} other{{count} tests on this phone used it.}}",
+  "limitsTestsHere": "{count, plural, =0{No test on this device used it yet.} =1{1 test on this device used it.} other{{count} tests on this device used it.}}",
   "@limitsTestsHere": {
     "placeholders": {
       "count": {
@@ -755,15 +755,15 @@
     }
   },
   "paramLimits": "Limit in each limit set",
-  "paramRecent": "Recent readings on this phone",
-  "paramNoReadings": "No readings on this phone yet.",
+  "paramRecent": "Recent readings on this device",
+  "paramNoReadings": "No readings on this device yet.",
   "searchOnline": "Search all of Uganda",
-  "searchOnlineHint": "Sources beyond the districts on this phone (needs internet)",
+  "searchOnlineHint": "Sources beyond the districts on this device (needs internet)",
   "groupOnline": "Elsewhere in Uganda (online)",
   "searchOnlineOffline": "Could not reach the server. Try again when online.",
   "searchOnlineNone": "Nothing else found.",
   "searchOnlineGet": "Get this district",
-  "searchOnlineAdded": "{district} added to this phone; syncing now.",
+  "searchOnlineAdded": "{district} added to this device; syncing now.",
   "@searchOnlineAdded": {
     "placeholders": {
       "district": {
@@ -772,12 +772,12 @@
     }
   },
   "whoRecover": "I already have a profile",
-  "whoRecoverHint": "Lost your phone, or using another one? Come back as yourself with a code.",
+  "whoRecoverHint": "Lost your device, or using another one? Come back as yourself with a code.",
   "recoverTitle": "I already have a profile",
-  "recoverIntro": "Enter the code your IT admin or stakeholder gave you. Your details come back to this phone, and your earlier work stays yours.",
+  "recoverIntro": "Enter the code your IT admin or stakeholder gave you. Your details come back to this device, and your earlier work stays yours.",
   "recoverCode": "Code",
   "recoverButton": "Get my profile",
-  "recoverWhoGives": "No code? Ask your IT admin or the stakeholder for your area: in the Console they open Collectors, your name, \"Sign-in code for another phone\". A code works once, within a day.",
+  "recoverWhoGives": "No code? Ask your IT admin or the stakeholder for your area: in the Console they open Collectors, your name, \"Sign-in code for another device\". A code works once, within a day.",
   "recoverInvalid": "That code is not valid. It may be mistyped, used already, or older than a day.",
   "recoverOffline": "Could not reach the server. Connect to the internet and try again.",
   "recoverWelcome": "Welcome back, {name}.",
@@ -789,5 +789,63 @@
     }
   },
   "mapOpenSource": "Open",
-  "mapLocateForDistance": "Tap \"My location\" for the distance and the route."
+  "mapLocateForDistance": "Tap \"My location\" for the distance and the route.",
+  "photoOpen": "Open picture",
+  "reviewPicture": "Test picture",
+  "reviewPictureHint": "Take a picture of the test (the strip, kit or meter reading). It is needed unless one of the reasons below applies.",
+  "reviewNoPictureWhy": "No picture? Say why:",
+  "reviewPictureNeeded": "Add a test picture, or choose why there is none.",
+  "noPhotoCameraBroken": "Camera not working",
+  "noPhotoNotAllowed": "Pictures not allowed here",
+  "noPhotoTooDark": "Too dark to see",
+  "noPhotoOther": "Another reason",
+  "noPhotoOtherHint": "Type the reason",
+  "resultContextTitle": "Where and how it was tested",
+  "resultAccuracy": "location within {metres} m",
+  "@resultAccuracy": {
+    "placeholders": {
+      "metres": {
+        "type": "int"
+      }
+    }
+  },
+  "resultFarReason": "away from the source because: {reason}",
+  "@resultFarReason": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "resultNoPhoto": "No test picture: {reason}",
+  "@resultNoPhoto": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "resultShowOnMap": "Show on the map",
+  "messagesTitle": "Messages",
+  "messagesUnread": "{count, plural, =1{Messages: 1 new} other{Messages: {count} new}}",
+  "@messagesUnread": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "messagesNone": "No messages yet. Messages about your tests and sources, and replies from stakeholders, appear here.",
+  "messagesEmpty": "No messages yet. Ask a question or add a note; stakeholders see it in the Console.",
+  "messagesAbout": "{kind, select, test{Test} source{Source} collector{Collector} area{Area} other{Thread}}",
+  "@messagesAbout": {
+    "placeholders": {
+      "kind": {
+        "type": "String"
+      }
+    }
+  },
+  "messagesOpenSource": "Open the source",
+  "messagesTestTitle": "Messages about this test",
+  "messagesSourceTitle": "Messages about this source"
 }

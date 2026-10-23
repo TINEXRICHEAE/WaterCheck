@@ -4,6 +4,15 @@ import 'package:ui_kit/ui_kit.dart';
 
 import '../../l10n/app_localizations.dart';
 
+/// Why a test has no picture: a named reason, or the collector's words.
+String noPhotoReasonLabel(AppLocalizations l10n, String reason) =>
+    switch (reason) {
+      'camera_broken' => l10n.noPhotoCameraBroken,
+      'not_allowed' => l10n.noPhotoNotAllowed,
+      'too_dark' => l10n.noPhotoTooDark,
+      _ => reason,
+    };
+
 /// Short per-parameter result word (text + colour; SPEC §11).
 String resultLabel(AppLocalizations l10n, ReadingResult r) => switch (r) {
   ReadingResult.ok => l10n.resultOk,

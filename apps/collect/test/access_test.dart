@@ -106,7 +106,7 @@ void main() {
         const Duration(hours: 2),
       );
     final db = await pumpCollect(tester, activated: false, services: svc);
-    expect(find.text('Activate this phone'), findsOneWidget);
+    expect(find.text('Activate this device'), findsOneWidget);
 
     Future<void> tryCode(String code) async {
       await tester.enterText(find.byType(TextField).first, code);
@@ -120,7 +120,7 @@ void main() {
     await tryCode('expd-expd-expd');
     expect(find.textContaining('has expired'), findsOneWidget);
     await tryCode('USED USED USED');
-    expect(find.textContaining('as many phones as allowed'), findsOneWidget);
+    expect(find.textContaining('as many devices as allowed'), findsOneWidget);
     svc.server.offline = true;
     await tryCode('K7QM-RT4W-9XHB');
     expect(find.textContaining('Could not reach the server'), findsOneWidget);
@@ -204,7 +204,7 @@ void main() {
       prepare: addUnsentRecord,
     );
     // The status check on start found the revocation; no PIN is needed.
-    expect(find.text('This phone has been switched off'), findsOneWidget);
+    expect(find.text('This device has been switched off'), findsOneWidget);
     expect(find.text('1 record not sent'), findsOneWidget);
     expect((await tester.runAsync(svc.installation.isRevoked))!, isTrue);
 
@@ -221,14 +221,14 @@ void main() {
     final items = content['items']! as List;
     expect((items.single as Map)['payload'], {'code': 'ABIM-ENT-001'});
 
-    await tapAndSettle(tester, find.text('Erase this phone'));
+    await tapAndSettle(tester, find.text('Erase this device'));
     expect(
       find.text(
-        'All WaterCheck data on this phone will be erased. This cannot be undone.',
+        'All WaterCheck data on this device will be erased. This cannot be undone.',
       ),
       findsOneWidget,
     );
-    await tester.tap(find.widgetWithText(FilledButton, 'Erase this phone'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Erase this device'));
     // Closing the database waits for its open queries (real time).
     for (var i = 0; i < 10 && svc.restarts == 0; i++) {
       await tester.pump(const Duration(milliseconds: 200));
@@ -257,8 +257,8 @@ void main() {
     );
     await tapAndSettle(tester, find.text('Forgot PIN?'));
     await tapAndSettle(tester, find.text('Reset the app'));
-    expect(find.text('Reset this phone'), findsOneWidget);
-    await tapAndSettle(tester, find.text('Erase this phone'));
+    expect(find.text('Reset this device'), findsOneWidget);
+    await tapAndSettle(tester, find.text('Erase this device'));
     expect(find.textContaining('will be lost'), findsOneWidget);
     await tapAndSettle(tester, find.text('Cancel').last);
     // Cancel goes back to the lock: reset does not bypass it.

@@ -35,7 +35,19 @@ class CollectApp extends ConsumerWidget {
       routerConfig: ref.watch(routerProvider),
       builder: (context, child) => TimeZoneScope(
         zone: zone,
-        child: SessionWatcher(child: child ?? const SizedBox()),
+        child: SessionWatcher(
+          // A field app: on a large monitor it keeps a comfortable width,
+          // centred, rather than stretching every list (ADR-022).
+          child: ColoredBox(
+            color: Theme.of(context).colorScheme.surfaceContainerLow,
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 1280),
+                child: child ?? const SizedBox(),
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }

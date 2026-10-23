@@ -252,6 +252,7 @@ class _MapScreenState extends ConsumerState<MapScreen>
           mapController: _map,
           options: MapOptions(
             crs: const NoRepeatCrs(),
+            interactionOptions: mapInteraction,
             initialCenter:
                 chosenAt ??
                 (focusPoints.length == 1
@@ -349,7 +350,13 @@ class _MapScreenState extends ConsumerState<MapScreen>
         Positioned(
           top: 12,
           right: 12,
-          child: MapLayersButton(layers: _layers, onChanged: _setLayers),
+          child: Column(
+            children: [
+              MapLayersButton(layers: _layers, onChanged: _setLayers),
+              const SizedBox(height: 8),
+              MapZoomButtons(motion: _motion),
+            ],
+          ),
         ),
         if (chosen != null)
           Positioned(

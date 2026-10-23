@@ -39,7 +39,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get syncExplainer =>
-      'Records are saved on this phone first. They are sent automatically when there is a connection, and nothing is lost if the connection drops. Use Sync now to send straight away.';
+      'Records are saved on this device first. They are sent automatically when there is a connection, and nothing is lost if the connection drops. Use Sync now to send straight away.';
 
   @override
   String get settingsTitle => 'Settings';
@@ -49,7 +49,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsReferenceDataHint =>
-      'Parameters, limits, tester profiles and areas on this phone';
+      'Parameters, limits, tester profiles and areas on this device';
 
   @override
   String get settingsAbout => 'About';
@@ -61,7 +61,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get startupFailed =>
-      'WaterCheck could not open its data on this phone.';
+      'WaterCheck could not open its data on this device.';
 
   @override
   String get startupRetry => 'Try again';
@@ -74,7 +74,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get privacyBody =>
-      'WaterCheck records water test results for shared water sources.\n\nWith every result it saves your name, phone number, collector type, village and the place where you tested. This lets the district trust the result and contact you about it.\n\nWaterCheck does not ask for national ID numbers or information about households.\n\nEverything is kept locked (encrypted) on this phone and sent to the WaterCheck service when there is internet. You can stop taking part at any time by telling your coordinator.';
+      'WaterCheck records water test results for shared water sources.\n\nWith every result it saves your name, phone number, collector type, village and the place where you tested. This lets the district trust the result and contact you about it.\n\nWaterCheck does not ask for national ID numbers or information about households.\n\nEverything is kept on this device (encrypted in the Android and Windows apps) and sent to the WaterCheck service when there is internet. You can stop taking part at any time by telling your coordinator.';
 
   @override
   String privacyVersion(int version) {
@@ -92,7 +92,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Choose your name. Everything you save is recorded with it.';
 
   @override
-  String get whoEmpty => 'No one has been added on this phone yet.';
+  String get whoEmpty => 'No one has been added on this device yet.';
 
   @override
   String get whoAdd => 'Add a person';
@@ -222,7 +222,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get locationServiceOff =>
-      'Location is switched off on this phone. Switch it on in the phone settings.';
+      'Location is switched off on this device. Switch it on in the device settings.';
 
   @override
   String get locationDenied =>
@@ -230,7 +230,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get locationDeniedForever =>
-      'Location access is blocked for WaterCheck. Allow it in the phone settings.';
+      'Location access is blocked for WaterCheck. Allow it in the device settings.';
 
   @override
   String get locationTimeout =>
@@ -558,7 +558,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reviewSaved =>
-      'Saved on this phone. It will be sent when the internet returns.';
+      'Saved on this device. It will be sent when the internet returns.';
 
   @override
   String get resultTitle => 'Result';
@@ -727,7 +727,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get activationTitle => 'Activate this phone';
+  String get activationTitle => 'Activate this device';
 
   @override
   String get activationIntro =>
@@ -777,7 +777,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get activationUsedUp =>
-      'This code has already been used on as many phones as allowed. Ask the IT admin for a new one.';
+      'This code has already been used on as many devices as allowed. Ask the IT admin for a new one.';
 
   @override
   String get activationOffline =>
@@ -809,7 +809,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get lockForgotBody =>
-      'The PIN cannot be recovered. Resetting the app saves unsent records to an encrypted file for the IT admin, then erases WaterCheck from this phone so it can be activated again.';
+      'The PIN cannot be recovered. Resetting the app saves unsent records to an encrypted file for the IT admin, then erases WaterCheck from this device so it can be activated again.';
 
   @override
   String get lockForgotReset => 'Reset the app';
@@ -825,7 +825,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get lockOffBody =>
-      'Anyone who picks up this phone can then open WaterCheck and see the records on it.';
+      'Anyone who picks up this device can then open WaterCheck and see the records on it.';
 
   @override
   String get lockBiometricOfferTitle => 'Use your fingerprint too?';
@@ -844,18 +844,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get lockCurrentPin => 'Enter your current PIN';
 
   @override
-  String get revokedTitle => 'This phone has been switched off';
+  String get revokedTitle => 'This device has been switched off';
 
   @override
   String get revokedBody =>
-      'The IT admin has stopped this phone from sending data. Save any unsent records to a file and give it to the IT admin. Then erase WaterCheck from this phone.';
+      'The IT admin has stopped this device from sending data. Save any unsent records to a file and give it to the IT admin. Then erase WaterCheck from this device.';
 
   @override
-  String get resetTitle => 'Reset this phone';
+  String get resetTitle => 'Reset this device';
 
   @override
   String get resetBody =>
-      'This erases all WaterCheck data from this phone and returns it to activation. Save unsent records to a file first and give it to the IT admin.';
+      'This erases all WaterCheck data from this device and returns it to activation. Save unsent records to a file first and give it to the IT admin.';
 
   @override
   String get resetCounting => 'Checking for unsent records…';
@@ -894,14 +894,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get resetSaveFailed => 'The file could not be saved. Try again.';
 
   @override
-  String get resetErase => 'Erase this phone';
+  String get resetErase => 'Erase this device';
 
   @override
-  String get resetConfirmTitle => 'Erase WaterCheck from this phone?';
+  String get resetConfirmTitle => 'Erase WaterCheck from this device?';
 
   @override
   String get resetConfirmBody =>
-      'All WaterCheck data on this phone will be erased. This cannot be undone.';
+      'All WaterCheck data on this device will be erased. This cannot be undone.';
 
   @override
   String resetConfirmLoses(int count) {
@@ -937,7 +937,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsBiometric => 'Unlock with fingerprint or face';
 
   @override
-  String get settingsReset => 'Reset this phone';
+  String get settingsReset => 'Reset this device';
 
   @override
   String get settingsResetHint => 'Save unsent records, then erase WaterCheck';
@@ -963,7 +963,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get syncRejectedHint =>
-      'These records stay on this phone. Show this list to your IT admin.';
+      'These records stay on this device. Show this list to your IT admin.';
 
   @override
   String get entitySource => 'Water source';
@@ -999,7 +999,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get rejectMissingParent => 'Something it belongs to was not accepted.';
 
   @override
-  String get rejectOutOfScope => 'It is outside this phone\'s area.';
+  String get rejectOutOfScope => 'It is outside this device\'s area.';
 
   @override
   String get rejectNoCollector => 'No collector was recorded for it.';
@@ -1009,7 +1009,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get rejectNotAccepted =>
-      'This kind of change is not accepted from a phone.';
+      'This kind of change is not accepted from a device.';
 
   @override
   String get rejectInvalid => 'Some of its information was not valid.';
@@ -1033,11 +1033,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get photoSaved =>
-      'Photo saved. It will upload when the phone is on Wi-Fi.';
+      'Photo saved. It will upload when the device is on Wi-Fi.';
 
   @override
   String get photoLowStorage =>
-      'This phone is almost full (less than 100 MB free). Photos are switched off so readings can still be saved. Free some space to add photos.';
+      'This device is almost full (less than 100 MB free). Photos are switched off so readings can still be saved. Free some space to add photos.';
 
   @override
   String get photoNotImage => 'That file is not a photo WaterCheck can use.';
@@ -1141,11 +1141,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsAppearance => 'Appearance and time';
 
   @override
-  String get settingsAppearanceDevice => 'Saved on this phone.';
+  String get settingsAppearanceDevice => 'Saved on this device.';
 
   @override
   String settingsAppearanceFor(String name) {
-    return 'Saved on this phone for $name.';
+    return 'Saved on this device for $name.';
   }
 
   @override
@@ -1180,7 +1180,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'lat': 'Latitude',
       'lon': 'Longitude',
       'location_accuracy_m': 'GPS accuracy',
-      'label': 'Phone name',
+      'label': 'Device name',
       'full_name': 'Full name',
       'phone': 'Phone',
       'collector_type': 'Role',
@@ -1343,7 +1343,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get mapNoSources =>
-      'No source on this phone is in this area yet. Search online from Home to find others.';
+      'No source on this device is in this area yet. Search online from Home to find others.';
 
   @override
   String get mapNoLocation => 'no location saved';
@@ -1379,14 +1379,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get levelVillage => 'village';
 
   @override
-  String get refNotFound => 'Not found on this phone. Sync and try again.';
+  String get refNotFound => 'Not found on this device. Sync and try again.';
 
   @override
   String get rulesTitle => 'Testing rules';
 
   @override
   String get rulesIntro =>
-      'What every test needs and how often a source is due. Set by the IT admin; they reach this phone with sync.';
+      'What every test needs and how often a source is due. Set by the IT admin; they reach this device with sync.';
 
   @override
   String get rulesRequired => 'Readings every test needs';
@@ -1448,9 +1448,9 @@ class AppLocalizationsEn extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count tests on this phone used it.',
-      one: '1 test on this phone used it.',
-      zero: 'No test on this phone used it yet.',
+      other: '$count tests on this device used it.',
+      one: '1 test on this device used it.',
+      zero: 'No test on this device used it yet.',
     );
     return '$_temp0';
   }
@@ -1493,17 +1493,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get paramLimits => 'Limit in each limit set';
 
   @override
-  String get paramRecent => 'Recent readings on this phone';
+  String get paramRecent => 'Recent readings on this device';
 
   @override
-  String get paramNoReadings => 'No readings on this phone yet.';
+  String get paramNoReadings => 'No readings on this device yet.';
 
   @override
   String get searchOnline => 'Search all of Uganda';
 
   @override
   String get searchOnlineHint =>
-      'Sources beyond the districts on this phone (needs internet)';
+      'Sources beyond the districts on this device (needs internet)';
 
   @override
   String get groupOnline => 'Elsewhere in Uganda (online)';
@@ -1520,7 +1520,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String searchOnlineAdded(String district) {
-    return '$district added to this phone; syncing now.';
+    return '$district added to this device; syncing now.';
   }
 
   @override
@@ -1528,14 +1528,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get whoRecoverHint =>
-      'Lost your phone, or using another one? Come back as yourself with a code.';
+      'Lost your device, or using another one? Come back as yourself with a code.';
 
   @override
   String get recoverTitle => 'I already have a profile';
 
   @override
   String get recoverIntro =>
-      'Enter the code your IT admin or stakeholder gave you. Your details come back to this phone, and your earlier work stays yours.';
+      'Enter the code your IT admin or stakeholder gave you. Your details come back to this device, and your earlier work stays yours.';
 
   @override
   String get recoverCode => 'Code';
@@ -1545,7 +1545,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get recoverWhoGives =>
-      'No code? Ask your IT admin or the stakeholder for your area: in the Console they open Collectors, your name, \"Sign-in code for another phone\". A code works once, within a day.';
+      'No code? Ask your IT admin or the stakeholder for your area: in the Console they open Collectors, your name, \"Sign-in code for another device\". A code works once, within a day.';
 
   @override
   String get recoverInvalid =>
@@ -1566,4 +1566,100 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get mapLocateForDistance =>
       'Tap \"My location\" for the distance and the route.';
+
+  @override
+  String get photoOpen => 'Open picture';
+
+  @override
+  String get reviewPicture => 'Test picture';
+
+  @override
+  String get reviewPictureHint =>
+      'Take a picture of the test (the strip, kit or meter reading). It is needed unless one of the reasons below applies.';
+
+  @override
+  String get reviewNoPictureWhy => 'No picture? Say why:';
+
+  @override
+  String get reviewPictureNeeded =>
+      'Add a test picture, or choose why there is none.';
+
+  @override
+  String get noPhotoCameraBroken => 'Camera not working';
+
+  @override
+  String get noPhotoNotAllowed => 'Pictures not allowed here';
+
+  @override
+  String get noPhotoTooDark => 'Too dark to see';
+
+  @override
+  String get noPhotoOther => 'Another reason';
+
+  @override
+  String get noPhotoOtherHint => 'Type the reason';
+
+  @override
+  String get resultContextTitle => 'Where and how it was tested';
+
+  @override
+  String resultAccuracy(int metres) {
+    return 'location within $metres m';
+  }
+
+  @override
+  String resultFarReason(String reason) {
+    return 'away from the source because: $reason';
+  }
+
+  @override
+  String resultNoPhoto(String reason) {
+    return 'No test picture: $reason';
+  }
+
+  @override
+  String get resultShowOnMap => 'Show on the map';
+
+  @override
+  String get messagesTitle => 'Messages';
+
+  @override
+  String messagesUnread(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Messages: $count new',
+      one: 'Messages: 1 new',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get messagesNone =>
+      'No messages yet. Messages about your tests and sources, and replies from stakeholders, appear here.';
+
+  @override
+  String get messagesEmpty =>
+      'No messages yet. Ask a question or add a note; stakeholders see it in the Console.';
+
+  @override
+  String messagesAbout(String kind) {
+    String _temp0 = intl.Intl.selectLogic(kind, {
+      'test': 'Test',
+      'source': 'Source',
+      'collector': 'Collector',
+      'area': 'Area',
+      'other': 'Thread',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get messagesOpenSource => 'Open the source';
+
+  @override
+  String get messagesTestTitle => 'Messages about this test';
+
+  @override
+  String get messagesSourceTitle => 'Messages about this source';
 }

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:watercheck_collect/features/location/location_service.dart';
 
+import 'photos_test.dart' show cameraPhoto;
 import 'support/harness.dart';
 
 class _FixedLocation implements LocationService {
@@ -42,15 +43,18 @@ Future<void> _withSource(AppDatabase db) async {
   );
 }
 
-Future<AppDatabase> _start(WidgetTester tester, {GeoPoint here = _sourceAt}) =>
-    pumpCollect(
-      tester,
-      size: const Size(420, 1400),
-      prepare: _withSource,
-      overrides: [
-        locationServiceProvider.overrideWithValue(_FixedLocation(here)),
-      ],
-    );
+Future<AppDatabase> _start(
+  WidgetTester tester, {
+  GeoPoint here = _sourceAt,
+  TestServices? services,
+}) => pumpCollect(
+  tester,
+  services: services,
+  // Tall enough for a whole result page (readings, context, pictures).
+  size: const Size(420, 2200),
+  prepare: _withSource,
+  overrides: [locationServiceProvider.overrideWithValue(_FixedLocation(here))],
+);
 
 Future<void> _openSetup(WidgetTester tester) async {
   await tapAndSettle(tester, find.text('Test a source'));
@@ -96,7 +100,8 @@ void main() {
   testWidgets('full abnormal test: calibrate, check location, enter, submit', (
     tester,
   ) async {
-    final db = await _start(tester);
+    final svc = TestServices()..picker.next = cameraPhoto();
+    final db = await _start(tester, services: svc);
     await _openSetup(tester);
     expect(find.text('Not calibrated today'), findsOneWidget);
     expect(find.text('Continue to readings'), findsOneWidget);
@@ -127,6 +132,14 @@ void main() {
     expect(find.text('Example Collector · +256772123456'), findsOneWidget);
     expect(find.text('560 mg/L'), findsOneWidget, reason: '800 × 0.7');
 
+    // A picture of the test is needed (ADR-022).
+    expect(
+      find.text('Add a test picture, or choose why there is none.'),
+      findsOneWidget,
+    );
+    await tapAndSettle(tester, find.text('Choose photo'));
+    expect(find.text('No picture? Say why:'), findsNothing);
+
     await tapAndSettle(tester, find.text('Submit'));
     expect(find.text('Result'), findsOneWidget);
     expect(find.text('UNSAFE'), findsOneWidget);
@@ -135,6 +148,17 @@ void main() {
       findsOneWidget,
     );
     expect(find.text('Test again'), findsOneWidget);
+    expect(find.text('Where and how it was tested'), findsOneWidget);
+    expect(find.textContaining('location within 5 m'), findsOneWidget);
+    expect(find.bySemanticsLabel(RegExp('Waiting to upload')), findsOneWidget);
+    final pictures = (await tester.runAsync(
+      () => db.select(db.attachments).get(),
+    ))!;
+    final session = (await tester.runAsync(
+      () => db.select(db.testSessions).getSingle(),
+    ))!;
+    expect(pictures.single.ownerId, session.id);
+    expect(session.noPhotoReason, isNull);
 
     await tapAndSettle(tester, find.text('Done'));
     expect(find.text('Water sources'), findsOneWidget);
@@ -157,7 +181,9 @@ void main() {
     await tapAndSettle(tester, find.text('Check and submit'));
     expect(find.text('SAFE'), findsOneWidget);
     expect(find.text('Tester not calibrated today'), findsOneWidget);
+    await tapAndSettle(tester, find.text('Camera not working'));
     await tapAndSettle(tester, find.text('Submit'));
+    expect(find.text('No test picture: Camera not working'), findsOneWidget);
     expect(
       find.textContaining('This test cannot detect germs'),
       findsOneWidget,
@@ -358,7 +384,14 @@ void main() {
     await _enter(tester, 'ec', '800');
     await _enter(tester, 'tds', '1600');
     await tapAndSettle(tester, find.text('Check and submit'));
+    await tapAndSettle(tester, find.text('Another reason'));
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Type the reason'),
+      'Phone battery low',
+    );
+    await tester.pump();
     await tapAndSettle(tester, find.text('Submit'));
+    expect(find.text('No test picture: Phone battery low'), findsOneWidget);
 
     expect(
       find.text('An alert has been raised: Water outside the safe limits'),
@@ -412,6 +445,7 @@ void main() {
     await _enter(tester, 'ph', '7');
     await tapAndSettle(tester, find.text('Check and submit'));
     expect(find.text('Second Collector · +256701000111'), findsOneWidget);
+    await tapAndSettle(tester, find.text('Too dark to see'));
     await tapAndSettle(tester, find.text('Submit'));
 
     final sessions = (await tester.runAsync(

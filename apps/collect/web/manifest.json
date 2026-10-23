@@ -6,7 +6,7 @@
     "background_color": "#0F172A",
     "theme_color": "#0F172A",
     "description": "Record water tests in the field, offline.",
-    "orientation": "portrait-primary",
+    "orientation": "any",
     "prefer_related_applications": false,
     "icons": [
         {
@@ -31,5 +31,7 @@
             "type": "image/png",
             "purpose": "maskable"
         }
-    ]
+    ],
+    "scope": ".",
+    "id": "./"
 }

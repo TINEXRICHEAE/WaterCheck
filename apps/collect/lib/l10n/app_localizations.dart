@@ -151,7 +151,7 @@ abstract class AppLocalizations {
   /// No description provided for @syncExplainer.
   ///
   /// In en, this message translates to:
-  /// **'Records are saved on this phone first. They are sent automatically when there is a connection, and nothing is lost if the connection drops. Use Sync now to send straight away.'**
+  /// **'Records are saved on this device first. They are sent automatically when there is a connection, and nothing is lost if the connection drops. Use Sync now to send straight away.'**
   String get syncExplainer;
 
   /// No description provided for @settingsTitle.
@@ -169,7 +169,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsReferenceDataHint.
   ///
   /// In en, this message translates to:
-  /// **'Parameters, limits, tester profiles and areas on this phone'**
+  /// **'Parameters, limits, tester profiles and areas on this device'**
   String get settingsReferenceDataHint;
 
   /// No description provided for @settingsAbout.
@@ -187,7 +187,7 @@ abstract class AppLocalizations {
   /// No description provided for @startupFailed.
   ///
   /// In en, this message translates to:
-  /// **'WaterCheck could not open its data on this phone.'**
+  /// **'WaterCheck could not open its data on this device.'**
   String get startupFailed;
 
   /// No description provided for @startupRetry.
@@ -211,7 +211,7 @@ abstract class AppLocalizations {
   /// No description provided for @privacyBody.
   ///
   /// In en, this message translates to:
-  /// **'WaterCheck records water test results for shared water sources.\n\nWith every result it saves your name, phone number, collector type, village and the place where you tested. This lets the district trust the result and contact you about it.\n\nWaterCheck does not ask for national ID numbers or information about households.\n\nEverything is kept locked (encrypted) on this phone and sent to the WaterCheck service when there is internet. You can stop taking part at any time by telling your coordinator.'**
+  /// **'WaterCheck records water test results for shared water sources.\n\nWith every result it saves your name, phone number, collector type, village and the place where you tested. This lets the district trust the result and contact you about it.\n\nWaterCheck does not ask for national ID numbers or information about households.\n\nEverything is kept on this device (encrypted in the Android and Windows apps) and sent to the WaterCheck service when there is internet. You can stop taking part at any time by telling your coordinator.'**
   String get privacyBody;
 
   /// No description provided for @privacyVersion.
@@ -241,7 +241,7 @@ abstract class AppLocalizations {
   /// No description provided for @whoEmpty.
   ///
   /// In en, this message translates to:
-  /// **'No one has been added on this phone yet.'**
+  /// **'No one has been added on this device yet.'**
   String get whoEmpty;
 
   /// No description provided for @whoAdd.
@@ -487,7 +487,7 @@ abstract class AppLocalizations {
   /// No description provided for @locationServiceOff.
   ///
   /// In en, this message translates to:
-  /// **'Location is switched off on this phone. Switch it on in the phone settings.'**
+  /// **'Location is switched off on this device. Switch it on in the device settings.'**
   String get locationServiceOff;
 
   /// No description provided for @locationDenied.
@@ -499,7 +499,7 @@ abstract class AppLocalizations {
   /// No description provided for @locationDeniedForever.
   ///
   /// In en, this message translates to:
-  /// **'Location access is blocked for WaterCheck. Allow it in the phone settings.'**
+  /// **'Location access is blocked for WaterCheck. Allow it in the device settings.'**
   String get locationDeniedForever;
 
   /// No description provided for @locationTimeout.
@@ -1087,7 +1087,7 @@ abstract class AppLocalizations {
   /// No description provided for @reviewSaved.
   ///
   /// In en, this message translates to:
-  /// **'Saved on this phone. It will be sent when the internet returns.'**
+  /// **'Saved on this device. It will be sent when the internet returns.'**
   String get reviewSaved;
 
   /// No description provided for @resultTitle.
@@ -1387,7 +1387,7 @@ abstract class AppLocalizations {
   /// No description provided for @activationTitle.
   ///
   /// In en, this message translates to:
-  /// **'Activate this phone'**
+  /// **'Activate this device'**
   String get activationTitle;
 
   /// No description provided for @activationIntro.
@@ -1471,7 +1471,7 @@ abstract class AppLocalizations {
   /// No description provided for @activationUsedUp.
   ///
   /// In en, this message translates to:
-  /// **'This code has already been used on as many phones as allowed. Ask the IT admin for a new one.'**
+  /// **'This code has already been used on as many devices as allowed. Ask the IT admin for a new one.'**
   String get activationUsedUp;
 
   /// No description provided for @activationOffline.
@@ -1525,7 +1525,7 @@ abstract class AppLocalizations {
   /// No description provided for @lockForgotBody.
   ///
   /// In en, this message translates to:
-  /// **'The PIN cannot be recovered. Resetting the app saves unsent records to an encrypted file for the IT admin, then erases WaterCheck from this phone so it can be activated again.'**
+  /// **'The PIN cannot be recovered. Resetting the app saves unsent records to an encrypted file for the IT admin, then erases WaterCheck from this device so it can be activated again.'**
   String get lockForgotBody;
 
   /// No description provided for @lockForgotReset.
@@ -1555,7 +1555,7 @@ abstract class AppLocalizations {
   /// No description provided for @lockOffBody.
   ///
   /// In en, this message translates to:
-  /// **'Anyone who picks up this phone can then open WaterCheck and see the records on it.'**
+  /// **'Anyone who picks up this device can then open WaterCheck and see the records on it.'**
   String get lockOffBody;
 
   /// No description provided for @lockBiometricOfferTitle.
@@ -1591,25 +1591,25 @@ abstract class AppLocalizations {
   /// No description provided for @revokedTitle.
   ///
   /// In en, this message translates to:
-  /// **'This phone has been switched off'**
+  /// **'This device has been switched off'**
   String get revokedTitle;
 
   /// No description provided for @revokedBody.
   ///
   /// In en, this message translates to:
-  /// **'The IT admin has stopped this phone from sending data. Save any unsent records to a file and give it to the IT admin. Then erase WaterCheck from this phone.'**
+  /// **'The IT admin has stopped this device from sending data. Save any unsent records to a file and give it to the IT admin. Then erase WaterCheck from this device.'**
   String get revokedBody;
 
   /// No description provided for @resetTitle.
   ///
   /// In en, this message translates to:
-  /// **'Reset this phone'**
+  /// **'Reset this device'**
   String get resetTitle;
 
   /// No description provided for @resetBody.
   ///
   /// In en, this message translates to:
-  /// **'This erases all WaterCheck data from this phone and returns it to activation. Save unsent records to a file first and give it to the IT admin.'**
+  /// **'This erases all WaterCheck data from this device and returns it to activation. Save unsent records to a file first and give it to the IT admin.'**
   String get resetBody;
 
   /// No description provided for @resetCounting.
@@ -1669,19 +1669,19 @@ abstract class AppLocalizations {
   /// No description provided for @resetErase.
   ///
   /// In en, this message translates to:
-  /// **'Erase this phone'**
+  /// **'Erase this device'**
   String get resetErase;
 
   /// No description provided for @resetConfirmTitle.
   ///
   /// In en, this message translates to:
-  /// **'Erase WaterCheck from this phone?'**
+  /// **'Erase WaterCheck from this device?'**
   String get resetConfirmTitle;
 
   /// No description provided for @resetConfirmBody.
   ///
   /// In en, this message translates to:
-  /// **'All WaterCheck data on this phone will be erased. This cannot be undone.'**
+  /// **'All WaterCheck data on this device will be erased. This cannot be undone.'**
   String get resetConfirmBody;
 
   /// No description provided for @resetConfirmLoses.
@@ -1729,7 +1729,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsReset.
   ///
   /// In en, this message translates to:
-  /// **'Reset this phone'**
+  /// **'Reset this device'**
   String get settingsReset;
 
   /// No description provided for @settingsResetHint.
@@ -1771,7 +1771,7 @@ abstract class AppLocalizations {
   /// No description provided for @syncRejectedHint.
   ///
   /// In en, this message translates to:
-  /// **'These records stay on this phone. Show this list to your IT admin.'**
+  /// **'These records stay on this device. Show this list to your IT admin.'**
   String get syncRejectedHint;
 
   /// No description provided for @entitySource.
@@ -1843,7 +1843,7 @@ abstract class AppLocalizations {
   /// No description provided for @rejectOutOfScope.
   ///
   /// In en, this message translates to:
-  /// **'It is outside this phone\'s area.'**
+  /// **'It is outside this device\'s area.'**
   String get rejectOutOfScope;
 
   /// No description provided for @rejectNoCollector.
@@ -1861,7 +1861,7 @@ abstract class AppLocalizations {
   /// No description provided for @rejectNotAccepted.
   ///
   /// In en, this message translates to:
-  /// **'This kind of change is not accepted from a phone.'**
+  /// **'This kind of change is not accepted from a device.'**
   String get rejectNotAccepted;
 
   /// No description provided for @rejectInvalid.
@@ -1903,13 +1903,13 @@ abstract class AppLocalizations {
   /// No description provided for @photoSaved.
   ///
   /// In en, this message translates to:
-  /// **'Photo saved. It will upload when the phone is on Wi-Fi.'**
+  /// **'Photo saved. It will upload when the device is on Wi-Fi.'**
   String get photoSaved;
 
   /// No description provided for @photoLowStorage.
   ///
   /// In en, this message translates to:
-  /// **'This phone is almost full (less than 100 MB free). Photos are switched off so readings can still be saved. Free some space to add photos.'**
+  /// **'This device is almost full (less than 100 MB free). Photos are switched off so readings can still be saved. Free some space to add photos.'**
   String get photoLowStorage;
 
   /// No description provided for @photoNotImage.
@@ -2065,13 +2065,13 @@ abstract class AppLocalizations {
   /// No description provided for @settingsAppearanceDevice.
   ///
   /// In en, this message translates to:
-  /// **'Saved on this phone.'**
+  /// **'Saved on this device.'**
   String get settingsAppearanceDevice;
 
   /// No description provided for @settingsAppearanceFor.
   ///
   /// In en, this message translates to:
-  /// **'Saved on this phone for {name}.'**
+  /// **'Saved on this device for {name}.'**
   String settingsAppearanceFor(String name);
 
   /// No description provided for @pickSearch.
@@ -2119,7 +2119,7 @@ abstract class AppLocalizations {
   /// No description provided for @trailField.
   ///
   /// In en, this message translates to:
-  /// **'{field, select, name{Name} households_served{Households} functional_status{Working} is_active{In use} source_type{Type} lat{Latitude} lon{Longitude} location_accuracy_m{GPS accuracy} label{Phone name} full_name{Full name} phone{Phone} collector_type{Role} village{Village} parish{Parish} subcounty{Sub-county} district{District} organisation{Organisation} overall{Result} other{{field}}}'**
+  /// **'{field, select, name{Name} households_served{Households} functional_status{Working} is_active{In use} source_type{Type} lat{Latitude} lon{Longitude} location_accuracy_m{GPS accuracy} label{Device name} full_name{Full name} phone{Phone} collector_type{Role} village{Village} parish{Parish} subcounty{Sub-county} district{District} organisation{Organisation} overall{Result} other{{field}}}'**
   String trailField(String field);
 
   /// No description provided for @trailChange.
@@ -2353,7 +2353,7 @@ abstract class AppLocalizations {
   /// No description provided for @mapNoSources.
   ///
   /// In en, this message translates to:
-  /// **'No source on this phone is in this area yet. Search online from Home to find others.'**
+  /// **'No source on this device is in this area yet. Search online from Home to find others.'**
   String get mapNoSources;
 
   /// No description provided for @mapNoLocation.
@@ -2425,7 +2425,7 @@ abstract class AppLocalizations {
   /// No description provided for @refNotFound.
   ///
   /// In en, this message translates to:
-  /// **'Not found on this phone. Sync and try again.'**
+  /// **'Not found on this device. Sync and try again.'**
   String get refNotFound;
 
   /// No description provided for @rulesTitle.
@@ -2437,7 +2437,7 @@ abstract class AppLocalizations {
   /// No description provided for @rulesIntro.
   ///
   /// In en, this message translates to:
-  /// **'What every test needs and how often a source is due. Set by the IT admin; they reach this phone with sync.'**
+  /// **'What every test needs and how often a source is due. Set by the IT admin; they reach this device with sync.'**
   String get rulesIntro;
 
   /// No description provided for @rulesRequired.
@@ -2527,7 +2527,7 @@ abstract class AppLocalizations {
   /// No description provided for @limitsTestsHere.
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, =0{No test on this phone used it yet.} =1{1 test on this phone used it.} other{{count} tests on this phone used it.}}'**
+  /// **'{count, plural, =0{No test on this device used it yet.} =1{1 test on this device used it.} other{{count} tests on this device used it.}}'**
   String limitsTestsHere(int count);
 
   /// No description provided for @limitsNoAreaDefault.
@@ -2593,13 +2593,13 @@ abstract class AppLocalizations {
   /// No description provided for @paramRecent.
   ///
   /// In en, this message translates to:
-  /// **'Recent readings on this phone'**
+  /// **'Recent readings on this device'**
   String get paramRecent;
 
   /// No description provided for @paramNoReadings.
   ///
   /// In en, this message translates to:
-  /// **'No readings on this phone yet.'**
+  /// **'No readings on this device yet.'**
   String get paramNoReadings;
 
   /// No description provided for @searchOnline.
@@ -2611,7 +2611,7 @@ abstract class AppLocalizations {
   /// No description provided for @searchOnlineHint.
   ///
   /// In en, this message translates to:
-  /// **'Sources beyond the districts on this phone (needs internet)'**
+  /// **'Sources beyond the districts on this device (needs internet)'**
   String get searchOnlineHint;
 
   /// No description provided for @groupOnline.
@@ -2641,7 +2641,7 @@ abstract class AppLocalizations {
   /// No description provided for @searchOnlineAdded.
   ///
   /// In en, this message translates to:
-  /// **'{district} added to this phone; syncing now.'**
+  /// **'{district} added to this device; syncing now.'**
   String searchOnlineAdded(String district);
 
   /// No description provided for @whoRecover.
@@ -2653,7 +2653,7 @@ abstract class AppLocalizations {
   /// No description provided for @whoRecoverHint.
   ///
   /// In en, this message translates to:
-  /// **'Lost your phone, or using another one? Come back as yourself with a code.'**
+  /// **'Lost your device, or using another one? Come back as yourself with a code.'**
   String get whoRecoverHint;
 
   /// No description provided for @recoverTitle.
@@ -2665,7 +2665,7 @@ abstract class AppLocalizations {
   /// No description provided for @recoverIntro.
   ///
   /// In en, this message translates to:
-  /// **'Enter the code your IT admin or stakeholder gave you. Your details come back to this phone, and your earlier work stays yours.'**
+  /// **'Enter the code your IT admin or stakeholder gave you. Your details come back to this device, and your earlier work stays yours.'**
   String get recoverIntro;
 
   /// No description provided for @recoverCode.
@@ -2683,7 +2683,7 @@ abstract class AppLocalizations {
   /// No description provided for @recoverWhoGives.
   ///
   /// In en, this message translates to:
-  /// **'No code? Ask your IT admin or the stakeholder for your area: in the Console they open Collectors, your name, \"Sign-in code for another phone\". A code works once, within a day.'**
+  /// **'No code? Ask your IT admin or the stakeholder for your area: in the Console they open Collectors, your name, \"Sign-in code for another device\". A code works once, within a day.'**
   String get recoverWhoGives;
 
   /// No description provided for @recoverInvalid.
@@ -2715,6 +2715,144 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Tap \"My location\" for the distance and the route.'**
   String get mapLocateForDistance;
+
+  /// No description provided for @photoOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open picture'**
+  String get photoOpen;
+
+  /// No description provided for @reviewPicture.
+  ///
+  /// In en, this message translates to:
+  /// **'Test picture'**
+  String get reviewPicture;
+
+  /// No description provided for @reviewPictureHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Take a picture of the test (the strip, kit or meter reading). It is needed unless one of the reasons below applies.'**
+  String get reviewPictureHint;
+
+  /// No description provided for @reviewNoPictureWhy.
+  ///
+  /// In en, this message translates to:
+  /// **'No picture? Say why:'**
+  String get reviewNoPictureWhy;
+
+  /// No description provided for @reviewPictureNeeded.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a test picture, or choose why there is none.'**
+  String get reviewPictureNeeded;
+
+  /// No description provided for @noPhotoCameraBroken.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera not working'**
+  String get noPhotoCameraBroken;
+
+  /// No description provided for @noPhotoNotAllowed.
+  ///
+  /// In en, this message translates to:
+  /// **'Pictures not allowed here'**
+  String get noPhotoNotAllowed;
+
+  /// No description provided for @noPhotoTooDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Too dark to see'**
+  String get noPhotoTooDark;
+
+  /// No description provided for @noPhotoOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Another reason'**
+  String get noPhotoOther;
+
+  /// No description provided for @noPhotoOtherHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Type the reason'**
+  String get noPhotoOtherHint;
+
+  /// No description provided for @resultContextTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Where and how it was tested'**
+  String get resultContextTitle;
+
+  /// No description provided for @resultAccuracy.
+  ///
+  /// In en, this message translates to:
+  /// **'location within {metres} m'**
+  String resultAccuracy(int metres);
+
+  /// No description provided for @resultFarReason.
+  ///
+  /// In en, this message translates to:
+  /// **'away from the source because: {reason}'**
+  String resultFarReason(String reason);
+
+  /// No description provided for @resultNoPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'No test picture: {reason}'**
+  String resultNoPhoto(String reason);
+
+  /// No description provided for @resultShowOnMap.
+  ///
+  /// In en, this message translates to:
+  /// **'Show on the map'**
+  String get resultShowOnMap;
+
+  /// No description provided for @messagesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Messages'**
+  String get messagesTitle;
+
+  /// No description provided for @messagesUnread.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Messages: 1 new} other{Messages: {count} new}}'**
+  String messagesUnread(int count);
+
+  /// No description provided for @messagesNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No messages yet. Messages about your tests and sources, and replies from stakeholders, appear here.'**
+  String get messagesNone;
+
+  /// No description provided for @messagesEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No messages yet. Ask a question or add a note; stakeholders see it in the Console.'**
+  String get messagesEmpty;
+
+  /// No description provided for @messagesAbout.
+  ///
+  /// In en, this message translates to:
+  /// **'{kind, select, test{Test} source{Source} collector{Collector} area{Area} other{Thread}}'**
+  String messagesAbout(String kind);
+
+  /// No description provided for @messagesOpenSource.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the source'**
+  String get messagesOpenSource;
+
+  /// No description provided for @messagesTestTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Messages about this test'**
+  String get messagesTestTitle;
+
+  /// No description provided for @messagesSourceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Messages about this source'**
+  String get messagesSourceTitle;
 }
 
 class _AppLocalizationsDelegate

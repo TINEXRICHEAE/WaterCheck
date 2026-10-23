@@ -1,5 +1,5 @@
 import 'package:data/data.dart'
-    show AlertSummary, InspectionSummary, PhotoOwner;
+    show AlertSummary, InspectionSummary, PhotoOwner, ThreadKind;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -10,6 +10,7 @@ import '../../l10n/app_localizations.dart';
 import '../sync/refresh_button.dart';
 import '../alerts/response_card_screen.dart';
 import '../testing/test_draft.dart';
+import '../messages/messages.dart';
 import '../photos/photo_strip.dart';
 import 'inspection_screen.dart';
 import 'source_history.dart';
@@ -154,6 +155,10 @@ class SourceDetailScreen extends ConsumerWidget {
             ownerId: sourceId,
             title: l10n.photoSourceTitle,
           ),
+          const Divider(height: 32),
+          Text(l10n.messagesSourceTitle, style: text.titleMedium),
+          const SizedBox(height: 8),
+          ThreadSection(kind: ThreadKind.source, subjectId: sourceId),
           ...switch (ref.watch(_openAlertsProvider(sourceId)).value) {
             final alerts? when alerts.isNotEmpty => [
               const Divider(height: 32),

@@ -114,6 +114,43 @@ void main() {
     await disposeApp(tester, db);
   });
 
+  testWidgets('"Other" type: typed, saved as typed, offered next time', (
+    tester,
+  ) async {
+    final db = await pumpCollect(
+      tester,
+      overrides: [
+        locationServiceProvider.overrideWithValue(_FakeLocation(_fix)),
+      ],
+    );
+    await tapAndSettle(tester, find.text('Add source'));
+    await tapAndSettle(
+      tester,
+      find.byType(DropdownButtonFormField<String>).first,
+    );
+    await tapAndSettle(tester, find.text('Other (type it)').last);
+    await tester.enterText(
+      find.widgetWithText(TextFormField, 'Type it'),
+      'Hand-dug well',
+    );
+    await tester.pump();
+    await tapAndSettle(tester, find.text('Get GPS location'));
+    await tapAndSettle(tester, find.text('Save source'));
+    expect(find.text('Water sources'), findsOneWidget);
+    final saved = (await tester.runAsync(
+      () => db.select(db.waterSources).getSingle(),
+    ))!;
+    expect(saved.sourceType, 'Hand-dug well');
+
+    await tapAndSettle(tester, find.byTooltip('Add source'));
+    await tapAndSettle(
+      tester,
+      find.byType(DropdownButtonFormField<String>).first,
+    );
+    expect(find.text('Hand-dug well (typed before)'), findsWidgets);
+    await disposeApp(tester, db);
+  });
+
   testWidgets('GPS problems are explained; coordinates can be typed', (
     tester,
   ) async {
