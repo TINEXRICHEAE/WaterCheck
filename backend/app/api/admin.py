@@ -6,6 +6,7 @@ this adds the people, the list of phones and the list of codes.
 
 from __future__ import annotations
 
+import json
 from datetime import datetime
 from typing import Literal
 from uuid import UUID
@@ -232,6 +233,78 @@ async def installations(admin: AdminDep, db: DbDep) -> list[InstallationOut]:
     ]
 
 
+class DeviceCollector(BaseModel):
+    """Someone who worked on a device: from their tests, sources, details
+    or a recovery code redeemed there (ADR-022)."""
+
+    collector_key: UUID
+    full_name: str
+    phone: str | None
+    collector_type: str | None
+    village: str | None
+    tests: int
+    sources: int
+    last_at: datetime | None
+    recovered_here: bool
+
+
+@router.get("/installations/{installation_id}/collectors")
+async def installation_collectors(
+    installation_id: UUID, admin: AdminDep, db: DbDep
+) -> list[DeviceCollector]:
+    """The collectors and testers seen on one device. People added on the
+    device who never sent anything are not known to the server yet."""
+    async with db.transaction(admin) as conn:
+        rows = (
+            await conn.execute(
+                text(
+                    "WITH keys AS ("
+                    " SELECT collector_key FROM test_session WHERE installation_id = :i"
+                    " UNION SELECT collector_key FROM water_source"
+                    "  WHERE installation_id = :i AND collector_key IS NOT NULL"
+                    " UNION SELECT collector_key FROM collector_profile WHERE installation_id = :i"
+                    " UNION SELECT collector_key FROM collector_recovery_code"
+                    "  WHERE used_by_installation = :i) "
+                    "SELECT k.collector_key, p.snapshot, "
+                    "(SELECT count(*) FROM test_session s WHERE s.collector_key = k.collector_key"
+                    " AND s.installation_id = :i AND NOT wc_archived('test_session', s.id))"
+                    " AS tests,"
+                    " (SELECT count(*) FROM water_source w WHERE w.collector_key = k.collector_key"
+                    " AND w.installation_id = :i) AS sources,"
+                    " (SELECT max(s.tested_at_device) FROM test_session s"
+                    "  WHERE s.collector_key = k.collector_key AND s.installation_id = :i)"
+                    " AS last_at,"
+                    " EXISTS (SELECT 1 FROM collector_recovery_code c"
+                    "  WHERE c.collector_key = k.collector_key AND c.used_by_installation = :i)"
+                    " AS recovered_here "
+                    "FROM keys k LEFT JOIN collector_profile p ON p.collector_key = k.collector_key"
+                ),
+                {"i": installation_id},
+            )
+        ).all()
+    out = []
+    for r in rows:
+        snap = (
+            r.snapshot
+            if isinstance(r.snapshot, dict)
+            else (json.loads(r.snapshot) if r.snapshot else {})
+        )
+        out.append(
+            DeviceCollector(
+                collector_key=r.collector_key,
+                full_name=snap.get("full_name") or "?",
+                phone=snap.get("phone"),
+                collector_type=snap.get("collector_type"),
+                village=snap.get("village"),
+                tests=r.tests,
+                sources=r.sources,
+                last_at=r.last_at,
+                recovered_here=r.recovered_here,
+            )
+        )
+    return sorted(out, key=lambda c: (c.last_at is None, c.full_name))
+
+
 @router.get("/activation-codes")
 async def activation_codes(admin: AdminDep, db: DbDep) -> list[ActivationCodeOut]:
     """Recent codes; the codes themselves were shown once and are not stored."""
@@ -258,6 +331,140 @@ async def activation_codes(admin: AdminDep, db: DbDep) -> list[ActivationCodeOut
         )
         for r in rows
     ]
+
+
+class LedgerDevice(BaseModel):
+    id: UUID
+    label: str | None
+    short_code: str | None
+    platform: str | None
+    activated_at: datetime
+    last_seen_at: datetime | None
+    revoked_at: datetime | None
+
+
+class LedgerCode(BaseModel):
+    """An activation code: who made it, for where, and which devices used it."""
+
+    id: UUID
+    area: AreaOut
+    created_by: str | None
+    created_at: datetime
+    expires_at: datetime
+    max_installations: int
+    used_count: int
+    revoked_at: datetime | None
+    devices: list[LedgerDevice]
+
+
+class LedgerAccount(BaseModel):
+    """A Console account: who made it, and whether and when it was used."""
+
+    id: UUID
+    username: str
+    full_name: str
+    role: str
+    created_by: str | None
+    created_at: datetime
+    first_sign_in_done: bool
+    last_sign_in_at: datetime | None
+    is_active: bool
+    areas: list[str]
+
+
+class Ledger(BaseModel):
+    codes: list[LedgerCode]
+    accounts: list[LedgerAccount]
+
+
+@router.get("/credentials")
+async def credentials(admin: AdminDep, db: DbDep) -> Ledger:
+    """Every activation code and Console account made, by whom, for which
+    area, and their use: devices activated, first and last sign-in
+    (ADR-022). The codes and passwords themselves are never stored."""
+    async with db.transaction(admin) as conn:
+        codes = (
+            await conn.execute(
+                text(
+                    "SELECT c.id, c.created_at, c.expires_at, c.max_installations, "
+                    "c.used_count, c.revoked_at, u.full_name AS created_by, "
+                    "a.id AS area_id, a.code, a.name, a.level "
+                    "FROM activation_code c JOIN admin_unit a ON a.id = c.admin_unit_id "
+                    "LEFT JOIN app_user u ON u.id = c.created_by "
+                    "ORDER BY c.created_at DESC"
+                )
+            )
+        ).all()
+        devices = (
+            await conn.execute(
+                text(
+                    "SELECT activation_code_id, id, label, short_code, platform, "
+                    "activated_at, last_seen_at, revoked_at FROM installation "
+                    "WHERE activation_code_id IS NOT NULL ORDER BY activated_at"
+                )
+            )
+        ).all()
+        accounts = (
+            await conn.execute(
+                text(
+                    "SELECT u.id, u.username, u.full_name, u.role, u.created_at, "
+                    "NOT u.must_change_password AS first_sign_in_done, u.last_sign_in_at, "
+                    "u.is_active, m.full_name AS created_by, "
+                    "coalesce((SELECT array_agg(a.name ORDER BY a.name) FROM user_scope s "
+                    " JOIN admin_unit a ON a.id = s.admin_unit_id WHERE s.user_id = u.id),"
+                    " '{}') AS areas "
+                    "FROM app_user u LEFT JOIN app_user m ON m.id = u.created_by "
+                    "ORDER BY u.created_at DESC"
+                )
+            )
+        ).all()
+    by_code: dict[UUID, list[LedgerDevice]] = {}
+    for d in devices:
+        by_code.setdefault(d.activation_code_id, []).append(
+            LedgerDevice(**{k: v for k, v in d._asdict().items() if k != "activation_code_id"})
+        )
+    return Ledger(
+        codes=[
+            LedgerCode(
+                id=c.id,
+                area=AreaOut(id=c.area_id, code=c.code, name=c.name, level=c.level),
+                created_by=c.created_by,
+                created_at=c.created_at,
+                expires_at=c.expires_at,
+                max_installations=c.max_installations,
+                used_count=c.used_count,
+                revoked_at=c.revoked_at,
+                devices=by_code.get(c.id, []),
+            )
+            for c in codes
+        ],
+        accounts=[LedgerAccount(**a._asdict()) for a in accounts],
+    )
+
+
+@router.post("/activation-codes/{code_id}/revoke", status_code=status.HTTP_204_NO_CONTENT)
+async def revoke_code(code_id: UUID, admin: AdminDep, db: DbDep) -> None:
+    """Withdraws an unused or partly used code; devices already activated
+    with it keep working (revoke those one by one)."""
+    async with db.transaction(admin) as conn:
+        done = (
+            await conn.execute(
+                text(
+                    "UPDATE activation_code SET revoked_at = now() "
+                    "WHERE id = :id AND revoked_at IS NULL RETURNING id"
+                ),
+                {"id": code_id},
+            )
+        ).first()
+        if done is None:
+            raise HTTPException(status.HTTP_404_NOT_FOUND, "not_found")
+        await conn.execute(
+            text(
+                "INSERT INTO audit_log (actor_id, platform, action, entity, entity_id) "
+                "VALUES (:a, 'console', 'activation_code.revoked', 'activation_code', :id)"
+            ),
+            {"a": admin.user_id, "id": code_id},
+        )
 
 
 class ChainPerson(BaseModel):

@@ -337,6 +337,62 @@ async def rename_area(area_id: UUID, body: RenameIn, admin: AdminDep, db: DbDep)
     return PlaceOut(**row._asdict())
 
 
+class NewPlace(BaseModel):
+    """A place added from a device, waiting for review (ADR-019/022)."""
+
+    id: UUID
+    level: str
+    name: str
+    code: str
+    path: str
+    added_at: datetime | None
+    added_by: str | None
+    sources: int
+
+
+@router.get("/areas/new")
+async def new_places(admin: AdminDep, db: DbDep) -> list[NewPlace]:
+    async with db.transaction(admin) as conn:
+        rows = (
+            await conn.execute(
+                text(
+                    "SELECT u.id, u.level, u.name, u.code, u.added_at, "
+                    "u.added_collector_snapshot ->> 'full_name' AS added_by, "
+                    "(SELECT count(*) FROM water_source w WHERE w.village_id = u.id) AS sources, "
+                    "(WITH RECURSIVE up(id, parent_id, name, level) AS ("
+                    "  SELECT a.id, a.parent_id, a.name, a.level FROM admin_unit a"
+                    "  WHERE a.id = u.parent_id"
+                    "  UNION ALL SELECT a.id, a.parent_id, a.name, a.level FROM admin_unit a"
+                    "  JOIN up ON a.id = up.parent_id)"
+                    " SELECT string_agg(name, ', ' ORDER BY array_position("
+                    "  ARRAY['district','subcounty','parish','village'], level)"
+                    " ) FROM up WHERE level NOT IN ('country', 'region')) AS path "
+                    "FROM admin_unit u WHERE u.review_status = 'new' "
+                    "ORDER BY u.added_at DESC NULLS LAST"
+                )
+            )
+        ).all()
+    return [NewPlace(**{**r._asdict(), "path": r.path or ""}) for r in rows]
+
+
+@router.post("/areas/{area_id}/official", status_code=status.HTTP_204_NO_CONTENT)
+async def mark_place_official(area_id: UUID, admin: AdminDep, db: DbDep) -> None:
+    """Accepts a place added from a device into the list."""
+    async with db.transaction(admin) as conn:
+        done = (
+            await conn.execute(
+                text(
+                    "UPDATE admin_unit SET review_status = 'official' "
+                    "WHERE id = :id AND review_status = 'new' RETURNING id"
+                ),
+                {"id": area_id},
+            )
+        ).first()
+        if done is None:
+            raise HTTPException(status.HTTP_404_NOT_FOUND, "not_found")
+        await _audit(conn, admin.user_id, "area.accepted", "admin_unit", area_id, {})
+
+
 class DefaultProfileIn(BaseModel):
     standard_id: UUID | None
 
@@ -509,6 +565,96 @@ async def set_security(
     return SecurityIn(**p.__dict__)
 
 
+# ------------------------------------------------------- typed values
+# "Other" means type it (ADR-022): a value typed on a device is stored as
+# it is, used again there, and listed here until the IT admin adds it to
+# the shared list (or leaves it). Its code is the typed value, so the
+# records that already hold it match the new entry.
+_TYPED_SQL = {
+    "source_types": (
+        "SELECT source_type AS value, count(*) AS uses, min(created_at_server) AS first_seen "
+        "FROM water_source GROUP BY source_type"
+    ),
+    "collector_types": (
+        "SELECT value, count(*) AS uses, min(at) AS first_seen FROM ("
+        " SELECT collector_snapshot->>'collector_type' AS value, created_at_server AS at"
+        " FROM water_source UNION ALL"
+        " SELECT collector_snapshot->>'collector_type', created_at_server FROM test_session"
+        " UNION ALL"
+        " SELECT collector_snapshot->>'collector_type', created_at_server"
+        " FROM sanitary_inspection) t WHERE value IS NOT NULL GROUP BY value"
+    ),
+}
+
+
+class TypedValue(BaseModel):
+    list: Literal["source_types", "collector_types"]
+    value: str
+    uses: int
+    first_seen: datetime | None
+
+
+class TypedValueIn(BaseModel):
+    list: Literal["source_types", "collector_types"]
+    value: str = Field(min_length=1, max_length=80)
+    name: str | None = Field(default=None, max_length=80)
+
+
+async def _lists(conn: AsyncConnection) -> dict[str, Any]:
+    doc = (
+        await conn.execute(text("SELECT document FROM config_document WHERE key = 'lists'"))
+    ).scalar_one_or_none()
+    return dict(doc or {})
+
+
+@router.get("/typed-values")
+async def typed_values(admin: AdminDep, db: DbDep) -> list[TypedValue]:
+    """Values typed under "Other" that the shared lists do not have yet."""
+    async with db.transaction(admin) as conn:
+        lists = await _lists(conn)
+        out: list[TypedValue] = []
+        for key, sql in _TYPED_SQL.items():
+            known = {str(i.get("code")) for i in lists.get(key, [])}
+            for r in (await conn.execute(text(sql))).all():
+                if r.value and r.value.strip() and r.value not in known:
+                    out.append(
+                        TypedValue(
+                            list=key,
+                            value=r.value,
+                            uses=r.uses,
+                            first_seen=r.first_seen,
+                        )
+                    )
+    return sorted(out, key=lambda v: (v.list, -v.uses, v.value.lower()))
+
+
+@router.post("/typed-values", status_code=status.HTTP_204_NO_CONTENT)
+async def add_typed_value(body: TypedValueIn, admin: AdminDep, db: DbDep) -> None:
+    """Adds a typed value to the shared list, before "Other"; devices get
+    it with the next sync."""
+    value = body.value.strip()
+    if not value:
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, "empty")
+    async with db.transaction(admin) as conn:
+        lists = await _lists(conn)
+        items = list(lists.get(body.list, []))
+        if any(str(i.get("code")) == value for i in items):
+            return
+        entry = {"code": value, "name": (body.name or "").strip() or value, "added": True}
+        at = next((n for n, i in enumerate(items) if i.get("code") == "other"), len(items))
+        items.insert(at, entry)
+        lists[body.list] = items
+        lists["version"] = int(lists.get("version", 1)) + 1
+        await conn.execute(
+            text(
+                "UPDATE config_document SET document = CAST(:d AS jsonb), "
+                "version = version + 1 WHERE key = 'lists'"
+            ),
+            {"d": json.dumps(lists)},
+        )
+        await _audit(conn, admin.user_id, "list.value_added", "config_document", None, entry)
+
+
 # -------------------------------------------------- custom parameters
 class PendingParameter(BaseModel):
     code: str
@@ -518,6 +664,12 @@ class PendingParameter(BaseModel):
     value_type: str
     collector_name: str | None
     readings: int
+    # Where it was first used, to review it in context (ADR-022).
+    collector_key: UUID | None = None
+    source_id: UUID | None = None
+    source_name: str | None = None
+    session_id: UUID | None = None
+    first_value: str | None = None
 
 
 @router.get("/parameters/pending")
@@ -528,8 +680,17 @@ async def pending_parameters(admin: AdminDep, db: DbDep) -> list[PendingParamete
                 text(
                     "SELECT p.code, p.name, p.category_code, p.default_unit, p.value_type, "
                     "p.collector_snapshot ->> 'full_name' AS collector_name, "
-                    "(SELECT count(*) FROM reading r WHERE r.parameter_code = p.code) AS readings "
-                    "FROM parameter_definition p WHERE p.is_custom "
+                    "p.collector_key, "
+                    "(SELECT count(*) FROM reading r WHERE r.parameter_code = p.code) AS readings, "
+                    "f.source_id, f.source_name, f.session_id, f.first_value "
+                    "FROM parameter_definition p LEFT JOIN LATERAL ("
+                    " SELECT s.source_id, coalesce(w.name, w.code) AS source_name, "
+                    " s.id AS session_id, coalesce(r.value::text, r.value_text) AS first_value "
+                    " FROM reading r JOIN test_session s ON s.id = r.session_id "
+                    " JOIN water_source w ON w.id = s.source_id "
+                    " WHERE r.parameter_code = p.code ORDER BY s.tested_at_device LIMIT 1)"
+                    " f ON true "
+                    "WHERE p.is_custom "
                     "AND p.review_status = 'pending' AND p.merged_into IS NULL ORDER BY p.name"
                 )
             )

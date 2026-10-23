@@ -51,6 +51,7 @@ ORDER = [
     "attachment",
     "collector_mark",
     "submission_flag",
+    "message",
 ]
 ATTACHMENT_MIME = {"image/jpeg"}
 
@@ -61,9 +62,30 @@ USER_ENTITIES = {
     "collector_mark",
     "submission_flag",
     "reference_standard",
+    "message",
 }
 # Marks and flags are stakeholder judgements, never sent by phones.
 USER_ONLY = {"collector_mark", "submission_flag"}
+
+# The area a thread belongs to, from its subject (ADR-022).
+_THREAD_AREA = {
+    "source": "SELECT village_id FROM water_source WHERE id = :s",
+    "test": (
+        "SELECT w.village_id FROM test_session t JOIN water_source w ON w.id = t.source_id "
+        "WHERE t.id = :s"
+    ),
+    "area": "SELECT id FROM admin_unit WHERE id = :s",
+    # A collector's area: where they last tested or added a source.
+    "collector": (
+        "SELECT village_id FROM ("
+        " SELECT w.village_id, t.tested_at_device AS at FROM test_session t"
+        " JOIN water_source w ON w.id = t.source_id WHERE t.collector_key = :s"
+        " UNION ALL"
+        " SELECT village_id, created_at_device FROM water_source WHERE collector_key = :s"
+        ") x ORDER BY at DESC NULLS LAST LIMIT 1"
+    ),
+}
+
 
 # Area levels a phone may add below (district down), top first.
 _PLACE_ORDER = ["district", "subcounty", "parish", "village"]
@@ -589,9 +611,10 @@ class PushService:
             "INSERT INTO test_session (id, source_id, installation_id, collector_key, "  # noqa: S608 - constant SQL
             "collector_snapshot, calibration_id, tester_profile_id, reference_standard_id, "
             "calibrated, location, location_accuracy_m, distance_from_source_m, "
-            "distance_override_reason, notes, tested_at_device, clock_flags, server_seq) "
+            "distance_override_reason, notes, tested_at_device, clock_flags, "
+            "no_photo_reason, server_seq) "
             "VALUES (:id, :src, :inst, :ck, CAST(:cs AS jsonb), :cal, :tp, :rs, :calibrated, "
-            f"{_POINT}, :acc, :dist, :why, :notes, :at, :flags, 0) "
+            f"{_POINT}, :acc, :dist, :why, :notes, :at, :flags, :nophoto, 0) "
             "ON CONFLICT (id) DO NOTHING RETURNING 1",
             {
                 "id": _uuid(c.id, "id"),
@@ -606,6 +629,7 @@ class PushService:
                 "dist": d.get("distance_from_source_m"),
                 "why": d.get("distance_override_reason"),
                 "notes": d.get("notes"),
+                "nophoto": d.get("no_photo_reason"),
                 "at": at,
                 "flags": self._clock_flags(at),
                 **o,
@@ -824,8 +848,9 @@ class PushService:
         return await self._insert(
             c,
             "INSERT INTO attachment (id, owner_type, owner_id, object_key, sha256, bytes, mime, "
-            "installation_id, created_by, server_seq) VALUES (:id, :ot, :oid, :key, :sha, "
-            ":bytes, :mime, :inst, :by, 0) ON CONFLICT (id) DO NOTHING RETURNING 1",
+            "installation_id, created_by, collector_key, server_seq) VALUES (:id, :ot, :oid, "
+            ":key, :sha, :bytes, :mime, :inst, :by, :ck, 0) "
+            "ON CONFLICT (id) DO NOTHING RETURNING 1",
             {
                 "id": aid,
                 "ot": owner_type,
@@ -836,8 +861,39 @@ class PushService:
                 "mime": mime,
                 "inst": self.p.installation_id,
                 "by": self.p.user_id,
+                "ck": self._origin(d)["ck"],
             },
         )
+
+    async def attachment_update(self, c: Change) -> Outcome:
+        """Removes a picture (ADR-022): only the collector who added it. The
+        picture is kept on the server, marked; devices drop their copy."""
+        if not c.data.get("removed"):
+            raise Rejected("unsupported_change")
+        o = self._origin(c.data)
+        aid = _uuid(c.id, "id")
+        done = (
+            await self.conn.execute(
+                text(
+                    "UPDATE attachment SET removed_at = now(), removed_by_installation = :inst "
+                    "WHERE id = :id AND removed_at IS NULL "
+                    "AND collector_key IS NOT DISTINCT FROM :ck RETURNING 1"
+                ),
+                {"id": aid, "inst": o["inst"], "ck": o["ck"]},
+            )
+        ).first()
+        if done:
+            return Outcome(c.id, c.entity, "applied")
+        row = (
+            await self.conn.execute(
+                text("SELECT removed_at FROM attachment WHERE id = :id"), {"id": aid}
+            )
+        ).first()
+        if row is None:
+            raise Rejected("not_found")
+        if row.removed_at is not None:
+            return Outcome(c.id, c.entity, "duplicate")
+        raise Rejected("not_creator")
 
     async def collector_mark_upsert(self, c: Change) -> Outcome:
         """Known or flagged collector (P9): the latest stakeholder decision
@@ -882,6 +938,60 @@ class PushService:
                 "why": str(_req(d, "reason"))[:500],
                 "by": self.p.user_id,
                 "at": _ts(d.get("created_at_device"), "created_at_device"),
+            },
+        )
+
+    async def message_insert(self, c: Change) -> Outcome:
+        """A message in a thread on a test, source, collector or area
+        (ADR-022), from a collector or a Console user."""
+        d, o = c.data, self._origin(c.data)
+        kind = str(_req(d, "subject_type"))
+        if kind not in _THREAD_AREA:
+            raise Rejected("unknown_subject")
+        subject = _uuid(_req(d, "subject_id"), "subject_id")
+        body = str(_req(d, "body")).strip()
+        if not body or len(body) > 2000:
+            raise Rejected("invalid_body")
+        area = (
+            await self.conn.execute(text(_THREAD_AREA[kind]), {"s": subject})
+        ).scalar_one_or_none()
+        if area is None and kind == "collector" and self.p.kind == "installation":
+            # A collector writing about themselves before any record: the
+            # device's own area.
+            area = (
+                await self.conn.execute(
+                    text("SELECT admin_unit_id FROM installation WHERE id = :i"),
+                    {"i": self.p.installation_id},
+                )
+            ).scalar_one_or_none()
+        if area is None:
+            raise Rejected("not_found")
+        snapshot = o["cs"]
+        name = None
+        if snapshot:
+            name = (json.loads(snapshot) or {}).get("full_name")
+        elif self.p.user_id is not None:
+            name = (
+                await self.conn.execute(
+                    text("SELECT full_name FROM app_user WHERE id = :u"), {"u": self.p.user_id}
+                )
+            ).scalar_one_or_none()
+        return await self._insert(
+            c,
+            "INSERT INTO message (id, subject_type, subject_id, body, village_id, "
+            "author_user_id, installation_id, collector_key, collector_snapshot, author_name, "
+            "written_at_device, server_seq) VALUES (:id, :kind, :subject, :body, :area, :by, "
+            ":inst, :ck, CAST(:cs AS jsonb), :name, :at, 0) ON CONFLICT (id) DO NOTHING "
+            "RETURNING 1",
+            {
+                "id": _uuid(c.id, "id"),
+                "kind": kind,
+                "subject": subject,
+                "body": body,
+                "area": area,
+                "name": name,
+                "at": _ts(d.get("written_at_device"), "written_at_device"),
+                **o,
             },
         )
 
@@ -1020,9 +1130,11 @@ _HANDLERS: dict[tuple[str, str], _Handler] = {
     ("alert", "insert"): PushService.alert_insert,
     ("alert_event", "insert"): PushService.alert_event_insert,
     ("sanitary_inspection", "insert"): PushService.sanitary_inspection_insert,
+    ("message", "insert"): PushService.message_insert,
     ("parameter_definition", "insert"): PushService.parameter_definition_insert,
     ("reference_standard", "insert"): PushService.reference_standard_insert,
     ("attachment", "insert"): PushService.attachment_insert,
+    ("attachment", "update"): PushService.attachment_update,
     ("collector_mark", "insert"): PushService.collector_mark_upsert,
     ("collector_mark", "update"): PushService.collector_mark_upsert,
     ("submission_flag", "insert"): PushService.submission_flag_insert,

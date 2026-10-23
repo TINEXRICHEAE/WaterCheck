@@ -90,7 +90,8 @@ AREA: dict[str, str] = {
         "calibrated, ST_Y(location::geometry) AS lat, ST_X(location::geometry) AS lon, "
         "location_accuracy_m, distance_from_source_m, distance_override_reason, notes, "
         "tested_at_device, clock_flags, installation_id, collector_key, collector_snapshot, "
-        "{cols} FROM test_session x WHERE {area:" + _SRC.format(col="x.source_id") + "} "
+        "no_photo_reason, {cols} FROM test_session x "
+        "WHERE {area:" + _SRC.format(col="x.source_id") + "} "
         "AND NOT wc_archived('test_session', x.id)"
     ),
     "test_result": (
@@ -129,7 +130,8 @@ AREA: dict[str, str] = {
         + "} AND NOT wc_archived('alert', x.alert_id)"
     ),
     "attachment": (
-        "SELECT id, owner_type, owner_id, object_key, sha256, bytes, mime, upload_status, {cols} "
+        "SELECT id, owner_type, owner_id, object_key, sha256, bytes, mime, upload_status, "
+        "collector_key, removed_at, {cols} "
         "FROM attachment x WHERE {area:"
         + _SRC.format(
             col="CASE WHEN x.owner_type = 'water_source' THEN x.owner_id ELSE "
@@ -158,6 +160,12 @@ AREA: dict[str, str] = {
         "collector_snapshot, {cols} FROM sanitary_inspection x WHERE {area:"
         + _SRC.format(col="x.source_id")
         + "} AND NOT wc_archived('water_source', x.source_id)"
+    ),
+    # Conversations (ADR-022): every message in the area's threads.
+    "message": (
+        "SELECT id, subject_type, subject_id, body, author_user_id, installation_id, "
+        "collector_key, author_name, written_at_device, created_at_server, {cols} "
+        "FROM message x WHERE {area:x.village_id}"
     ),
     # Archive marks (ADR-018): devices remove archived records, and put them
     # back after a restore. Marks without an area (phones, collectors) reach

@@ -43,6 +43,31 @@ def _load(path: Path) -> Any:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+async def _keep_added(conn: AsyncConnection, doc: dict[str, Any]) -> dict[str, Any]:
+    """Values the IT admin added to the lists (ADR-022) survive a newer
+    seed: they go back in, before "Other"."""
+    old = (
+        await conn.execute(
+            text("SELECT document, version FROM config_document WHERE key = 'lists'")
+        )
+    ).first()
+    if old is None or old.version >= doc["version"]:
+        return doc
+    doc = dict(doc)
+    for key, items in dict(old.document).items():
+        if not isinstance(items, list) or not isinstance(doc.get(key), list):
+            continue
+        codes = {i.get("code") for i in doc[key] if isinstance(i, dict)}
+        for item in items:
+            if isinstance(item, dict) and item.get("added") and item.get("code") not in codes:
+                at = next(
+                    (n for n, i in enumerate(doc[key]) if i.get("code") == "other"),
+                    len(doc[key]),
+                )
+                doc[key] = [*doc[key][:at], item, *doc[key][at:]]
+    return doc
+
+
 async def load_seed(conn: AsyncConnection, seed_dir: Path) -> list[str]:
     done: list[str] = []
 
@@ -95,6 +120,8 @@ async def load_seed(conn: AsyncConnection, seed_dir: Path) -> list[str]:
         doc = _load(seed_dir / f"{key}.json")
         if key == "rules":
             DomainRules.from_json(doc)  # validate before writing
+        if key == "lists":
+            doc = await _keep_added(conn, doc)
         await conn.execute(
             text(
                 "INSERT INTO config_document (key, document, version, server_seq) "

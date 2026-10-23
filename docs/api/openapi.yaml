@@ -1214,6 +1214,90 @@ paths:
                 title: Response Installations
       security:
       - HTTPBearer: []
+  /v1/admin/installations/{installation_id}/collectors:
+    get:
+      tags:
+      - admin
+      summary: Installation Collectors
+      description: 'The collectors and testers seen on one device. People added on
+        the
+
+        device who never sent anything are not known to the server yet.'
+      operationId: installation_collectors
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: installation_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Installation Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DeviceCollector'
+                title: Response Installation Collectors
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/admin/credentials:
+    get:
+      tags:
+      - admin
+      summary: Credentials
+      description: 'Every activation code and Console account made, by whom, for which
+
+        area, and their use: devices activated, first and last sign-in
+
+        (ADR-022). The codes and passwords themselves are never stored.'
+      operationId: credentials
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ledger'
+      security:
+      - HTTPBearer: []
+  /v1/admin/activation-codes/{code_id}/revoke:
+    post:
+      tags:
+      - admin
+      summary: Revoke Code
+      description: 'Withdraws an unused or partly used code; devices already activated
+
+        with it keep working (revoke those one by one).'
+      operationId: revoke_code
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: code_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Code Id
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
   /v1/admin/areas/{area_id}/chain:
     get:
       tags:
@@ -1497,6 +1581,50 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
+  /v1/admin/areas/new:
+    get:
+      tags:
+      - admin
+      summary: New Places
+      operationId: new_places
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/NewPlace'
+                type: array
+                title: Response New Places
+      security:
+      - HTTPBearer: []
+  /v1/admin/areas/{area_id}/official:
+    post:
+      tags:
+      - admin
+      summary: Mark Place Official
+      description: Accepts a place added from a device into the list.
+      operationId: mark_place_official
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: area_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Area Id
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
   /v1/admin/areas/{area_id}/default-profile:
     get:
       tags:
@@ -1658,6 +1786,51 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SecurityIn'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - HTTPBearer: []
+  /v1/admin/typed-values:
+    get:
+      tags:
+      - admin
+      summary: Typed Values
+      description: Values typed under "Other" that the shared lists do not have yet.
+      operationId: typed_values
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/TypedValue'
+                type: array
+                title: Response Typed Values
+      security:
+      - HTTPBearer: []
+    post:
+      tags:
+      - admin
+      summary: Add Typed Value
+      description: 'Adds a typed value to the shared list, before "Other"; devices
+        get
+
+        it with the next sync.'
+      operationId: add_typed_value
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TypedValueIn'
+        required: true
+      responses:
+        '204':
+          description: Successful Response
         '422':
           description: Validation Error
           content:
@@ -2678,6 +2851,60 @@ components:
       required:
       - standard_id
       title: DefaultProfileIn
+    DeviceCollector:
+      properties:
+        collector_key:
+          type: string
+          format: uuid
+          title: Collector Key
+        full_name:
+          type: string
+          title: Full Name
+        phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Phone
+        collector_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Collector Type
+        village:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Village
+        tests:
+          type: integer
+          title: Tests
+        sources:
+          type: integer
+          title: Sources
+        last_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Last At
+        recovered_here:
+          type: boolean
+          title: Recovered Here
+      type: object
+      required:
+      - collector_key
+      - full_name
+      - phone
+      - collector_type
+      - village
+      - tests
+      - sources
+      - last_at
+      - recovered_here
+      title: DeviceCollector
+      description: 'Someone who worked on a device: from their tests, sources, details
+
+        or a recovery code redeemed there (ADR-022).'
     HTTPValidationError:
       properties:
         detail:
@@ -2945,6 +3172,177 @@ components:
       - collector_name
       - custom_limits
       title: LatestTest
+    Ledger:
+      properties:
+        codes:
+          items:
+            $ref: '#/components/schemas/LedgerCode'
+          type: array
+          title: Codes
+        accounts:
+          items:
+            $ref: '#/components/schemas/LedgerAccount'
+          type: array
+          title: Accounts
+      type: object
+      required:
+      - codes
+      - accounts
+      title: Ledger
+    LedgerAccount:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        username:
+          type: string
+          title: Username
+        full_name:
+          type: string
+          title: Full Name
+        role:
+          type: string
+          title: Role
+        created_by:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Created By
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        first_sign_in_done:
+          type: boolean
+          title: First Sign In Done
+        last_sign_in_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Last Sign In At
+        is_active:
+          type: boolean
+          title: Is Active
+        areas:
+          items:
+            type: string
+          type: array
+          title: Areas
+      type: object
+      required:
+      - id
+      - username
+      - full_name
+      - role
+      - created_by
+      - created_at
+      - first_sign_in_done
+      - last_sign_in_at
+      - is_active
+      - areas
+      title: LedgerAccount
+      description: 'A Console account: who made it, and whether and when it was used.'
+    LedgerCode:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        area:
+          $ref: '#/components/schemas/AreaOut'
+        created_by:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Created By
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        expires_at:
+          type: string
+          format: date-time
+          title: Expires At
+        max_installations:
+          type: integer
+          title: Max Installations
+        used_count:
+          type: integer
+          title: Used Count
+        revoked_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Revoked At
+        devices:
+          items:
+            $ref: '#/components/schemas/LedgerDevice'
+          type: array
+          title: Devices
+      type: object
+      required:
+      - id
+      - area
+      - created_by
+      - created_at
+      - expires_at
+      - max_installations
+      - used_count
+      - revoked_at
+      - devices
+      title: LedgerCode
+      description: 'An activation code: who made it, for where, and which devices
+        used it.'
+    LedgerDevice:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        label:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Label
+        short_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Short Code
+        platform:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Platform
+        activated_at:
+          type: string
+          format: date-time
+          title: Activated At
+        last_seen_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Last Seen At
+        revoked_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Revoked At
+      type: object
+      required:
+      - id
+      - label
+      - short_code
+      - platform
+      - activated_at
+      - last_seen_at
+      - revoked_at
+      title: LedgerDevice
     LoginRequest:
       properties:
         username:
@@ -3115,6 +3513,50 @@ components:
       - expires_at
       - max_installations
       title: NewCodeResponse
+    NewPlace:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        level:
+          type: string
+          title: Level
+        name:
+          type: string
+          title: Name
+        code:
+          type: string
+          title: Code
+        path:
+          type: string
+          title: Path
+        added_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Added At
+        added_by:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Added By
+        sources:
+          type: integer
+          title: Sources
+      type: object
+      required:
+      - id
+      - level
+      - name
+      - code
+      - path
+      - added_at
+      - added_by
+      - sources
+      title: NewPlace
+      description: A place added from a device, waiting for review (ADR-019/022).
     NewUserIn:
       properties:
         username:
@@ -3333,6 +3775,34 @@ components:
         readings:
           type: integer
           title: Readings
+        collector_key:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Collector Key
+        source_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Source Id
+        source_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source Name
+        session_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Session Id
+        first_value:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: First Value
       type: object
       required:
       - code
@@ -3829,6 +4299,57 @@ components:
       - expires_in
       - must_change_password
       title: TokenResponse
+    TypedValue:
+      properties:
+        list:
+          type: string
+          enum:
+          - source_types
+          - collector_types
+          title: List
+        value:
+          type: string
+          title: Value
+        uses:
+          type: integer
+          title: Uses
+        first_seen:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: First Seen
+      type: object
+      required:
+      - list
+      - value
+      - uses
+      - first_seen
+      title: TypedValue
+    TypedValueIn:
+      properties:
+        list:
+          type: string
+          enum:
+          - source_types
+          - collector_types
+          title: List
+        value:
+          type: string
+          maxLength: 80
+          minLength: 1
+          title: Value
+        name:
+          anyOf:
+          - type: string
+            maxLength: 80
+          - type: 'null'
+          title: Name
+      type: object
+      required:
+      - list
+      - value
+      title: TypedValueIn
     UploadStateOut:
       properties:
         received_bytes:

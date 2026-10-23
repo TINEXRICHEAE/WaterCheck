@@ -366,6 +366,20 @@ async def test_a_phone_works_anywhere_in_uganda_and_adds_new_places(
     # The other district can be read too.
     jinja = (await a.pull(f"area:{butagaya.id}")).json()["changes"]
     assert [c["entity"] for c in jinja] == ["water_source"]
+    # The IT admin sees the new places for review, with where they sit and
+    # who added them, and accepts one; the device lists its collector.
+    admin = await signed_in(client, owner_db, role="it_admin")
+    new = (await client.get("/v1/admin/areas/new", headers=admin)).json()
+    added = {n["name"]: n for n in new}
+    assert added["Kitanaba"]["path"] == "Jinja, Butagaya, Nawangoma"
+    assert added["Kitanaba"]["added_by"] == "Example Collector"
+    assert added["Kitanaba"]["sources"] == 1
+    r = await client.post(f"/v1/admin/areas/{village}/official", headers=admin)
+    assert r.status_code == 204
+    names = {n["name"] for n in (await client.get("/v1/admin/areas/new", headers=admin)).json()}
+    assert "Kitanaba" not in names
+    people = (await client.get(f"/v1/admin/installations/{a.id}/collectors", headers=admin)).json()
+    assert [(c["full_name"], c["sources"]) for c in people] == [("Example Collector", 1)]
     # Found by search from anywhere, with its district to sync.
     hits = await a.get("/v1/sources/search?q=" + source["data"]["code"][:6])
     hit = next(h for h in hits if h["id"] == source["id"])
@@ -703,3 +717,142 @@ async def test_a_collector_gets_back_in_on_another_phone_with_a_code(
     other = await signed_in(client, owner_db)
     r = await client.post(f"/v1/collectors/{a.collector}/recovery-code", headers=other)
     assert r.status_code == 403
+
+
+async def test_the_credentials_ledger_shows_codes_devices_and_accounts(
+    client: AsyncClient, owner_db: Database, seeded: None
+) -> None:
+    """ADR-022: every activation code with the devices that used it, every
+    account with whether it was used; a code can be withdrawn."""
+    district = await make_area(owner_db, "district")
+    a = await phone(client, owner_db, district)
+    admin = await signed_in(client, owner_db, role="it_admin")
+    ledger = (await client.get("/v1/admin/credentials", headers=admin)).json()
+    code = next(c for c in ledger["codes"] if any(d["id"] == a.id for d in c["devices"]))
+    assert code["used_count"] == 1
+    assert code["created_by"]
+    me = next(u for u in ledger["accounts"] if u["role"] == "it_admin" and u["first_sign_in_done"])
+    assert me["last_sign_in_at"]
+    r = await client.post(f"/v1/admin/activation-codes/{code['id']}/revoke", headers=admin)
+    assert r.status_code == 204
+    again = await client.post(f"/v1/admin/activation-codes/{code['id']}/revoke", headers=admin)
+    assert again.status_code == 404
+
+
+async def test_only_the_author_removes_a_picture_and_a_test_keeps_its_no_photo_reason(
+    client: AsyncClient, owner_db: Database, seeded: None
+) -> None:
+    """ADR-022: a picture records who added it; only they can remove it
+    (it is kept, marked); a test can say why it has no picture."""
+    district = await make_area(owner_db, "district")
+    a = await phone(client, owner_db, district)
+    changes = visit(a)
+    session = next(c for c in changes if c["entity"] == "test_session")
+    session["data"]["no_photo_reason"] = "Camera not working"
+    picture = {
+        "entity": "attachment",
+        "op": "insert",
+        "id": str(uuid.uuid4()),
+        "data": {
+            "owner_type": "test_session",
+            "owner_id": session["id"],
+            "sha256": "a" * 64,
+            "bytes": 1000,
+            "mime": "image/jpeg",
+            **a.origin(),
+        },
+    }
+    out = (await a.push([*changes, picture]))["results"]
+    assert all(r["status"] == "applied" for r in out), out
+    remove = {"entity": "attachment", "op": "update", "id": picture["id"]}
+    # Someone else on the device cannot remove it.
+    other = {**a.origin(), "collector_key": str(uuid.uuid4())}
+    refused = (await a.push([{**remove, "data": {"removed": True, **other}}]))["results"][0]
+    assert refused["reason"] == "not_creator"
+    done = (await a.push([{**remove, "data": {"removed": True, **a.origin()}}]))["results"][0]
+    assert done["status"] == "applied"
+    pulled = (await a.pull(f"area:{a.village}")).json()["changes"]
+    pic = next(c for c in pulled if c["entity"] == "attachment")
+    assert pic["data"]["removed_at"]
+    ses = next(c for c in pulled if c["entity"] == "test_session")
+    assert ses["data"]["no_photo_reason"] == "Camera not working"
+
+
+async def test_a_typed_other_value_is_listed_until_the_admin_adds_it(
+    client: AsyncClient, owner_db: Database, seeded: None
+) -> None:
+    """ADR-022: "Other" means type it. The typed value is stored as it is,
+    listed for the IT admin, and once added it is in the shared list
+    (before "Other") that devices pull, and no longer listed."""
+    district = await make_area(owner_db, "district")
+    a = await phone(client, owner_db, district)
+    changes = visit(a)
+    source = next(c for c in changes if c["entity"] == "water_source")
+    source["data"]["source_type"] = "Hand-dug well"
+    out = (await a.push(changes))["results"]
+    assert all(r["status"] == "applied" for r in out), out
+    admin = await signed_in(client, owner_db, role="it_admin")
+    typed = (await client.get("/v1/admin/typed-values", headers=admin)).json()
+    assert {"list": "source_types", "value": "Hand-dug well"}.items() <= next(
+        t for t in typed if t["value"] == "Hand-dug well"
+    ).items()
+    assert not any(t["value"] == "borehole" for t in typed)
+    r = await client.post(
+        "/v1/admin/typed-values",
+        json={"list": "source_types", "value": "Hand-dug well"},
+        headers=admin,
+    )
+    assert r.status_code == 204
+    typed = (await client.get("/v1/admin/typed-values", headers=admin)).json()
+    assert not any(t["value"] == "Hand-dug well" for t in typed)
+    lists = (await client.get("/v1/reference/config/lists", headers=admin)).json()
+    codes = [i["code"] for i in lists["source_types"]]
+    assert codes.index("Hand-dug well") == codes.index("other") - 1
+
+
+async def test_threads_on_a_test_and_a_source_reach_both_sides(
+    client: AsyncClient, owner_db: Database, seeded: None
+) -> None:
+    """ADR-022: a collector writes on their test, a Console user answers on
+    the source; both reach the area's devices and the Console, with who
+    wrote. Unknown subjects and empty messages are refused."""
+    district = await make_area(owner_db, "district")
+    a = await phone(client, owner_db, district)
+    changes = visit(a)
+    out = (await a.push(changes))["results"]
+    assert all(r["status"] == "applied" for r in out), out
+    session = next(c for c in changes if c["entity"] == "test_session")
+    source = next(c for c in changes if c["entity"] == "water_source")
+
+    def message(kind: str, subject: str, body: str, origin: dict[str, Any]) -> dict[str, Any]:
+        return {
+            "entity": "message",
+            "op": "insert",
+            "id": str(uuid.uuid4()),
+            "data": {"subject_type": kind, "subject_id": subject, "body": body, **origin},
+        }
+
+    asked = message("test", session["id"], "The strip looked faded.", a.origin())
+    bad = message("test", str(uuid.uuid4()), "Lost?", a.origin())
+    empty = message("source", source["id"], "   ", a.origin())
+    res = (await a.push([asked, bad, empty]))["results"]
+    assert [r["status"] for r in res] == ["applied", "rejected", "rejected"]
+    assert res[1]["reason"] == "not_found"
+    assert res[2]["reason"] == "invalid_body"
+
+    admin = await signed_in(client, owner_db, role="it_admin")
+    reply = message("source", source["id"], "Please test again tomorrow.", {})
+    r = await client.post(
+        "/v1/sync/push",
+        json={"batch_id": str(uuid.uuid4()), "changes": [reply]},
+        headers=admin,
+    )
+    assert r.json()["results"][0]["status"] == "applied", r.text
+
+    pulled = (await a.pull(f"area:{a.village}")).json()["changes"]
+    got = {c["id"]: c["data"] for c in pulled if c["entity"] == "message"}
+    assert got[asked["id"]]["body"] == "The strip looked faded."
+    assert got[asked["id"]]["author_name"] == "Example Collector"
+    assert got[reply["id"]]["subject_type"] == "source"
+    assert got[reply["id"]]["author_name"] == "Officer"
+    assert got[reply["id"]]["author_user_id"]
