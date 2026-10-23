@@ -529,3 +529,18 @@ Decisions are also recorded in [PLAN.md](PLAN.md) (decisions log and §3a), the 
 - **Watch:**
   - The VM has these two files changed by copy. Until the commit is pushed, the next `git pull` there needs `git checkout -- infra/tiles-config/config.json infra/docker-compose.yml` first.
   - Tile memory should be watched as use grows (`docker stats`).
+
+### 34. Production places from dev; demo sources archived (2026-10-24)
+- **Asked:** Collect on production "seems naive of existing areas" (custom villages, parishes and sources).
+- **Finding:**
+  - Production had the national list (country to sub-county, 1,661 places) and only the seed placeholder parish and village ("TODO-verify parish" › "Entebbe").
+  - The places added during testing existed only in the dev database. Deploying copies code, not data.
+- **Decisions (lead):** copy the real places from dev; archive the 4 production sources (demo entries under the placeholder village).
+- **Outcome:**
+  - **Backup first:** `~/backups/watercheck-before-places-*.dump`.
+  - **Copied to production** with the same IDs and parents (the parent sub-counties have the same IDs on both): parishes Kaliro (Bamunanika, official) and Nawangoma (Butagaya, new), and villages Kaliro katono and Kitanaba (new).
+    - "Added by device" was left empty, since dev devices don't exist on production.
+    - "Perf gate village" (test fixture) was not copied.
+    - Devices get the places at their next sync, and the new ones appear under Admin › Places for review.
+  - **Archived** through the archive service, as the IT admin account: Hospital Borehole, Kabojja Protected Spring, Kasenge HC II Borehole and Amusus Primary. Their 5 tests and 4 alerts cascaded. All 4 batches can be restored under Admin › Archived.
+- **Open:** the 3 real dev sources (Kasenge well, Kitanaba borehole, Kaliro katono community borehole) are not copied yet; they wait for the lead's choice.
