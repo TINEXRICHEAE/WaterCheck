@@ -138,7 +138,9 @@ services:
     volumes:
       - ./tiles:/data:ro
       - ./tiles-config:/config:ro
-    mem_limit: 1g
+    # Rendering many detailed tiles at once once passed 1 GB and was killed
+    # (2026-10-24); the renderer pools in config.json are capped too.
+    mem_limit: 1536m
     restart: unless-stopped
 
   # Road routes for the maps (ADR-021): Valhalla for all of Uganda, one

@@ -5,7 +5,16 @@
       "styles": ".",
       "mbtiles": "/data",
       "fonts": "/usr/src/app/node_modules/tileserver-gl-styles/fonts"
-    }
+    },
+    "minRendererPoolSizes": [
+      2,
+      1
+    ],
+    "maxRendererPoolSizes": [
+      4,
+      2
+    ],
+    "maxScaleFactor": 2
   },
   "styles": {
     "watercheck-v2": {

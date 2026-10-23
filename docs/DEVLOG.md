@@ -513,3 +513,19 @@ Decisions are also recorded in [PLAN.md](PLAN.md) (decisions log and §3a), the 
 - **Issue met:** `apps/collect/build` on the VM was owned by `root`, because Docker created it on 2026-10-17 when the mount had no folder. Fixed with `chown` on that folder only, and noted in DEPLOYMENT_GUIDE §17.
 - **Not done:** the Windows installers and Android APK were not rebuilt; 0.1.1 devices keep working until the next client release.
 - **Watch:** production secrets exposed in the Copilot chat should still be rotated.
+
+### 33. Production map tiles answered 502 (2026-10-24)
+- **Asked:** console errors on `https://watercheck.cooptconnect.app/#/sources`, mostly `502` for `/tiles/styles/watercheck-v2/256/16/…png`.
+- **Cause:** the tile server (tileserver-gl, limit 1 GB) was killed by the kernel when it ran out of memory (`Memory cgroup out of memory: Killed process … MainThread`). It ran many map renderers at once (8–16 by default per image scale) while drawing many zoom-16 tiles. Caddy answered 502 until Docker restarted it.
+- **Fix:**
+  - `infra/tiles-config/config.json`: `minRendererPoolSizes [2,1]`, `maxRendererPoolSizes [4,2]`, `maxScaleFactor 2` (the apps request 1× tiles only).
+  - `infra/docker-compose.yml`: tiles `mem_limit` 1536m.
+  - Applied on the VM by copying the two files, then `--force-recreate tiles`.
+  - Check: 70 zoom-16 tiles fetched 8 at a time all returned 200, and the server peaked at 318 MB (589 MB before, under lighter load).
+- **Other lines in that log, all harmless:**
+  - "unload is not allowed": from a browser extension script (`0r0akgg.js`), not WaterCheck.
+  - "Banner not shown: beforeinstallprompt.preventDefault()": intended; installing is offered by the "Install app" button.
+  - `/api/v1/auth/refresh` 401: an old saved session expired; the Console asks for sign-in or carries on with the current one.
+- **Watch:**
+  - The VM has these two files changed by copy. Until the commit is pushed, the next `git pull` there needs `git checkout -- infra/tiles-config/config.json infra/docker-compose.yml` first.
+  - Tile memory should be watched as use grows (`docker stats`).
