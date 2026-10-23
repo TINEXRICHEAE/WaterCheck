@@ -495,3 +495,9 @@ Decisions are also recorded in [PLAN.md](PLAN.md) (decisions log and §3a), the 
   - Six local commits on `main`, grouped by layer, because many files carry more than one sprint: 6f01b98 backend, 5d74c4f packages, ac66c0c Collect, ff791b6 Console, 10936d0 infra, e21c951 docs.
   - Not pushed; the user pushes.
 - **Watch:** the lead's check on dev is still to come. Fixes from it go in new commits.
+
+### 31. CI gitleaks failure after the round 3 push (2026-10-24)
+- **Asked:** the CI job "security / gitleaks" failed after the push. The other 7 checks passed.
+- **Cause:** a false positive. The made-up collector key `0b9e1f4a-6c2d-4e8f-a1b3-c5d7e9f0c0de` in Collect test data (`fake_server.dart`, `app_test.dart`, commit de46b8e) matched the generic-api-key rule because its field is named `key`. The local pre-commit scan covered only staged changes; CI scans the whole history.
+- **Fix:** `.gitleaks.toml` allowlists that exact value. It is not a secret, and the history is not rewritten. A full-history scan now finds nothing (72 commits).
+- **Watch:** before a push, scan the whole history (`gitleaks git .`) as CI does.

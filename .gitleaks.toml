@@ -12,3 +12,8 @@ paths = [
   '''(^|/)build/''',
   '''\.dart_tool/''',
 ]
+# Made-up collector keys (UUIDs) in test fixtures; the generic rule reads
+# the field name "key" as a secret.
+regexes = [
+  '''0b9e1f4a-6c2d-4e8f-a1b3-c5d7e9f0c0de''',
+]
