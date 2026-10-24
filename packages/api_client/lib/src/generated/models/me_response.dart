@@ -20,6 +20,9 @@ class MeResponse {
     required this.mustChangePassword,
     required this.responsibilities,
     required this.areas,
+    this.phoneConfirmed = false,
+    this.emailConfirmed = false,
+    this.legalVersion = 0,
     this.notifyEmail = true,
     this.notifyPush = true,
     this.notifySms = true,
@@ -46,6 +49,12 @@ class MeResponse {
   final List<Area> areas;
   final String? phone;
   final String? email;
+  @JsonKey(name: 'phone_confirmed')
+  final bool phoneConfirmed;
+  @JsonKey(name: 'email_confirmed')
+  final bool emailConfirmed;
+  @JsonKey(name: 'legal_version')
+  final int legalVersion;
   @JsonKey(name: 'notify_email')
   final bool notifyEmail;
   @JsonKey(name: 'notify_push')

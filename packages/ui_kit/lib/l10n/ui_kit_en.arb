@@ -296,5 +296,21 @@
   "conversationWaiting": "Waiting to send (no connection yet)",
   "conversationWrite": "Write a message",
   "conversationHint": "Enter sends; Shift+Enter for a new line. Everyone following this sees it.",
-  "conversationSend": "Send"
+  "conversationSend": "Send",
+  "mapMoveUp": "Move up (↑ or W; hold to keep moving)",
+  "mapMoveDown": "Move down (↓ or S; hold to keep moving)",
+  "mapMoveLeft": "Move left (← or A; hold to keep moving)",
+  "mapMoveRight": "Move right (→ or D; hold to keep moving)",
+  "legalPrivacy": "Privacy Policy",
+  "legalTerms": "Terms of Use",
+  "legalVersionLine": "Version {version}",
+  "@legalVersionLine": {
+    "placeholders": {
+      "version": {
+        "type": "int"
+      }
+    }
+  },
+  "legalAccept": "I agree to the Terms of Use and the Privacy Policy",
+  "legalChanged": "The Privacy Policy or Terms of Use have changed. Please read them and agree again to keep using WaterCheck."
 }

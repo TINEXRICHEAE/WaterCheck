@@ -10,6 +10,7 @@ export 'src/busy_button.dart';
 export 'src/choice_or_typed_field.dart';
 export 'src/conversation_view.dart';
 export 'src/error_view.dart';
+export 'src/legal.dart';
 export 'src/password_field.dart';
 export 'src/photo_viewer.dart';
 export 'src/pin_pad.dart';

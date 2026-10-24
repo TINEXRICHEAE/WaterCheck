@@ -825,6 +825,60 @@ abstract class UiKitLocalizations {
   /// In en, this message translates to:
   /// **'Send'**
   String get conversationSend;
+
+  /// No description provided for @mapMoveUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Move up (↑ or W; hold to keep moving)'**
+  String get mapMoveUp;
+
+  /// No description provided for @mapMoveDown.
+  ///
+  /// In en, this message translates to:
+  /// **'Move down (↓ or S; hold to keep moving)'**
+  String get mapMoveDown;
+
+  /// No description provided for @mapMoveLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'Move left (← or A; hold to keep moving)'**
+  String get mapMoveLeft;
+
+  /// No description provided for @mapMoveRight.
+  ///
+  /// In en, this message translates to:
+  /// **'Move right (→ or D; hold to keep moving)'**
+  String get mapMoveRight;
+
+  /// No description provided for @legalPrivacy.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy Policy'**
+  String get legalPrivacy;
+
+  /// No description provided for @legalTerms.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms of Use'**
+  String get legalTerms;
+
+  /// No description provided for @legalVersionLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Version {version}'**
+  String legalVersionLine(int version);
+
+  /// No description provided for @legalAccept.
+  ///
+  /// In en, this message translates to:
+  /// **'I agree to the Terms of Use and the Privacy Policy'**
+  String get legalAccept;
+
+  /// No description provided for @legalChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'The Privacy Policy or Terms of Use have changed. Please read them and agree again to keep using WaterCheck.'**
+  String get legalChanged;
 }
 
 class _UiKitLocalizationsDelegate

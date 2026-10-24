@@ -31,3 +31,4 @@ flutter:
   # The WaterCheck icon (design/watercheck-icons), 1x/2x/3x.
   assets:
     - assets/watercheck.png
+    - assets/legal/

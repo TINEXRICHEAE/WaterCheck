@@ -455,4 +455,35 @@ class UiKitLocalizationsEn extends UiKitLocalizations {
 
   @override
   String get conversationSend => 'Send';
+
+  @override
+  String get mapMoveUp => 'Move up (↑ or W; hold to keep moving)';
+
+  @override
+  String get mapMoveDown => 'Move down (↓ or S; hold to keep moving)';
+
+  @override
+  String get mapMoveLeft => 'Move left (← or A; hold to keep moving)';
+
+  @override
+  String get mapMoveRight => 'Move right (→ or D; hold to keep moving)';
+
+  @override
+  String get legalPrivacy => 'Privacy Policy';
+
+  @override
+  String get legalTerms => 'Terms of Use';
+
+  @override
+  String legalVersionLine(int version) {
+    return 'Version $version';
+  }
+
+  @override
+  String get legalAccept =>
+      'I agree to the Terms of Use and the Privacy Policy';
+
+  @override
+  String get legalChanged =>
+      'The Privacy Policy or Terms of Use have changed. Please read them and agree again to keep using WaterCheck.';
 }
