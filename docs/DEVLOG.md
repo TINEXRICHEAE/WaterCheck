@@ -674,3 +674,20 @@ Decisions are also recorded in [PLAN.md](PLAN.md) (decisions log and §3a), the 
     - Console: acceptance after sign-in, version recorded;
     - backend: the version recorded on the account.
 - **Before real data:** fill in the placeholders, confirm with PDPO and the ethics committee, and raise `legalVersion` if the substance changes. The 2-year unused-account flag is promised but not built.
+
+### 40. ADR-023 to ADR-026 deployed to production (2026-10-24)
+- **Asked:** "I've pushed and the GitHub checks have passed, let's push to production".
+- **Outcome:**
+  - **Backup:** `~/backups/watercheck-before-0016-*.dump` (52 tables, checked).
+  - **Code:** on the VM, the hand-copied tile config and compose file were reset to git, then `git pull` to `0a369c3`.
+  - **Place names:** `infra/places/` copied, with checksums matched.
+  - **Database:** `up -d --build migrate api worker` took it from 0013 to 0016, and the loader read 1,520 shapes and 64,110 place names; 4 tester devices were backfilled.
+  - **Web apps:** both built against production, checksummed, swapped (`web.old` kept) and Caddy recreated.
+  - **Checks:**
+    - both apps, the legal documents, health, a zoom-16 tile and routing answer;
+    - `places/search` and `codes-to-pass` ask for sign-in;
+    - headless Chrome opens Collect at the new welcome screen;
+    - no errors in the logs, all services running.
+- **Watch:**
+  - Everyone is asked to accept the Privacy Policy and Terms (version 2), which still have [placeholders].
+  - Windows and Android apps were not rebuilt (0.1.1 keeps working with activation).

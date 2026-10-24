@@ -1091,6 +1091,20 @@ lockfile (`uv lock --upgrade-package certifi` in `backend`), confirm with
 
 ## 20. Current deployment status
 
+Update (2026-10-24, later), rounds ADR-023 to ADR-026:
+
+- Backup `~/backups/watercheck-before-0016-*.dump` (52 tables) taken first.
+- The VM is at `0a369c3`, migrations 0014–0016 applied. The two files copied
+  by hand that morning (tile config, compose) were reset to git first.
+- `infra/places/` copied (checksums matched) and loaded by `migrate`:
+  1,520 sub-county shapes and 64,110 map place names.
+- Both web apps rebuilt, checksummed, swapped (`web.old` kept) and Caddy
+  recreated. Smoke checks: both apps, the legal documents, health, tiles and
+  routing answer; the new endpoints ask for sign-in. No errors in the logs.
+- Collect now opens without an activation code; everyone is asked to accept
+  the Privacy Policy and Terms (version 2), which still contain
+  [placeholders] to fill in before real data is collected.
+
 Update (2026-10-24), round 3 (ADR-022):
 
 - Backup `~/backups/watercheck-before-0013-20261023-2138.dump` taken first
