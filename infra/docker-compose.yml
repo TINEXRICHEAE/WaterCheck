@@ -52,12 +52,16 @@ services:
         do echo "Waiting for PostgreSQL to accept connections..."; sleep 2; done &&
         alembic upgrade head &&
         python -m app.cli create-api-role --password "$${API_DB_PASSWORD}" &&
-        python -m app.seed --seed-dir /seed
+        python -m app.seed --seed-dir /seed &&
+        python -m app.places_load --dir /places
     environment:
       WC_MIGRATION_DATABASE_URL: postgresql+psycopg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
       API_DB_PASSWORD: ${API_DB_PASSWORD}
     volumes:
       - ../infra/seed:/seed:ro
+      # Map place names and sub-county shapes (tools/build_places.py,
+      # ADR-023); optional: without them only official places are suggested.
+      - ../infra/places:/places:ro
     depends_on:
       db:
         condition: service_healthy

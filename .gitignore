@@ -51,3 +51,6 @@ infra/tiles/
 /dist/
 /tools/windows/prerequisites/
 infra/routing/
+
+# Map place names and sub-county shapes (tools/build_places.py, ADR-023)
+infra/places/
