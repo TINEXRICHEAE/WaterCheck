@@ -134,7 +134,7 @@ void main() {
         ),
       );
     final inst = await WaterCheckApi(phone).installations.installationMe();
-    expect(inst.area.code, 'ABIM-ENT');
+    expect(inst.area?.code, 'ABIM-ENT');
     final catalogue = await WaterCheckApi(phone).reference.catalogue();
     expect(catalogue.parameters, hasLength(42));
   }, skip: live == null ? 'set WC_LIVE_API to run against a dev stack' : false);

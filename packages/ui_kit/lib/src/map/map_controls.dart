@@ -13,6 +13,10 @@ class MapPlace {
     required this.name,
     required this.isSource,
     this.detail,
+    this.fromMap = false,
+    this.lat,
+    this.lon,
+    this.areaId,
   });
 
   final String id;
@@ -21,6 +25,13 @@ class MapPlace {
 
   /// Where it is ("Butagaya · Jinja") or its level and code.
   final String? detail;
+
+  /// A name on the map (ADR-023), not an official area or a source: picked,
+  /// the map goes to [lat]/[lon], in the sub-county [areaId].
+  final bool fromMap;
+  final double? lat;
+  final double? lon;
+  final String? areaId;
 }
 
 /// One search box for areas and sources (2026-10-22): typing narrows both;
@@ -99,7 +110,11 @@ class MapSearchBar extends StatelessWidget {
                     ListTile(
                       dense: true,
                       leading: Icon(
-                        p.isSource ? Icons.water_drop_outlined : Icons.place,
+                        p.isSource
+                            ? Icons.water_drop_outlined
+                            : p.fromMap
+                            ? Icons.signpost_outlined
+                            : Icons.place,
                       ),
                       title: Text(p.name),
                       subtitle: p.detail == null ? null : Text(p.detail!),

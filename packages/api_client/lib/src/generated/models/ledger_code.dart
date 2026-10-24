@@ -6,10 +6,12 @@ import 'package:json_annotation/json_annotation.dart';
 
 import 'area_out.dart';
 import 'ledger_device.dart';
+import 'ledger_tester.dart';
 
 part 'ledger_code.g.dart';
 
-/// An activation code: who made it, for where, and which devices used it.
+/// An assignment (formerly activation) code: who made it, for where,.
+/// and the testers it assigned (and devices, for codes used before).
 @JsonSerializable()
 class LedgerCode {
   const LedgerCode({
@@ -22,6 +24,7 @@ class LedgerCode {
     required this.usedCount,
     required this.revokedAt,
     required this.devices,
+    this.testers = const [],
   });
 
   factory LedgerCode.fromJson(Map<String, Object?> json) =>
@@ -42,6 +45,7 @@ class LedgerCode {
   @JsonKey(name: 'revoked_at')
   final DateTime? revokedAt;
   final List<LedgerDevice> devices;
+  final List<LedgerTester> testers;
 
   Map<String, Object?> toJson() => _$LedgerCodeToJson(this);
 }

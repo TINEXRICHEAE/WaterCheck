@@ -10,6 +10,8 @@ import '../models/activate_response.dart';
 import '../models/installation_me.dart';
 import '../models/new_code_request.dart';
 import '../models/new_code_response.dart';
+import '../models/register_request.dart';
+import '../models/register_response.dart';
 
 part 'installations_client.g.dart';
 
@@ -21,6 +23,12 @@ abstract class InstallationsClient {
   /// Activate
   @POST('/v1/installations/activate')
   Future<ActivateResponse> activate({@Body() required ActivateRequest body});
+
+  /// Register.
+  ///
+  /// A device registers itself, no code needed (ADR-024).
+  @POST('/v1/installations/register')
+  Future<RegisterResponse> register({@Body() required RegisterRequest body});
 
   /// Installation Me
   @GET('/v1/installations/me')

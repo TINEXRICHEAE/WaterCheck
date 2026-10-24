@@ -21,9 +21,14 @@ class InstallationCredentials {
 
   /// Base URL of the API, e.g. `https://watercheck.example.org/api`.
   final String apiUrl;
+
+  /// Empty for a device that registered itself (ADR-024): testers, not
+  /// devices, are assigned to areas.
   final String areaId;
   final String areaCode;
   final String areaName;
+
+  bool get hasArea => areaId.isNotEmpty;
   final DateTime activatedAt;
 
   /// Short ID used in the SMS fallback (`I:7Q2K`, SPEC §8.5). Phones

@@ -173,6 +173,9 @@ class CollectorProfiles extends Table {
   TextColumn get subcounty => text()();
   TextColumn get district => text()();
   TextColumn get organisation => text().nullable()();
+
+  /// Added in v10 (ADR-024): optional, like the phone now.
+  TextColumn get email => text().nullable()();
   BoolColumn get isActive => boolean().withDefault(const Constant(true))();
   DateTimeColumn get updatedAt => dateTime()();
 
@@ -522,6 +525,26 @@ class Messages extends Table {
   DateTimeColumn get writtenAtDevice => dateTime().nullable()();
   DateTimeColumn get createdAtServer => dateTime().nullable()();
   DateTimeColumn get readAt => dateTime().nullable()();
+  IntColumn get serverSeq => integer().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// Names on the map (OpenStreetMap villages, hamlets, trading centres,
+/// neighbourhoods) placed in the sub-county they lie in (ADR-023). Only
+/// suggestions: picking one fills its sub-county and district. Not part
+/// of the official area tree. Added in v9.
+@DataClassName('PlaceNameRow')
+class PlaceNames extends Table {
+  TextColumn get id => text()();
+  TextColumn get name => text()();
+
+  /// The OpenStreetMap `place` value: village, hamlet, locality, town…
+  TextColumn get kind => text()();
+  RealColumn get lat => real()();
+  RealColumn get lon => real()();
+  TextColumn get subcountyId => text()();
   IntColumn get serverSeq => integer().nullable()();
 
   @override

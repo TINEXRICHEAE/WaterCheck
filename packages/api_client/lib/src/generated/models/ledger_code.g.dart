@@ -20,6 +20,11 @@ LedgerCode _$LedgerCodeFromJson(Map<String, dynamic> json) => LedgerCode(
   devices: (json['devices'] as List<dynamic>)
       .map((e) => LedgerDevice.fromJson(e as Map<String, dynamic>))
       .toList(),
+  testers:
+      (json['testers'] as List<dynamic>?)
+          ?.map((e) => LedgerTester.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+      const [],
 );
 
 Map<String, dynamic> _$LedgerCodeToJson(LedgerCode instance) =>
@@ -33,4 +38,5 @@ Map<String, dynamic> _$LedgerCodeToJson(LedgerCode instance) =>
       'used_count': instance.usedCount,
       'revoked_at': instance.revokedAt?.toIso8601String(),
       'devices': instance.devices,
+      'testers': instance.testers,
     };

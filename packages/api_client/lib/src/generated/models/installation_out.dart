@@ -21,15 +21,18 @@ class InstallationOut {
     required this.revokedAt,
     required this.collectorsSeen,
     required this.tests,
-    this.archived = false,
     this.label,
+    this.registeredVia = 'code',
+    this.archived = false,
   });
 
   factory InstallationOut.fromJson(Map<String, Object?> json) =>
       _$InstallationOutFromJson(json);
 
   final String id;
-  final AreaOut area;
+  final AreaOut? area;
+  @JsonKey(name: 'registered_via')
+  final String registeredVia;
   final String? platform;
   @JsonKey(name: 'app_version')
   final String? appVersion;

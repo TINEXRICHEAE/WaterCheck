@@ -23,6 +23,7 @@ export 'src/repositories/alert_repository.dart';
 export 'src/repositories/area_tree.dart';
 export 'src/repositories/collector_profile_repository.dart';
 export 'src/repositories/inspection_repository.dart';
+export 'src/repositories/map_place_repository.dart';
 export 'src/repositories/message_repository.dart';
 export 'src/repositories/local_settings_repository.dart';
 export 'src/repositories/outbox_repository.dart';
@@ -46,4 +47,4 @@ export 'src/sync/sync_transport.dart';
 export 'src/seed/seed_importer.dart';
 
 /// Local database schema version (see `drift_schemas/`).
-const int localSchemaVersion = 8;
+const int localSchemaVersion = 10;

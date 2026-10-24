@@ -21,7 +21,7 @@ class InstallationMe {
 
   @JsonKey(name: 'installation_id')
   final String installationId;
-  final AreaOut area;
+  final AreaOut? area;
   @JsonKey(name: 'short_code')
   final String shortCode;
 

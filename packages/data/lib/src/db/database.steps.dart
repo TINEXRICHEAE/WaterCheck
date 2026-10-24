@@ -6655,6 +6655,1533 @@ i1.GeneratedColumn<String> _column_166(String aliasedName) =>
       type: i1.DriftSqlType.string,
       $customConstraints: 'NULL',
     );
+
+final class Schema9 extends i0.VersionedSchema {
+  Schema9({required super.database}) : super(version: 9);
+  @override
+  late final List<i1.DatabaseSchemaEntity> entities = [
+    waterSources,
+    testSessions,
+    archiveMarks,
+    testSessionsNoDelete,
+    testSessionsNoUpdate,
+    testResults,
+    testResultsNoDelete,
+    testResultsNoUpdate,
+    readings,
+    readingsNoDelete,
+    readingsNoUpdate,
+    calibrations,
+    calibrationsNoDelete,
+    calibrationsNoUpdate,
+    alerts,
+    alertEvents,
+    alertEventsNoDelete,
+    alertEventsNoUpdate,
+    sanitaryInspections,
+    sanitaryInspectionsNoDelete,
+    sanitaryInspectionsNoUpdate,
+    waterSourcesNoDelete,
+    adminUnits,
+    parameterCategories,
+    parameterDefinitions,
+    testerProfiles,
+    referenceProfiles,
+    responseCards,
+    responsibilities,
+    configDocuments,
+    seedImports,
+    collectorProfiles,
+    classifications,
+    attachments,
+    collectorMarks,
+    submissionFlags,
+    outbox,
+    syncState,
+    syncLocks,
+    attachmentQueue,
+    changeTrails,
+    messages,
+    placeNames,
+  ];
+  late final Shape0 waterSources = Shape0(
+    source: i0.VersionedTable(
+      entityName: 'water_sources',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)', 'UNIQUE(village_id, code)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_6,
+        _column_7,
+        _column_8,
+        _column_9,
+        _column_10,
+        _column_11,
+        _column_12,
+        _column_13,
+        _column_14,
+        _column_15,
+        _column_16,
+        _column_17,
+        _column_18,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape31 testSessions = Shape31(
+    source: i0.VersionedTable(
+      entityName: 'test_sessions',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_19,
+        _column_20,
+        _column_21,
+        _column_22,
+        _column_23,
+        _column_9,
+        _column_10,
+        _column_11,
+        _column_24,
+        _column_25,
+        _column_26,
+        _column_158,
+        _column_27,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape28 archiveMarks = Shape28(
+    source: i0.VersionedTable(
+      entityName: 'archive_marks',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(entity, record_id)'],
+      columns: [
+        _column_119,
+        _column_149,
+        _column_150,
+        _column_151,
+        _column_152,
+        _column_3,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  final i1.Trigger testSessionsNoDelete = i1.Trigger(
+    'CREATE TRIGGER test_sessions_no_delete BEFORE DELETE ON test_sessions WHEN NOT EXISTS (SELECT 1 FROM archive_marks AS m WHERE m.archived = 1 AND m.entity = \'test_session\' AND m.record_id = OLD.id) BEGIN SELECT RAISE (ABORT, \'test_sessions are immutable\');END',
+    'test_sessions_no_delete',
+  );
+  final i1.Trigger testSessionsNoUpdate = i1.Trigger(
+    'CREATE TRIGGER test_sessions_no_update BEFORE UPDATE OF id, source_id, calibration_id, tester_profile_id, reference_standard_id, calibrated, lat, lon, location_accuracy_m, distance_from_source_m, distance_override_reason, notes, tested_at_device, installation_id, collector_key, collector_snapshot ON test_sessions BEGIN SELECT RAISE (ABORT, \'test_sessions are immutable\');END',
+    'test_sessions_no_update',
+  );
+  late final Shape29 testResults = Shape29(
+    source: i0.VersionedTable(
+      entityName: 'test_results',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_3,
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_4,
+        _column_28,
+        _column_29,
+        _column_30,
+        _column_31,
+        _column_32,
+        _column_33,
+        _column_34,
+        _column_35,
+        _column_36,
+        _column_17,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  final i1.Trigger testResultsNoDelete = i1.Trigger(
+    'CREATE TRIGGER test_results_no_delete BEFORE DELETE ON test_results WHEN NOT EXISTS (SELECT 1 FROM archive_marks AS m WHERE m.archived = 1 AND m.entity = \'test_session\' AND m.record_id = OLD.session_id) BEGIN SELECT RAISE (ABORT, \'test_results are immutable\');END',
+    'test_results_no_delete',
+  );
+  final i1.Trigger testResultsNoUpdate = i1.Trigger(
+    'CREATE TRIGGER test_results_no_update BEFORE UPDATE OF id, session_id, overall, standard_id, computed_by, retest_of, amendment_of, amendment_reason, flags, limitation_code, created_at_device ON test_results BEGIN SELECT RAISE (ABORT, \'test_results are immutable\');END',
+    'test_results_no_update',
+  );
+  late final Shape3 readings = Shape3(
+    source: i0.VersionedTable(
+      entityName: 'readings',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_3,
+        _column_4,
+        _column_28,
+        _column_37,
+        _column_38,
+        _column_39,
+        _column_40,
+        _column_41,
+        _column_42,
+        _column_43,
+        _column_44,
+        _column_45,
+        _column_46,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  final i1.Trigger readingsNoDelete = i1.Trigger(
+    'CREATE TRIGGER readings_no_delete BEFORE DELETE ON readings WHEN NOT EXISTS (SELECT 1 FROM archive_marks AS m WHERE m.archived = 1 AND m.entity = \'test_session\' AND m.record_id = OLD.session_id) BEGIN SELECT RAISE (ABORT, \'readings are immutable\');END',
+    'readings_no_delete',
+  );
+  final i1.Trigger readingsNoUpdate = i1.Trigger(
+    'CREATE TRIGGER readings_no_update BEFORE UPDATE OF id, session_id, result_id, parameter_code, value, detected, acceptable, value_text, unit, result, is_derived, source_device ON readings BEGIN SELECT RAISE (ABORT, \'readings are immutable\');END',
+    'readings_no_update',
+  );
+  late final Shape4 calibrations = Shape4(
+    source: i0.VersionedTable(
+      entityName: 'calibrations',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_47,
+        _column_21,
+        _column_22,
+        _column_48,
+        _column_49,
+        _column_50,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  final i1.Trigger calibrationsNoDelete = i1.Trigger(
+    'CREATE TRIGGER calibrations_no_delete BEFORE DELETE ON calibrations BEGIN SELECT RAISE (ABORT, \'calibrations are immutable\');END',
+    'calibrations_no_delete',
+  );
+  final i1.Trigger calibrationsNoUpdate = i1.Trigger(
+    'CREATE TRIGGER calibrations_no_update BEFORE UPDATE OF id, tester_serial, tester_profile_id, reference_standard_id, buffers, passed, performed_at_device, installation_id, collector_key, collector_snapshot ON calibrations BEGIN SELECT RAISE (ABORT, \'calibrations are immutable\');END',
+    'calibrations_no_update',
+  );
+  late final Shape5 alerts = Shape5(
+    source: i0.VersionedTable(
+      entityName: 'alerts',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: [
+        'PRIMARY KEY(id)',
+        'UNIQUE(trigger_result_id, trigger_rule)',
+      ],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_19,
+        _column_51,
+        _column_52,
+        _column_53,
+        _column_54,
+        _column_55,
+        _column_56,
+        _column_57,
+        _column_58,
+        _column_15,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape6 alertEvents = Shape6(
+    source: i0.VersionedTable(
+      entityName: 'alert_events',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_59,
+        _column_60,
+        _column_61,
+        _column_62,
+        _column_63,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  final i1.Trigger alertEventsNoDelete = i1.Trigger(
+    'CREATE TRIGGER alert_events_no_delete BEFORE DELETE ON alert_events WHEN NOT EXISTS (SELECT 1 FROM archive_marks AS m WHERE m.archived = 1 AND m.entity = \'alert\' AND m.record_id = OLD.alert_id) BEGIN SELECT RAISE (ABORT, \'alert_events are immutable\');END',
+    'alert_events_no_delete',
+  );
+  final i1.Trigger alertEventsNoUpdate = i1.Trigger(
+    'CREATE TRIGGER alert_events_no_update BEFORE UPDATE OF id, alert_id, actor_id, event_type, note, occurred_at_device, installation_id, collector_key, collector_snapshot ON alert_events BEGIN SELECT RAISE (ABORT, \'alert_events are immutable\');END',
+    'alert_events_no_update',
+  );
+  late final Shape7 sanitaryInspections = Shape7(
+    source: i0.VersionedTable(
+      entityName: 'sanitary_inspections',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_19,
+        _column_64,
+        _column_65,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  final i1.Trigger sanitaryInspectionsNoDelete = i1.Trigger(
+    'CREATE TRIGGER sanitary_inspections_no_delete BEFORE DELETE ON sanitary_inspections WHEN NOT EXISTS (SELECT 1 FROM archive_marks AS m WHERE m.archived = 1 AND m.entity = \'water_source\' AND m.record_id = OLD.source_id) BEGIN SELECT RAISE (ABORT, \'sanitary_inspections are immutable\');END',
+    'sanitary_inspections_no_delete',
+  );
+  final i1.Trigger sanitaryInspectionsNoUpdate = i1.Trigger(
+    'CREATE TRIGGER sanitary_inspections_no_update BEFORE UPDATE OF id, source_id, answers, inspected_at_device, installation_id, collector_key, collector_snapshot ON sanitary_inspections BEGIN SELECT RAISE (ABORT, \'sanitary_inspections are immutable\');END',
+    'sanitary_inspections_no_update',
+  );
+  final i1.Trigger waterSourcesNoDelete = i1.Trigger(
+    'CREATE TRIGGER water_sources_no_delete BEFORE DELETE ON water_sources WHEN NOT EXISTS (SELECT 1 FROM archive_marks AS m WHERE m.archived = 1 AND m.entity = \'water_source\' AND m.record_id = OLD.id) BEGIN SELECT RAISE (ABORT, \'water_sources are deactivated, never deleted\');END',
+    'water_sources_no_delete',
+  );
+  late final Shape27 adminUnits = Shape27(
+    source: i0.VersionedTable(
+      entityName: 'admin_units',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_4,
+        _column_66,
+        _column_67,
+        _column_68,
+        _column_69,
+        _column_145,
+        _column_146,
+        _column_147,
+        _column_148,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape9 parameterCategories = Shape9(
+    source: i0.VersionedTable(
+      entityName: 'parameter_categories',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(code)'],
+      columns: [_column_6, _column_67, _column_70],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape10 parameterDefinitions = Shape10(
+    source: i0.VersionedTable(
+      entityName: 'parameter_definitions',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(code)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_6,
+        _column_67,
+        _column_71,
+        _column_72,
+        _column_73,
+        _column_74,
+        _column_75,
+        _column_76,
+        _column_77,
+        _column_78,
+        _column_79,
+        _column_80,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape11 testerProfiles = Shape11(
+    source: i0.VersionedTable(
+      entityName: 'tester_profiles',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_67,
+        _column_81,
+        _column_82,
+        _column_83,
+        _column_84,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape12 referenceProfiles = Shape12(
+    source: i0.VersionedTable(
+      entityName: 'reference_profiles',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_6,
+        _column_85,
+        _column_86,
+        _column_87,
+        _column_78,
+        _column_88,
+        _column_89,
+        _column_90,
+        _column_91,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape13 responseCards = Shape13(
+    source: i0.VersionedTable(
+      entityName: 'response_cards',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_3,
+        _column_4,
+        _column_52,
+        _column_92,
+        _column_86,
+        _column_93,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape14 responsibilities = Shape14(
+    source: i0.VersionedTable(
+      entityName: 'responsibilities',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(code)'],
+      columns: [_column_6, _column_67],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape15 configDocuments = Shape15(
+    source: i0.VersionedTable(
+      entityName: 'config_documents',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY("key")'],
+      columns: [_column_94, _column_91, _column_86],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape16 seedImports = Shape16(
+    source: i0.VersionedTable(
+      entityName: 'seed_imports',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(name)'],
+      columns: [_column_67, _column_86, _column_95],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape17 collectorProfiles = Shape17(
+    source: i0.VersionedTable(
+      entityName: 'collector_profiles',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(collector_key)'],
+      columns: [
+        _column_96,
+        _column_97,
+        _column_98,
+        _column_99,
+        _column_100,
+        _column_101,
+        _column_102,
+        _column_103,
+        _column_104,
+        _column_105,
+        _column_14,
+        _column_106,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape18 classifications = Shape18(
+    source: i0.VersionedTable(
+      entityName: 'classifications',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(result_id, standard_id, computed_by)'],
+      columns: [
+        _column_107,
+        _column_30,
+        _column_108,
+        _column_29,
+        _column_109,
+        _column_35,
+        _column_110,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape32 attachments = Shape32(
+    source: i0.VersionedTable(
+      entityName: 'attachments',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_3,
+        _column_4,
+        _column_111,
+        _column_112,
+        _column_113,
+        _column_114,
+        _column_115,
+        _column_116,
+        _column_1,
+        _column_117,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape24 collectorMarks = Shape24(
+    source: i0.VersionedTable(
+      entityName: 'collector_marks',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(collector_key)'],
+      columns: [
+        _column_3,
+        _column_96,
+        _column_140,
+        _column_62,
+        _column_141,
+        _column_142,
+        _column_15,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape25 submissionFlags = Shape25(
+    source: i0.VersionedTable(
+      entityName: 'submission_flags',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_3,
+        _column_4,
+        _column_107,
+        _column_143,
+        _column_144,
+        _column_17,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape20 outbox = Shape20(
+    source: i0.VersionedTable(
+      entityName: 'outbox',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: [],
+      columns: [
+        _column_118,
+        _column_119,
+        _column_120,
+        _column_121,
+        _column_122,
+        _column_123,
+        _column_124,
+        _column_125,
+        _column_126,
+        _column_127,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape21 syncState = Shape21(
+    source: i0.VersionedTable(
+      entityName: 'sync_state',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(stream)'],
+      columns: [
+        _column_128,
+        _column_129,
+        _column_130,
+        _column_131,
+        _column_132,
+        _column_133,
+        _column_134,
+        _column_126,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape22 syncLocks = Shape22(
+    source: i0.VersionedTable(
+      entityName: 'sync_locks',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(name)'],
+      columns: [_column_67, _column_135, _column_136],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape23 attachmentQueue = Shape23(
+    source: i0.VersionedTable(
+      entityName: 'attachment_queue',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(attachment_id)'],
+      columns: [_column_137, _column_138, _column_139, _column_127],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape30 changeTrails = Shape30(
+    source: i0.VersionedTable(
+      entityName: 'change_trails',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_4,
+        _column_119,
+        _column_149,
+        _column_153,
+        _column_154,
+        _column_155,
+        _column_151,
+        _column_156,
+        _column_157,
+        _column_3,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape33 messages = Shape33(
+    source: i0.VersionedTable(
+      entityName: 'messages',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_4,
+        _column_159,
+        _column_160,
+        _column_161,
+        _column_162,
+        _column_0,
+        _column_1,
+        _column_163,
+        _column_164,
+        _column_165,
+        _column_166,
+        _column_3,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape34 placeNames = Shape34(
+    source: i0.VersionedTable(
+      entityName: 'place_names',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_4,
+        _column_67,
+        _column_167,
+        _column_168,
+        _column_169,
+        _column_170,
+        _column_3,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+}
+
+class Shape34 extends i0.VersionedTable {
+  Shape34({required super.source, required super.alias}) : super.aliased();
+  i1.GeneratedColumn<String> get id =>
+      columnsByName['id']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get name =>
+      columnsByName['name']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get kind =>
+      columnsByName['kind']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<double> get lat =>
+      columnsByName['lat']! as i1.GeneratedColumn<double>;
+  i1.GeneratedColumn<double> get lon =>
+      columnsByName['lon']! as i1.GeneratedColumn<double>;
+  i1.GeneratedColumn<String> get subcountyId =>
+      columnsByName['subcounty_id']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<int> get serverSeq =>
+      columnsByName['server_seq']! as i1.GeneratedColumn<int>;
+}
+
+i1.GeneratedColumn<String> _column_167(String aliasedName) =>
+    i1.GeneratedColumn<String>(
+      'kind',
+      aliasedName,
+      false,
+      type: i1.DriftSqlType.string,
+      $customConstraints: 'NOT NULL',
+    );
+i1.GeneratedColumn<double> _column_168(String aliasedName) =>
+    i1.GeneratedColumn<double>(
+      'lat',
+      aliasedName,
+      false,
+      type: i1.DriftSqlType.double,
+      $customConstraints: 'NOT NULL',
+    );
+i1.GeneratedColumn<double> _column_169(String aliasedName) =>
+    i1.GeneratedColumn<double>(
+      'lon',
+      aliasedName,
+      false,
+      type: i1.DriftSqlType.double,
+      $customConstraints: 'NOT NULL',
+    );
+i1.GeneratedColumn<String> _column_170(String aliasedName) =>
+    i1.GeneratedColumn<String>(
+      'subcounty_id',
+      aliasedName,
+      false,
+      type: i1.DriftSqlType.string,
+      $customConstraints: 'NOT NULL',
+    );
+
+final class Schema10 extends i0.VersionedSchema {
+  Schema10({required super.database}) : super(version: 10);
+  @override
+  late final List<i1.DatabaseSchemaEntity> entities = [
+    waterSources,
+    testSessions,
+    archiveMarks,
+    testSessionsNoDelete,
+    testSessionsNoUpdate,
+    testResults,
+    testResultsNoDelete,
+    testResultsNoUpdate,
+    readings,
+    readingsNoDelete,
+    readingsNoUpdate,
+    calibrations,
+    calibrationsNoDelete,
+    calibrationsNoUpdate,
+    alerts,
+    alertEvents,
+    alertEventsNoDelete,
+    alertEventsNoUpdate,
+    sanitaryInspections,
+    sanitaryInspectionsNoDelete,
+    sanitaryInspectionsNoUpdate,
+    waterSourcesNoDelete,
+    adminUnits,
+    parameterCategories,
+    parameterDefinitions,
+    testerProfiles,
+    referenceProfiles,
+    responseCards,
+    responsibilities,
+    configDocuments,
+    seedImports,
+    collectorProfiles,
+    classifications,
+    attachments,
+    collectorMarks,
+    submissionFlags,
+    outbox,
+    syncState,
+    syncLocks,
+    attachmentQueue,
+    changeTrails,
+    messages,
+    placeNames,
+  ];
+  late final Shape0 waterSources = Shape0(
+    source: i0.VersionedTable(
+      entityName: 'water_sources',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)', 'UNIQUE(village_id, code)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_6,
+        _column_7,
+        _column_8,
+        _column_9,
+        _column_10,
+        _column_11,
+        _column_12,
+        _column_13,
+        _column_14,
+        _column_15,
+        _column_16,
+        _column_17,
+        _column_18,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape31 testSessions = Shape31(
+    source: i0.VersionedTable(
+      entityName: 'test_sessions',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_19,
+        _column_20,
+        _column_21,
+        _column_22,
+        _column_23,
+        _column_9,
+        _column_10,
+        _column_11,
+        _column_24,
+        _column_25,
+        _column_26,
+        _column_158,
+        _column_27,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape28 archiveMarks = Shape28(
+    source: i0.VersionedTable(
+      entityName: 'archive_marks',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(entity, record_id)'],
+      columns: [
+        _column_119,
+        _column_149,
+        _column_150,
+        _column_151,
+        _column_152,
+        _column_3,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  final i1.Trigger testSessionsNoDelete = i1.Trigger(
+    'CREATE TRIGGER test_sessions_no_delete BEFORE DELETE ON test_sessions WHEN NOT EXISTS (SELECT 1 FROM archive_marks AS m WHERE m.archived = 1 AND m.entity = \'test_session\' AND m.record_id = OLD.id) BEGIN SELECT RAISE (ABORT, \'test_sessions are immutable\');END',
+    'test_sessions_no_delete',
+  );
+  final i1.Trigger testSessionsNoUpdate = i1.Trigger(
+    'CREATE TRIGGER test_sessions_no_update BEFORE UPDATE OF id, source_id, calibration_id, tester_profile_id, reference_standard_id, calibrated, lat, lon, location_accuracy_m, distance_from_source_m, distance_override_reason, notes, tested_at_device, installation_id, collector_key, collector_snapshot ON test_sessions BEGIN SELECT RAISE (ABORT, \'test_sessions are immutable\');END',
+    'test_sessions_no_update',
+  );
+  late final Shape29 testResults = Shape29(
+    source: i0.VersionedTable(
+      entityName: 'test_results',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_3,
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_4,
+        _column_28,
+        _column_29,
+        _column_30,
+        _column_31,
+        _column_32,
+        _column_33,
+        _column_34,
+        _column_35,
+        _column_36,
+        _column_17,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  final i1.Trigger testResultsNoDelete = i1.Trigger(
+    'CREATE TRIGGER test_results_no_delete BEFORE DELETE ON test_results WHEN NOT EXISTS (SELECT 1 FROM archive_marks AS m WHERE m.archived = 1 AND m.entity = \'test_session\' AND m.record_id = OLD.session_id) BEGIN SELECT RAISE (ABORT, \'test_results are immutable\');END',
+    'test_results_no_delete',
+  );
+  final i1.Trigger testResultsNoUpdate = i1.Trigger(
+    'CREATE TRIGGER test_results_no_update BEFORE UPDATE OF id, session_id, overall, standard_id, computed_by, retest_of, amendment_of, amendment_reason, flags, limitation_code, created_at_device ON test_results BEGIN SELECT RAISE (ABORT, \'test_results are immutable\');END',
+    'test_results_no_update',
+  );
+  late final Shape3 readings = Shape3(
+    source: i0.VersionedTable(
+      entityName: 'readings',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_3,
+        _column_4,
+        _column_28,
+        _column_37,
+        _column_38,
+        _column_39,
+        _column_40,
+        _column_41,
+        _column_42,
+        _column_43,
+        _column_44,
+        _column_45,
+        _column_46,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  final i1.Trigger readingsNoDelete = i1.Trigger(
+    'CREATE TRIGGER readings_no_delete BEFORE DELETE ON readings WHEN NOT EXISTS (SELECT 1 FROM archive_marks AS m WHERE m.archived = 1 AND m.entity = \'test_session\' AND m.record_id = OLD.session_id) BEGIN SELECT RAISE (ABORT, \'readings are immutable\');END',
+    'readings_no_delete',
+  );
+  final i1.Trigger readingsNoUpdate = i1.Trigger(
+    'CREATE TRIGGER readings_no_update BEFORE UPDATE OF id, session_id, result_id, parameter_code, value, detected, acceptable, value_text, unit, result, is_derived, source_device ON readings BEGIN SELECT RAISE (ABORT, \'readings are immutable\');END',
+    'readings_no_update',
+  );
+  late final Shape4 calibrations = Shape4(
+    source: i0.VersionedTable(
+      entityName: 'calibrations',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_47,
+        _column_21,
+        _column_22,
+        _column_48,
+        _column_49,
+        _column_50,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  final i1.Trigger calibrationsNoDelete = i1.Trigger(
+    'CREATE TRIGGER calibrations_no_delete BEFORE DELETE ON calibrations BEGIN SELECT RAISE (ABORT, \'calibrations are immutable\');END',
+    'calibrations_no_delete',
+  );
+  final i1.Trigger calibrationsNoUpdate = i1.Trigger(
+    'CREATE TRIGGER calibrations_no_update BEFORE UPDATE OF id, tester_serial, tester_profile_id, reference_standard_id, buffers, passed, performed_at_device, installation_id, collector_key, collector_snapshot ON calibrations BEGIN SELECT RAISE (ABORT, \'calibrations are immutable\');END',
+    'calibrations_no_update',
+  );
+  late final Shape5 alerts = Shape5(
+    source: i0.VersionedTable(
+      entityName: 'alerts',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: [
+        'PRIMARY KEY(id)',
+        'UNIQUE(trigger_result_id, trigger_rule)',
+      ],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_19,
+        _column_51,
+        _column_52,
+        _column_53,
+        _column_54,
+        _column_55,
+        _column_56,
+        _column_57,
+        _column_58,
+        _column_15,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape6 alertEvents = Shape6(
+    source: i0.VersionedTable(
+      entityName: 'alert_events',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_59,
+        _column_60,
+        _column_61,
+        _column_62,
+        _column_63,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  final i1.Trigger alertEventsNoDelete = i1.Trigger(
+    'CREATE TRIGGER alert_events_no_delete BEFORE DELETE ON alert_events WHEN NOT EXISTS (SELECT 1 FROM archive_marks AS m WHERE m.archived = 1 AND m.entity = \'alert\' AND m.record_id = OLD.alert_id) BEGIN SELECT RAISE (ABORT, \'alert_events are immutable\');END',
+    'alert_events_no_delete',
+  );
+  final i1.Trigger alertEventsNoUpdate = i1.Trigger(
+    'CREATE TRIGGER alert_events_no_update BEFORE UPDATE OF id, alert_id, actor_id, event_type, note, occurred_at_device, installation_id, collector_key, collector_snapshot ON alert_events BEGIN SELECT RAISE (ABORT, \'alert_events are immutable\');END',
+    'alert_events_no_update',
+  );
+  late final Shape7 sanitaryInspections = Shape7(
+    source: i0.VersionedTable(
+      entityName: 'sanitary_inspections',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_19,
+        _column_64,
+        _column_65,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  final i1.Trigger sanitaryInspectionsNoDelete = i1.Trigger(
+    'CREATE TRIGGER sanitary_inspections_no_delete BEFORE DELETE ON sanitary_inspections WHEN NOT EXISTS (SELECT 1 FROM archive_marks AS m WHERE m.archived = 1 AND m.entity = \'water_source\' AND m.record_id = OLD.source_id) BEGIN SELECT RAISE (ABORT, \'sanitary_inspections are immutable\');END',
+    'sanitary_inspections_no_delete',
+  );
+  final i1.Trigger sanitaryInspectionsNoUpdate = i1.Trigger(
+    'CREATE TRIGGER sanitary_inspections_no_update BEFORE UPDATE OF id, source_id, answers, inspected_at_device, installation_id, collector_key, collector_snapshot ON sanitary_inspections BEGIN SELECT RAISE (ABORT, \'sanitary_inspections are immutable\');END',
+    'sanitary_inspections_no_update',
+  );
+  final i1.Trigger waterSourcesNoDelete = i1.Trigger(
+    'CREATE TRIGGER water_sources_no_delete BEFORE DELETE ON water_sources WHEN NOT EXISTS (SELECT 1 FROM archive_marks AS m WHERE m.archived = 1 AND m.entity = \'water_source\' AND m.record_id = OLD.id) BEGIN SELECT RAISE (ABORT, \'water_sources are deactivated, never deleted\');END',
+    'water_sources_no_delete',
+  );
+  late final Shape27 adminUnits = Shape27(
+    source: i0.VersionedTable(
+      entityName: 'admin_units',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_4,
+        _column_66,
+        _column_67,
+        _column_68,
+        _column_69,
+        _column_145,
+        _column_146,
+        _column_147,
+        _column_148,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape9 parameterCategories = Shape9(
+    source: i0.VersionedTable(
+      entityName: 'parameter_categories',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(code)'],
+      columns: [_column_6, _column_67, _column_70],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape10 parameterDefinitions = Shape10(
+    source: i0.VersionedTable(
+      entityName: 'parameter_definitions',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(code)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_6,
+        _column_67,
+        _column_71,
+        _column_72,
+        _column_73,
+        _column_74,
+        _column_75,
+        _column_76,
+        _column_77,
+        _column_78,
+        _column_79,
+        _column_80,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape11 testerProfiles = Shape11(
+    source: i0.VersionedTable(
+      entityName: 'tester_profiles',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_67,
+        _column_81,
+        _column_82,
+        _column_83,
+        _column_84,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape12 referenceProfiles = Shape12(
+    source: i0.VersionedTable(
+      entityName: 'reference_profiles',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_6,
+        _column_85,
+        _column_86,
+        _column_87,
+        _column_78,
+        _column_88,
+        _column_89,
+        _column_90,
+        _column_91,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape13 responseCards = Shape13(
+    source: i0.VersionedTable(
+      entityName: 'response_cards',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_3,
+        _column_4,
+        _column_52,
+        _column_92,
+        _column_86,
+        _column_93,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape14 responsibilities = Shape14(
+    source: i0.VersionedTable(
+      entityName: 'responsibilities',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(code)'],
+      columns: [_column_6, _column_67],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape15 configDocuments = Shape15(
+    source: i0.VersionedTable(
+      entityName: 'config_documents',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY("key")'],
+      columns: [_column_94, _column_91, _column_86],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape16 seedImports = Shape16(
+    source: i0.VersionedTable(
+      entityName: 'seed_imports',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(name)'],
+      columns: [_column_67, _column_86, _column_95],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape35 collectorProfiles = Shape35(
+    source: i0.VersionedTable(
+      entityName: 'collector_profiles',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(collector_key)'],
+      columns: [
+        _column_96,
+        _column_97,
+        _column_98,
+        _column_99,
+        _column_100,
+        _column_101,
+        _column_102,
+        _column_103,
+        _column_104,
+        _column_105,
+        _column_171,
+        _column_14,
+        _column_106,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape18 classifications = Shape18(
+    source: i0.VersionedTable(
+      entityName: 'classifications',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(result_id, standard_id, computed_by)'],
+      columns: [
+        _column_107,
+        _column_30,
+        _column_108,
+        _column_29,
+        _column_109,
+        _column_35,
+        _column_110,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape32 attachments = Shape32(
+    source: i0.VersionedTable(
+      entityName: 'attachments',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_3,
+        _column_4,
+        _column_111,
+        _column_112,
+        _column_113,
+        _column_114,
+        _column_115,
+        _column_116,
+        _column_1,
+        _column_117,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape24 collectorMarks = Shape24(
+    source: i0.VersionedTable(
+      entityName: 'collector_marks',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(collector_key)'],
+      columns: [
+        _column_3,
+        _column_96,
+        _column_140,
+        _column_62,
+        _column_141,
+        _column_142,
+        _column_15,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape25 submissionFlags = Shape25(
+    source: i0.VersionedTable(
+      entityName: 'submission_flags',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_3,
+        _column_4,
+        _column_107,
+        _column_143,
+        _column_144,
+        _column_17,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape20 outbox = Shape20(
+    source: i0.VersionedTable(
+      entityName: 'outbox',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: [],
+      columns: [
+        _column_118,
+        _column_119,
+        _column_120,
+        _column_121,
+        _column_122,
+        _column_123,
+        _column_124,
+        _column_125,
+        _column_126,
+        _column_127,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape21 syncState = Shape21(
+    source: i0.VersionedTable(
+      entityName: 'sync_state',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(stream)'],
+      columns: [
+        _column_128,
+        _column_129,
+        _column_130,
+        _column_131,
+        _column_132,
+        _column_133,
+        _column_134,
+        _column_126,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape22 syncLocks = Shape22(
+    source: i0.VersionedTable(
+      entityName: 'sync_locks',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(name)'],
+      columns: [_column_67, _column_135, _column_136],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape23 attachmentQueue = Shape23(
+    source: i0.VersionedTable(
+      entityName: 'attachment_queue',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(attachment_id)'],
+      columns: [_column_137, _column_138, _column_139, _column_127],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape30 changeTrails = Shape30(
+    source: i0.VersionedTable(
+      entityName: 'change_trails',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_4,
+        _column_119,
+        _column_149,
+        _column_153,
+        _column_154,
+        _column_155,
+        _column_151,
+        _column_156,
+        _column_157,
+        _column_3,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape33 messages = Shape33(
+    source: i0.VersionedTable(
+      entityName: 'messages',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_4,
+        _column_159,
+        _column_160,
+        _column_161,
+        _column_162,
+        _column_0,
+        _column_1,
+        _column_163,
+        _column_164,
+        _column_165,
+        _column_166,
+        _column_3,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape34 placeNames = Shape34(
+    source: i0.VersionedTable(
+      entityName: 'place_names',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_4,
+        _column_67,
+        _column_167,
+        _column_168,
+        _column_169,
+        _column_170,
+        _column_3,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+}
+
+class Shape35 extends i0.VersionedTable {
+  Shape35({required super.source, required super.alias}) : super.aliased();
+  i1.GeneratedColumn<String> get collectorKey =>
+      columnsByName['collector_key']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<int> get profileVersion =>
+      columnsByName['profile_version']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<String> get fullName =>
+      columnsByName['full_name']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get phone =>
+      columnsByName['phone']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get collectorType =>
+      columnsByName['collector_type']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get village =>
+      columnsByName['village']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get parish =>
+      columnsByName['parish']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get subcounty =>
+      columnsByName['subcounty']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get district =>
+      columnsByName['district']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get organisation =>
+      columnsByName['organisation']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get email =>
+      columnsByName['email']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<int> get isActive =>
+      columnsByName['is_active']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<String> get updatedAt =>
+      columnsByName['updated_at']! as i1.GeneratedColumn<String>;
+}
+
+i1.GeneratedColumn<String> _column_171(String aliasedName) =>
+    i1.GeneratedColumn<String>(
+      'email',
+      aliasedName,
+      true,
+      type: i1.DriftSqlType.string,
+      $customConstraints: 'NULL',
+    );
 i0.MigrationStepWithVersion migrationSteps({
   required Future<void> Function(i1.Migrator m, Schema2 schema) from1To2,
   required Future<void> Function(i1.Migrator m, Schema3 schema) from2To3,
@@ -6663,6 +8190,8 @@ i0.MigrationStepWithVersion migrationSteps({
   required Future<void> Function(i1.Migrator m, Schema6 schema) from5To6,
   required Future<void> Function(i1.Migrator m, Schema7 schema) from6To7,
   required Future<void> Function(i1.Migrator m, Schema8 schema) from7To8,
+  required Future<void> Function(i1.Migrator m, Schema9 schema) from8To9,
+  required Future<void> Function(i1.Migrator m, Schema10 schema) from9To10,
 }) {
   return (currentVersion, database) async {
     switch (currentVersion) {
@@ -6701,6 +8230,16 @@ i0.MigrationStepWithVersion migrationSteps({
         final migrator = i1.Migrator(database, schema);
         await from7To8(migrator, schema);
         return 8;
+      case 8:
+        final schema = Schema9(database: database);
+        final migrator = i1.Migrator(database, schema);
+        await from8To9(migrator, schema);
+        return 9;
+      case 9:
+        final schema = Schema10(database: database);
+        final migrator = i1.Migrator(database, schema);
+        await from9To10(migrator, schema);
+        return 10;
       default:
         throw ArgumentError.value('Unknown migration from $currentVersion');
     }
@@ -6715,6 +8254,8 @@ i1.OnUpgrade stepByStep({
   required Future<void> Function(i1.Migrator m, Schema6 schema) from5To6,
   required Future<void> Function(i1.Migrator m, Schema7 schema) from6To7,
   required Future<void> Function(i1.Migrator m, Schema8 schema) from7To8,
+  required Future<void> Function(i1.Migrator m, Schema9 schema) from8To9,
+  required Future<void> Function(i1.Migrator m, Schema10 schema) from9To10,
 }) => i0.VersionedSchema.stepByStepHelper(
   step: migrationSteps(
     from1To2: from1To2,
@@ -6724,5 +8265,7 @@ i1.OnUpgrade stepByStep({
     from5To6: from5To6,
     from6To7: from6To7,
     from7To8: from7To8,
+    from8To9: from8To9,
+    from9To10: from9To10,
   ),
 );

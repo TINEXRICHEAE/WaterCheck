@@ -9,7 +9,9 @@ part of 'installation_me.dart';
 InstallationMe _$InstallationMeFromJson(Map<String, dynamic> json) =>
     InstallationMe(
       installationId: json['installation_id'] as String,
-      area: AreaOut.fromJson(json['area'] as Map<String, dynamic>),
+      area: json['area'] == null
+          ? null
+          : AreaOut.fromJson(json['area'] as Map<String, dynamic>),
       shortCode: json['short_code'] as String,
     );
 

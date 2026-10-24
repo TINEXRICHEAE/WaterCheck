@@ -16,6 +16,7 @@ class CollectorSnapshot {
     required this.subcounty,
     required this.district,
     this.organisation,
+    this.email,
   });
 
   factory CollectorSnapshot.fromJson(Map<String, Object?> json) =>
@@ -23,13 +24,14 @@ class CollectorSnapshot {
         collectorKey: json['collector_key']! as String,
         profileVersion: json['profile_version']! as int,
         fullName: json['full_name']! as String,
-        phone: json['phone']! as String,
+        phone: json['phone'] as String? ?? '',
         collectorType: json['collector_type']! as String,
         village: json['village']! as String,
         parish: json['parish']! as String,
         subcounty: json['subcounty']! as String,
         district: json['district']! as String,
         organisation: json['organisation'] as String?,
+        email: json['email'] as String?,
       );
 
   Map<String, Object?> toJson() => {
@@ -43,6 +45,7 @@ class CollectorSnapshot {
     'subcounty': subcounty,
     'district': district,
     'organisation': organisation,
+    'email': ?email,
   };
 
   /// Random UUID created with the profile; stable across edits.
@@ -56,6 +59,9 @@ class CollectorSnapshot {
   final String subcounty;
   final String district;
   final String? organisation;
+
+  /// Optional, added after onboarding (ADR-024); the phone may be empty too.
+  final String? email;
 }
 
 /// A GPS fix with its accuracy.

@@ -11714,6 +11714,15 @@ class $CollectorProfilesTable extends CollectorProfiles
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _emailMeta = const VerificationMeta('email');
+  @override
+  late final GeneratedColumn<String> email = GeneratedColumn<String>(
+    'email',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _isActiveMeta = const VerificationMeta(
     'isActive',
   );
@@ -11752,6 +11761,7 @@ class $CollectorProfilesTable extends CollectorProfiles
     subcounty,
     district,
     organisation,
+    email,
     isActive,
     updatedAt,
   ];
@@ -11857,6 +11867,12 @@ class $CollectorProfilesTable extends CollectorProfiles
         ),
       );
     }
+    if (data.containsKey('email')) {
+      context.handle(
+        _emailMeta,
+        email.isAcceptableOrUnknown(data['email']!, _emailMeta),
+      );
+    }
     if (data.containsKey('is_active')) {
       context.handle(
         _isActiveMeta,
@@ -11920,6 +11936,10 @@ class $CollectorProfilesTable extends CollectorProfiles
         DriftSqlType.string,
         data['${effectivePrefix}organisation'],
       ),
+      email: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}email'],
+      ),
       isActive: attachedDatabase.typeMapping.read(
         DriftSqlType.bool,
         data['${effectivePrefix}is_active'],
@@ -11949,6 +11969,9 @@ class CollectorProfileRow extends DataClass
   final String subcounty;
   final String district;
   final String? organisation;
+
+  /// Added in v10 (ADR-024): optional, like the phone now.
+  final String? email;
   final bool isActive;
   final DateTime updatedAt;
   const CollectorProfileRow({
@@ -11962,6 +11985,7 @@ class CollectorProfileRow extends DataClass
     required this.subcounty,
     required this.district,
     this.organisation,
+    this.email,
     required this.isActive,
     required this.updatedAt,
   });
@@ -11979,6 +12003,9 @@ class CollectorProfileRow extends DataClass
     map['district'] = Variable<String>(district);
     if (!nullToAbsent || organisation != null) {
       map['organisation'] = Variable<String>(organisation);
+    }
+    if (!nullToAbsent || email != null) {
+      map['email'] = Variable<String>(email);
     }
     map['is_active'] = Variable<bool>(isActive);
     map['updated_at'] = Variable<DateTime>(updatedAt);
@@ -11999,6 +12026,9 @@ class CollectorProfileRow extends DataClass
       organisation: organisation == null && nullToAbsent
           ? const Value.absent()
           : Value(organisation),
+      email: email == null && nullToAbsent
+          ? const Value.absent()
+          : Value(email),
       isActive: Value(isActive),
       updatedAt: Value(updatedAt),
     );
@@ -12020,6 +12050,7 @@ class CollectorProfileRow extends DataClass
       subcounty: serializer.fromJson<String>(json['subcounty']),
       district: serializer.fromJson<String>(json['district']),
       organisation: serializer.fromJson<String?>(json['organisation']),
+      email: serializer.fromJson<String?>(json['email']),
       isActive: serializer.fromJson<bool>(json['is_active']),
       updatedAt: serializer.fromJson<DateTime>(json['updated_at']),
     );
@@ -12038,6 +12069,7 @@ class CollectorProfileRow extends DataClass
       'subcounty': serializer.toJson<String>(subcounty),
       'district': serializer.toJson<String>(district),
       'organisation': serializer.toJson<String?>(organisation),
+      'email': serializer.toJson<String?>(email),
       'is_active': serializer.toJson<bool>(isActive),
       'updated_at': serializer.toJson<DateTime>(updatedAt),
     };
@@ -12054,6 +12086,7 @@ class CollectorProfileRow extends DataClass
     String? subcounty,
     String? district,
     Value<String?> organisation = const Value.absent(),
+    Value<String?> email = const Value.absent(),
     bool? isActive,
     DateTime? updatedAt,
   }) => CollectorProfileRow(
@@ -12067,6 +12100,7 @@ class CollectorProfileRow extends DataClass
     subcounty: subcounty ?? this.subcounty,
     district: district ?? this.district,
     organisation: organisation.present ? organisation.value : this.organisation,
+    email: email.present ? email.value : this.email,
     isActive: isActive ?? this.isActive,
     updatedAt: updatedAt ?? this.updatedAt,
   );
@@ -12090,6 +12124,7 @@ class CollectorProfileRow extends DataClass
       organisation: data.organisation.present
           ? data.organisation.value
           : this.organisation,
+      email: data.email.present ? data.email.value : this.email,
       isActive: data.isActive.present ? data.isActive.value : this.isActive,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
@@ -12108,6 +12143,7 @@ class CollectorProfileRow extends DataClass
           ..write('subcounty: $subcounty, ')
           ..write('district: $district, ')
           ..write('organisation: $organisation, ')
+          ..write('email: $email, ')
           ..write('isActive: $isActive, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -12126,6 +12162,7 @@ class CollectorProfileRow extends DataClass
     subcounty,
     district,
     organisation,
+    email,
     isActive,
     updatedAt,
   );
@@ -12143,6 +12180,7 @@ class CollectorProfileRow extends DataClass
           other.subcounty == this.subcounty &&
           other.district == this.district &&
           other.organisation == this.organisation &&
+          other.email == this.email &&
           other.isActive == this.isActive &&
           other.updatedAt == this.updatedAt);
 }
@@ -12158,6 +12196,7 @@ class CollectorProfilesCompanion extends UpdateCompanion<CollectorProfileRow> {
   final Value<String> subcounty;
   final Value<String> district;
   final Value<String?> organisation;
+  final Value<String?> email;
   final Value<bool> isActive;
   final Value<DateTime> updatedAt;
   final Value<int> rowid;
@@ -12172,6 +12211,7 @@ class CollectorProfilesCompanion extends UpdateCompanion<CollectorProfileRow> {
     this.subcounty = const Value.absent(),
     this.district = const Value.absent(),
     this.organisation = const Value.absent(),
+    this.email = const Value.absent(),
     this.isActive = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -12187,6 +12227,7 @@ class CollectorProfilesCompanion extends UpdateCompanion<CollectorProfileRow> {
     required String subcounty,
     required String district,
     this.organisation = const Value.absent(),
+    this.email = const Value.absent(),
     this.isActive = const Value.absent(),
     required DateTime updatedAt,
     this.rowid = const Value.absent(),
@@ -12211,6 +12252,7 @@ class CollectorProfilesCompanion extends UpdateCompanion<CollectorProfileRow> {
     Expression<String>? subcounty,
     Expression<String>? district,
     Expression<String>? organisation,
+    Expression<String>? email,
     Expression<bool>? isActive,
     Expression<DateTime>? updatedAt,
     Expression<int>? rowid,
@@ -12226,6 +12268,7 @@ class CollectorProfilesCompanion extends UpdateCompanion<CollectorProfileRow> {
       if (subcounty != null) 'subcounty': subcounty,
       if (district != null) 'district': district,
       if (organisation != null) 'organisation': organisation,
+      if (email != null) 'email': email,
       if (isActive != null) 'is_active': isActive,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (rowid != null) 'rowid': rowid,
@@ -12243,6 +12286,7 @@ class CollectorProfilesCompanion extends UpdateCompanion<CollectorProfileRow> {
     Value<String>? subcounty,
     Value<String>? district,
     Value<String?>? organisation,
+    Value<String?>? email,
     Value<bool>? isActive,
     Value<DateTime>? updatedAt,
     Value<int>? rowid,
@@ -12258,6 +12302,7 @@ class CollectorProfilesCompanion extends UpdateCompanion<CollectorProfileRow> {
       subcounty: subcounty ?? this.subcounty,
       district: district ?? this.district,
       organisation: organisation ?? this.organisation,
+      email: email ?? this.email,
       isActive: isActive ?? this.isActive,
       updatedAt: updatedAt ?? this.updatedAt,
       rowid: rowid ?? this.rowid,
@@ -12297,6 +12342,9 @@ class CollectorProfilesCompanion extends UpdateCompanion<CollectorProfileRow> {
     if (organisation.present) {
       map['organisation'] = Variable<String>(organisation.value);
     }
+    if (email.present) {
+      map['email'] = Variable<String>(email.value);
+    }
     if (isActive.present) {
       map['is_active'] = Variable<bool>(isActive.value);
     }
@@ -12322,6 +12370,7 @@ class CollectorProfilesCompanion extends UpdateCompanion<CollectorProfileRow> {
           ..write('subcounty: $subcounty, ')
           ..write('district: $district, ')
           ..write('organisation: $organisation, ')
+          ..write('email: $email, ')
           ..write('isActive: $isActive, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('rowid: $rowid')
@@ -17396,6 +17445,463 @@ class MessagesCompanion extends UpdateCompanion<MessageRow> {
   }
 }
 
+class $PlaceNamesTable extends PlaceNames
+    with TableInfo<$PlaceNamesTable, PlaceNameRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $PlaceNamesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _kindMeta = const VerificationMeta('kind');
+  @override
+  late final GeneratedColumn<String> kind = GeneratedColumn<String>(
+    'kind',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _latMeta = const VerificationMeta('lat');
+  @override
+  late final GeneratedColumn<double> lat = GeneratedColumn<double>(
+    'lat',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _lonMeta = const VerificationMeta('lon');
+  @override
+  late final GeneratedColumn<double> lon = GeneratedColumn<double>(
+    'lon',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _subcountyIdMeta = const VerificationMeta(
+    'subcountyId',
+  );
+  @override
+  late final GeneratedColumn<String> subcountyId = GeneratedColumn<String>(
+    'subcounty_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _serverSeqMeta = const VerificationMeta(
+    'serverSeq',
+  );
+  @override
+  late final GeneratedColumn<int> serverSeq = GeneratedColumn<int>(
+    'server_seq',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    name,
+    kind,
+    lat,
+    lon,
+    subcountyId,
+    serverSeq,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'place_names';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<PlaceNameRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('kind')) {
+      context.handle(
+        _kindMeta,
+        kind.isAcceptableOrUnknown(data['kind']!, _kindMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_kindMeta);
+    }
+    if (data.containsKey('lat')) {
+      context.handle(
+        _latMeta,
+        lat.isAcceptableOrUnknown(data['lat']!, _latMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_latMeta);
+    }
+    if (data.containsKey('lon')) {
+      context.handle(
+        _lonMeta,
+        lon.isAcceptableOrUnknown(data['lon']!, _lonMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_lonMeta);
+    }
+    if (data.containsKey('subcounty_id')) {
+      context.handle(
+        _subcountyIdMeta,
+        subcountyId.isAcceptableOrUnknown(
+          data['subcounty_id']!,
+          _subcountyIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_subcountyIdMeta);
+    }
+    if (data.containsKey('server_seq')) {
+      context.handle(
+        _serverSeqMeta,
+        serverSeq.isAcceptableOrUnknown(data['server_seq']!, _serverSeqMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  PlaceNameRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return PlaceNameRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      kind: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}kind'],
+      )!,
+      lat: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}lat'],
+      )!,
+      lon: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}lon'],
+      )!,
+      subcountyId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}subcounty_id'],
+      )!,
+      serverSeq: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}server_seq'],
+      ),
+    );
+  }
+
+  @override
+  $PlaceNamesTable createAlias(String alias) {
+    return $PlaceNamesTable(attachedDatabase, alias);
+  }
+}
+
+class PlaceNameRow extends DataClass implements Insertable<PlaceNameRow> {
+  final String id;
+  final String name;
+
+  /// The OpenStreetMap `place` value: village, hamlet, locality, town…
+  final String kind;
+  final double lat;
+  final double lon;
+  final String subcountyId;
+  final int? serverSeq;
+  const PlaceNameRow({
+    required this.id,
+    required this.name,
+    required this.kind,
+    required this.lat,
+    required this.lon,
+    required this.subcountyId,
+    this.serverSeq,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['name'] = Variable<String>(name);
+    map['kind'] = Variable<String>(kind);
+    map['lat'] = Variable<double>(lat);
+    map['lon'] = Variable<double>(lon);
+    map['subcounty_id'] = Variable<String>(subcountyId);
+    if (!nullToAbsent || serverSeq != null) {
+      map['server_seq'] = Variable<int>(serverSeq);
+    }
+    return map;
+  }
+
+  PlaceNamesCompanion toCompanion(bool nullToAbsent) {
+    return PlaceNamesCompanion(
+      id: Value(id),
+      name: Value(name),
+      kind: Value(kind),
+      lat: Value(lat),
+      lon: Value(lon),
+      subcountyId: Value(subcountyId),
+      serverSeq: serverSeq == null && nullToAbsent
+          ? const Value.absent()
+          : Value(serverSeq),
+    );
+  }
+
+  factory PlaceNameRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return PlaceNameRow(
+      id: serializer.fromJson<String>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+      kind: serializer.fromJson<String>(json['kind']),
+      lat: serializer.fromJson<double>(json['lat']),
+      lon: serializer.fromJson<double>(json['lon']),
+      subcountyId: serializer.fromJson<String>(json['subcounty_id']),
+      serverSeq: serializer.fromJson<int?>(json['server_seq']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'name': serializer.toJson<String>(name),
+      'kind': serializer.toJson<String>(kind),
+      'lat': serializer.toJson<double>(lat),
+      'lon': serializer.toJson<double>(lon),
+      'subcounty_id': serializer.toJson<String>(subcountyId),
+      'server_seq': serializer.toJson<int?>(serverSeq),
+    };
+  }
+
+  PlaceNameRow copyWith({
+    String? id,
+    String? name,
+    String? kind,
+    double? lat,
+    double? lon,
+    String? subcountyId,
+    Value<int?> serverSeq = const Value.absent(),
+  }) => PlaceNameRow(
+    id: id ?? this.id,
+    name: name ?? this.name,
+    kind: kind ?? this.kind,
+    lat: lat ?? this.lat,
+    lon: lon ?? this.lon,
+    subcountyId: subcountyId ?? this.subcountyId,
+    serverSeq: serverSeq.present ? serverSeq.value : this.serverSeq,
+  );
+  PlaceNameRow copyWithCompanion(PlaceNamesCompanion data) {
+    return PlaceNameRow(
+      id: data.id.present ? data.id.value : this.id,
+      name: data.name.present ? data.name.value : this.name,
+      kind: data.kind.present ? data.kind.value : this.kind,
+      lat: data.lat.present ? data.lat.value : this.lat,
+      lon: data.lon.present ? data.lon.value : this.lon,
+      subcountyId: data.subcountyId.present
+          ? data.subcountyId.value
+          : this.subcountyId,
+      serverSeq: data.serverSeq.present ? data.serverSeq.value : this.serverSeq,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PlaceNameRow(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('kind: $kind, ')
+          ..write('lat: $lat, ')
+          ..write('lon: $lon, ')
+          ..write('subcountyId: $subcountyId, ')
+          ..write('serverSeq: $serverSeq')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, name, kind, lat, lon, subcountyId, serverSeq);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is PlaceNameRow &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.kind == this.kind &&
+          other.lat == this.lat &&
+          other.lon == this.lon &&
+          other.subcountyId == this.subcountyId &&
+          other.serverSeq == this.serverSeq);
+}
+
+class PlaceNamesCompanion extends UpdateCompanion<PlaceNameRow> {
+  final Value<String> id;
+  final Value<String> name;
+  final Value<String> kind;
+  final Value<double> lat;
+  final Value<double> lon;
+  final Value<String> subcountyId;
+  final Value<int?> serverSeq;
+  final Value<int> rowid;
+  const PlaceNamesCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.kind = const Value.absent(),
+    this.lat = const Value.absent(),
+    this.lon = const Value.absent(),
+    this.subcountyId = const Value.absent(),
+    this.serverSeq = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  PlaceNamesCompanion.insert({
+    required String id,
+    required String name,
+    required String kind,
+    required double lat,
+    required double lon,
+    required String subcountyId,
+    this.serverSeq = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       name = Value(name),
+       kind = Value(kind),
+       lat = Value(lat),
+       lon = Value(lon),
+       subcountyId = Value(subcountyId);
+  static Insertable<PlaceNameRow> custom({
+    Expression<String>? id,
+    Expression<String>? name,
+    Expression<String>? kind,
+    Expression<double>? lat,
+    Expression<double>? lon,
+    Expression<String>? subcountyId,
+    Expression<int>? serverSeq,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (kind != null) 'kind': kind,
+      if (lat != null) 'lat': lat,
+      if (lon != null) 'lon': lon,
+      if (subcountyId != null) 'subcounty_id': subcountyId,
+      if (serverSeq != null) 'server_seq': serverSeq,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  PlaceNamesCompanion copyWith({
+    Value<String>? id,
+    Value<String>? name,
+    Value<String>? kind,
+    Value<double>? lat,
+    Value<double>? lon,
+    Value<String>? subcountyId,
+    Value<int?>? serverSeq,
+    Value<int>? rowid,
+  }) {
+    return PlaceNamesCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      kind: kind ?? this.kind,
+      lat: lat ?? this.lat,
+      lon: lon ?? this.lon,
+      subcountyId: subcountyId ?? this.subcountyId,
+      serverSeq: serverSeq ?? this.serverSeq,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (kind.present) {
+      map['kind'] = Variable<String>(kind.value);
+    }
+    if (lat.present) {
+      map['lat'] = Variable<double>(lat.value);
+    }
+    if (lon.present) {
+      map['lon'] = Variable<double>(lon.value);
+    }
+    if (subcountyId.present) {
+      map['subcounty_id'] = Variable<String>(subcountyId.value);
+    }
+    if (serverSeq.present) {
+      map['server_seq'] = Variable<int>(serverSeq.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PlaceNamesCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('kind: $kind, ')
+          ..write('lat: $lat, ')
+          ..write('lon: $lon, ')
+          ..write('subcountyId: $subcountyId, ')
+          ..write('serverSeq: $serverSeq, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -17495,6 +18001,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   );
   late final $ChangeTrailsTable changeTrails = $ChangeTrailsTable(this);
   late final $MessagesTable messages = $MessagesTable(this);
+  late final $PlaceNamesTable placeNames = $PlaceNamesTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -17542,6 +18049,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     attachmentQueue,
     changeTrails,
     messages,
+    placeNames,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -25101,6 +25609,7 @@ typedef $$CollectorProfilesTableCreateCompanionBuilder =
       required String subcounty,
       required String district,
       Value<String?> organisation,
+      Value<String?> email,
       Value<bool> isActive,
       required DateTime updatedAt,
       Value<int> rowid,
@@ -25117,6 +25626,7 @@ typedef $$CollectorProfilesTableUpdateCompanionBuilder =
       Value<String> subcounty,
       Value<String> district,
       Value<String?> organisation,
+      Value<String?> email,
       Value<bool> isActive,
       Value<DateTime> updatedAt,
       Value<int> rowid,
@@ -25178,6 +25688,11 @@ class $$CollectorProfilesTableFilterComposer
 
   ColumnFilters<String> get organisation => $composableBuilder(
     column: $table.organisation,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get email => $composableBuilder(
+    column: $table.email,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -25251,6 +25766,11 @@ class $$CollectorProfilesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get email => $composableBuilder(
+    column: $table.email,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<bool> get isActive => $composableBuilder(
     column: $table.isActive,
     builder: (column) => ColumnOrderings(column),
@@ -25309,6 +25829,9 @@ class $$CollectorProfilesTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<String> get email =>
+      $composableBuilder(column: $table.email, builder: (column) => column);
+
   GeneratedColumn<bool> get isActive =>
       $composableBuilder(column: $table.isActive, builder: (column) => column);
 
@@ -25366,6 +25889,7 @@ class $$CollectorProfilesTableTableManager
                 Value<String> subcounty = const Value.absent(),
                 Value<String> district = const Value.absent(),
                 Value<String?> organisation = const Value.absent(),
+                Value<String?> email = const Value.absent(),
                 Value<bool> isActive = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
@@ -25380,6 +25904,7 @@ class $$CollectorProfilesTableTableManager
                 subcounty: subcounty,
                 district: district,
                 organisation: organisation,
+                email: email,
                 isActive: isActive,
                 updatedAt: updatedAt,
                 rowid: rowid,
@@ -25396,6 +25921,7 @@ class $$CollectorProfilesTableTableManager
                 required String subcounty,
                 required String district,
                 Value<String?> organisation = const Value.absent(),
+                Value<String?> email = const Value.absent(),
                 Value<bool> isActive = const Value.absent(),
                 required DateTime updatedAt,
                 Value<int> rowid = const Value.absent(),
@@ -25410,6 +25936,7 @@ class $$CollectorProfilesTableTableManager
                 subcounty: subcounty,
                 district: district,
                 organisation: organisation,
+                email: email,
                 isActive: isActive,
                 updatedAt: updatedAt,
                 rowid: rowid,
@@ -28104,6 +28631,253 @@ typedef $$MessagesTableProcessedTableManager =
       MessageRow,
       PrefetchHooks Function()
     >;
+typedef $$PlaceNamesTableCreateCompanionBuilder = PlaceNamesCompanion Function({
+  required String id,
+  required String name,
+  required String kind,
+  required double lat,
+  required double lon,
+  required String subcountyId,
+  Value<int?> serverSeq,
+  Value<int> rowid,
+});
+typedef $$PlaceNamesTableUpdateCompanionBuilder = PlaceNamesCompanion Function({
+  Value<String> id,
+  Value<String> name,
+  Value<String> kind,
+  Value<double> lat,
+  Value<double> lon,
+  Value<String> subcountyId,
+  Value<int?> serverSeq,
+  Value<int> rowid,
+});
+
+class $$PlaceNamesTableFilterComposer
+    extends Composer<_$AppDatabase, $PlaceNamesTable> {
+  $$PlaceNamesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get kind => $composableBuilder(
+    column: $table.kind,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get lat => $composableBuilder(
+    column: $table.lat,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get lon => $composableBuilder(
+    column: $table.lon,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get subcountyId => $composableBuilder(
+    column: $table.subcountyId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get serverSeq => $composableBuilder(
+    column: $table.serverSeq,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$PlaceNamesTableOrderingComposer
+    extends Composer<_$AppDatabase, $PlaceNamesTable> {
+  $$PlaceNamesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get kind => $composableBuilder(
+    column: $table.kind,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get lat => $composableBuilder(
+    column: $table.lat,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get lon => $composableBuilder(
+    column: $table.lon,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get subcountyId => $composableBuilder(
+    column: $table.subcountyId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get serverSeq => $composableBuilder(
+    column: $table.serverSeq,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$PlaceNamesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $PlaceNamesTable> {
+  $$PlaceNamesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get kind =>
+      $composableBuilder(column: $table.kind, builder: (column) => column);
+
+  GeneratedColumn<double> get lat =>
+      $composableBuilder(column: $table.lat, builder: (column) => column);
+
+  GeneratedColumn<double> get lon =>
+      $composableBuilder(column: $table.lon, builder: (column) => column);
+
+  GeneratedColumn<String> get subcountyId => $composableBuilder(
+    column: $table.subcountyId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get serverSeq =>
+      $composableBuilder(column: $table.serverSeq, builder: (column) => column);
+}
+
+class $$PlaceNamesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $PlaceNamesTable,
+          PlaceNameRow,
+          $$PlaceNamesTableFilterComposer,
+          $$PlaceNamesTableOrderingComposer,
+          $$PlaceNamesTableAnnotationComposer,
+          $$PlaceNamesTableCreateCompanionBuilder,
+          $$PlaceNamesTableUpdateCompanionBuilder,
+          (
+            PlaceNameRow,
+            BaseReferences<_$AppDatabase, $PlaceNamesTable, PlaceNameRow>,
+          ),
+          PlaceNameRow,
+          PrefetchHooks Function()
+        > {
+  $$PlaceNamesTableTableManager(_$AppDatabase db, $PlaceNamesTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$PlaceNamesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$PlaceNamesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$PlaceNamesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<String> kind = const Value.absent(),
+                Value<double> lat = const Value.absent(),
+                Value<double> lon = const Value.absent(),
+                Value<String> subcountyId = const Value.absent(),
+                Value<int?> serverSeq = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => PlaceNamesCompanion(
+                id: id,
+                name: name,
+                kind: kind,
+                lat: lat,
+                lon: lon,
+                subcountyId: subcountyId,
+                serverSeq: serverSeq,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String name,
+                required String kind,
+                required double lat,
+                required double lon,
+                required String subcountyId,
+                Value<int?> serverSeq = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => PlaceNamesCompanion.insert(
+                id: id,
+                name: name,
+                kind: kind,
+                lat: lat,
+                lon: lon,
+                subcountyId: subcountyId,
+                serverSeq: serverSeq,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$PlaceNamesTable, PlaceNameRow>(table),
+                  BaseReferences<_$AppDatabase, $PlaceNamesTable, PlaceNameRow>(
+                    db,
+                    table,
+                    e,
+                  ),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$PlaceNamesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $PlaceNamesTable,
+      PlaceNameRow,
+      $$PlaceNamesTableFilterComposer,
+      $$PlaceNamesTableOrderingComposer,
+      $$PlaceNamesTableAnnotationComposer,
+      $$PlaceNamesTableCreateCompanionBuilder,
+      $$PlaceNamesTableUpdateCompanionBuilder,
+      (
+        PlaceNameRow,
+        BaseReferences<_$AppDatabase, $PlaceNamesTable, PlaceNameRow>,
+      ),
+      PlaceNameRow,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -28166,4 +28940,6 @@ class $AppDatabaseManager {
       $$ChangeTrailsTableTableManager(_db, _db.changeTrails);
   $$MessagesTableTableManager get messages =>
       $$MessagesTableTableManager(_db, _db.messages);
+  $$PlaceNamesTableTableManager get placeNames =>
+      $$PlaceNamesTableTableManager(_db, _db.placeNames);
 }

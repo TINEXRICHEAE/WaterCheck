@@ -8,6 +8,8 @@ import 'package:retrofit/retrofit.dart';
 import '../models/admin_unit_out.dart';
 import '../models/catalogue.dart';
 import '../models/collector_summary.dart';
+import '../models/place_at.dart';
+import '../models/place_hit.dart';
 import '../models/source_hit.dart';
 
 part 'reference_client.g.dart';
@@ -50,6 +52,30 @@ abstract class ReferenceClient {
   Future<List<SourceHit>> searchSources({
     @Query('q') required String q,
     @Query('limit') int? limit = 30,
+  });
+
+  /// Search Places.
+  ///
+  /// Places anywhere in Uganda by name: official areas, places added from.
+  /// devices, and the map's villages, trading centres and neighbourhoods.
+  /// with the sub-county they lie in. Names starting with the text come.
+  /// first, then the nearest to `near_lat`/`near_lon` when given.
+  @GET('/v1/places/search')
+  Future<List<PlaceHit>> searchPlaces({
+    @Query('q') required String q,
+    @Query('limit') int? limit = 20,
+    @Query('near_lat') num? nearLat,
+    @Query('near_lon') num? nearLon,
+  });
+
+  /// Locate Place.
+  ///
+  /// The sub-county (and its district) a point lies in, from the official.
+  /// boundaries (ADR-023). 404 outside Uganda or before the shapes load.
+  @GET('/v1/places/locate')
+  Future<PlaceAt> locatePlace({
+    @Query('lat') required num lat,
+    @Query('lon') required num lon,
   });
 
   /// Collectors.

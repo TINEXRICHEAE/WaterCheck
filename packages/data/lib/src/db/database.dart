@@ -39,6 +39,7 @@ part 'database.g.dart';
     ArchiveMarks,
     ChangeTrails,
     Messages,
+    PlaceNames,
   ],
   include: {'immutability.drift'},
 )
@@ -46,7 +47,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.executor);
 
   @override
-  int get schemaVersion => 8;
+  int get schemaVersion => 10;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -105,6 +106,14 @@ class AppDatabase extends _$AppDatabase {
       if (from < 8) {
         // Conversations in the app (ADR-022).
         await m.createTable(messages);
+      }
+      if (from < 9) {
+        // Names on the map placed in their sub-county (ADR-023).
+        await m.createTable(placeNames);
+      }
+      if (from < 10) {
+        // A tester's optional email (ADR-024).
+        await m.addColumn(collectorProfiles, collectorProfiles.email);
       }
     },
     beforeOpen: (details) async {

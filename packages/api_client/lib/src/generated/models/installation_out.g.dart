@@ -9,7 +9,9 @@ part of 'installation_out.dart';
 InstallationOut _$InstallationOutFromJson(Map<String, dynamic> json) =>
     InstallationOut(
       id: json['id'] as String,
-      area: AreaOut.fromJson(json['area'] as Map<String, dynamic>),
+      area: json['area'] == null
+          ? null
+          : AreaOut.fromJson(json['area'] as Map<String, dynamic>),
       platform: json['platform'] as String?,
       appVersion: json['app_version'] as String?,
       shortCode: json['short_code'] as String?,
@@ -22,14 +24,16 @@ InstallationOut _$InstallationOutFromJson(Map<String, dynamic> json) =>
           : DateTime.parse(json['revoked_at'] as String),
       collectorsSeen: (json['collectors_seen'] as num).toInt(),
       tests: (json['tests'] as num).toInt(),
-      archived: json['archived'] as bool? ?? false,
       label: json['label'] as String?,
+      registeredVia: json['registered_via'] as String? ?? 'code',
+      archived: json['archived'] as bool? ?? false,
     );
 
 Map<String, dynamic> _$InstallationOutToJson(InstallationOut instance) =>
     <String, dynamic>{
       'id': instance.id,
       'area': instance.area,
+      'registered_via': instance.registeredVia,
       'platform': instance.platform,
       'app_version': instance.appVersion,
       'short_code': instance.shortCode,

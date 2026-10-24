@@ -29,6 +29,7 @@ class CollectorProfileInput {
     required this.subcounty,
     required this.district,
     this.organisation,
+    this.email,
   });
 
   final String fullName;
@@ -39,6 +40,7 @@ class CollectorProfileInput {
   final String subcounty;
   final String district;
   final String? organisation;
+  final String? email;
 }
 
 class DriftCollectorProfileRepository implements CollectorProfileRepository {
@@ -64,6 +66,7 @@ class DriftCollectorProfileRepository implements CollectorProfileRepository {
         subcounty: r.subcounty,
         district: r.district,
         organisation: r.organisation,
+        email: r.email,
       );
 
   @override
@@ -96,6 +99,9 @@ class DriftCollectorProfileRepository implements CollectorProfileRepository {
           subcounty: input.subcounty.trim(),
           district: input.district.trim(),
           organisation: Value(input.organisation?.trim()),
+          email: Value(
+            (input.email?.trim().isEmpty ?? true) ? null : input.email!.trim(),
+          ),
           updatedAt: clock(),
         );
         await _db.into(_db.collectorProfiles).insertOnConflictUpdate(row);
@@ -132,6 +138,7 @@ class DriftCollectorProfileRepository implements CollectorProfileRepository {
                 subcounty: snapshot.subcounty,
                 district: snapshot.district,
                 organisation: Value(snapshot.organisation),
+                email: Value(snapshot.email),
                 isActive: const Value(true),
                 updatedAt: clock(),
               ),
