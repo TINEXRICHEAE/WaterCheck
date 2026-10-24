@@ -860,6 +860,28 @@ docker compose exec -T db sh -c 'pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" -
 (§11). If that `build` folder was first created by Docker (owned by `root`),
 fix it once with `sudo chown -R azureuser:azureuser ~/WaterCheck/apps/collect/build`.
 
+**Names on the map (migration 0014, ADR-023).** Suggestions of villages,
+trading centres and neighbourhoods need two generated files in
+`~/WaterCheck/infra/places/` (git-ignored, about 17 MB together). Build them on
+the dev machine:
+
+```powershell
+# Inputs: uga_admin4.geojson from https://data.humdata.org/dataset/cod-ab-uga
+# (GeoJSON edition) and OpenStreetMap named places as Overpass JSON (the
+# query is at the top of the script).
+uv run --no-project --with shapely python -I tools/build_places.py <uga_admin4.geojson> <osm_places.json>
+```
+
+Copy `infra\places\subcounties.geojson` and `places.json` to the VM (as for the
+map file), then run the migrate service; it loads a new build once and skips
+an unchanged one:
+
+```bash
+cd ~/WaterCheck/infra
+docker compose up -d --build migrate api worker
+docker compose logs --tail=5 migrate   # "places: 1520 sub-county shapes, 64110 map places"
+```
+
 ## 17a. Releasing a client version
 
 The 0.1.1 release (2026-10-21) followed this procedure.

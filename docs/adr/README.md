@@ -26,3 +26,5 @@ Format: context → decision → consequences. Number them sequentially. Never r
 | [020](ADR-020-collector-recovery-codes.md) | Collector recovery codes: the same person on any phone | Accepted (on dev) |
 | [019](ADR-019-anywhere-in-uganda.md) | Anywhere in Uganda: random source codes, places added from phones, district sync, required location check | Accepted (in progress) |
 | [022](ADR-022-devices-context-and-conversations.md) | Every device, linked pages, pictures with context, typed "Other", conversations in the app | Accepted (built, waiting for dev check) |
+| [023](ADR-023-map-places-in-their-subcounty.md) | Names on the map placed in their sub-county: suggestions, map search, sub-county from GPS | Accepted (on dev) |
+| [024](ADR-024-testers-not-devices.md) | Testers, not devices, are assigned to areas: self-registered devices, assignment codes, own sign-in codes, signing devices out | Accepted (on dev) |

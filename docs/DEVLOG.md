@@ -544,3 +544,79 @@ Decisions are also recorded in [PLAN.md](PLAN.md) (decisions log and §3a), the 
     - Devices get the places at their next sync, and the new ones appear under Admin › Places for review.
   - **Archived** through the archive service, as the IT admin account: Hospital Borehole, Kabojja Protected Spring, Kasenge HC II Borehole and Amusus Primary. Their 5 tests and 4 alerts cascaded. All 4 batches can be restored under Admin › Archived.
 - **Open:** the 3 real dev sources (Kasenge well, Kitanaba borehole, Kaliro katono community borehole) are not copied yet; they wait for the lead's choice.
+
+### 35. Names on the map, placed in their sub-county (ADR-023), 2026-10-24
+- **Asked:**
+  - Why does the area list stop at sub-county when the map shows villages, trading centres and more?
+  - Then: place every named area on the map (and places and sources added with coordinates) in the official sub-county whose boundary contains it, so typing or searching suggests it wherever it is on the map.
+- **Data:**
+  - **Boundaries:** UBOS sub-county shapes (OCHA COD-AB, GeoJSON edition, 1,520). All match the area list by P-code.
+  - **Names:** OpenStreetMap named places in Uganda from Overpass: 64,110, of which 62,288 are villages, plus hamlets, localities, towns, neighbourhoods and suburbs.
+  - `tools/build_places.py` (shapely) placed every one; 5 needed the nearest sub-county. Output goes to `infra/places/` (git-ignored).
+- **Outcome (built and tested, on dev; not deployed, not committed):**
+  - **Backend, migration 0014:**
+    - `subcounty_shape` with a spatial index, `wc_subcounty_at(lat, lon)`, `place_name`, and `places_import`.
+    - `app/places_load.py` runs after the seed (once per build, by checksum).
+    - `GET /v1/places/search` (official areas and map names, prefix first, nearest first) and `GET /v1/places/locate`.
+    - `place_name` is in the area and scope feeds.
+    - Test: `test_map_places_are_found_by_name_and_placed_in_their_subcounty`.
+  - **Devices:** local schema v9 (`PlaceNames`) and `MapPlaceRepository` (search, nearest sub-county).
+  - **Collect:**
+    - The village field suggests names on the map ("On the map · Sub-county, District"). Picking one fills the sub-county and district.
+    - The map search includes them, with a pin.
+    - A new source's GPS point offers its sub-county: exact online, "probably" offline.
+  - **Console:** the map search includes them (built once for 64,000 names) and pins the chosen one.
+  - **Dev loaded:** 1,520 shapes and 64,110 names.
+  - **Tests:** data 80, UI kit 29, Collect 64, Console 45; the backend suite was run.
+- **Watch:**
+  - Names on the map are suggestions, not official. Duplicates across districts are told apart by sub-county and district.
+  - The parish stays typed: OpenStreetMap has almost none.
+  - An IT admin Console's first sync carries all 64,110 names.
+
+### 36. Onboarding without a code; testers, not devices, are assigned (ADR-024), 2026-10-24
+- **Asked (with screenshots of dev):**
+  1. Take the activation code out of the first steps. Anyone can use Collect and do everything under their name; the code becomes an official assignment of a tester to an area, entered later from Settings. Devices don't matter: log the device whenever someone signs in with an existing profile.
+  2. On the Collect map, a searched map name flies to the place but the breadcrumb and source list don't follow.
+  3. On the Console, the map search doesn't find map names at all (only official areas).
+- **Decisions (lead):**
+  - Devices register themselves.
+  - Keep recovery codes (email or SMS later), and add one the tester makes in Collect: one use, no expiry until used, usable for several devices.
+  - Signing other devices out needs a confirmation code, shown to the IT admin for now.
+  - Phone and email are optional on the profile.
+  - An unassigned device sees where it works.
+- **Fixes 2 and 3:**
+  - The chosen map name now goes in the map address (`/map?area=<sub-county>&place=<id>`), so the path and list follow its sub-county and the map flies to the point with a pin.
+  - The Console's and Collect's lists of map names are rebuilt after each sync. They were built once, before the first sync had brought the names.
+- **Outcome for 1 (built and tested on dev; not deployed, not committed):**
+  - **Backend, migration 0015:**
+    - devices may have no area (`registered_via`, `device_label`, `registered_from`); a device sees its own row;
+    - new tables `collector_assignment`, `collector_device`, `collector_signin` and `collector_confirmation`; recovery codes may come from a device and have no expiry;
+    - devices seen before were backfilled.
+  - **Backend endpoints:**
+    - `POST /v1/installations/register`, limited to 20 an hour per address;
+    - for a tester: `POST /v1/collectors/{key}/assign`, `GET …/assignments`, `POST …/recovery-code/own`, `GET …/devices`, `POST …/devices/sign-out` and `…/confirm`;
+    - for the Console: `GET /v1/collectors/assignments`, `GET /v1/admin/collectors/{key}/access`, and assigning or ending directly;
+    - redemption records the device and the sign-in; pushes keep the device list and refuse a tester's records from a device they were signed out of;
+    - the ledger lists the testers each code assigned; the device list, `installations/me` and SMS cope with devices that have no area.
+  - **Collect:**
+    - No activation screen. The device registers itself at startup when online, else before the next sync or sign-in.
+    - Settings › "Your area and devices": an assignment code, "Make a sign-in code", and devices using the profile with "Sign out", confirmed with the code.
+    - A tester signed out elsewhere is removed from the device after sync.
+    - Phone is optional, and email was added (local schema v10).
+  - **Console:**
+    - The tester's page has "Area and devices": areas with assign and end, devices, sign-ins, and the code to give the tester.
+    - The collectors list marks "not yet assigned".
+    - The ledger lists testers per code; "assignment code" wording throughout; devices without an area are shown as such.
+  - **Tests:**
+    - backend: a self-registered device, assignment, an own code on a second device, sign-out with the admin's code, and records refused afterwards;
+    - Collect: first run without a code (offline, then registered at sync), and the area and devices page;
+    - Console: the tester page.
+- **Watch:**
+  - Anyone can now create a device and send records. Unassigned testers are marked, and the rate limit only slows bulk sign-ups.
+  - The sign-out confirmation code is kept in clear for a day so an admin can read it; hash it once email and SMS send it.
+
+### 37. Backend tests hung: "localhost" stalls after a Docker Desktop restart (2026-10-24)
+- **Asked:** "how far is the backend suite", then "is the full run done?"
+- **Finding:** two full runs hung (no CPU for 45 and 58 minutes). The test database answered at once on `127.0.0.1`, but a connection by `localhost`, the address testcontainers gives, stalled for minutes. On this machine `localhost` tries IPv6 first, which Docker Desktop's port forwarding has not answered since it was restarted earlier today. Each test opens new connections, so each one took about 2 minutes.
+- **Fix:** `tests/conftest.py` uses `127.0.0.1` when testcontainers reports `localhost` (`_host()`). The two stuck runs and their leftover test containers were removed.
+- **Outcome:** the full backend suite passes: 241 tests in 9 min 54 s. Lint, format and types are clean.
