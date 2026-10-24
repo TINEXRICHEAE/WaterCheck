@@ -45,10 +45,10 @@ class SettingsScreen extends ConsumerWidget {
           if (collector != null)
             ListTile(
               leading: const Icon(Icons.badge_outlined),
-              title: Text(l10n.accountMenu),
-              subtitle: Text(l10n.accountMenuHint),
+              title: Text(l10n.profileTitle),
+              subtitle: Text(l10n.profileMenuHint(collector.fullName)),
               trailing: const Icon(Icons.chevron_right),
-              onTap: () => context.push('/settings/account'),
+              onTap: () => context.push('/profile'),
             ),
           if (credentials != null)
             ListTile(
@@ -164,6 +164,10 @@ class SettingsScreen extends ConsumerWidget {
               appName: l10n.appTitle,
               version: appVersion,
             ),
+          ),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: LegalTiles(),
           ),
         ],
       ),

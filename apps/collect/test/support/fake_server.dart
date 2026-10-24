@@ -178,6 +178,9 @@ class FakeServer implements HttpClientAdapter {
 
   /// The other device using the tester's profile, and the confirmation.
   var otherSignedOut = false;
+  String? confirmedPhone;
+  var signedOutHere = false;
+  var closed = false;
   static const confirmCode = '482915';
 
   ResponseBody _tester(RequestOptions options, String path) {
@@ -201,6 +204,32 @@ class FakeServer implements HttpClientAdapter {
         if (area == null) return _json(404, {'detail': 'invalid_code'});
         if (!assigned.contains(area)) assigned.add(area);
         return _json(200, [for (final a in assigned) assignment(a)]);
+      }(),
+      // Profile (ADR-025): contacts with a code, leaving this device.
+      ('POST', 'contacts') => _json(201, {
+        'id': 'c-1',
+        'channel': _body(options)['channel'],
+        'value': _body(options)['value'],
+        'expires_at': '2026-10-25T08:00:00Z',
+      }),
+      ('POST', 'contacts/c-1/confirm') =>
+        _body(options)['code'] == confirmCode
+            ? () {
+                confirmedPhone = '+256772123456';
+                return ResponseBody.fromString('', 204);
+              }()
+            : _json(400, {'detail': 'wrong_code'}),
+      ('GET', 'contacts/status') => _json(200, {
+        'phone': confirmedPhone,
+        'email': null,
+      }),
+      ('POST', 'sign-out-here') => () {
+        signedOutHere = true;
+        return ResponseBody.fromString('', 204);
+      }(),
+      ('POST', 'close') => () {
+        closed = true;
+        return ResponseBody.fromString('', 204);
       }(),
       ('POST', 'recovery-code/own') => _json(201, {
         'code': 'K7QMR-T4W9X',

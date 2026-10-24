@@ -205,13 +205,13 @@ abstract class AppLocalizations {
   /// No description provided for @privacyHeading.
   ///
   /// In en, this message translates to:
-  /// **'How your information is used'**
+  /// **'In short'**
   String get privacyHeading;
 
   /// No description provided for @privacyBody.
   ///
   /// In en, this message translates to:
-  /// **'WaterCheck records water test results for shared water sources.\n\nWith every result it saves your name, phone number, collector type, village and the place where you tested. This lets the district trust the result and contact you about it.\n\nWaterCheck does not ask for national ID numbers or information about households.\n\nEverything is kept on this device (encrypted in the Android and Windows apps) and sent to the WaterCheck service when there is internet. You can stop taking part at any time by telling your coordinator.'**
+  /// **'WaterCheck records water tests at shared water sources so that communities and districts can act when water may be unsafe.\n\nWith each test it saves your name, the area you give, where you tested (GPS) and any pictures of the test or the source. Your phone and email are optional. Stakeholders for the area see your records and can contact you; other testers see results and your name, not your contacts.\n\nWaterCheck does not ask for national ID numbers or information about households. Please do not photograph people.\n\nYour work is kept on this device (encrypted in the Android and Windows apps) and sent to the WaterCheck server, hosted outside Uganda (South Africa), when there is internet. You can edit your details, or delete your profile, any time under My profile.\n\nA test result is a warning, not a guarantee that water is safe: always follow the advice of your health officials.'**
   String get privacyBody;
 
   /// No description provided for @privacyVersion.
@@ -3123,6 +3123,138 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'That does not look like an email address.'**
   String get emailInvalid;
+
+  /// No description provided for @profileTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My profile'**
+  String get profileTitle;
+
+  /// No description provided for @profileMenuHint.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}: details, contacts, area, devices, sign out'**
+  String profileMenuHint(String name);
+
+  /// No description provided for @profileEditDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get profileEditDetails;
+
+  /// No description provided for @profilePhoneLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone'**
+  String get profilePhoneLabel;
+
+  /// No description provided for @profileEmailLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get profileEmailLabel;
+
+  /// No description provided for @profileNotGiven.
+  ///
+  /// In en, this message translates to:
+  /// **'Not given'**
+  String get profileNotGiven;
+
+  /// No description provided for @profileConfirmedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'confirmed'**
+  String get profileConfirmedLabel;
+
+  /// No description provided for @profileNotConfirmedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'not confirmed'**
+  String get profileNotConfirmedLabel;
+
+  /// No description provided for @profileConfirmButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get profileConfirmButton;
+
+  /// No description provided for @profileContactCodeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the 6-digit code. Until email and SMS are set up, your IT admin gives it to you.'**
+  String get profileContactCodeHint;
+
+  /// No description provided for @profileAccountTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get profileAccountTitle;
+
+  /// No description provided for @profileSwitch.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch person'**
+  String get profileSwitch;
+
+  /// No description provided for @profileSwitchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose who is testing on this device.'**
+  String get profileSwitchHint;
+
+  /// No description provided for @profileSignOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out of this device'**
+  String get profileSignOut;
+
+  /// No description provided for @profileSignOutHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Your work is sent first; a sign-in code brings you back.'**
+  String get profileSignOutHint;
+
+  /// No description provided for @profileSignOutTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out of this device?'**
+  String get profileSignOutTitle;
+
+  /// No description provided for @profileSignOutBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything of yours is sent first, then your profile leaves this device. Your records stay yours; sign in again with a sign-in code.'**
+  String get profileSignOutBody;
+
+  /// No description provided for @profileDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete my profile'**
+  String get profileDelete;
+
+  /// No description provided for @profileDeleteHint.
+  ///
+  /// In en, this message translates to:
+  /// **'For good: every device signs you out and your phone and email are erased. Your tests stay.'**
+  String get profileDeleteHint;
+
+  /// No description provided for @profileDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete your profile?'**
+  String get profileDeleteTitle;
+
+  /// No description provided for @profileDeleteBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}, every device will sign you out, your area assignments end, and your phone and email are erased. The tests and sources you sent stay, under your name, because the water records depend on them.'**
+  String profileDeleteBody(String name);
+
+  /// No description provided for @profileSendFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Some of your work is not sent yet. Connect and sync, then try again.'**
+  String get profileSendFirst;
 }
 
 class _AppLocalizationsDelegate

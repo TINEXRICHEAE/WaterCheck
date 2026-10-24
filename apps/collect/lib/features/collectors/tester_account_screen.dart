@@ -3,9 +3,11 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:ui_kit/ui_kit.dart';
 
+import '../../app/gate.dart';
 import '../../app/providers.dart';
 import '../../l10n/app_localizations.dart';
 import '../activation/installation_service.dart';
@@ -78,10 +80,30 @@ final _devicesProvider = FutureProvider.autoDispose
       }
     });
 
-/// The tester in use (ADR-024): the areas they are officially assigned to
-/// (an assignment code from an IT admin), a sign-in code for another
-/// device, and the devices that use their profile, some of which they can
-/// sign out. Everything here needs the internet.
+/// Contacts confirmed on the server for the tester (ADR-025).
+final _confirmedProvider = FutureProvider.autoDispose
+    .family<({String? phone, String? email})?, String>((ref, key) async {
+      final dio = ref.watch(collectApiDioProvider);
+      if (dio == null) return null;
+      try {
+        final r = await dio.get<Map<String, dynamic>>(
+          '/v1/collectors/$key/contacts/status',
+        );
+        return (
+          phone: r.data!['phone'] as String?,
+          email: r.data!['email'] as String?,
+        );
+      } on Object {
+        return null;
+      }
+    });
+
+/// My profile (ADR-024/025), apart from Settings: my details (editable),
+/// my email and phone (confirmed with a code), the areas I am officially
+/// assigned to (an assignment code from an IT admin), a sign-in code for
+/// another device, the devices that use my profile (some can be signed
+/// out), and switching person, signing out of this device or deleting my
+/// profile. What reaches the server needs the internet.
 class TesterAccountScreen extends ConsumerStatefulWidget {
   const TesterAccountScreen({super.key});
 
@@ -103,6 +125,8 @@ class _TesterAccountScreenState extends ConsumerState<TesterAccountScreen> {
       'sync_first' => l10n.accountSyncFirst,
       'wrong_code' => l10n.accountConfirmWrong,
       'request_expired' => l10n.accountConfirmExpired,
+      'invalid_email' => l10n.emailInvalid,
+      'invalid_phone' => l10n.phoneInvalid,
       _ => l10n.recoverOffline,
     };
   }
@@ -210,6 +234,99 @@ class _TesterAccountScreenState extends ConsumerState<TesterAccountScreen> {
     });
   }
 
+  /// Sends a code for the email or phone on the profile, then asks for it.
+  Future<void> _confirmContact(String key, String channel, String value) async {
+    final l10n = AppLocalizations.of(context);
+    await _run((dio) async {
+      final r = await dio.post<Map<String, dynamic>>(
+        '/v1/collectors/$key/contacts',
+        data: {'channel': channel, 'value': value},
+      );
+      if (!mounted) return;
+      final code = await _ask(
+        l10n.accountConfirmTitle,
+        l10n.profileContactCodeHint,
+        digits: true,
+      );
+      if (code == null || code.isEmpty) return;
+      await dio.post<void>(
+        '/v1/collectors/$key/contacts/${r.data!['id']}/confirm',
+        data: {'code': code},
+      );
+      ref.invalidate(_confirmedProvider(key));
+    });
+  }
+
+  Future<bool> _sure(String title, String body, String confirm) async =>
+      await showDialog<bool>(
+        context: context,
+        builder: (dialog) => AlertDialog(
+          title: Text(title),
+          content: Text(body),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialog, false),
+              child: Text(AppLocalizations.of(context).cancel),
+            ),
+            FilledButton(
+              style: FilledButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.error,
+              ),
+              onPressed: () => Navigator.pop(dialog, true),
+              child: Text(confirm),
+            ),
+          ],
+        ),
+      ) ??
+      false;
+
+  /// Leaves this device: everything of theirs is sent first; a sign-in
+  /// code brings them back.
+  Future<void> _signOutHere(String key) async {
+    final l10n = AppLocalizations.of(context);
+    if (!await _sure(
+      l10n.profileSignOutTitle,
+      l10n.profileSignOutBody,
+      l10n.profileSignOut,
+    )) {
+      return;
+    }
+    await _leave(key, '/v1/collectors/$key/sign-out-here');
+  }
+
+  Future<void> _delete(String key, String name) async {
+    final l10n = AppLocalizations.of(context);
+    if (!await _sure(
+      l10n.profileDeleteTitle,
+      l10n.profileDeleteBody(name),
+      l10n.profileDelete,
+    )) {
+      return;
+    }
+    await _leave(key, '/v1/collectors/$key/close');
+  }
+
+  Future<void> _leave(String key, String path) async {
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final router = GoRouter.of(context);
+    // Nothing of theirs may be left unsent.
+    await ref.read(syncControllerProvider.notifier).run(force: true);
+    if ((await ref.read(outboxRepositoryProvider).unsynced()).isNotEmpty) {
+      messenger.showSnackBar(SnackBar(content: Text(l10n.profileSendFirst)));
+      return;
+    }
+    var done = false;
+    await _run((dio) async {
+      await dio.post<void>(path);
+      done = true;
+    });
+    if (!done) return;
+    await ref.read(collectorProfileRepositoryProvider).deactivate(key);
+    await ref.read(appGateProvider.notifier).clearCollector();
+    router.go('/who');
+  }
+
   Future<void> _signOut(String key) async {
     final l10n = AppLocalizations.of(context);
     await _run((dio) async {
@@ -243,12 +360,63 @@ class _TesterAccountScreenState extends ConsumerState<TesterAccountScreen> {
     if (me == null) return const Scaffold(body: PageLoading());
     final key = me.collectorKey;
     final assignments = ref.watch(_assignmentsProvider(key));
+    final confirmed = ref.watch(_confirmedProvider(key)).value;
     final devices = ref.watch(_devicesProvider(key));
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.accountTitle(me.fullName))),
+      appBar: AppBar(title: Text(l10n.profileTitle)),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.account_circle_outlined, size: 40),
+            title: Text(me.fullName, style: text.titleLarge),
+            subtitle: Text(
+              [
+                me.village,
+                if (me.subcounty.isNotEmpty) me.subcounty,
+                me.district,
+              ].join(', '),
+            ),
+            trailing: TextButton.icon(
+              icon: const Icon(Icons.edit_outlined),
+              label: Text(l10n.profileEditDetails),
+              onPressed: () => context.push('/who/$key/edit'),
+            ),
+          ),
+          for (final (channel, icon, label, value) in [
+            ('phone', Icons.phone_outlined, l10n.profilePhoneLabel, me.phone),
+            (
+              'email',
+              Icons.email_outlined,
+              l10n.profileEmailLabel,
+              me.email ?? '',
+            ),
+          ])
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: Icon(icon),
+              title: Text(label),
+              subtitle: Text(
+                value.isEmpty
+                    ? l10n.profileNotGiven
+                    : '$value · ${(channel == 'phone' ? confirmed?.phone : confirmed?.email) == value ? l10n.profileConfirmedLabel : l10n.profileNotConfirmedLabel}',
+              ),
+              trailing:
+                  value.isEmpty ||
+                      (channel == 'phone'
+                              ? confirmed?.phone
+                              : confirmed?.email) ==
+                          value
+                  ? null
+                  : TextButton(
+                      onPressed: _busy
+                          ? null
+                          : () => _confirmContact(key, channel, value),
+                      child: Text(l10n.profileConfirmButton),
+                    ),
+            ),
+          const Divider(height: 32),
           Text(l10n.accountAreaTitle, style: text.titleMedium),
           Text(l10n.accountAreaHint),
           ...switch (assignments) {
@@ -350,6 +518,37 @@ class _TesterAccountScreenState extends ConsumerState<TesterAccountScreen> {
               ),
             ],
           },
+          const Divider(height: 32),
+          Text(l10n.profileAccountTitle, style: text.titleMedium),
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.switch_account_outlined),
+            title: Text(l10n.profileSwitch),
+            subtitle: Text(l10n.profileSwitchHint),
+            onTap: () => context.go('/who'),
+          ),
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.logout),
+            title: Text(l10n.profileSignOut),
+            subtitle: Text(l10n.profileSignOutHint),
+            onTap: _busy ? null : () => _signOutHere(key),
+          ),
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: Icon(
+              Icons.person_remove_outlined,
+              color: Theme.of(context).colorScheme.error,
+            ),
+            title: Text(
+              l10n.profileDelete,
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
+            ),
+            subtitle: Text(l10n.profileDeleteHint),
+            onTap: _busy ? null : () => _delete(key, me.fullName),
+          ),
+          const Divider(height: 32),
+          const LegalTiles(),
         ],
       ),
     );

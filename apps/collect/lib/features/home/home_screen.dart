@@ -31,6 +31,11 @@ class HomeScreen extends ConsumerWidget {
             icon: const Icon(Icons.add_location_alt_outlined),
             onPressed: () => context.push('/sources/new'),
           ),
+          IconButton(
+            tooltip: l10n.profileTitle,
+            icon: const Icon(Icons.account_circle_outlined),
+            onPressed: () => context.push('/profile'),
+          ),
           const MessagesButton(),
           const SyncRefreshButton(),
           SyncIndicator(

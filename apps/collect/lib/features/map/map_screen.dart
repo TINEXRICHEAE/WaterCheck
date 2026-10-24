@@ -409,7 +409,7 @@ class _MapScreenState extends ConsumerState<MapScreen>
             children: [
               MapLayersButton(layers: _layers, onChanged: _setLayers),
               const SizedBox(height: 8),
-              MapZoomButtons(motion: _motion),
+              MapNavigationButtons(motion: _motion),
             ],
           ),
         ),

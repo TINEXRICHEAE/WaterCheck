@@ -132,6 +132,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
         ],
       ),
+      GoRoute(path: '/profile', builder: (_, _) => const TesterAccountScreen()),
       GoRoute(
         path: '/messages',
         builder: (_, _) => const InboxScreen(),

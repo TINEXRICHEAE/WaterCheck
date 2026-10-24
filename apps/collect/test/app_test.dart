@@ -37,7 +37,10 @@ void main() {
     expect(find.text('Welcome to WaterCheck'), findsOneWidget);
     expect(find.textContaining('does not ask for national ID'), findsOneWidget);
 
-    await tapAndSettle(tester, find.text('I understand and agree'));
+    await tapAndSettle(
+      tester,
+      find.text('I agree to the Terms of Use and the Privacy Policy'),
+    );
     expect(find.text('Who is testing?'), findsOneWidget);
     expect(
       find.text('No one has been added on this device yet.'),
@@ -101,7 +104,10 @@ void main() {
   testWidgets('area fields: search a sub-county, the district fills in; '
       'Other takes a new one', (tester) async {
     final db = await pumpCollect(tester, onboarded: false);
-    await tapAndSettle(tester, find.text('I understand and agree'));
+    await tapAndSettle(
+      tester,
+      find.text('I agree to the Terms of Use and the Privacy Policy'),
+    );
     await tapAndSettle(tester, find.text('Add a person'));
     final subcounty = find.widgetWithText(TextFormField, 'Sub-county');
     final district = find.widgetWithText(TextFormField, 'District');
@@ -126,7 +132,10 @@ void main() {
   testWidgets('a lost phone: an existing person comes back with a code '
       '(ADR-020)', (tester) async {
     final db = await pumpCollect(tester, onboarded: false);
-    await tapAndSettle(tester, find.text('I understand and agree'));
+    await tapAndSettle(
+      tester,
+      find.text('I agree to the Terms of Use and the Privacy Policy'),
+    );
     await tapAndSettle(tester, find.text('I already have a profile'));
     await tester.enterText(find.byType(TextField), 'zzzzz-zzzzz');
     await tester.pump();

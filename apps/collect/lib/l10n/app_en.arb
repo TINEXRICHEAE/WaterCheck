@@ -25,8 +25,8 @@
   "startupFailed": "WaterCheck could not open its data on this device.",
   "startupRetry": "Try again",
   "welcomeTitle": "Welcome to WaterCheck",
-  "privacyHeading": "How your information is used",
-  "privacyBody": "WaterCheck records water test results for shared water sources.\n\nWith every result it saves your name, phone number, collector type, village and the place where you tested. This lets the district trust the result and contact you about it.\n\nWaterCheck does not ask for national ID numbers or information about households.\n\nEverything is kept on this device (encrypted in the Android and Windows apps) and sent to the WaterCheck service when there is internet. You can stop taking part at any time by telling your coordinator.",
+  "privacyHeading": "In short",
+  "privacyBody": "WaterCheck records water tests at shared water sources so that communities and districts can act when water may be unsafe.\n\nWith each test it saves your name, the area you give, where you tested (GPS) and any pictures of the test or the source. Your phone and email are optional. Stakeholders for the area see your records and can contact you; other testers see results and your name, not your contacts.\n\nWaterCheck does not ask for national ID numbers or information about households. Please do not photograph people.\n\nYour work is kept on this device (encrypted in the Android and Windows apps) and sent to the WaterCheck server, hosted outside Uganda (South Africa), when there is internet. You can edit your details, or delete your profile, any time under My profile.\n\nA test result is a warning, not a guarantee that water is safe: always follow the advice of your health officials.",
   "privacyVersion": "Privacy notice version {version}",
   "@privacyVersion": {
     "placeholders": {
@@ -948,5 +948,41 @@
   "settingsDeviceRegistered": "This device is registered",
   "profileEmail": "Email (optional)",
   "profilePhoneOptional": "Phone number (optional)",
-  "emailInvalid": "That does not look like an email address."
+  "emailInvalid": "That does not look like an email address.",
+  "profileTitle": "My profile",
+  "profileMenuHint": "{name}: details, contacts, area, devices, sign out",
+  "@profileMenuHint": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "profileEditDetails": "Edit",
+  "profilePhoneLabel": "Phone",
+  "profileEmailLabel": "Email",
+  "profileNotGiven": "Not given",
+  "profileConfirmedLabel": "confirmed",
+  "profileNotConfirmedLabel": "not confirmed",
+  "profileConfirmButton": "Confirm",
+  "profileContactCodeHint": "Enter the 6-digit code. Until email and SMS are set up, your IT admin gives it to you.",
+  "profileAccountTitle": "Account",
+  "profileSwitch": "Switch person",
+  "profileSwitchHint": "Choose who is testing on this device.",
+  "profileSignOut": "Sign out of this device",
+  "profileSignOutHint": "Your work is sent first; a sign-in code brings you back.",
+  "profileSignOutTitle": "Sign out of this device?",
+  "profileSignOutBody": "Everything of yours is sent first, then your profile leaves this device. Your records stay yours; sign in again with a sign-in code.",
+  "profileDelete": "Delete my profile",
+  "profileDeleteHint": "For good: every device signs you out and your phone and email are erased. Your tests stay.",
+  "profileDeleteTitle": "Delete your profile?",
+  "profileDeleteBody": "{name}, every device will sign you out, your area assignments end, and your phone and email are erased. The tests and sources you sent stay, under your name, because the water records depend on them.",
+  "@profileDeleteBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "profileSendFirst": "Some of your work is not sent yet. Connect and sync, then try again."
 }

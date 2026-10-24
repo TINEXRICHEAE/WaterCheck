@@ -5,8 +5,10 @@ import 'package:ui_kit/ui_kit.dart';
 import '../../app/gate.dart';
 import '../../l10n/app_localizations.dart';
 
-/// First launch: plain-language privacy notice and consent (SPEC §9.3).
-/// The wording must be approved by the ethics committee before field use.
+/// First launch: a plain-language summary, the Privacy Policy and Terms of
+/// Use, and consent with their version (SPEC §9.3); asked again when they
+/// change. The wording must be approved (ethics committee, PDPO) before
+/// field use.
 class WelcomeScreen extends ConsumerWidget {
   const WelcomeScreen({super.key});
 
@@ -33,23 +35,16 @@ class WelcomeScreen extends ConsumerWidget {
                   Text(l10n.privacyHeading, style: text.titleMedium),
                   const SizedBox(height: 8),
                   Text(l10n.privacyBody, style: text.bodyLarge),
-                  const SizedBox(height: 16),
-                  Text(
-                    l10n.privacyVersion(privacyNoticeVersion),
-                    style: text.bodySmall,
-                  ),
                 ],
               ),
             ),
             Padding(
               padding: const EdgeInsets.all(16),
-              child: SizedBox(
-                width: double.infinity,
-                child: FilledButton(
-                  onPressed: () =>
-                      ref.read(appGateProvider.notifier).giveConsent(),
-                  child: Text(l10n.privacyAgree),
-                ),
+              child: LegalAcceptView(
+                // Someone already using WaterCheck: the documents changed.
+                again: ref.watch(appGateProvider).activeCollectorKey != null,
+                onAccept: () =>
+                    ref.read(appGateProvider.notifier).giveConsent(),
               ),
             ),
           ],

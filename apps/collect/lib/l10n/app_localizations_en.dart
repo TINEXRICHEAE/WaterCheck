@@ -70,11 +70,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get welcomeTitle => 'Welcome to WaterCheck';
 
   @override
-  String get privacyHeading => 'How your information is used';
+  String get privacyHeading => 'In short';
 
   @override
   String get privacyBody =>
-      'WaterCheck records water test results for shared water sources.\n\nWith every result it saves your name, phone number, collector type, village and the place where you tested. This lets the district trust the result and contact you about it.\n\nWaterCheck does not ask for national ID numbers or information about households.\n\nEverything is kept on this device (encrypted in the Android and Windows apps) and sent to the WaterCheck service when there is internet. You can stop taking part at any time by telling your coordinator.';
+      'WaterCheck records water tests at shared water sources so that communities and districts can act when water may be unsafe.\n\nWith each test it saves your name, the area you give, where you tested (GPS) and any pictures of the test or the source. Your phone and email are optional. Stakeholders for the area see your records and can contact you; other testers see results and your name, not your contacts.\n\nWaterCheck does not ask for national ID numbers or information about households. Please do not photograph people.\n\nYour work is kept on this device (encrypted in the Android and Windows apps) and sent to the WaterCheck server, hosted outside Uganda (South Africa), when there is internet. You can edit your details, or delete your profile, any time under My profile.\n\nA test result is a warning, not a guarantee that water is safe: always follow the advice of your health officials.';
 
   @override
   String privacyVersion(int version) {
@@ -1839,4 +1839,79 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get emailInvalid => 'That does not look like an email address.';
+
+  @override
+  String get profileTitle => 'My profile';
+
+  @override
+  String profileMenuHint(String name) {
+    return '$name: details, contacts, area, devices, sign out';
+  }
+
+  @override
+  String get profileEditDetails => 'Edit';
+
+  @override
+  String get profilePhoneLabel => 'Phone';
+
+  @override
+  String get profileEmailLabel => 'Email';
+
+  @override
+  String get profileNotGiven => 'Not given';
+
+  @override
+  String get profileConfirmedLabel => 'confirmed';
+
+  @override
+  String get profileNotConfirmedLabel => 'not confirmed';
+
+  @override
+  String get profileConfirmButton => 'Confirm';
+
+  @override
+  String get profileContactCodeHint =>
+      'Enter the 6-digit code. Until email and SMS are set up, your IT admin gives it to you.';
+
+  @override
+  String get profileAccountTitle => 'Account';
+
+  @override
+  String get profileSwitch => 'Switch person';
+
+  @override
+  String get profileSwitchHint => 'Choose who is testing on this device.';
+
+  @override
+  String get profileSignOut => 'Sign out of this device';
+
+  @override
+  String get profileSignOutHint =>
+      'Your work is sent first; a sign-in code brings you back.';
+
+  @override
+  String get profileSignOutTitle => 'Sign out of this device?';
+
+  @override
+  String get profileSignOutBody =>
+      'Everything of yours is sent first, then your profile leaves this device. Your records stay yours; sign in again with a sign-in code.';
+
+  @override
+  String get profileDelete => 'Delete my profile';
+
+  @override
+  String get profileDeleteHint =>
+      'For good: every device signs you out and your phone and email are erased. Your tests stay.';
+
+  @override
+  String get profileDeleteTitle => 'Delete your profile?';
+
+  @override
+  String profileDeleteBody(String name) {
+    return '$name, every device will sign you out, your area assignments end, and your phone and email are erased. The tests and sources you sent stay, under your name, because the water records depend on them.';
+  }
+
+  @override
+  String get profileSendFirst =>
+      'Some of your work is not sent yet. Connect and sync, then try again.';
 }
