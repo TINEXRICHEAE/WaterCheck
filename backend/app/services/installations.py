@@ -82,6 +82,14 @@ class IssuedCode:
 
 
 @dataclass(frozen=True)
+class Registration:
+    installation_id: UUID
+    secret: str
+    server_time: datetime
+    short_code: str
+
+
+@dataclass(frozen=True)
 class Activation:
     installation_id: UUID
     secret: str
@@ -204,6 +212,65 @@ class InstallationService:
             short_code=short_code,
         )
 
+    async def register(
+        self,
+        *,
+        platform: str | None,
+        app_version: str | None,
+        device_label: str | None,
+        address: str | None,
+    ) -> Registration:
+        """A device that registers itself (ADR-024): it can sync at once;
+        testers on it are assigned to areas with codes, not the device.
+        Limited per address so nobody can create devices in bulk."""
+        now = utcnow()
+        origin = token_hash(f"register:{address or 'unknown'}")
+        async with self.db.transaction(Principal.auth()) as conn:
+            recent = (
+                await conn.execute(
+                    text(
+                        "SELECT count(*) FROM installation WHERE registered_via = 'self' "
+                        "AND registered_from = :o AND activated_at > :since"
+                    ),
+                    {"o": origin, "since": now - timedelta(hours=1)},
+                )
+            ).scalar_one()
+            if recent >= self.settings.self_registrations_per_hour:
+                raise InstallationError("too_many_registrations")
+            secret = new_token()
+            installation_id = uuid4()
+            await conn.execute(
+                text(
+                    "INSERT INTO installation (id, admin_unit_id, secret_encrypted, platform, "
+                    "app_version, last_seen_at, registered_via, device_label, registered_from) "
+                    "VALUES (:id, NULL, :s, :p, :v, :now, 'self', :label, :o)"
+                ),
+                {
+                    "id": installation_id,
+                    "s": self.box.seal(secret),
+                    "p": platform,
+                    "v": app_version,
+                    "now": now,
+                    "label": device_label,
+                    "o": origin,
+                },
+            )
+            short_code = await ensure_short_code(conn, installation_id)
+            await _audit(
+                conn,
+                None,
+                installation_id,
+                "installation.registered",
+                "installation",
+                installation_id,
+            )
+        return Registration(
+            installation_id=installation_id,
+            secret=secret,
+            server_time=now,
+            short_code=short_code,
+        )
+
     async def verify(
         self,
         *,
@@ -276,7 +343,7 @@ class InstallationService:
         return Principal(
             kind="installation",
             installation_id=inst_id,
-            scope_units=(*row.countries, row.admin_unit_id),
+            scope_units=(*row.countries, *([row.admin_unit_id] if row.admin_unit_id else [])),
         )
 
     async def revoke(self, installation_id: UUID, *, by: UUID | None) -> bool:

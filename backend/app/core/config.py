@@ -28,6 +28,8 @@ class Settings(BaseSettings):
     max_failed_logins: int = 5
     lockout_minutes: int = 15
     activation_code_days: int = 7
+    # Devices that register themselves (ADR-024), per address and hour.
+    self_registrations_per_hour: int = 20
     signature_window_seconds: int = 300
 
     # Web Console keeps its refresh token in an httpOnly cookie (ADR-010).

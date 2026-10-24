@@ -32,7 +32,17 @@ _STATUS = {
     "replayed_request": status.HTTP_401_UNAUTHORIZED,
     # 403 with this code tells Collect to offer export, then wipe (F-AUTH-4).
     "installation_revoked": status.HTTP_403_FORBIDDEN,
+    "too_many_registrations": status.HTTP_429_TOO_MANY_REQUESTS,
 }
+
+
+def client_address(request: Request) -> str | None:
+    """The caller's address: Caddy puts it first in X-Forwarded-For (the
+    API is only reached through Caddy)."""
+    forwarded = request.headers.get("x-forwarded-for")
+    if forwarded:
+        return forwarded.split(",")[0].strip()
+    return request.client.host if request.client else None
 
 
 def _fail(e: InstallationError) -> HTTPException:
@@ -84,7 +94,22 @@ class ActivateResponse(BaseModel):
 
 class InstallationMe(BaseModel):
     installation_id: UUID
-    area: AreaOut
+    # Null for a device that registered itself (ADR-024).
+    area: AreaOut | None
+    short_code: str
+
+
+class RegisterRequest(BaseModel):
+    platform: str | None = Field(default=None, max_length=40)
+    app_version: str | None = Field(default=None, max_length=40)
+    # "Pixel 7", "Office laptop": helps a tester tell their devices apart.
+    device_label: str | None = Field(default=None, max_length=80)
+
+
+class RegisterResponse(BaseModel):
+    installation_id: UUID
+    secret: str
+    server_time: datetime
     short_code: str
 
 
@@ -118,6 +143,28 @@ async def activate(body: ActivateRequest, db: DbDep, settings: SettingsDep) -> A
     )
 
 
+@router.post("/installations/register", status_code=status.HTTP_201_CREATED)
+async def register(
+    body: RegisterRequest, request: Request, db: DbDep, settings: SettingsDep
+) -> RegisterResponse:
+    """A device registers itself, no code needed (ADR-024)."""
+    try:
+        r = await InstallationService(db, settings).register(
+            platform=body.platform,
+            app_version=body.app_version,
+            device_label=body.device_label,
+            address=client_address(request),
+        )
+    except InstallationError as e:
+        raise _fail(e) from e
+    return RegisterResponse(
+        installation_id=r.installation_id,
+        secret=r.secret,
+        server_time=r.server_time,
+        short_code=r.short_code,
+    )
+
+
 @router.get("/installations/me")
 async def installation_me(installation: InstallationDep, db: DbDep) -> InstallationMe:
     async with db.transaction(installation) as conn:
@@ -125,7 +172,7 @@ async def installation_me(installation: InstallationDep, db: DbDep) -> Installat
             await conn.execute(
                 text(
                     "SELECT a.id, a.code, a.name, a.level FROM installation i "
-                    "JOIN admin_unit a ON a.id = i.admin_unit_id WHERE i.id = :id"
+                    "LEFT JOIN admin_unit a ON a.id = i.admin_unit_id WHERE i.id = :id"
                 ),
                 {"id": installation.installation_id},
             )
@@ -135,7 +182,9 @@ async def installation_me(installation: InstallationDep, db: DbDep) -> Installat
     assert installation.installation_id is not None  # noqa: S101 - set by verify()
     return InstallationMe(
         installation_id=installation.installation_id,
-        area=AreaOut(id=area.id, code=area.code, name=area.name, level=area.level),
+        area=None
+        if area.id is None
+        else AreaOut(id=area.id, code=area.code, name=area.name, level=area.level),
         short_code=short_code,
     )
 

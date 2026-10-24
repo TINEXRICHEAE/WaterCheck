@@ -161,6 +161,12 @@ AREA: dict[str, str] = {
         + _SRC.format(col="x.source_id")
         + "} AND NOT wc_archived('water_source', x.source_id)"
     ),
+    # Names on the map, in the sub-county they lie in (ADR-023): a device
+    # gets those of the districts it holds.
+    "place_name": (
+        "SELECT id, name, kind, lat, lon, subcounty_id, {cols} "
+        "FROM place_name x WHERE {area:x.subcounty_id}"
+    ),
     # Conversations (ADR-022): every message in the area's threads.
     "message": (
         "SELECT id, subject_type, subject_id, body, author_user_id, installation_id, "

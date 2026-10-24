@@ -173,7 +173,11 @@ async def _process(
         return InboundResult("rejected", "revoked_installation"), inst.id
     source = (
         await conn.execute(
-            text("SELECT id FROM water_source WHERE code = :code AND wc_under(village_id, :area)"),
+            # A device without an area (ADR-024): codes are unique in Uganda.
+            text(
+                "SELECT id FROM water_source WHERE code = :code AND "
+                "(CAST(:area AS uuid) IS NULL OR wc_under(village_id, CAST(:area AS uuid)))"
+            ),
             {"code": parsed.source_code, "area": inst.admin_unit_id},
         )
     ).first()

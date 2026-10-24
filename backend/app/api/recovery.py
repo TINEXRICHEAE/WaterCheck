@@ -120,8 +120,9 @@ async def recover(body: RecoverIn, principal: AnyPrincipal, db: DbDep) -> Recove
                 text(
                     "UPDATE collector_recovery_code SET used_at = now(), "
                     "used_by_installation = :inst "
-                    "WHERE code_hash = :h AND used_at IS NULL AND expires_at > now() "
-                    "RETURNING collector_key"
+                    "WHERE code_hash = :h AND used_at IS NULL "
+                    "AND (expires_at IS NULL OR expires_at > now()) "
+                    "RETURNING collector_key, created_by IS NULL AS own"
                 ),
                 {"h": token_hash(_normalise(body.code)), "inst": principal.installation_id},
             )
@@ -134,6 +135,25 @@ async def recover(body: RecoverIn, principal: AnyPrincipal, db: DbDep) -> Recove
                 {"k": row.collector_key},
             )
         ).one()
+        # This device now holds the tester (again, if signed out before),
+        # and the sign-in is in their trail (ADR-024).
+        via = "own_code" if row.own else "admin_code"
+        await conn.execute(
+            text(
+                "INSERT INTO collector_device (collector_key, installation_id, signed_in_via) "
+                "VALUES (:k, :i, :via) ON CONFLICT (collector_key, installation_id) DO UPDATE "
+                "SET signed_out_at = NULL, signed_out_by_request = NULL, last_seen_at = now(), "
+                "signed_in_via = EXCLUDED.signed_in_via"
+            ),
+            {"k": row.collector_key, "i": principal.installation_id, "via": via},
+        )
+        await conn.execute(
+            text(
+                "INSERT INTO collector_signin (id, collector_key, installation_id, via, platform) "
+                "SELECT :id, :k, :i, :via, platform FROM installation WHERE id = :i"
+            ),
+            {"id": uuid4(), "k": row.collector_key, "i": principal.installation_id, "via": via},
+        )
         await conn.execute(
             text(
                 "INSERT INTO audit_log (installation_id, collector_key, platform, action, entity) "

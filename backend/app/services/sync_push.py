@@ -191,6 +191,8 @@ class PushService:
         self.now = now
         self.classify: set[UUID] = set()
         self._collectors_seen: set[UUID] = set()
+        # Collectors signed out on this device (ADR-024): their records are refused.
+        self._signed_out: set[UUID] = set()
 
     async def _refuse_archived(self, entity: str, record_id: UUID | None) -> None:
         """New records and edits on an archived record are refused (ADR-018)."""
@@ -252,13 +254,31 @@ class PushService:
 
     async def _note_collector(self, o: dict[str, Any]) -> None:
         """Keeps each collector's latest details; a newer profile version
-        writes the changed fields to the trail."""
+        writes the changed fields to the trail. Records the device they use
+        (ADR-024), and refuses their records from a device they signed out."""
         key = o["ck"]
-        if self.p.kind != "installation" or key is None or not o["cs"]:
+        if self.p.kind != "installation" or key is None:
             return
+        if key in self._signed_out:
+            raise Rejected("collector_signed_out")
         if key in self._collectors_seen:
             return
+        device = (
+            await self.conn.execute(
+                text(
+                    "INSERT INTO collector_device (collector_key, installation_id, signed_in_via) "
+                    "VALUES (:k, :i, 'created') ON CONFLICT (collector_key, installation_id) "
+                    "DO UPDATE SET last_seen_at = now() RETURNING signed_out_at"
+                ),
+                {"k": key, "i": o["inst"]},
+            )
+        ).one()
+        if device.signed_out_at is not None:
+            self._signed_out.add(key)
+            raise Rejected("collector_signed_out")
         self._collectors_seen.add(key)
+        if not o["cs"]:
+            return
         snap = json.loads(o["cs"])
         version = int(snap.get("profile_version") or 1)
         cur = (

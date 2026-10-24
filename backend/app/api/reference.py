@@ -245,6 +245,98 @@ async def search_sources(
         return [SourceHit(**r._mapping) for r in rows]
 
 
+class PlaceHit(BaseModel):
+    """A place by name (ADR-023): an official one from the area list, or a
+    name from the map placed in its sub-county."""
+
+    id: UUID
+    name: str
+    kind: str
+    source: str
+    lat: float | None
+    lon: float | None
+    subcounty_id: UUID | None
+    subcounty: str | None
+    district_id: UUID | None
+    district: str | None
+
+
+@router.get("/places/search")
+async def search_places(
+    principal: AnyPrincipal,
+    db: DbDep,
+    q: str,
+    near_lat: float | None = None,
+    near_lon: float | None = None,
+    limit: int = 20,
+) -> list[PlaceHit]:
+    """Places anywhere in Uganda by name: official areas, places added from
+    devices, and the map's villages, trading centres and neighbourhoods
+    with the sub-county they lie in. Names starting with the text come
+    first, then the nearest to `near_lat`/`near_lon` when given."""
+    term = " ".join(q.split())
+    if len(term) < 2:
+        return []
+    escaped = term.lower().replace("\\", "\\\\").replace("%", r"\%").replace("_", r"\_")
+    near = near_lat is not None and near_lon is not None
+    async with db.transaction(principal) as conn:
+        rows = await conn.execute(
+            text(
+                "SELECT * FROM ("
+                " SELECT p.id, p.name, p.kind, 'map' AS source, p.lat, p.lon, "
+                " p.subcounty_id, s.name AS subcounty, d.id AS district_id, d.name AS district "
+                " FROM place_name p JOIN admin_unit s ON s.id = p.subcounty_id "
+                " LEFT JOIN admin_unit d ON d.id = s.parent_id AND d.level = 'district' "
+                " WHERE lower(p.name) LIKE :contains "
+                " UNION ALL "
+                " SELECT a.id, a.name, a.level, 'official', a.center_lat, a.center_lon, "
+                " CASE WHEN a.level = 'subcounty' THEN a.id END, "
+                " CASE WHEN a.level = 'subcounty' THEN a.name END, NULL, NULL "
+                " FROM admin_unit a WHERE a.level <> 'country' AND lower(a.name) LIKE :contains"
+                ") hits ORDER BY (lower(name) LIKE :prefix) DESC, "
+                "CASE WHEN :near THEN (lat - :nlat) * (lat - :nlat) "
+                "+ (lon - :nlon) * (lon - :nlon) END, name LIMIT :limit"
+            ),
+            {
+                "contains": f"%{escaped}%",
+                "prefix": f"{escaped}%",
+                "near": near,
+                "nlat": near_lat or 0.0,
+                "nlon": near_lon or 0.0,
+                "limit": max(1, min(limit, 50)),
+            },
+        )
+        return [PlaceHit(**r._mapping) for r in rows]
+
+
+class PlaceAt(BaseModel):
+    subcounty_id: UUID
+    subcounty: str
+    district_id: UUID | None
+    district: str | None
+
+
+@router.get("/places/locate")
+async def locate_place(principal: AnyPrincipal, db: DbDep, lat: float, lon: float) -> PlaceAt:
+    """The sub-county (and its district) a point lies in, from the official
+    boundaries (ADR-023). 404 outside Uganda or before the shapes load."""
+    async with db.transaction(principal) as conn:
+        row = (
+            await conn.execute(
+                text(
+                    "SELECT s.id AS subcounty_id, s.name AS subcounty, d.id AS district_id, "
+                    "d.name AS district FROM admin_unit s "
+                    "LEFT JOIN admin_unit d ON d.id = s.parent_id AND d.level = 'district' "
+                    "WHERE s.id = wc_subcounty_at(:lat, :lon)"
+                ),
+                {"lat": lat, "lon": lon},
+            )
+        ).first()
+    if row is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "outside_known_areas")
+    return PlaceAt(**row._mapping)
+
+
 @router.get("/collectors")
 async def collectors(user: UserDep, db: DbDep) -> list[CollectorSummary]:
     """Collectors seen in the user's area, built from submissions (§2.1):

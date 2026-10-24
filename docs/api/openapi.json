@@ -529,6 +529,48 @@
         }
       }
     },
+    "/v1/installations/register": {
+      "post": {
+        "tags": [
+          "installations"
+        ],
+        "summary": "Register",
+        "description": "A device registers itself, no code needed (ADR-024).",
+        "operationId": "register",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegisterResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/installations/me": {
       "get": {
         "tags": [
@@ -875,6 +917,147 @@
                     "$ref": "#/components/schemas/SourceHit"
                   },
                   "title": "Response Search Sources"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/places/search": {
+      "get": {
+        "tags": [
+          "reference"
+        ],
+        "summary": "Search Places",
+        "description": "Places anywhere in Uganda by name: official areas, places added from\ndevices, and the map's villages, trading centres and neighbourhoods\nwith the sub-county they lie in. Names starting with the text come\nfirst, then the nearest to `near_lat`/`near_lon` when given.",
+        "operationId": "search_places",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Q"
+            }
+          },
+          {
+            "name": "near_lat",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Near Lat"
+            }
+          },
+          {
+            "name": "near_lon",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Near Lon"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 20,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PlaceHit"
+                  },
+                  "title": "Response Search Places"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/places/locate": {
+      "get": {
+        "tags": [
+          "reference"
+        ],
+        "summary": "Locate Place",
+        "description": "The sub-county (and its district) a point lies in, from the official\nboundaries (ADR-023). 404 outside Uganda or before the shapes load.",
+        "operationId": "locate_place",
+        "parameters": [
+          {
+            "name": "lat",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "title": "Lat"
+            }
+          },
+          {
+            "name": "lon",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "title": "Lon"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlaceAt"
                 }
               }
             }
@@ -3344,6 +3527,524 @@
         }
       }
     },
+    "/v1/collectors/{collector_key}/assign": {
+      "post": {
+        "tags": [
+          "testers"
+        ],
+        "summary": "Assign With Code",
+        "description": "An assignment code from an IT admin puts the tester officially in its\narea. The code works for as many testers as it was made for.",
+        "operationId": "assign_with_code",
+        "parameters": [
+          {
+            "name": "collector_key",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Collector Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssignIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AssignmentOut"
+                  },
+                  "title": "Response Assign With Code"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/collectors/{collector_key}/assignments": {
+      "get": {
+        "tags": [
+          "testers"
+        ],
+        "summary": "Tester Assignments",
+        "operationId": "tester_assignments",
+        "parameters": [
+          {
+            "name": "collector_key",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Collector Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AssignmentOut"
+                  },
+                  "title": "Response Tester Assignments"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/collectors/{collector_key}/recovery-code/own": {
+      "post": {
+        "tags": [
+          "testers"
+        ],
+        "summary": "Own Recovery Code",
+        "description": "A tester's own sign-in code for another device: one use, valid until\nused. Shown once; only its hash is kept.",
+        "operationId": "own_recovery_code",
+        "parameters": [
+          {
+            "name": "collector_key",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Collector Key"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OwnCodeOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/collectors/{collector_key}/devices": {
+      "get": {
+        "tags": [
+          "testers"
+        ],
+        "summary": "Tester Devices",
+        "operationId": "tester_devices",
+        "parameters": [
+          {
+            "name": "collector_key",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Collector Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TesterDevice"
+                  },
+                  "title": "Response Tester Devices"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/collectors/{collector_key}/devices/sign-out": {
+      "post": {
+        "tags": [
+          "testers"
+        ],
+        "summary": "Request Sign Out",
+        "description": "Asks to sign the tester out of other devices. A code confirms it:\nsent by email or SMS later; for now IT admins see it on the tester's\npage and pass it on.",
+        "operationId": "request_sign_out",
+        "parameters": [
+          {
+            "name": "collector_key",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Collector Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignOutIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SignOutRequested"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/collectors/{collector_key}/devices/sign-out/{request_id}/confirm": {
+      "post": {
+        "tags": [
+          "testers"
+        ],
+        "summary": "Confirm Sign Out",
+        "operationId": "confirm_sign_out",
+        "parameters": [
+          {
+            "name": "collector_key",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Collector Key"
+            }
+          },
+          {
+            "name": "request_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Request Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfirmIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SignOutDone"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/collectors/assignments": {
+      "get": {
+        "tags": [
+          "testers"
+        ],
+        "summary": "All Assignments",
+        "description": "Current assignments, so the Console can tell assigned testers.",
+        "operationId": "all_assignments",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/AssignmentOut"
+                  },
+                  "type": "array",
+                  "title": "Response All Assignments"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/v1/admin/collectors/{collector_key}/access": {
+      "get": {
+        "tags": [
+          "testers"
+        ],
+        "summary": "Tester Access",
+        "description": "A tester's areas, devices, sign-ins, and codes waiting to be passed on.",
+        "operationId": "tester_access",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "collector_key",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Collector Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TesterAccess"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/admin/collectors/{collector_key}/assignments": {
+      "post": {
+        "tags": [
+          "testers"
+        ],
+        "summary": "Assign Directly",
+        "description": "An IT admin assigns a tester to an area without a code.",
+        "operationId": "assign_directly",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "collector_key",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Collector Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssignAreaIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AssignmentOut"
+                  },
+                  "title": "Response Assign Directly"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/admin/collectors/{collector_key}/assignments/{assignment_id}/end": {
+      "post": {
+        "tags": [
+          "testers"
+        ],
+        "summary": "End Assignment",
+        "operationId": "end_assignment",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "collector_key",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Collector Key"
+            }
+          },
+          {
+            "name": "assignment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Assignment Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AssignmentOut"
+                  },
+                  "title": "Response End Assignment"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/collectors/{collector_key}/recovery-code": {
       "post": {
         "tags": [
@@ -3799,6 +4500,82 @@
           "level"
         ],
         "title": "AreaOut"
+      },
+      "AssignAreaIn": {
+        "properties": {
+          "area_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Area Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "area_id"
+        ],
+        "title": "AssignAreaIn"
+      },
+      "AssignIn": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "maxLength": 40,
+            "minLength": 4,
+            "title": "Code"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code"
+        ],
+        "title": "AssignIn"
+      },
+      "AssignmentOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "collector_key": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Collector Key"
+          },
+          "area_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Area Id"
+          },
+          "area": {
+            "type": "string",
+            "title": "Area"
+          },
+          "level": {
+            "type": "string",
+            "title": "Level"
+          },
+          "assigned_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Assigned At"
+          },
+          "by_code": {
+            "type": "boolean",
+            "title": "By Code"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "collector_key",
+          "area_id",
+          "area",
+          "level",
+          "assigned_at",
+          "by_code"
+        ],
+        "title": "AssignmentOut"
       },
       "AuditEntry": {
         "properties": {
@@ -4327,6 +5104,21 @@
         ],
         "title": "CollectorSummary"
       },
+      "ConfirmIn": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "maxLength": 12,
+            "minLength": 4,
+            "title": "Code"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code"
+        ],
+        "title": "ConfirmIn"
+      },
       "ConflictOut": {
         "properties": {
           "id": {
@@ -4708,7 +5500,14 @@
             "title": "Installation Id"
           },
           "area": {
-            "$ref": "#/components/schemas/AreaOut"
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AreaOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "short_code": {
             "type": "string",
@@ -4731,7 +5530,19 @@
             "title": "Id"
           },
           "area": {
-            "$ref": "#/components/schemas/AreaOut"
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AreaOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "registered_via": {
+            "type": "string",
+            "title": "Registered Via",
+            "default": "code"
           },
           "platform": {
             "anyOf": [
@@ -5129,6 +5940,14 @@
             },
             "type": "array",
             "title": "Devices"
+          },
+          "testers": {
+            "items": {
+              "$ref": "#/components/schemas/LedgerTester"
+            },
+            "type": "array",
+            "title": "Testers",
+            "default": []
           }
         },
         "type": "object",
@@ -5144,7 +5963,7 @@
           "devices"
         ],
         "title": "LedgerCode",
-        "description": "An activation code: who made it, for where, and which devices used it."
+        "description": "An assignment (formerly activation) code: who made it, for where,\nand the testers it assigned (and devices, for codes used before)."
       },
       "LedgerDevice": {
         "properties": {
@@ -5227,6 +6046,52 @@
           "revoked_at"
         ],
         "title": "LedgerDevice"
+      },
+      "LedgerTester": {
+        "properties": {
+          "collector_key": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Collector Key"
+          },
+          "full_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Full Name"
+          },
+          "assigned_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Assigned At"
+          },
+          "ended_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ended At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "collector_key",
+          "full_name",
+          "assigned_at",
+          "ended_at"
+        ],
+        "title": "LedgerTester",
+        "description": "A tester an assignment code put in its area (ADR-024)."
       },
       "LoginRequest": {
         "properties": {
@@ -5742,6 +6607,24 @@
         ],
         "title": "OverdueSource"
       },
+      "OwnCodeOut": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "full_name": {
+            "type": "string",
+            "title": "Full Name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "full_name"
+        ],
+        "title": "OwnCodeOut"
+      },
       "Parameter": {
         "properties": {
           "code": {
@@ -5833,6 +6716,42 @@
           "username"
         ],
         "title": "PasswordHelpRequest"
+      },
+      "PendingConfirmation": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "devices": {
+            "type": "integer",
+            "title": "Devices"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Expires At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "code",
+          "devices",
+          "created_at",
+          "expires_at"
+        ],
+        "title": "PendingConfirmation"
       },
       "PendingParameter": {
         "properties": {
@@ -5941,6 +6860,154 @@
           "readings"
         ],
         "title": "PendingParameter"
+      },
+      "PlaceAt": {
+        "properties": {
+          "subcounty_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Subcounty Id"
+          },
+          "subcounty": {
+            "type": "string",
+            "title": "Subcounty"
+          },
+          "district_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "District Id"
+          },
+          "district": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "District"
+          }
+        },
+        "type": "object",
+        "required": [
+          "subcounty_id",
+          "subcounty",
+          "district_id",
+          "district"
+        ],
+        "title": "PlaceAt"
+      },
+      "PlaceHit": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "kind": {
+            "type": "string",
+            "title": "Kind"
+          },
+          "source": {
+            "type": "string",
+            "title": "Source"
+          },
+          "lat": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lat"
+          },
+          "lon": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lon"
+          },
+          "subcounty_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Subcounty Id"
+          },
+          "subcounty": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Subcounty"
+          },
+          "district_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "District Id"
+          },
+          "district": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "District"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "kind",
+          "source",
+          "lat",
+          "lon",
+          "subcounty_id",
+          "subcounty",
+          "district_id",
+          "district"
+        ],
+        "title": "PlaceHit",
+        "description": "A place by name (ADR-023): an official one from the area list, or a\nname from the map placed in its sub-county."
       },
       "PlaceOut": {
         "properties": {
@@ -6231,6 +7298,78 @@
         "type": "object",
         "title": "RefreshRequest"
       },
+      "RegisterRequest": {
+        "properties": {
+          "platform": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 40
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Platform"
+          },
+          "app_version": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 40
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "App Version"
+          },
+          "device_label": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 80
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Device Label"
+          }
+        },
+        "type": "object",
+        "title": "RegisterRequest"
+      },
+      "RegisterResponse": {
+        "properties": {
+          "installation_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Installation Id"
+          },
+          "secret": {
+            "type": "string",
+            "title": "Secret"
+          },
+          "server_time": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Server Time"
+          },
+          "short_code": {
+            "type": "string",
+            "title": "Short Code"
+          }
+        },
+        "type": "object",
+        "required": [
+          "installation_id",
+          "secret",
+          "server_time",
+          "short_code"
+        ],
+        "title": "RegisterResponse"
+      },
       "RenameIn": {
         "properties": {
           "name": {
@@ -6419,6 +7558,107 @@
         ],
         "title": "SecurityIn"
       },
+      "SignIn": {
+        "properties": {
+          "installation_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Installation Id"
+          },
+          "platform": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Platform"
+          },
+          "label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Label"
+          },
+          "via": {
+            "type": "string",
+            "title": "Via"
+          },
+          "at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "installation_id",
+          "platform",
+          "label",
+          "via",
+          "at"
+        ],
+        "title": "SignIn"
+      },
+      "SignOutDone": {
+        "properties": {
+          "signed_out": {
+            "type": "integer",
+            "title": "Signed Out"
+          }
+        },
+        "type": "object",
+        "required": [
+          "signed_out"
+        ],
+        "title": "SignOutDone"
+      },
+      "SignOutIn": {
+        "properties": {
+          "installation_ids": {
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "type": "array",
+            "maxItems": 50,
+            "minItems": 1,
+            "title": "Installation Ids"
+          }
+        },
+        "type": "object",
+        "required": [
+          "installation_ids"
+        ],
+        "title": "SignOutIn"
+      },
+      "SignOutRequested": {
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Request Id"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Expires At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "request_id",
+          "expires_at"
+        ],
+        "title": "SignOutRequested"
+      },
       "SmsAck": {
         "properties": {
           "status": {
@@ -6554,6 +7794,131 @@
           "latest"
         ],
         "title": "SourceHit"
+      },
+      "TesterAccess": {
+        "properties": {
+          "assignments": {
+            "items": {
+              "$ref": "#/components/schemas/AssignmentOut"
+            },
+            "type": "array",
+            "title": "Assignments"
+          },
+          "devices": {
+            "items": {
+              "$ref": "#/components/schemas/TesterDevice"
+            },
+            "type": "array",
+            "title": "Devices"
+          },
+          "sign_ins": {
+            "items": {
+              "$ref": "#/components/schemas/SignIn"
+            },
+            "type": "array",
+            "title": "Sign Ins"
+          },
+          "pending": {
+            "items": {
+              "$ref": "#/components/schemas/PendingConfirmation"
+            },
+            "type": "array",
+            "title": "Pending"
+          }
+        },
+        "type": "object",
+        "required": [
+          "assignments",
+          "devices",
+          "sign_ins",
+          "pending"
+        ],
+        "title": "TesterAccess"
+      },
+      "TesterDevice": {
+        "properties": {
+          "installation_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Installation Id"
+          },
+          "platform": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Platform"
+          },
+          "label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Label"
+          },
+          "short_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Short Code"
+          },
+          "signed_in_via": {
+            "type": "string",
+            "title": "Signed In Via"
+          },
+          "first_seen_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "First Seen At"
+          },
+          "last_seen_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Last Seen At"
+          },
+          "signed_out_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Signed Out At"
+          },
+          "this_device": {
+            "type": "boolean",
+            "title": "This Device"
+          }
+        },
+        "type": "object",
+        "required": [
+          "installation_id",
+          "platform",
+          "label",
+          "short_code",
+          "signed_in_via",
+          "first_seen_at",
+          "last_seen_at",
+          "signed_out_at",
+          "this_device"
+        ],
+        "title": "TesterDevice"
       },
       "TilesInfo": {
         "properties": {

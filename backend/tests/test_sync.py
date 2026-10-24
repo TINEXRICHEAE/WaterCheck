@@ -13,6 +13,7 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
+import psycopg
 import pytest_asyncio
 from httpx2 import ASGITransport, AsyncClient
 from sqlalchemy import text
@@ -856,3 +857,159 @@ async def test_threads_on_a_test_and_a_source_reach_both_sides(
     assert got[reply["id"]]["subject_type"] == "source"
     assert got[reply["id"]]["author_name"] == "Officer"
     assert got[reply["id"]]["author_user_id"]
+
+
+async def test_map_places_are_found_by_name_and_placed_in_their_subcounty(
+    client: AsyncClient, owner_db: Database, owner_conn_str: str, seeded: None, tmp_path: Path
+) -> None:
+    """ADR-023: names from the map, loaded once per build, are suggested
+    with their sub-county and district; a point is located in its
+    sub-county; devices get the names of the districts they hold."""
+    from app.places_load import load
+
+    async with owner_db.transaction(Principal.system()) as conn:
+        country = (
+            await conn.execute(text("SELECT id FROM admin_unit WHERE level = 'country' LIMIT 1"))
+        ).scalar_one()
+    # Under the country, as every real district: a device may pull it.
+    district = await make_area(owner_db, "district", parent=country)
+    sub = await make_area(owner_db, "subcounty", parent=district["id"])
+    pcode = f"UGT{uuid.uuid4().hex[:8]}"
+    async with owner_db.transaction(Principal.system()) as conn:
+        await conn.execute(
+            text("UPDATE admin_unit SET pcode = :p, name = 'Test Sub' WHERE id = :id"),
+            {"p": pcode, "id": sub["id"]},
+        )
+    # A small square in the far north-east, away from other tests' places.
+    jitter = uuid.uuid4().int % 1000 / 100_000
+    lat0, lon0 = 4.1 + jitter, 34.9 + jitter
+    square = [[lon0, lat0], [lon0 + 0.01, lat0], [lon0 + 0.01, lat0 + 0.01], [lon0, lat0 + 0.01]]
+    (tmp_path / "subcounties.geojson").write_text(
+        json.dumps(
+            {
+                "features": [
+                    {
+                        "properties": {"pcode": pcode},
+                        "geometry": {"type": "Polygon", "coordinates": [[*square, square[0]]]},
+                    }
+                ]
+            }
+        )
+    )
+    osm = 10**12 + uuid.uuid4().int % 10**12
+    (tmp_path / "places.json").write_text(
+        json.dumps(
+            {
+                "places": [
+                    {
+                        "osm_id": osm + i,
+                        "name": name,
+                        "kind": kind,
+                        "lat": lat0 + 0.005,
+                        "lon": lon0 + 0.002 * (i + 1),
+                        "subcounty_pcode": pcode,
+                    }
+                    for i, (name, kind) in enumerate(
+                        [("Kabojjatest", "village"), ("Kabojjatest Trading Centre", "locality")]
+                    )
+                ]
+            }
+        )
+    )
+    with psycopg.connect(owner_conn_str) as conn:
+        assert "2 map places (2 new or changed)" in load(conn, tmp_path)
+    with psycopg.connect(owner_conn_str) as conn:
+        assert load(conn, tmp_path) == "places: already loaded"
+
+    a = await phone(client, owner_db, district)
+    hits = await a.get(f"/v1/places/search?q=kabojjatest&near_lat={lat0}&near_lon={lon0}")
+    assert [h["name"] for h in hits] == ["Kabojjatest", "Kabojjatest Trading Centre"]
+    assert hits[0]["subcounty"] == "Test Sub"
+    assert hits[0]["district_id"] == str(district["id"])
+    assert hits[0]["source"] == "map"
+
+    admin = await signed_in(client, owner_db, role="it_admin")
+    at = await client.get(
+        "/v1/places/locate", params={"lat": lat0 + 0.004, "lon": lon0 + 0.004}, headers=admin
+    )
+    assert at.json()["subcounty_id"] == str(sub["id"])
+    away = await client.get("/v1/places/locate", params={"lat": 51.5, "lon": 0.1}, headers=admin)
+    assert away.status_code == 404
+
+    pulled = (await a.pull(f"area:{district['id']}")).json()["changes"]
+    names = {c["data"]["name"] for c in pulled if c["entity"] == "place_name"}
+    assert names == {"Kabojjatest", "Kabojjatest Trading Centre"}
+
+
+async def _registered(client: AsyncClient, village: str) -> Phone:
+    r = await client.post(
+        "/v1/installations/register", json={"platform": "web", "device_label": "Test device"}
+    )
+    assert r.status_code == 201, r.text
+    return Phone(client, r.json()["installation_id"], r.json()["secret"], village)
+
+
+async def test_a_tester_on_any_device_is_assigned_and_signs_in_elsewhere(
+    client: AsyncClient, owner_db: Database, seeded: None
+) -> None:
+    """ADR-024: a device registers itself and works at once; an assignment
+    code puts the tester (not the device) in an area; the tester's own code
+    signs them in on another device, recorded; signing a device out needs
+    the code an IT admin sees, and then that device's records for them are
+    refused."""
+    async with owner_db.transaction(Principal.system()) as conn:
+        country = (
+            await conn.execute(text("SELECT id FROM admin_unit WHERE level = 'country' LIMIT 1"))
+        ).scalar_one()
+    district = await make_area(owner_db, "district", parent=country)
+    village = await make_area(owner_db, "village", parent=district["id"])
+    a = await _registered(client, str(village["id"]))
+    me = await a.get("/v1/installations/me")
+    assert me["area"] is None
+    out = (await a.push(visit(a)))["results"]
+    assert all(r["status"] == "applied" for r in out), out
+    pulled = (await a.pull(f"area:{district['id']}")).json()["changes"]
+    assert any(c["entity"] == "water_source" for c in pulled)
+
+    admin = await signed_in(client, owner_db, role="it_admin")
+    code = (
+        await client.post(
+            "/v1/admin/activation-codes",
+            json={"area_code": district["code"], "max_installations": 3},
+            headers=admin,
+        )
+    ).json()["code"]
+    key = a.collector
+    assigned = (await a.post(f"/v1/collectors/{key}/assign", {"code": code})).json()
+    assert [x["area_id"] for x in assigned] == [str(district["id"])]
+    again = (await a.post(f"/v1/collectors/{key}/assign", {"code": code})).json()
+    assert len(again) == 1, "assigned once"
+
+    own = await a.post(f"/v1/collectors/{key}/recovery-code/own", {})
+    assert own.status_code == 201, own.text
+    b = await _registered(client, str(village["id"]))
+    back = await b.post("/v1/collectors/recover", {"code": own.json()["code"]})
+    assert back.json()["collector_key"] == key
+    reused = await b.post("/v1/collectors/recover", {"code": own.json()["code"]})
+    assert reused.status_code == 404
+
+    devices = await a.get(f"/v1/collectors/{key}/devices")
+    assert {d["installation_id"] for d in devices} == {a.id, b.id}
+    assert next(d for d in devices if d["installation_id"] == b.id)["signed_in_via"] == "own_code"
+    req = (
+        await a.post(f"/v1/collectors/{key}/devices/sign-out", {"installation_ids": [b.id]})
+    ).json()
+    access = (await client.get(f"/v1/admin/collectors/{key}/access", headers=admin)).json()
+    assert [s["via"] for s in access["sign_ins"]] == ["own_code"]
+    pending = next(p for p in access["pending"] if p["id"] == req["request_id"])
+    confirm = f"/v1/collectors/{key}/devices/sign-out/{req['request_id']}/confirm"
+    wrong = "000000" if pending["code"] != "000000" else "111111"
+    assert (await a.post(confirm, {"code": wrong})).status_code == 400
+    done = await a.post(confirm, {"code": pending["code"]})
+    assert done.json()["signed_out"] == 1
+
+    b.collector = key
+    refused = (await b.push(visit(b)))["results"]
+    # The source is refused for the tester; what hangs off it with it.
+    assert all(r["status"] == "rejected" for r in refused)
+    assert refused[0]["reason"] == "collector_signed_out"

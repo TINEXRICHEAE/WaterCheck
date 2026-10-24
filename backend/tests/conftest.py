@@ -30,9 +30,17 @@ def postgres() -> Iterator[PostgresContainer]:
         yield pg
 
 
+def _host(postgres: PostgresContainer) -> str:
+    """The container's address. "localhost" can try IPv6 first, which
+    Docker Desktop on Windows may leave unanswered for minutes per
+    connection (2026-10-24); the IPv4 address answers at once."""
+    host = postgres.get_container_host_ip()
+    return "127.0.0.1" if host == "localhost" else host
+
+
 @pytest.fixture(scope="session")
 def owner_url(postgres: PostgresContainer) -> str:
-    return postgres.get_connection_url()
+    return postgres.get_connection_url(host=_host(postgres))
 
 
 @pytest.fixture(scope="session")
@@ -54,7 +62,7 @@ def migrated(owner_url: str) -> str:
 
 @pytest.fixture(scope="session")
 def api_url(migrated: str, postgres: PostgresContainer) -> str:
-    host = postgres.get_container_host_ip()
+    host = _host(postgres)
     port = postgres.get_exposed_port(5432)
     return f"postgresql+asyncpg://watercheck_api:{API_PASSWORD}@{host}:{port}/{postgres.dbname}"
 

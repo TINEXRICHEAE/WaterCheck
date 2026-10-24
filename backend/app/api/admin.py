@@ -90,7 +90,9 @@ class CredentialsOut(BaseModel):
 
 class InstallationOut(BaseModel):
     id: UUID
-    area: AreaOut
+    # Null for a device that registered itself (ADR-024).
+    area: AreaOut | None
+    registered_via: str = "code"
     platform: str | None
     app_version: str | None
     short_code: str | None
@@ -202,14 +204,15 @@ async def installations(admin: AdminDep, db: DbDep) -> list[InstallationOut]:
             await conn.execute(
                 text(
                     "SELECT i.id, i.platform, i.app_version, i.short_code, i.activated_at, "
-                    "i.last_seen_at, i.revoked_at, i.label, "
+                    "i.last_seen_at, i.revoked_at, coalesce(i.label, i.device_label) AS label, "
+                    "i.registered_via, "
                     "wc_archived('installation', i.id) AS archived, "
                     "a.id AS area_id, a.code, a.name, a.level, "
                     "(SELECT count(DISTINCT s.collector_key) FROM test_session s "
                     " WHERE s.installation_id = i.id) AS collectors_seen, "
                     "(SELECT count(*) FROM test_session s WHERE s.installation_id = i.id "
                     " AND NOT wc_archived('test_session', s.id)) "
-                    "AS tests FROM installation i JOIN admin_unit a ON a.id = i.admin_unit_id "
+                    "AS tests FROM installation i LEFT JOIN admin_unit a ON a.id = i.admin_unit_id "
                     "ORDER BY i.revoked_at IS NOT NULL, i.last_seen_at DESC NULLS LAST"
                 )
             )
@@ -217,7 +220,10 @@ async def installations(admin: AdminDep, db: DbDep) -> list[InstallationOut]:
     return [
         InstallationOut(
             id=r.id,
-            area=AreaOut(id=r.area_id, code=r.code, name=r.name, level=r.level),
+            area=None
+            if r.area_id is None
+            else AreaOut(id=r.area_id, code=r.code, name=r.name, level=r.level),
+            registered_via=r.registered_via,
             platform=r.platform,
             app_version=r.app_version,
             short_code=r.short_code,
@@ -343,8 +349,18 @@ class LedgerDevice(BaseModel):
     revoked_at: datetime | None
 
 
+class LedgerTester(BaseModel):
+    """A tester an assignment code put in its area (ADR-024)."""
+
+    collector_key: UUID
+    full_name: str | None
+    assigned_at: datetime
+    ended_at: datetime | None
+
+
 class LedgerCode(BaseModel):
-    """An activation code: who made it, for where, and which devices used it."""
+    """An assignment (formerly activation) code: who made it, for where,
+    and the testers it assigned (and devices, for codes used before)."""
 
     id: UUID
     area: AreaOut
@@ -355,6 +371,7 @@ class LedgerCode(BaseModel):
     used_count: int
     revoked_at: datetime | None
     devices: list[LedgerDevice]
+    testers: list[LedgerTester] = []
 
 
 class LedgerAccount(BaseModel):
@@ -404,6 +421,17 @@ async def credentials(admin: AdminDep, db: DbDep) -> Ledger:
                 )
             )
         ).all()
+        testers = (
+            await conn.execute(
+                text(
+                    "SELECT s.activation_code_id, s.collector_key, "
+                    "p.snapshot->>'full_name' AS full_name, s.assigned_at, s.ended_at "
+                    "FROM collector_assignment s "
+                    "LEFT JOIN collector_profile p ON p.collector_key = s.collector_key "
+                    "WHERE s.activation_code_id IS NOT NULL ORDER BY s.assigned_at"
+                )
+            )
+        ).all()
         accounts = (
             await conn.execute(
                 text(
@@ -423,6 +451,11 @@ async def credentials(admin: AdminDep, db: DbDep) -> Ledger:
         by_code.setdefault(d.activation_code_id, []).append(
             LedgerDevice(**{k: v for k, v in d._asdict().items() if k != "activation_code_id"})
         )
+    assigned: dict[UUID, list[LedgerTester]] = {}
+    for t in testers:
+        assigned.setdefault(t.activation_code_id, []).append(
+            LedgerTester(**{k: v for k, v in t._asdict().items() if k != "activation_code_id"})
+        )
     return Ledger(
         codes=[
             LedgerCode(
@@ -435,6 +468,7 @@ async def credentials(admin: AdminDep, db: DbDep) -> Ledger:
                 used_count=c.used_count,
                 revoked_at=c.revoked_at,
                 devices=by_code.get(c.id, []),
+                testers=assigned.get(c.id, []),
             )
             for c in codes
         ],
