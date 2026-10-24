@@ -33,6 +33,37 @@ class InstallationService {
       platform: kIsWeb ? 'web' : defaultTargetPlatform.name,
       appVersion: appVersion,
     );
+    await _keep(api, activation);
+  }
+
+  Future<void>? _registering;
+
+  /// Registers this device once (ADR-024): no code is needed to work and
+  /// sync. Offline it returns false and is tried again later; everything
+  /// is kept on the device meanwhile.
+  Future<bool> ensureRegistered() async {
+    if (_ref.read(credentialsProvider) != null) return true;
+    final running = _registering ??= () async {
+      final api = _ref.read(collectApiProvider);
+      final activation = await api.register(
+        apiUrl: defaultApiUrl(),
+        platform: kIsWeb ? 'web' : defaultTargetPlatform.name,
+        appVersion: appVersion,
+      );
+      await _keep(api, activation);
+    }();
+    try {
+      await running;
+      return true;
+    } on ApiFailure catch (e) {
+      debugPrint('Registration not possible now: $e');
+      return false;
+    } finally {
+      _registering = null;
+    }
+  }
+
+  Future<void> _keep(CollectApi api, Activation activation) async {
     final c = activation.credentials;
     final store = _ref.read(installationStoreProvider);
     await store.save(c);

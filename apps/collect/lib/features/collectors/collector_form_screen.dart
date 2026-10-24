@@ -31,6 +31,7 @@ class _CollectorFormScreenState extends ConsumerState<CollectorFormScreen> {
   final _subcounty = TextEditingController();
   final _district = TextEditingController();
   final _organisation = TextEditingController();
+  final _email = TextEditingController();
   String? _type;
   bool _loaded = false;
   bool _saving = false;
@@ -45,6 +46,7 @@ class _CollectorFormScreenState extends ConsumerState<CollectorFormScreen> {
       _subcounty,
       _district,
       _organisation,
+      _email,
     ]) {
       c.dispose();
     }
@@ -67,6 +69,7 @@ class _CollectorFormScreenState extends ConsumerState<CollectorFormScreen> {
       _subcounty.text = existing.subcounty;
       _district.text = existing.district;
       _organisation.text = existing.organisation ?? '';
+      _email.text = existing.email ?? '';
       return;
     }
     final villages = units.where((u) => u.level == 'village').toList();
@@ -93,7 +96,11 @@ class _CollectorFormScreenState extends ConsumerState<CollectorFormScreen> {
         .save(
           CollectorProfileInput(
             fullName: _name.text,
-            phone: normalizeUgandaPhone(_phone.text)!,
+            // Optional (ADR-024): added later, after onboarding.
+            phone: _phone.text.trim().isEmpty
+                ? ''
+                : normalizeUgandaPhone(_phone.text)!,
+            email: _email.text.trim().isEmpty ? null : _email.text.trim(),
             collectorType: _type!,
             village: _village.text,
             parish: _parish.text,
@@ -149,13 +156,27 @@ class _CollectorFormScreenState extends ConsumerState<CollectorFormScreen> {
             TextFormField(
               controller: _phone,
               decoration: InputDecoration(
-                labelText: l10n.profilePhone,
+                labelText: l10n.profilePhoneOptional,
                 hintText: l10n.profilePhoneHint,
               ),
               keyboardType: TextInputType.phone,
+              validator: (v) => v == null || v.trim().isEmpty
+                  ? null
+                  : (normalizeUgandaPhone(v) == null
+                        ? l10n.phoneInvalid
+                        : null),
+            ),
+            const SizedBox(height: 12),
+            TextFormField(
+              controller: _email,
+              decoration: InputDecoration(labelText: l10n.profileEmail),
+              keyboardType: TextInputType.emailAddress,
               validator: (v) =>
-                  required(v) ??
-                  (normalizeUgandaPhone(v!) == null ? l10n.phoneInvalid : null),
+                  v == null ||
+                      v.trim().isEmpty ||
+                      RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(v.trim())
+                  ? null
+                  : l10n.emailInvalid,
             ),
             const SizedBox(height: 12),
             ChoiceOrTypedField(
@@ -178,6 +199,7 @@ class _CollectorFormScreenState extends ConsumerState<CollectorFormScreen> {
               parish: _parish,
               subcounty: _subcounty,
               district: _district,
+              mapNames: ref.watch(mapNamesProvider).value ?? const [],
             ),
             const SizedBox(height: 12),
             TextFormField(

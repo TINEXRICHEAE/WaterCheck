@@ -1,15 +1,19 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:api_client/api_client.dart';
 import 'package:data/data.dart';
 import 'package:domain/domain.dart' show CollectorSnapshot;
 import 'package:dio/dio.dart';
+import 'package:drift/drift.dart' show BooleanExpressionOperators;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/gate.dart';
 import '../../app/providers.dart';
 import '../../app/services.dart';
 import '../activation/collect_api.dart' show parseHttpDate;
+import '../activation/installation_service.dart'
+    show installationServiceProvider;
 import '../photos/photo_service.dart';
 
 /// Server time minus device time (SPEC §5.2), kept fresh from every
@@ -112,7 +116,8 @@ List<String> collectStreams(
   return [
     'reference',
     for (final area in {
-      districtOf(c.areaId, byId) ?? c.areaId,
+      // A device that registered itself has no area (ADR-024).
+      if (c.hasArea) districtOf(c.areaId, byId) ?? c.areaId,
       for (final p in collectors) ?districtNamed(p.district),
     })
       'area:$area',
@@ -210,8 +215,14 @@ class SyncController extends Notifier<SyncUiState> {
   SyncUiState build() => const SyncUiState();
 
   Future<SyncReport?> run({bool force = false}) async {
+    if (ref.read(appGateProvider).revoked) return null;
+    // Not registered yet (offline at first start): try now (ADR-024).
+    if (ref.read(syncServiceProvider) == null &&
+        !await ref.read(installationServiceProvider).ensureRegistered()) {
+      return null;
+    }
     final sync = ref.read(syncServiceProvider);
-    if (sync == null || ref.read(appGateProvider).revoked) return null;
+    if (sync == null) return null;
     state = SyncUiState(running: true, last: state.last);
     try {
       final report = await sync.run(force: force);
@@ -223,11 +234,38 @@ class SyncController extends Notifier<SyncUiState> {
         // (SPEC §8.3). Readings never wait for photos.
         await ref.read(attachmentUploaderProvider)?.run();
       }
+      await _dropSignedOut();
       if (ref.mounted) state = SyncUiState(last: report);
       return report;
     } catch (e) {
       if (ref.mounted) state = SyncUiState(last: state.last);
       rethrow;
+    }
+  }
+
+  /// Testers signed out of this device from another one (ADR-024): the
+  /// server refused their records; they leave this device.
+  Future<void> _dropSignedOut() async {
+    final db = ref.read(databaseProvider);
+    final refused =
+        await (db.select(db.outbox)..where(
+              (o) =>
+                  o.status.equals('rejected') &
+                  o.lastError.equals('collector_signed_out'),
+            ))
+            .get();
+    final keys = <String>{
+      for (final o in refused)
+        if ((jsonDecode(o.payload) as Map)['collector_key'] case final String k)
+          k,
+    };
+    if (keys.isEmpty) return;
+    final profiles = ref.read(collectorProfileRepositoryProvider);
+    for (final k in keys) {
+      await profiles.deactivate(k);
+    }
+    if (keys.contains(ref.read(appGateProvider).activeCollectorKey)) {
+      await ref.read(appGateProvider.notifier).clearCollector();
     }
   }
 

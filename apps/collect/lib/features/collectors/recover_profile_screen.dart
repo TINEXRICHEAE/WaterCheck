@@ -7,6 +7,7 @@ import 'package:ui_kit/ui_kit.dart';
 import '../../app/gate.dart';
 import '../../app/providers.dart';
 import '../../l10n/app_localizations.dart';
+import '../activation/installation_service.dart';
 import '../sync/collect_sync.dart';
 
 /// "I already have a profile" (ADR-020): a collector who lost a phone, or
@@ -49,8 +50,13 @@ class _RecoverProfileScreenState extends ConsumerState<RecoverProfileScreen> {
 
   Future<void> _recover() async {
     final l10n = AppLocalizations.of(context);
+    await ref.read(installationServiceProvider).ensureRegistered();
+    if (!mounted) return;
     final dio = ref.read(collectApiDioProvider);
-    if (dio == null) return;
+    if (dio == null) {
+      setState(() => _error = l10n.recoverOffline);
+      return;
+    }
     setState(() {
       _busy = true;
       _error = null;

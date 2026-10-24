@@ -431,7 +431,7 @@ void main() {
       'Second Collector',
     );
     await tester.enterText(
-      find.widgetWithText(TextFormField, 'Phone number'),
+      find.widgetWithText(TextFormField, 'Phone number (optional)'),
       '0701 000111',
     );
     await tapAndSettle(tester, find.text('I am a…'));

@@ -151,6 +151,59 @@ void main() {
     await disposeApp(tester, db);
   });
 
+  testWidgets('names on the map are suggested; GPS offers the sub-county', (
+    tester,
+  ) async {
+    late String alerek;
+    final db = await pumpCollect(
+      tester,
+      size: const Size(420, 1600),
+      overrides: [
+        locationServiceProvider.overrideWithValue(_FakeLocation(_fix)),
+      ],
+      prepare: (db) async {
+        final sub = await (db.select(
+          db.adminUnits,
+        )..where((u) => u.name.equals('Alerek'))).getSingle();
+        alerek = sub.id;
+        // As a sync brings them: names on the map in their sub-county.
+        await PullApplier(db).apply('place_name', {
+          'id': 'map-1',
+          'name': 'Kalokengel Trading Centre',
+          'kind': 'locality',
+          'lat': _fix.lat + 0.002,
+          'lon': _fix.lon + 0.002,
+          'subcounty_id': sub.id,
+          'server_seq': 1,
+        });
+      },
+    );
+    await tapAndSettle(tester, find.text('Add source'));
+    // The GPS point: offline, the nearest named place gives a guess.
+    await tapAndSettle(tester, find.text('Get GPS location'));
+    expect(find.textContaining('probably in Alerek, Abim'), findsOneWidget);
+    await tapAndSettle(tester, find.text('Use it'));
+    expect(
+      tester
+          .widget<TextFormField>(
+            find.widgetWithText(TextFormField, 'Sub-county'),
+          )
+          .controller!
+          .text,
+      'Alerek',
+    );
+    // Typing a village suggests the name from the map, with its place.
+    await tester.enterText(
+      find.widgetWithText(TextFormField, 'Village'),
+      'kaloken',
+    );
+    await settle(tester);
+    expect(find.text('On the map · Alerek, Abim'), findsOneWidget);
+    await tapAndSettle(tester, find.text('Kalokengel Trading Centre'));
+    expect(alerek, isNotEmpty);
+    await disposeApp(tester, db);
+  });
+
   testWidgets('GPS problems are explained; coordinates can be typed', (
     tester,
   ) async {

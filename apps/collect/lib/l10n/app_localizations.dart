@@ -2665,7 +2665,7 @@ abstract class AppLocalizations {
   /// No description provided for @recoverIntro.
   ///
   /// In en, this message translates to:
-  /// **'Enter the code your IT admin or stakeholder gave you. Your details come back to this device, and your earlier work stays yours.'**
+  /// **'Enter a sign-in code: one you made on another device you use (Settings › Your area and devices), or one from your IT admin or stakeholder. Your details come back to this device, and your earlier work stays yours.'**
   String get recoverIntro;
 
   /// No description provided for @recoverCode.
@@ -2683,13 +2683,13 @@ abstract class AppLocalizations {
   /// No description provided for @recoverWhoGives.
   ///
   /// In en, this message translates to:
-  /// **'No code? Ask your IT admin or the stakeholder for your area: in the Console they open Collectors, your name, \"Sign-in code for another device\". A code works once, within a day.'**
+  /// **'No code? Make one on a device you are signed in on, or ask your IT admin or the stakeholder for your area (Console › Collectors › your name › \"Sign-in code for another device\"). An admin\'s code works once, within a day; your own works once, until used.'**
   String get recoverWhoGives;
 
   /// No description provided for @recoverInvalid.
   ///
   /// In en, this message translates to:
-  /// **'That code is not valid. It may be mistyped, used already, or older than a day.'**
+  /// **'That code is not valid. It may be mistyped or used already (an admin\'s code also expires after a day).'**
   String get recoverInvalid;
 
   /// No description provided for @recoverOffline.
@@ -2853,6 +2853,276 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Messages about this source'**
   String get messagesSourceTitle;
+
+  /// No description provided for @areaOnMap.
+  ///
+  /// In en, this message translates to:
+  /// **'On the map · {where}'**
+  String areaOnMap(String where);
+
+  /// No description provided for @mapOnMap.
+  ///
+  /// In en, this message translates to:
+  /// **'Named on the map · {where}'**
+  String mapOnMap(String where);
+
+  /// No description provided for @sourceLocatedIn.
+  ///
+  /// In en, this message translates to:
+  /// **'This point is in {where}.'**
+  String sourceLocatedIn(String where);
+
+  /// No description provided for @sourceLocatedNear.
+  ///
+  /// In en, this message translates to:
+  /// **'This point is probably in {where} (nearest named place; checked when online).'**
+  String sourceLocatedNear(String where);
+
+  /// No description provided for @sourceUseLocated.
+  ///
+  /// In en, this message translates to:
+  /// **'Use it'**
+  String get sourceUseLocated;
+
+  /// No description provided for @accountTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}: area and devices'**
+  String accountTitle(String name);
+
+  /// No description provided for @accountMenu.
+  ///
+  /// In en, this message translates to:
+  /// **'Your area and devices'**
+  String get accountMenu;
+
+  /// No description provided for @accountMenuHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Get assigned to an area, sign in on another device, see and sign out devices'**
+  String get accountMenuHint;
+
+  /// No description provided for @accountAreaTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Area assignment'**
+  String get accountAreaTitle;
+
+  /// No description provided for @accountAreaHint.
+  ///
+  /// In en, this message translates to:
+  /// **'You can test anywhere without one. An assignment code from your IT admin makes you officially responsible for an area.'**
+  String get accountAreaHint;
+
+  /// No description provided for @accountNotAssigned.
+  ///
+  /// In en, this message translates to:
+  /// **'Not yet assigned to an area.'**
+  String get accountNotAssigned;
+
+  /// No description provided for @accountByCode.
+  ///
+  /// In en, this message translates to:
+  /// **'assigned with a code'**
+  String get accountByCode;
+
+  /// No description provided for @accountByAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'assigned by an IT admin'**
+  String get accountByAdmin;
+
+  /// No description provided for @accountAssignButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter an assignment code'**
+  String get accountAssignButton;
+
+  /// No description provided for @accountAssignTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Assignment code'**
+  String get accountAssignTitle;
+
+  /// No description provided for @accountAssignHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Type the code your IT admin gave you.'**
+  String get accountAssignHint;
+
+  /// No description provided for @accountOwnCodeSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in on another device'**
+  String get accountOwnCodeSection;
+
+  /// No description provided for @accountOwnCodeIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Make a sign-in code here and use it on another device (\"Who is testing?\" › \"I already have a profile\"). It works once and does not expire until used. You can also ask your IT admin for one.'**
+  String get accountOwnCodeIntro;
+
+  /// No description provided for @accountOwnCodeButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Make a sign-in code'**
+  String get accountOwnCodeButton;
+
+  /// No description provided for @accountOwnCodeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your sign-in code'**
+  String get accountOwnCodeTitle;
+
+  /// No description provided for @accountOwnCodeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep it safe; anyone with it can sign in as you. It works once and is shown only now.'**
+  String get accountOwnCodeHint;
+
+  /// No description provided for @accountCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get accountCopy;
+
+  /// No description provided for @accountDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get accountDone;
+
+  /// No description provided for @accountContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get accountContinue;
+
+  /// No description provided for @accountDevicesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Devices using your profile'**
+  String get accountDevicesTitle;
+
+  /// No description provided for @accountDevicesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Select devices you no longer use to sign them out. Your records from them stay yours.'**
+  String get accountDevicesHint;
+
+  /// No description provided for @accountDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'Device'**
+  String get accountDevice;
+
+  /// No description provided for @accountThisDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'this device'**
+  String get accountThisDevice;
+
+  /// No description provided for @accountVia.
+  ///
+  /// In en, this message translates to:
+  /// **'{via, select, created{started here} admin_code{signed in with an admin\'s code} own_code{signed in with your own code} other{signed in}}'**
+  String accountVia(String via);
+
+  /// No description provided for @accountLastSeen.
+  ///
+  /// In en, this message translates to:
+  /// **'last used {when}'**
+  String accountLastSeen(String when);
+
+  /// No description provided for @accountSignedOut.
+  ///
+  /// In en, this message translates to:
+  /// **'signed out'**
+  String get accountSignedOut;
+
+  /// No description provided for @accountSignOutButton.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Sign out selected devices} =1{Sign out 1 device} other{Sign out {count} devices}}'**
+  String accountSignOutButton(int count);
+
+  /// No description provided for @accountConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm with a code'**
+  String get accountConfirmTitle;
+
+  /// No description provided for @accountConfirmHint.
+  ///
+  /// In en, this message translates to:
+  /// **'To confirm it is you, enter the 6-digit code. Until email and SMS are set up, your IT admin sees the code on your page in the Console and gives it to you.'**
+  String get accountConfirmHint;
+
+  /// No description provided for @accountConfirmWrong.
+  ///
+  /// In en, this message translates to:
+  /// **'That code is not right. Check it with your IT admin.'**
+  String get accountConfirmWrong;
+
+  /// No description provided for @accountConfirmExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'This request has expired or had too many tries. Start again.'**
+  String get accountConfirmExpired;
+
+  /// No description provided for @accountCodeInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'That code is not valid. Check it with your IT admin.'**
+  String get accountCodeInvalid;
+
+  /// No description provided for @accountCodeExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'That code has expired. Ask your IT admin for a new one.'**
+  String get accountCodeExpired;
+
+  /// No description provided for @accountCodeUsedUp.
+  ///
+  /// In en, this message translates to:
+  /// **'That code has been used as many times as allowed.'**
+  String get accountCodeUsedUp;
+
+  /// No description provided for @accountSyncFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync first, so the server knows your profile, then try again.'**
+  String get accountSyncFirst;
+
+  /// No description provided for @accountOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs the internet. Connect and open this page again.'**
+  String get accountOffline;
+
+  /// No description provided for @settingsDeviceRegistered.
+  ///
+  /// In en, this message translates to:
+  /// **'This device is registered'**
+  String get settingsDeviceRegistered;
+
+  /// No description provided for @profileEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Email (optional)'**
+  String get profileEmail;
+
+  /// No description provided for @profilePhoneOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone number (optional)'**
+  String get profilePhoneOptional;
+
+  /// No description provided for @emailInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'That does not look like an email address.'**
+  String get emailInvalid;
 }
 
 class _AppLocalizationsDelegate

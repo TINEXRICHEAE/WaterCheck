@@ -84,6 +84,16 @@ class FakeServer implements HttpClientAdapter {
     final bearer = options.headers['Authorization'] as String?;
     return switch ((options.method, path)) {
       ('POST', '/v1/installations/activate') => _activate(options),
+      // A device registers itself (ADR-024).
+      ('POST', '/v1/installations/register') => () {
+        registrations++;
+        return _json(201, {
+          'installation_id': installationId,
+          'secret': secret,
+          'server_time': serverTime.toIso8601String(),
+          'short_code': '7Q2K',
+        });
+      }(),
       ('POST', '/v1/auth/login') => _login(options),
       ('POST', '/v1/auth/logout') => ResponseBody.fromString('', 204),
       // A stakeholder's own push (custom limits, O2): bearer, not signed.
@@ -122,6 +132,8 @@ class FakeServer implements HttpClientAdapter {
                 'collector_key': recoverable['key'],
                 'snapshot': recoverable,
               }),
+      // A tester's area and devices (ADR-024).
+      (_, final p) when p.startsWith('/v1/collectors/') => _tester(options, p),
       ('GET', '/v1/sources/search') => _json(200, [
         for (final h in searchHits)
           if ('${h['code']} ${h['name']} ${h['village']}'
@@ -155,6 +167,75 @@ class FakeServer implements HttpClientAdapter {
       'server_time': serverTime.toIso8601String(),
       'short_code': '7Q2K',
     });
+  }
+
+  /// Devices that registered themselves (ADR-024).
+  var registrations = 0;
+
+  /// Assignment codes that work, and the areas assigned with them.
+  final assignmentCodes = {'ASGN-ASGN-ASGN': 'Abim'};
+  final assigned = <String>[];
+
+  /// The other device using the tester's profile, and the confirmation.
+  var otherSignedOut = false;
+  static const confirmCode = '482915';
+
+  ResponseBody _tester(RequestOptions options, String path) {
+    final parts = path.split('/'); // ['', 'v1', 'collectors', key, ...]
+    final rest = parts.skip(4).join('/');
+    Map<String, Object?> assignment(String area) => {
+      'id': 'as-$area',
+      'collector_key': parts[3],
+      'area_id': 'area-$area',
+      'area': area,
+      'level': 'district',
+      'assigned_at': '2026-10-24T08:00:00Z',
+      'by_code': true,
+    };
+    return switch ((options.method, rest)) {
+      ('GET', 'assignments') => _json(200, [
+        for (final a in assigned) assignment(a),
+      ]),
+      ('POST', 'assign') => () {
+        final area = assignmentCodes[_body(options)['code']];
+        if (area == null) return _json(404, {'detail': 'invalid_code'});
+        if (!assigned.contains(area)) assigned.add(area);
+        return _json(200, [for (final a in assigned) assignment(a)]);
+      }(),
+      ('POST', 'recovery-code/own') => _json(201, {
+        'code': 'K7QMR-T4W9X',
+        'full_name': 'Example Collector',
+      }),
+      ('GET', 'devices') => _json(200, [
+        for (final (id, label, mine, out) in [
+          (installationId, 'This phone', true, false),
+          ('other-device', 'Old phone', false, otherSignedOut),
+        ])
+          {
+            'installation_id': id,
+            'platform': 'android',
+            'label': label,
+            'short_code': null,
+            'signed_in_via': mine ? 'created' : 'own_code',
+            'first_seen_at': '2026-10-20T08:00:00Z',
+            'last_seen_at': '2026-10-23T08:00:00Z',
+            'signed_out_at': out ? '2026-10-24T08:00:00Z' : null,
+            'this_device': mine,
+          },
+      ]),
+      ('POST', 'devices/sign-out') => _json(201, {
+        'request_id': 'req-1',
+        'expires_at': '2026-10-25T08:00:00Z',
+      }),
+      ('POST', 'devices/sign-out/req-1/confirm') =>
+        _body(options)['code'] == confirmCode
+            ? () {
+                otherSignedOut = true;
+                return _json(200, {'signed_out': 1});
+              }()
+            : _json(400, {'detail': 'wrong_code'}),
+      _ => _json(404, {'detail': 'not_found'}),
+    };
   }
 
   /// The stakeholder who may approve custom limits on a phone (O2).

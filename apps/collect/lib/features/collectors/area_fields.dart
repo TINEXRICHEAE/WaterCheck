@@ -3,14 +3,18 @@ import 'package:flutter/material.dart';
 
 import '../../l10n/app_localizations.dart';
 
-/// A suggestion: a known area, or "Other" (typed, not in the list).
-typedef _Option = ({AdminUnit? unit, String name});
+/// A suggestion: a known area, a name on the map (ADR-023), or "Other"
+/// (typed, not in any list).
+typedef _Option = ({AdminUnit? unit, MapName? place, String name});
 
 /// Village, parish, sub-county and district, filled from the area list
 /// (2026-10-22). The official list stops at sub-county: pick one by
 /// searching and its district and region fill in. Parishes and villages
 /// are suggested when known; a place not in the list is typed ("Other").
-/// Picking a known village fills everything above it.
+/// Picking a known village fills everything above it. Villages, hamlets
+/// and trading centres named on the map are suggested too, with the
+/// sub-county they lie in: picking one fills the sub-county and district
+/// (ADR-023).
 class AreaFields extends StatefulWidget {
   const AreaFields({
     super.key,
@@ -19,9 +23,13 @@ class AreaFields extends StatefulWidget {
     required this.parish,
     required this.subcounty,
     required this.district,
+    this.mapNames = const [],
   });
 
   final List<AdminUnit> units;
+
+  /// Names on the map in the device's districts.
+  final List<MapName> mapNames;
   final TextEditingController village;
   final TextEditingController parish;
   final TextEditingController subcounty;
@@ -114,6 +122,14 @@ class _AreaFieldsState extends State<AreaFields> {
     if (sc != null && sc.level == 'subcounty') _pickSubcounty(sc);
   });
 
+  /// A name from the map: the village is that name, and its sub-county
+  /// (and so its district) is the one it lies in; the parish is typed.
+  void _pickMapName(MapName m) => setState(() {
+    widget.village.text = m.name;
+    final sc = _byId[m.subcountyId];
+    if (sc != null) _pickSubcounty(sc);
+  });
+
   void _pickVillage(AdminUnit v) => setState(() {
     widget.village.text = v.name;
     final p = _parent(v);
@@ -131,7 +147,7 @@ class _AreaFieldsState extends State<AreaFields> {
         if (q.isEmpty ||
             u.name.toLowerCase().contains(q) ||
             _above(u).toLowerCase().contains(q))
-          (unit: u, name: u.name),
+          (unit: u, place: null, name: u.name),
     ];
     // Names starting with what was typed first.
     hits.sort((a, b) {
@@ -142,8 +158,40 @@ class _AreaFieldsState extends State<AreaFields> {
     final exact = hits.any((h) => h.name.toLowerCase() == q);
     return [
       ...hits.take(_cap),
-      if (other && q.isNotEmpty && !exact) (unit: null, name: typed.trim()),
+      if (other && q.isNotEmpty && !exact)
+        (unit: null, place: null, name: typed.trim()),
     ];
+  }
+
+  /// Villages: those known in the area list, then names on the map in the
+  /// chosen sub-county (or anywhere in the device's districts).
+  Iterable<_Option> _villageOptions(List<AdminUnit> villages, String typed) {
+    final known = _match(villages, typed).toList();
+    final q = typed.trim().toLowerCase();
+    if (q.length < 2) return known;
+    final taken = {for (final o in known) o.name.toLowerCase()};
+    final onMap = [
+      for (final m in widget.mapNames)
+        if ((_subcountyUnit == null || m.subcountyId == _subcountyUnit!.id) &&
+            m.name.toLowerCase().contains(q) &&
+            !taken.contains(m.name.toLowerCase()))
+          m,
+    ];
+    onMap.sort((a, b) {
+      final sa = a.name.toLowerCase().startsWith(q) ? 0 : 1;
+      final sb = b.name.toLowerCase().startsWith(q) ? 0 : 1;
+      return sa != sb ? sa - sb : a.name.compareTo(b.name);
+    });
+    return [
+      ...known,
+      for (final m in onMap.take(_cap)) (unit: null, place: m, name: m.name),
+    ];
+  }
+
+  /// "On the map · Kyengera Town Council, Wakiso".
+  String _onMap(AppLocalizations l10n, MapName m) {
+    final sc = _byId[m.subcountyId];
+    return l10n.areaOnMap([?sc?.name, ?_parent(sc)?.name].join(', '));
   }
 
   @override
@@ -172,9 +220,11 @@ class _AreaFieldsState extends State<AreaFields> {
           controller: widget.village,
           label: l10n.profileVillage,
           hint: l10n.areaVillageHint,
-          options: (t) => _match(villages, t),
+          options: (t) => _villageOptions(villages, t),
           describe: _above,
-          onPicked: (o) => _pickVillage(o.unit!),
+          describeMap: (m) => _onMap(l10n, m),
+          onPicked: (o) =>
+              o.place != null ? _pickMapName(o.place!) : _pickVillage(o.unit!),
           validator: required,
         ),
         _AreaField(
@@ -270,6 +320,7 @@ class _AreaField extends StatefulWidget {
     required this.onPicked,
     required this.validator,
     this.onTyped,
+    this.describeMap,
   });
 
   final TextEditingController controller;
@@ -277,6 +328,7 @@ class _AreaField extends StatefulWidget {
   final String hint;
   final Iterable<_Option> Function(String typed) options;
   final String Function(AdminUnit) describe;
+  final String Function(MapName)? describeMap;
   final void Function(_Option) onPicked;
   final FormFieldValidator<String> validator;
 
@@ -339,12 +391,20 @@ class _AreaFieldState extends State<_AreaField> {
                         ListTile(
                           dense: true,
                           leading: Icon(
-                            o.unit == null ? Icons.add : Icons.place_outlined,
+                            o.place != null
+                                ? Icons.signpost_outlined
+                                : o.unit == null
+                                ? Icons.add
+                                : Icons.place_outlined,
                           ),
                           title: Text(
-                            o.unit == null ? l10n.areaOther(o.name) : o.name,
+                            o.unit == null && o.place == null
+                                ? l10n.areaOther(o.name)
+                                : o.name,
                           ),
-                          subtitle: o.unit == null
+                          subtitle: o.place != null
+                              ? Text(widget.describeMap?.call(o.place!) ?? '')
+                              : o.unit == null
                               ? Text(l10n.areaOtherHint)
                               : Text(widget.describe(o.unit!)),
                           onTap: () => onSelected(o),

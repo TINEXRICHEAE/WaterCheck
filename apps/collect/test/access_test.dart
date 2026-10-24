@@ -36,19 +36,15 @@ void main() {
   group('gate order', () {
     const ready = AppGate(consented: true, activeCollectorKey: 'k');
 
-    test('activation comes after consent and before everything else', () {
+    test('no activation step: after consent the app opens (ADR-024)', () {
       const g = AppGate(
         consented: true,
         activeCollectorKey: 'k',
         activated: false,
       );
-      expect(gateRedirect(g, '/'), '/activate');
-      expect(gateRedirect(g, '/activate/scan'), isNull);
-      expect(gateRedirect(g, '/reset'), '/activate');
-      expect(
-        gateRedirect(ready.copyWith(consented: false), '/activate'),
-        '/welcome',
-      );
+      expect(gateRedirect(g, '/'), isNull);
+      expect(gateRedirect(g, '/settings/account'), isNull);
+      expect(gateRedirect(ready.copyWith(consented: false), '/'), '/welcome');
     });
 
     test('a revoked phone can only export and wipe', () {
@@ -70,7 +66,6 @@ void main() {
       final g = ready.copyWith(lockDecided: false);
       expect(gateRedirect(g, '/'), '/lock/setup');
       expect(gateRedirect(ready, '/lock/setup'), '/');
-      expect(gateRedirect(ready, '/activate'), '/');
     });
   });
 
@@ -95,42 +90,38 @@ void main() {
     });
   });
 
-  testWidgets('first run: refused codes, then activation and a PIN', (
-    tester,
-  ) async {
+  testWidgets('first run: no code; the device registers itself at its '
+      'first sync (ADR-024)', (tester) async {
     final svc = TestServices()
-      ..server.codes['EXPD-EXPD-EXPD'] = 'expired_code'
-      ..server.codes['USED-USED-USED'] = 'code_used_up'
+      // Offline at first start: everything works on the device.
+      ..server.offline = true
       // The phone clock is two hours slow; the server's time wins.
       ..server.serverTime = DateTime.now().toUtc().add(
         const Duration(hours: 2),
       );
-    final db = await pumpCollect(tester, activated: false, services: svc);
-    expect(find.text('Activate this device'), findsOneWidget);
-
-    Future<void> tryCode(String code) async {
-      await tester.enterText(find.byType(TextField).first, code);
-      await tapAndSettle(tester, find.text('Activate'));
-    }
-
-    await tryCode('K7QM');
-    expect(find.textContaining('12 letters and numbers'), findsOneWidget);
-    await tryCode('AAAA-BBBB-CCCC');
-    expect(find.textContaining('not recognised'), findsOneWidget);
-    await tryCode('expd-expd-expd');
-    expect(find.textContaining('has expired'), findsOneWidget);
-    await tryCode('USED USED USED');
-    expect(find.textContaining('as many devices as allowed'), findsOneWidget);
-    svc.server.offline = true;
-    await tryCode('K7QM-RT4W-9XHB');
-    expect(find.textContaining('Could not reach the server'), findsOneWidget);
-
-    svc.server.offline = false;
-    await tryCode('K7QM-RT4W-9XHB');
+    final db = await pumpCollect(
+      tester,
+      activated: false,
+      services: svc,
+      prepare: (db) =>
+          DriftLocalSettingsRepository(db).write(lockDeclinedSetting, null),
+    );
+    expect(find.text('Activate this device'), findsNothing);
     expect(find.text('Choose a PIN to protect WaterCheck'), findsOneWidget);
+    await enterPin(tester, '1357');
+    await enterPin(tester, '1357');
+    expect(find.byType(NavigationBar), findsOneWidget);
+    await tapAndSettle(tester, find.text('Sync'));
+    await tapAndSettle(tester, find.text('Sync now'));
+    expect(await tester.runAsync(svc.installation.read), isNull);
+
+    // Online: the next sync registers the device first.
+    svc.server.offline = false;
+    await tapAndSettle(tester, find.text('Sync now'));
+    expect(svc.server.registrations, 1);
     final creds = (await tester.runAsync(svc.installation.read))!;
     expect(creds.installationId, FakeServer.installationId);
-    expect(creds.areaName, 'Entebbe');
+    expect(creds.hasArea, isFalse);
     final offset = (await tester.runAsync(svc.installation.clockOffset))!;
     expect(offset.inMinutes, closeTo(120, 1));
     // The newer published rules were imported.
@@ -140,12 +131,6 @@ void main() {
       )..where((t) => t.key.equals('rules'))).getSingle(),
     );
     expect(rules!.version, svc.server.rulesVersion);
-
-    await enterPin(tester, '1357');
-    await enterPin(tester, '1357');
-    expect(find.text('Who is testing?'), findsNothing);
-    expect(find.byType(NavigationBar), findsOneWidget);
-    expect((await tester.runAsync(svc.lock.config))!.enabled, isTrue);
     await disposeApp(tester, db);
   });
 

@@ -1535,7 +1535,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get recoverIntro =>
-      'Enter the code your IT admin or stakeholder gave you. Your details come back to this device, and your earlier work stays yours.';
+      'Enter a sign-in code: one you made on another device you use (Settings › Your area and devices), or one from your IT admin or stakeholder. Your details come back to this device, and your earlier work stays yours.';
 
   @override
   String get recoverCode => 'Code';
@@ -1545,11 +1545,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get recoverWhoGives =>
-      'No code? Ask your IT admin or the stakeholder for your area: in the Console they open Collectors, your name, \"Sign-in code for another device\". A code works once, within a day.';
+      'No code? Make one on a device you are signed in on, or ask your IT admin or the stakeholder for your area (Console › Collectors › your name › \"Sign-in code for another device\"). An admin\'s code works once, within a day; your own works once, until used.';
 
   @override
   String get recoverInvalid =>
-      'That code is not valid. It may be mistyped, used already, or older than a day.';
+      'That code is not valid. It may be mistyped or used already (an admin\'s code also expires after a day).';
 
   @override
   String get recoverOffline =>
@@ -1662,4 +1662,181 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get messagesSourceTitle => 'Messages about this source';
+
+  @override
+  String areaOnMap(String where) {
+    return 'On the map · $where';
+  }
+
+  @override
+  String mapOnMap(String where) {
+    return 'Named on the map · $where';
+  }
+
+  @override
+  String sourceLocatedIn(String where) {
+    return 'This point is in $where.';
+  }
+
+  @override
+  String sourceLocatedNear(String where) {
+    return 'This point is probably in $where (nearest named place; checked when online).';
+  }
+
+  @override
+  String get sourceUseLocated => 'Use it';
+
+  @override
+  String accountTitle(String name) {
+    return '$name: area and devices';
+  }
+
+  @override
+  String get accountMenu => 'Your area and devices';
+
+  @override
+  String get accountMenuHint =>
+      'Get assigned to an area, sign in on another device, see and sign out devices';
+
+  @override
+  String get accountAreaTitle => 'Area assignment';
+
+  @override
+  String get accountAreaHint =>
+      'You can test anywhere without one. An assignment code from your IT admin makes you officially responsible for an area.';
+
+  @override
+  String get accountNotAssigned => 'Not yet assigned to an area.';
+
+  @override
+  String get accountByCode => 'assigned with a code';
+
+  @override
+  String get accountByAdmin => 'assigned by an IT admin';
+
+  @override
+  String get accountAssignButton => 'Enter an assignment code';
+
+  @override
+  String get accountAssignTitle => 'Assignment code';
+
+  @override
+  String get accountAssignHint => 'Type the code your IT admin gave you.';
+
+  @override
+  String get accountOwnCodeSection => 'Sign in on another device';
+
+  @override
+  String get accountOwnCodeIntro =>
+      'Make a sign-in code here and use it on another device (\"Who is testing?\" › \"I already have a profile\"). It works once and does not expire until used. You can also ask your IT admin for one.';
+
+  @override
+  String get accountOwnCodeButton => 'Make a sign-in code';
+
+  @override
+  String get accountOwnCodeTitle => 'Your sign-in code';
+
+  @override
+  String get accountOwnCodeHint =>
+      'Keep it safe; anyone with it can sign in as you. It works once and is shown only now.';
+
+  @override
+  String get accountCopy => 'Copy';
+
+  @override
+  String get accountDone => 'Done';
+
+  @override
+  String get accountContinue => 'Continue';
+
+  @override
+  String get accountDevicesTitle => 'Devices using your profile';
+
+  @override
+  String get accountDevicesHint =>
+      'Select devices you no longer use to sign them out. Your records from them stay yours.';
+
+  @override
+  String get accountDevice => 'Device';
+
+  @override
+  String get accountThisDevice => 'this device';
+
+  @override
+  String accountVia(String via) {
+    String _temp0 = intl.Intl.selectLogic(via, {
+      'created': 'started here',
+      'admin_code': 'signed in with an admin\'s code',
+      'own_code': 'signed in with your own code',
+      'other': 'signed in',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String accountLastSeen(String when) {
+    return 'last used $when';
+  }
+
+  @override
+  String get accountSignedOut => 'signed out';
+
+  @override
+  String accountSignOutButton(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Sign out $count devices',
+      one: 'Sign out 1 device',
+      zero: 'Sign out selected devices',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get accountConfirmTitle => 'Confirm with a code';
+
+  @override
+  String get accountConfirmHint =>
+      'To confirm it is you, enter the 6-digit code. Until email and SMS are set up, your IT admin sees the code on your page in the Console and gives it to you.';
+
+  @override
+  String get accountConfirmWrong =>
+      'That code is not right. Check it with your IT admin.';
+
+  @override
+  String get accountConfirmExpired =>
+      'This request has expired or had too many tries. Start again.';
+
+  @override
+  String get accountCodeInvalid =>
+      'That code is not valid. Check it with your IT admin.';
+
+  @override
+  String get accountCodeExpired =>
+      'That code has expired. Ask your IT admin for a new one.';
+
+  @override
+  String get accountCodeUsedUp =>
+      'That code has been used as many times as allowed.';
+
+  @override
+  String get accountSyncFirst =>
+      'Sync first, so the server knows your profile, then try again.';
+
+  @override
+  String get accountOffline =>
+      'Needs the internet. Connect and open this page again.';
+
+  @override
+  String get settingsDeviceRegistered => 'This device is registered';
+
+  @override
+  String get profileEmail => 'Email (optional)';
+
+  @override
+  String get profilePhoneOptional => 'Phone number (optional)';
+
+  @override
+  String get emailInvalid => 'That does not look like an email address.';
 }

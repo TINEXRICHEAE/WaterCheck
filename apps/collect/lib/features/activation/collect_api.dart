@@ -46,6 +46,16 @@ abstract interface class CollectApi {
     required String appVersion,
   });
 
+  /// The device registers itself (ADR-024): no code; testers on it are
+  /// assigned to areas later. Throws [ApiFailure] (`offline`,
+  /// `too_many_registrations`).
+  Future<Activation> register({
+    required String apiUrl,
+    required String platform,
+    required String appVersion,
+    String? deviceLabel,
+  });
+
   /// A signed call that tells whether the installation is still allowed.
   Future<StatusCheck> check(InstallationCredentials c, Duration clockOffset);
 
@@ -122,6 +132,40 @@ class HttpCollectApi implements CollectApi {
           areaId: r.area.id,
           areaCode: r.area.code,
           areaName: r.area.name,
+          activatedAt: now,
+          shortCode: r.shortCode,
+        ),
+        clockOffset: r.serverTime.difference(now),
+      );
+    } catch (e) {
+      throw ApiFailure.from(e);
+    }
+  }
+
+  @override
+  Future<Activation> register({
+    required String apiUrl,
+    required String platform,
+    required String appVersion,
+    String? deviceLabel,
+  }) async {
+    try {
+      final r = await WaterCheckApi(_dioFor(apiUrl)).installations.register(
+        body: RegisterRequest(
+          platform: platform,
+          appVersion: appVersion,
+          deviceLabel: deviceLabel,
+        ),
+      );
+      final now = _now();
+      return Activation(
+        credentials: InstallationCredentials(
+          installationId: r.installationId,
+          secret: r.secret,
+          apiUrl: apiUrl,
+          areaId: '',
+          areaCode: '',
+          areaName: '',
           activatedAt: now,
           shortCode: r.shortCode,
         ),

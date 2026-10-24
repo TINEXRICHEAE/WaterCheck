@@ -31,6 +31,7 @@ class _SyncRefreshButtonState extends ConsumerState<SyncRefreshButton> {
         ref
           ..invalidate(listsProvider)
           ..invalidate(adminUnitsProvider)
+          ..invalidate(mapNamesProvider)
           ..invalidate(rulesProvider)
           ..invalidate(catalogueProvider)
           ..invalidate(referenceProfilesProvider)

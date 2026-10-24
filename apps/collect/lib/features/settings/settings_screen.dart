@@ -41,10 +41,23 @@ class SettingsScreen extends ConsumerWidget {
       body: ListView(
         children: [
           const InstallAppTile(),
+          // Testers, not devices, are assigned to areas (ADR-024).
+          if (collector != null)
+            ListTile(
+              leading: const Icon(Icons.badge_outlined),
+              title: Text(l10n.accountMenu),
+              subtitle: Text(l10n.accountMenuHint),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => context.push('/settings/account'),
+            ),
           if (credentials != null)
             ListTile(
               leading: const Icon(Icons.verified_user_outlined),
-              title: Text(l10n.settingsActivatedFor(credentials.areaName)),
+              title: Text(
+                credentials.hasArea
+                    ? l10n.settingsActivatedFor(credentials.areaName)
+                    : l10n.settingsDeviceRegistered,
+              ),
               subtitle: SelectableText(
                 l10n.settingsInstallation(credentials.installationId),
               ),

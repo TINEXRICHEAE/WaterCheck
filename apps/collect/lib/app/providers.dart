@@ -3,6 +3,7 @@ import 'package:domain/domain.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'gate.dart';
+import '../features/sync/collect_sync.dart' show syncControllerProvider;
 
 /// The opened database; overridden at startup (see `bootstrap.dart`).
 final databaseProvider = Provider<AppDatabase>(
@@ -95,6 +96,14 @@ final usedValuesProvider = FutureProvider.autoDispose
       (ref, list) =>
           ref.watch(referenceDataRepositoryProvider).usedValues(list),
     );
+
+/// Names on the map in this device's districts, placed in their
+/// sub-county (ADR-023): suggestions where a place is typed or searched.
+final mapNamesProvider = FutureProvider<List<MapName>>((ref) {
+  // Again after each sync, which brings the district's names.
+  ref.watch(syncControllerProvider.select((s) => s.last));
+  return MapPlaceRepository(ref.watch(databaseProvider)).all();
+});
 
 final adminUnitsProvider = FutureProvider<List<AdminUnit>>(
   (ref) => ref.watch(referenceDataRepositoryProvider).adminUnits(),

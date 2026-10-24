@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import '../features/activation/activation_screen.dart';
 import '../features/activation/scan_screen.dart';
 import '../features/alerts/response_card_screen.dart';
+import '../features/collectors/tester_account_screen.dart';
 import '../features/collectors/collector_form_screen.dart';
 import '../features/collectors/who_is_testing_screen.dart';
 import '../features/home/home_screen.dart';
@@ -38,19 +39,15 @@ bool _isOnboarding(String location) =>
 
 /// Screens that only make sense before the app is ready.
 bool _isSetup(String location) =>
-    location == '/welcome' ||
-    location.startsWith('/activate') ||
-    location == '/lock' ||
-    location == '/lock/setup';
+    location == '/welcome' || location == '/lock' || location == '/lock/setup';
 
 /// Where the gate sends someone trying to open [location], or null to allow.
-/// Order: privacy notice, revoked, activation, lock, PIN choice, collector.
+/// Order: privacy notice, revoked, lock, PIN choice, collector. There is no
+/// activation step (ADR-024): the device registers itself, and a tester is
+/// assigned to an area later with a code (Settings).
 String? gateRedirect(AppGate gate, String location) {
   if (!gate.consented) return location == '/welcome' ? null : '/welcome';
   if (gate.revoked) return location == '/reset' ? null : '/reset';
-  if (!gate.activated) {
-    return location.startsWith('/activate') ? null : '/activate';
-  }
   // Reset erases everything and exports only what the server can read, so
   // it is reachable from the lock screen ("Forgot PIN?").
   if (location == '/reset') return null;
@@ -189,6 +186,7 @@ final routerProvider = Provider<GoRouter>((ref) {
                 builder: (_, state) => MapScreen(
                   areaId: state.uri.queryParameters['area'],
                   sourceId: state.uri.queryParameters['source'],
+                  placeId: state.uri.queryParameters['place'],
                 ),
               ),
             ],
@@ -204,6 +202,10 @@ final routerProvider = Provider<GoRouter>((ref) {
                 path: '/settings',
                 builder: (_, _) => const SettingsScreen(),
                 routes: [
+                  GoRoute(
+                    path: 'account',
+                    builder: (_, _) => const TesterAccountScreen(),
+                  ),
                   GoRoute(
                     path: 'reference-data',
                     builder: (_, _) => const ReferenceDataScreen(),

@@ -58,14 +58,14 @@ void main() {
       'Example Collector',
     );
     await tester.enterText(
-      find.widgetWithText(TextFormField, 'Phone number'),
+      find.widgetWithText(TextFormField, 'Phone number (optional)'),
       '12345',
     );
     await tapAndSettle(tester, find.text('Save'));
     expect(find.textContaining('Enter a Ugandan phone number'), findsOneWidget);
 
     await tester.enterText(
-      find.widgetWithText(TextFormField, 'Phone number'),
+      find.widgetWithText(TextFormField, 'Phone number (optional)'),
       '0772 123456',
     );
     await tapAndSettle(tester, find.text('I am a…'));

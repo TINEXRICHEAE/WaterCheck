@@ -20,15 +20,17 @@ import 'map_tiles.dart';
 /// The map in Collect (ADR-019 slice B, ADR-021): the sources on this phone
 /// by status over the labelled map of Uganda. One search finds any area
 /// (including places added from phones) or source; the map flies there.
-/// [areaId] or [sourceId] (from the address) say what is chosen; the path
+/// [areaId] or [sourceId] (from the address) say what is chosen, and
+/// [placeId] a name on the map in that area (ADR-023), pinned; the path
 /// above it reads Uganda › region › district › … › source. Layers: source
 /// names, straight-line distances from here, and the road route to the
 /// chosen source by motorbike/car or on foot.
 class MapScreen extends ConsumerStatefulWidget {
-  const MapScreen({super.key, this.areaId, this.sourceId});
+  const MapScreen({super.key, this.areaId, this.sourceId, this.placeId});
 
   final String? areaId;
   final String? sourceId;
+  final String? placeId;
 
   @override
   ConsumerState<MapScreen> createState() => _MapScreenState();
@@ -43,12 +45,21 @@ class _MapScreenState extends ConsumerState<MapScreen>
   var _locating = false;
   MapRoute? _route;
   String? _routeKey;
+
+  /// The name on the map in the address (ADR-023), if any.
+  MapName? _place() => widget.placeId == null
+      ? null
+      : (ref.read(mapNamesProvider).value ?? const <MapName>[])
+            .where((m) => m.id == widget.placeId)
+            .firstOrNull;
   var _routeLoading = false;
 
   @override
   void didUpdateWidget(MapScreen old) {
     super.didUpdateWidget(old);
-    if (old.areaId != widget.areaId || old.sourceId != widget.sourceId) {
+    if (old.areaId != widget.areaId ||
+        old.sourceId != widget.sourceId ||
+        old.placeId != widget.placeId) {
       _route = null;
       _routeKey = null;
       WidgetsBinding.instance.addPostFrameCallback((_) => _flyToChoice());
@@ -95,6 +106,9 @@ class _MapScreenState extends ConsumerState<MapScreen>
         .firstOrNull;
     final loc = source?.source.location;
     if (loc != null) return _motion.moveTo(LatLng(loc.lat, loc.lon), 16);
+    // A name on the map: the point itself, in its sub-county.
+    final place = _place();
+    if (place != null) return _motion.moveTo(LatLng(place.lat, place.lon), 15);
     final areaId = source?.source.villageId ?? widget.areaId;
     final area = areaId == null ? null : tree.byId[areaId];
     if (area == null) return;
@@ -234,6 +248,22 @@ class _MapScreenState extends ConsumerState<MapScreen>
                 if (p.level != 'country' && p.level != 'region') p.name,
             ].join(' · '),
           ),
+      for (final m in ref.watch(mapNamesProvider).value ?? const <MapName>[])
+        MapPlace(
+          id: m.id,
+          name: m.name,
+          isSource: false,
+          fromMap: true,
+          lat: m.lat,
+          lon: m.lon,
+          areaId: m.subcountyId,
+          detail: l10n.mapOnMap(
+            [
+              ?tree.byId[m.subcountyId]?.name,
+              ?tree.byId[tree.byId[m.subcountyId]?.parentId]?.name,
+            ].join(', '),
+          ),
+        ),
       for (final s in summaries)
         MapPlace(
           id: s.source.id,
@@ -312,6 +342,23 @@ class _MapScreenState extends ConsumerState<MapScreen>
                       onTap: () => context.go('/map?source=${s.source.id}'),
                     ),
                   ),
+                if (_place() case final pin?)
+                  Marker(
+                    point: LatLng(pin.lat, pin.lon),
+                    width: 180,
+                    height: 64,
+                    alignment: const Alignment(0, -0.6),
+                    child: Tooltip(
+                      message: pin.name,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _PinLabel(pin.name),
+                          const Icon(Icons.location_pin, size: 32),
+                        ],
+                      ),
+                    ),
+                  ),
                 if (here != null)
                   Marker(
                     point: here,
@@ -341,9 +388,17 @@ class _MapScreenState extends ConsumerState<MapScreen>
             alignment: Alignment.topLeft,
             child: MapSearchBar(
               places: places,
-              onSelected: (p) => context.go(
-                p.isSource ? '/map?source=${p.id}' : '/map?area=${p.id}',
-              ),
+              onSelected: (p) {
+                if (p.fromMap) {
+                  // Its sub-county is chosen (the path and the list
+                  // follow); the map goes to the named point.
+                  context.go('/map?area=${p.areaId}&place=${p.id}');
+                  return;
+                }
+                context.go(
+                  p.isSource ? '/map?source=${p.id}' : '/map?area=${p.id}',
+                );
+              },
             ),
           ),
         ),
@@ -626,4 +681,29 @@ String statusText(BuildContext context, SourceStatus s) {
     SourceStatus.dueSoon => ui.statusDueSoon,
     SourceStatus.overdue => ui.statusOverdue,
   };
+}
+
+/// The name over a searched place's pin.
+class _PinLabel extends StatelessWidget {
+  const _PinLabel(this.name);
+
+  final String name;
+
+  @override
+  Widget build(BuildContext context) => DecoratedBox(
+    decoration: BoxDecoration(
+      color: Theme.of(context).colorScheme.surface,
+      borderRadius: BorderRadius.circular(6),
+      boxShadow: const [BoxShadow(blurRadius: 3, color: Colors.black26)],
+    ),
+    child: Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      child: Text(
+        name,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: Theme.of(context).textTheme.labelMedium,
+      ),
+    ),
+  );
 }

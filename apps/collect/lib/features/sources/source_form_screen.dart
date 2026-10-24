@@ -9,6 +9,7 @@ import '../../app/providers.dart';
 import '../../l10n/app_localizations.dart';
 import '../location/location_service.dart';
 import '../collectors/area_fields.dart';
+import '../sync/collect_sync.dart' show collectApiDioProvider;
 
 /// GPS accuracy above which the collector is asked to try again.
 const poorAccuracyMetres = 30.0;
@@ -107,6 +108,7 @@ class _SourceFormScreenState extends ConsumerState<SourceFormScreen> {
     try {
       final fix = await ref.read(locationServiceProvider).currentFix();
       if (mounted) setState(() => _fix = fix);
+      if (!_editing) await _locate(fix);
     } on LocationException catch (e) {
       if (!mounted) return;
       setState(() {
@@ -123,6 +125,46 @@ class _SourceFormScreenState extends ConsumerState<SourceFormScreen> {
       if (mounted) setState(() => _locating = false);
     }
   }
+
+  /// The sub-county the GPS point lies in (ADR-023): from the official
+  /// boundaries when online, else the nearest name on the map.
+  ({String subcountyId, bool exact})? _locatedIn;
+
+  /// Changes when the area is filled from the GPS point, so the area
+  /// fields start again from the new values.
+  var _areaVersion = 0;
+
+  Future<void> _locate(GeoPoint at) async {
+    String? found;
+    var exact = false;
+    final dio = ref.read(collectApiDioProvider);
+    if (dio != null) {
+      try {
+        final r = await dio.get<Map<String, dynamic>>(
+          '/v1/places/locate',
+          queryParameters: {'lat': at.lat, 'lon': at.lon},
+        );
+        found = r.data!['subcounty_id'] as String?;
+        exact = found != null;
+      } on Object {
+        found = null;
+      }
+    }
+    found ??= await MapPlaceRepository(ref.read(databaseProvider))
+        .nearestSubcounty(at.lat, at.lon);
+    if (!mounted) return;
+    setState(
+      () => _locatedIn = found == null
+          ? null
+          : (subcountyId: found, exact: exact),
+    );
+  }
+
+  void _useLocated(AdminUnit sub, AdminUnit? district) => setState(() {
+    _subcounty.text = sub.name;
+    _district.text = district?.name ?? '';
+    _areaVersion++;
+  });
 
   GeoPoint? _location() {
     if (!_manual) return _fix;
@@ -279,12 +321,34 @@ class _SourceFormScreenState extends ConsumerState<SourceFormScreen> {
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               Text(l10n.sourceWhereHint),
+              if (_locatedIn case final located?)
+                if (units.where((u) => u.id == located.subcountyId).firstOrNull
+                    case final sub?)
+                  _LocatedIn(
+                    where: [
+                      sub.name,
+                      ?units
+                          .where((u) => u.id == sub.parentId)
+                          .firstOrNull
+                          ?.name,
+                    ].join(', '),
+                    exact: located.exact,
+                    applied:
+                        _subcounty.text.trim().toLowerCase() ==
+                        sub.name.toLowerCase(),
+                    onUse: () => _useLocated(
+                      sub,
+                      units.where((u) => u.id == sub.parentId).firstOrNull,
+                    ),
+                  ),
               AreaFields(
+                key: ValueKey(_areaVersion),
                 units: units,
                 village: _village,
                 parish: _parish,
                 subcounty: _subcounty,
                 district: _district,
+                mapNames: ref.watch(mapNamesProvider).value ?? const [],
               ),
             ],
             const SizedBox(height: 20),
@@ -375,6 +439,39 @@ class _SourceFormScreenState extends ConsumerState<SourceFormScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// "This point is in Kyengera Town Council, Wakiso. [Use it]" (ADR-023).
+class _LocatedIn extends StatelessWidget {
+  const _LocatedIn({
+    required this.where,
+    required this.exact,
+    required this.applied,
+    required this.onUse,
+  });
+
+  final String where;
+
+  /// From the official boundaries; false: from the nearest name on the map.
+  final bool exact;
+  final bool applied;
+  final VoidCallback onUse;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return Card(
+      child: ListTile(
+        leading: const Icon(Icons.my_location),
+        title: Text(
+          exact ? l10n.sourceLocatedIn(where) : l10n.sourceLocatedNear(where),
+        ),
+        trailing: applied
+            ? const Icon(Icons.check)
+            : TextButton(onPressed: onUse, child: Text(l10n.sourceUseLocated)),
       ),
     );
   }

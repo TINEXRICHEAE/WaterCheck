@@ -774,11 +774,11 @@
   "whoRecover": "I already have a profile",
   "whoRecoverHint": "Lost your device, or using another one? Come back as yourself with a code.",
   "recoverTitle": "I already have a profile",
-  "recoverIntro": "Enter the code your IT admin or stakeholder gave you. Your details come back to this device, and your earlier work stays yours.",
+  "recoverIntro": "Enter a sign-in code: one you made on another device you use (Settings › Your area and devices), or one from your IT admin or stakeholder. Your details come back to this device, and your earlier work stays yours.",
   "recoverCode": "Code",
   "recoverButton": "Get my profile",
-  "recoverWhoGives": "No code? Ask your IT admin or the stakeholder for your area: in the Console they open Collectors, your name, \"Sign-in code for another device\". A code works once, within a day.",
-  "recoverInvalid": "That code is not valid. It may be mistyped, used already, or older than a day.",
+  "recoverWhoGives": "No code? Make one on a device you are signed in on, or ask your IT admin or the stakeholder for your area (Console › Collectors › your name › \"Sign-in code for another device\"). An admin's code works once, within a day; your own works once, until used.",
+  "recoverInvalid": "That code is not valid. It may be mistyped or used already (an admin's code also expires after a day).",
   "recoverOffline": "Could not reach the server. Connect to the internet and try again.",
   "recoverWelcome": "Welcome back, {name}.",
   "@recoverWelcome": {
@@ -847,5 +847,106 @@
   },
   "messagesOpenSource": "Open the source",
   "messagesTestTitle": "Messages about this test",
-  "messagesSourceTitle": "Messages about this source"
+  "messagesSourceTitle": "Messages about this source",
+  "areaOnMap": "On the map · {where}",
+  "@areaOnMap": {
+    "placeholders": {
+      "where": {
+        "type": "String"
+      }
+    }
+  },
+  "mapOnMap": "Named on the map · {where}",
+  "@mapOnMap": {
+    "placeholders": {
+      "where": {
+        "type": "String"
+      }
+    }
+  },
+  "sourceLocatedIn": "This point is in {where}.",
+  "@sourceLocatedIn": {
+    "placeholders": {
+      "where": {
+        "type": "String"
+      }
+    }
+  },
+  "sourceLocatedNear": "This point is probably in {where} (nearest named place; checked when online).",
+  "@sourceLocatedNear": {
+    "placeholders": {
+      "where": {
+        "type": "String"
+      }
+    }
+  },
+  "sourceUseLocated": "Use it",
+  "accountTitle": "{name}: area and devices",
+  "@accountTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "accountMenu": "Your area and devices",
+  "accountMenuHint": "Get assigned to an area, sign in on another device, see and sign out devices",
+  "accountAreaTitle": "Area assignment",
+  "accountAreaHint": "You can test anywhere without one. An assignment code from your IT admin makes you officially responsible for an area.",
+  "accountNotAssigned": "Not yet assigned to an area.",
+  "accountByCode": "assigned with a code",
+  "accountByAdmin": "assigned by an IT admin",
+  "accountAssignButton": "Enter an assignment code",
+  "accountAssignTitle": "Assignment code",
+  "accountAssignHint": "Type the code your IT admin gave you.",
+  "accountOwnCodeSection": "Sign in on another device",
+  "accountOwnCodeIntro": "Make a sign-in code here and use it on another device (\"Who is testing?\" › \"I already have a profile\"). It works once and does not expire until used. You can also ask your IT admin for one.",
+  "accountOwnCodeButton": "Make a sign-in code",
+  "accountOwnCodeTitle": "Your sign-in code",
+  "accountOwnCodeHint": "Keep it safe; anyone with it can sign in as you. It works once and is shown only now.",
+  "accountCopy": "Copy",
+  "accountDone": "Done",
+  "accountContinue": "Continue",
+  "accountDevicesTitle": "Devices using your profile",
+  "accountDevicesHint": "Select devices you no longer use to sign them out. Your records from them stay yours.",
+  "accountDevice": "Device",
+  "accountThisDevice": "this device",
+  "accountVia": "{via, select, created{started here} admin_code{signed in with an admin's code} own_code{signed in with your own code} other{signed in}}",
+  "@accountVia": {
+    "placeholders": {
+      "via": {
+        "type": "String"
+      }
+    }
+  },
+  "accountLastSeen": "last used {when}",
+  "@accountLastSeen": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "accountSignedOut": "signed out",
+  "accountSignOutButton": "{count, plural, =0{Sign out selected devices} =1{Sign out 1 device} other{Sign out {count} devices}}",
+  "@accountSignOutButton": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "accountConfirmTitle": "Confirm with a code",
+  "accountConfirmHint": "To confirm it is you, enter the 6-digit code. Until email and SMS are set up, your IT admin sees the code on your page in the Console and gives it to you.",
+  "accountConfirmWrong": "That code is not right. Check it with your IT admin.",
+  "accountConfirmExpired": "This request has expired or had too many tries. Start again.",
+  "accountCodeInvalid": "That code is not valid. Check it with your IT admin.",
+  "accountCodeExpired": "That code has expired. Ask your IT admin for a new one.",
+  "accountCodeUsedUp": "That code has been used as many times as allowed.",
+  "accountSyncFirst": "Sync first, so the server knows your profile, then try again.",
+  "accountOffline": "Needs the internet. Connect and open this page again.",
+  "settingsDeviceRegistered": "This device is registered",
+  "profileEmail": "Email (optional)",
+  "profilePhoneOptional": "Phone number (optional)",
+  "emailInvalid": "That does not look like an email address."
 }
