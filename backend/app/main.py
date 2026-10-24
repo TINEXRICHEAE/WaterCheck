@@ -21,6 +21,7 @@ from app.api import (
     health,
     installations,
     notifications,
+    profile,
     recovery,
     reference,
     sync,
@@ -97,6 +98,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(admin.router)
     app.include_router(admin_config.router)
     app.include_router(admin_archive.router)
+    app.include_router(profile.router)
     app.include_router(testers.router)
     app.include_router(recovery.router)
     # Small links (SPEC §8.1): compressed requests in, compressed responses out.

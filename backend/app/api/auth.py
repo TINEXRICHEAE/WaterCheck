@@ -99,6 +99,11 @@ class MeResponse(BaseModel):
     areas: list[Area]
     phone: str | None = None
     email: str | None = None
+    # Confirmed with a code (ADR-025); alerts go only to confirmed contacts.
+    phone_confirmed: bool = False
+    email_confirmed: bool = False
+    # Privacy Policy and Terms of Use version accepted (0: never).
+    legal_version: int = 0
     notify_email: bool = True
     notify_push: bool = True
     notify_sms: bool = True
@@ -284,7 +289,8 @@ async def me(user: AnyUserDep, db: DbDep, settings: SettingsDep) -> MeResponse:
                 text(
                     "SELECT id, username, full_name, organisation, position, role, "
                     "must_change_password, phone, email, notify_email, notify_push, notify_sms, "
-                    "theme, time_zone "
+                    "theme, time_zone, phone_confirmed_at IS NOT NULL AS phone_confirmed, "
+                    "email_confirmed_at IS NOT NULL AS email_confirmed, legal_version "
                     "FROM app_user WHERE id = :id"
                 ),
                 {"id": user.user_id},
@@ -324,6 +330,9 @@ async def me(user: AnyUserDep, db: DbDep, settings: SettingsDep) -> MeResponse:
         areas=areas,
         phone=row.phone,
         email=row.email,
+        phone_confirmed=row.phone_confirmed,
+        email_confirmed=row.email_confirmed,
+        legal_version=row.legal_version,
         notify_email=row.notify_email,
         notify_push=row.notify_push,
         notify_sms=row.notify_sms,

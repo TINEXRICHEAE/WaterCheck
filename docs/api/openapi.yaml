@@ -2180,6 +2180,434 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
+  /v1/me/profile:
+    put:
+      tags:
+      - profile
+      summary: Edit Profile
+      operationId: edit_profile
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProfileIn'
+        required: true
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - HTTPBearer: []
+  /v1/me/contacts:
+    post:
+      tags:
+      - profile
+      summary: Change Contact
+      description: Saves a new email or phone as not confirmed and makes a code.
+      operationId: change_contact
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContactIn'
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContactPending'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - HTTPBearer: []
+  /v1/me/contacts/{request_id}/confirm:
+    post:
+      tags:
+      - profile
+      summary: Confirm Contact
+      operationId: confirm_contact
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: request_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Request Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfirmIn'
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/me/contacts/status:
+    get:
+      tags:
+      - profile
+      summary: Contact Status
+      operationId: contact_status
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: boolean
+                type: object
+                title: Response Contact Status
+      security:
+      - HTTPBearer: []
+  /v1/me/area-requests:
+    get:
+      tags:
+      - profile
+      summary: My Area Requests
+      operationId: my_area_requests
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/AreaRequestOut'
+                type: array
+                title: Response My Area Requests
+      security:
+      - HTTPBearer: []
+    post:
+      tags:
+      - profile
+      summary: Request Areas
+      description: Asks the IT admin for different areas (replacing the current ones).
+      operationId: request_areas
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AreaRequestIn'
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/AreaRequestOut'
+                type: array
+                title: Response Request Areas
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - HTTPBearer: []
+  /v1/me/legal:
+    post:
+      tags:
+      - profile
+      summary: Accept Legal
+      description: 'Records that the person accepted this version of the Privacy Policy
+
+        and Terms of Use (the version only goes up).'
+      operationId: accept_legal
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LegalIn'
+        required: true
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - HTTPBearer: []
+  /v1/me/close:
+    post:
+      tags:
+      - profile
+      summary: Close Account
+      description: 'Closes the account for good: no more sign-in, contact details
+        erased,
+
+        every session ended. Records already made stay, under the name.'
+      operationId: close_account
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CloseIn'
+        required: true
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - HTTPBearer: []
+  /v1/collectors/{collector_key}/contacts:
+    post:
+      tags:
+      - profile
+      summary: Tester Contact
+      operationId: tester_contact
+      parameters:
+      - name: collector_key
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Collector Key
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContactIn'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContactPending'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/collectors/{collector_key}/contacts/{request_id}/confirm:
+    post:
+      tags:
+      - profile
+      summary: Tester Confirm Contact
+      operationId: tester_confirm_contact
+      parameters:
+      - name: collector_key
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Collector Key
+      - name: request_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Request Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfirmIn'
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/collectors/{collector_key}/contacts/status:
+    get:
+      tags:
+      - profile
+      summary: Tester Contact Status
+      operationId: tester_contact_status
+      parameters:
+      - name: collector_key
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Collector Key
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  anyOf:
+                  - type: string
+                  - type: 'null'
+                title: Response Tester Contact Status
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/collectors/{collector_key}/sign-out-here:
+    post:
+      tags:
+      - profile
+      summary: Tester Sign Out Here
+      description: The tester leaves this device; a sign-in code brings them back.
+      operationId: tester_sign_out_here
+      parameters:
+      - name: collector_key
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Collector Key
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/collectors/{collector_key}/close:
+    post:
+      tags:
+      - profile
+      summary: Tester Close
+      description: 'Deletes the tester''s profile: every device signed out, assignments
+
+        ended, contact details erased. Their tests and sources stay.'
+      operationId: tester_close
+      parameters:
+      - name: collector_key
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Collector Key
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/admin/codes-to-pass:
+    get:
+      tags:
+      - profile
+      summary: Codes To Pass
+      description: Every confirmation code waiting for an IT admin to give by phone.
+      operationId: codes_to_pass
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/CodeToPass'
+                type: array
+                title: Response Codes To Pass
+      security:
+      - HTTPBearer: []
+  /v1/admin/area-requests:
+    get:
+      tags:
+      - profile
+      summary: Area Requests
+      operationId: area_requests
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/AreaRequestOut'
+                type: array
+                title: Response Area Requests
+      security:
+      - HTTPBearer: []
+  /v1/admin/area-requests/{request_id}/decide:
+    post:
+      tags:
+      - profile
+      summary: Decide Area Request
+      description: Approving replaces the person's areas with those asked for.
+      operationId: decide_area_request
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: request_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Request Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DecideIn'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AreaRequestOut'
+                title: Response Decide Area Request
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
   /v1/collectors/{collector_key}/assign:
     post:
       tags:
@@ -2837,6 +3265,86 @@ components:
       - name
       - level
       title: AreaOut
+    AreaRequestIn:
+      properties:
+        area_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          maxItems: 20
+          minItems: 1
+          title: Area Ids
+        reason:
+          type: string
+          maxLength: 500
+          minLength: 3
+          title: Reason
+      type: object
+      required:
+      - area_ids
+      - reason
+      title: AreaRequestIn
+    AreaRequestOut:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        user_id:
+          type: string
+          format: uuid
+          title: User Id
+        full_name:
+          type: string
+          title: Full Name
+        areas:
+          items:
+            type: string
+          type: array
+          title: Areas
+        area_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          title: Area Ids
+        current:
+          items:
+            type: string
+          type: array
+          title: Current
+        reason:
+          type: string
+          title: Reason
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        decided_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Decided At
+        approved:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Approved
+      type: object
+      required:
+      - id
+      - user_id
+      - full_name
+      - areas
+      - area_ids
+      - current
+      - reason
+      - created_at
+      - decided_at
+      - approved
+      title: AreaRequestOut
     AssignAreaIn:
       properties:
         area_id:
@@ -3189,6 +3697,71 @@ components:
       - entity
       - status
       title: ChangeResult
+    CloseIn:
+      properties:
+        password:
+          type: string
+          maxLength: 200
+          minLength: 1
+          title: Password
+      type: object
+      required:
+      - password
+      title: CloseIn
+    CodeToPass:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        kind:
+          type: string
+          enum:
+          - contact
+          - sign_out_devices
+          title: Kind
+        who:
+          type: string
+          title: Who
+        user_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: User Id
+        collector_key:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Collector Key
+        detail:
+          type: string
+          title: Detail
+        code:
+          type: string
+          title: Code
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        expires_at:
+          type: string
+          format: date-time
+          title: Expires At
+      type: object
+      required:
+      - id
+      - kind
+      - who
+      - user_id
+      - collector_key
+      - detail
+      - code
+      - created_at
+      - expires_at
+      title: CodeToPass
+      description: A confirmation code an IT admin passes on (ADR-024/025).
     CollectorLine:
       properties:
         collector_key:
@@ -3304,6 +3877,50 @@ components:
       - from_phone
       - created_at
       title: ConflictOut
+    ContactIn:
+      properties:
+        channel:
+          type: string
+          enum:
+          - email
+          - phone
+          title: Channel
+        value:
+          type: string
+          maxLength: 120
+          minLength: 3
+          title: Value
+      type: object
+      required:
+      - channel
+      - value
+      title: ContactIn
+    ContactPending:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        channel:
+          type: string
+          enum:
+          - email
+          - phone
+          title: Channel
+        value:
+          type: string
+          title: Value
+        expires_at:
+          type: string
+          format: date-time
+          title: Expires At
+      type: object
+      required:
+      - id
+      - channel
+      - value
+      - expires_at
+      title: ContactPending
     CredentialsOut:
       properties:
         user:
@@ -3367,6 +3984,15 @@ components:
       - latest_tests
       - latest_issue
       title: DashboardSummary
+    DecideIn:
+      properties:
+        approve:
+          type: boolean
+          title: Approve
+      type: object
+      required:
+      - approve
+      title: DecideIn
     DefaultProfileIn:
       properties:
         standard_id:
@@ -3915,6 +4541,16 @@ components:
       - ended_at
       title: LedgerTester
       description: A tester an assignment code put in its area (ADR-024).
+    LegalIn:
+      properties:
+        version:
+          type: integer
+          minimum: 1.0
+          title: Version
+      type: object
+      required:
+      - version
+      title: LegalIn
     LoginRequest:
       properties:
         username:
@@ -3980,6 +4616,18 @@ components:
           - type: string
           - type: 'null'
           title: Email
+        phone_confirmed:
+          type: boolean
+          title: Phone Confirmed
+          default: false
+        email_confirmed:
+          type: boolean
+          title: Email Confirmed
+          default: false
+        legal_version:
+          type: integer
+          title: Legal Version
+          default: 0
         notify_email:
           type: boolean
           title: Notify Email
@@ -4564,6 +5212,29 @@ components:
       - notify_sms
       title: PreferencesIn
       description: How the user wants alerts besides the in-app inbox (always on).
+    ProfileIn:
+      properties:
+        full_name:
+          type: string
+          maxLength: 120
+          minLength: 2
+          title: Full Name
+        organisation:
+          anyOf:
+          - type: string
+            maxLength: 120
+          - type: 'null'
+          title: Organisation
+        position:
+          anyOf:
+          - type: string
+            maxLength: 120
+          - type: 'null'
+          title: Position
+      type: object
+      required:
+      - full_name
+      title: ProfileIn
     PullResponse:
       properties:
         changes:

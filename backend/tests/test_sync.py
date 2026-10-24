@@ -22,7 +22,7 @@ from app.core.config import Settings
 from app.db.database import Database, Principal
 from app.main import create_app
 from app.seed import load_seed
-from tests.helpers import make_area, signed_headers, signed_in
+from tests.helpers import NEW_PASSWORD, make_area, signed_headers, signed_in
 
 SEED = Path(__file__).resolve().parents[2] / "infra" / "seed"
 PROFILE = "ba9093d7-4551-54b4-9da1-3c14a7041644"  # US201-2008-ClassII
@@ -1012,4 +1012,98 @@ async def test_a_tester_on_any_device_is_assigned_and_signs_in_elsewhere(
     refused = (await b.push(visit(b)))["results"]
     # The source is refused for the tester; what hangs off it with it.
     assert all(r["status"] == "rejected" for r in refused)
+    assert refused[0]["reason"] == "collector_signed_out"
+
+
+async def test_people_manage_their_own_profiles(
+    client: AsyncClient, owner_db: Database, seeded: None
+) -> None:
+    """ADR-025: a Console user edits their details; a new phone waits for a
+    code an IT admin sees; an area change is a request the admin decides;
+    closing the account stops sign-in. A tester confirms a phone, signs out
+    of a device and deletes their profile; their records are then refused."""
+    async with owner_db.transaction(Principal.system()) as conn:
+        country = (
+            await conn.execute(text("SELECT id FROM admin_unit WHERE level = 'country' LIMIT 1"))
+        ).scalar_one()
+    district = await make_area(owner_db, "district", parent=country)
+    village = await make_area(owner_db, "village", parent=district["id"])
+    admin = await signed_in(client, owner_db, role="it_admin")
+    me = await signed_in(client, owner_db, role="stakeholder")
+
+    r = await client.put(
+        "/v1/me/profile",
+        json={"full_name": "Grace  Atim", "organisation": "DHO", "position": "Inspector"},
+        headers=me,
+    )
+    assert r.status_code == 204
+    assert (await client.get("/v1/me", headers=me)).json()["full_name"] == "Grace Atim"
+    assert (await client.get("/v1/me", headers=me)).json()["legal_version"] == 0
+    assert (await client.post("/v1/me/legal", json={"version": 2}, headers=me)).status_code == 204
+    assert (await client.get("/v1/me", headers=me)).json()["legal_version"] == 2
+    bad = await client.post(
+        "/v1/me/contacts", json={"channel": "phone", "value": "123"}, headers=me
+    )
+    assert bad.status_code == 422
+    pending = (
+        await client.post(
+            "/v1/me/contacts", json={"channel": "phone", "value": "0772 123456"}, headers=me
+        )
+    ).json()
+    profile = (await client.get("/v1/me", headers=me)).json()
+    assert profile["phone"] == "+256772123456"
+    assert profile["phone_confirmed"] is False
+    codes = (await client.get("/v1/admin/codes-to-pass", headers=admin)).json()
+    code = next(c for c in codes if c["id"] == pending["id"])
+    assert code["kind"] == "contact"
+    assert code["who"] == "Grace Atim"
+    confirm = f"/v1/me/contacts/{pending['id']}/confirm"
+    wrong_code = "000000" if code["code"] != "000000" else "111111"
+    assert (await client.post(confirm, json={"code": wrong_code}, headers=me)).status_code == 400
+    done = await client.post(confirm, json={"code": code["code"]}, headers=me)
+    assert done.status_code == 204, done.text
+    assert (await client.get("/v1/me", headers=me)).json()["phone_confirmed"] is True
+
+    asked = await client.post(
+        "/v1/me/area-requests",
+        json={"area_ids": [str(district["id"])], "reason": "I cover this district"},
+        headers=me,
+    )
+    assert asked.status_code == 201, asked.text
+    open_ = (await client.get("/v1/admin/area-requests", headers=admin)).json()
+    req = next(x for x in open_ if x["full_name"] == "Grace Atim")
+    decided = await client.post(
+        f"/v1/admin/area-requests/{req['id']}/decide", json={"approve": True}, headers=admin
+    )
+    assert decided.status_code == 200
+    areas = (await client.get("/v1/me", headers=me)).json()["areas"]
+    assert [a["id"] for a in areas] == [str(district["id"])]
+
+    wrong = await client.post("/v1/me/close", json={"password": "nope"}, headers=me)
+    assert wrong.status_code == 401
+    closed = await client.post("/v1/me/close", json={"password": NEW_PASSWORD}, headers=me)
+    assert closed.status_code == 204
+    # Sessions end and sign-in is refused (an access token already given
+    # lapses within its 15 minutes).
+    username = profile["username"]
+    again = await client.post(
+        "/v1/auth/login", json={"username": username, "password": NEW_PASSWORD}
+    )
+    assert again.status_code == 401
+
+    # A tester on a device.
+    a = await _registered(client, str(village["id"]))
+    assert all(r["status"] == "applied" for r in (await a.push(visit(a)))["results"])
+    key = a.collector
+    tester = (
+        await a.post(f"/v1/collectors/{key}/contacts", {"channel": "email", "value": "t@x.org"})
+    ).json()
+    codes = (await client.get("/v1/admin/codes-to-pass", headers=admin)).json()
+    tcode = next(c for c in codes if c["id"] == tester["id"])["code"]
+    ok = await a.post(f"/v1/collectors/{key}/contacts/{tester['id']}/confirm", {"code": tcode})
+    assert ok.status_code == 204
+    assert (await a.get(f"/v1/collectors/{key}/contacts/status"))["email"] == "t@x.org"
+    gone = await a.post(f"/v1/collectors/{key}/close", {})
+    assert gone.status_code == 204
+    refused = (await a.push(visit(a)))["results"]
     assert refused[0]["reason"] == "collector_signed_out"
