@@ -319,6 +319,18 @@ class SessionController extends Notifier<ConsoleSession> {
     state = ConsoleSession(state.phase, me: me, offline: state.offline);
   }
 
+  /// Reloads the signed-in person after they changed their profile
+  /// (ADR-025). Throws [ApiFailure].
+  Future<void> reloadMe() async {
+    final access = await accessToken();
+    if (access == null) throw const ApiFailure(ApiFailure.offline);
+    final me = await _api.me(access);
+    if (_native && _tokens.refresh != null) {
+      await _store.save(_tokens.refresh!, me);
+    }
+    state = ConsoleSession(state.phase, me: me, offline: state.offline);
+  }
+
   /// Theme and time zone: applied and kept on this device at once, then
   /// saved to the account. Throws [ApiFailure] when the account could not
   /// be updated (the choice still applies here).

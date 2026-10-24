@@ -662,7 +662,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get markAsFlagged => 'Flag collector';
 
   @override
-  String get navProfile => 'Profile and settings';
+  String get navProfile => 'My profile';
 
   @override
   String get profileTitle => 'My profile';
@@ -2568,4 +2568,226 @@ class AppLocalizationsEn extends AppLocalizations {
   String ledgerAssigned(String when) {
     return 'assigned $when';
   }
+
+  @override
+  String get settingsTitle => 'Settings';
+
+  @override
+  String get navSettings => 'Settings';
+
+  @override
+  String get profileSave => 'Save';
+
+  @override
+  String get profileEdit => 'Edit';
+
+  @override
+  String get profileEditDetails => 'My details';
+
+  @override
+  String get profileDetails => 'My details';
+
+  @override
+  String get profileFullName => 'Full name';
+
+  @override
+  String get profileOrganisation => 'Organisation';
+
+  @override
+  String get profilePosition => 'Position';
+
+  @override
+  String get profileEmail => 'Email';
+
+  @override
+  String get profilePhone => 'Phone';
+
+  @override
+  String get profileNone => 'Not given';
+
+  @override
+  String get profileAdd => 'Add';
+
+  @override
+  String get profileChange => 'Change';
+
+  @override
+  String get profileConfirm => 'Confirm';
+
+  @override
+  String get profileConfirmed => 'confirmed';
+
+  @override
+  String get profileNotConfirmed => 'not confirmed';
+
+  @override
+  String get profileChangeEmail => 'New email';
+
+  @override
+  String get profileChangePhone => 'New phone number';
+
+  @override
+  String get profileContactHint =>
+      'It is saved as not confirmed until you enter the code sent to it. Until email and SMS are set up, your IT admin gives you the code. Alerts go only to confirmed contacts.';
+
+  @override
+  String get profileConfirmTitle => 'Enter the code';
+
+  @override
+  String get profileConfirmHint =>
+      'Ask your IT admin for the 6-digit code (Admin › Codes to pass on). It is valid for a day.';
+
+  @override
+  String get profileCode => 'Code';
+
+  @override
+  String get profileBadEmail => 'That does not look like an email address.';
+
+  @override
+  String get profileBadPhone =>
+      'Enter a Ugandan phone number, e.g. 0772 123456.';
+
+  @override
+  String get profileWrongCode => 'That code is not right.';
+
+  @override
+  String get profileCodeExpired =>
+      'The code has expired or had too many tries. Change it again for a new one.';
+
+  @override
+  String get profileWrongPassword => 'That password is not right.';
+
+  @override
+  String get profileLastAdmin =>
+      'You are the only IT admin: make another IT admin first.';
+
+  @override
+  String get profileAllAreas => 'All areas (IT admin)';
+
+  @override
+  String get profileAskAreas => 'Ask for different areas';
+
+  @override
+  String get profileAreasWhy => 'Why these areas?';
+
+  @override
+  String get profileAreasReason => 'Reason';
+
+  @override
+  String get profileAreasHint =>
+      'Your areas decide what you see, so an IT admin approves the change.';
+
+  @override
+  String profileAreasPending(String areas) {
+    return 'Asked for: $areas';
+  }
+
+  @override
+  String profileAreasPendingSince(String when) {
+    return 'Waiting for an IT admin since $when';
+  }
+
+  @override
+  String profileAreasDeclined(String areas) {
+    return 'Your last request ($areas) was declined.';
+  }
+
+  @override
+  String get profileAccount => 'Account';
+
+  @override
+  String get profileSettingsHint =>
+      'Appearance, time, alert channels, app lock';
+
+  @override
+  String get profileSwitch => 'Sign in as someone else';
+
+  @override
+  String get profileSwitchHint => 'Signs you out, then shows the sign-in page.';
+
+  @override
+  String get profileRemove => 'Remove this account from this device';
+
+  @override
+  String get profileRemoveHint =>
+      'Signs out and erases what this device keeps for you (data, saved sign-in, PIN).';
+
+  @override
+  String get profileRemoveTitle => 'Remove from this device?';
+
+  @override
+  String get profileRemoveBody =>
+      'You are signed out and the data kept on this device is erased. Nothing on the server changes; sign in again to get it back.';
+
+  @override
+  String get profileClose => 'Close my account';
+
+  @override
+  String get profileCloseHint =>
+      'For good: sign-in stops and your email and phone are erased. Records you made stay.';
+
+  @override
+  String get profileCloseTitle => 'Close your account?';
+
+  @override
+  String get profileCloseBody =>
+      'You will not be able to sign in again, and your contact details are erased. Alerts, notes and reviews you made stay, under your name, because the water records depend on them. An IT admin can make a new account later.';
+
+  @override
+  String get profileCloseContinue => 'Continue';
+
+  @override
+  String get profileClosePassword =>
+      'Enter your password to close your account.';
+
+  @override
+  String get profilePassword => 'Password';
+
+  @override
+  String get adminCodes => 'Codes to pass on';
+
+  @override
+  String get adminCodesHint =>
+      'Confirmation codes people are waiting for (contacts, signing devices out)';
+
+  @override
+  String get codesTitle => 'Codes to pass on';
+
+  @override
+  String get codesHint =>
+      'Until email and SMS are set up, people confirm a new email or phone, or signing other devices out, with a code an IT admin gives them. Check it is them (call them on a number you know), then read out the code. Codes last a day.';
+
+  @override
+  String get codesNone => 'No one is waiting for a code.';
+
+  @override
+  String codesFor(String who, String detail) {
+    return '$who: $detail';
+  }
+
+  @override
+  String codesUntil(String when) {
+    return 'valid until $when';
+  }
+
+  @override
+  String get areaRequestsTitle => 'Area change requests';
+
+  @override
+  String areaRequestLine(String name, String areas, String current) {
+    return '$name asks for $areas (now: $current)';
+  }
+
+  @override
+  String get areaRequestApprove => 'Approve';
+
+  @override
+  String get areaRequestDecline => 'Decline';
+
+  @override
+  String get legalTitle => 'Before you continue';
+
+  @override
+  String get legalSummary =>
+      'WaterCheck holds personal information about testers and officials: names, contacts, where tests were made, pictures and messages. As a Console user you see this for your areas. Use it only to protect drinking water, keep it to yourself, and follow the Terms of Use. The data is hosted outside Uganda (South Africa).';
 }

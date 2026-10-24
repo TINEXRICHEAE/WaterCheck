@@ -1165,7 +1165,7 @@ abstract class AppLocalizations {
   /// No description provided for @navProfile.
   ///
   /// In en, this message translates to:
-  /// **'Profile and settings'**
+  /// **'My profile'**
   String get navProfile;
 
   /// No description provided for @profileTitle.
@@ -3975,6 +3975,396 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'assigned {when}'**
   String ledgerAssigned(String when);
+
+  /// No description provided for @settingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get settingsTitle;
+
+  /// No description provided for @navSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get navSettings;
+
+  /// No description provided for @profileSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get profileSave;
+
+  /// No description provided for @profileEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get profileEdit;
+
+  /// No description provided for @profileEditDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'My details'**
+  String get profileEditDetails;
+
+  /// No description provided for @profileDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'My details'**
+  String get profileDetails;
+
+  /// No description provided for @profileFullName.
+  ///
+  /// In en, this message translates to:
+  /// **'Full name'**
+  String get profileFullName;
+
+  /// No description provided for @profileOrganisation.
+  ///
+  /// In en, this message translates to:
+  /// **'Organisation'**
+  String get profileOrganisation;
+
+  /// No description provided for @profilePosition.
+  ///
+  /// In en, this message translates to:
+  /// **'Position'**
+  String get profilePosition;
+
+  /// No description provided for @profileEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get profileEmail;
+
+  /// No description provided for @profilePhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone'**
+  String get profilePhone;
+
+  /// No description provided for @profileNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Not given'**
+  String get profileNone;
+
+  /// No description provided for @profileAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get profileAdd;
+
+  /// No description provided for @profileChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Change'**
+  String get profileChange;
+
+  /// No description provided for @profileConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get profileConfirm;
+
+  /// No description provided for @profileConfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'confirmed'**
+  String get profileConfirmed;
+
+  /// No description provided for @profileNotConfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'not confirmed'**
+  String get profileNotConfirmed;
+
+  /// No description provided for @profileChangeEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'New email'**
+  String get profileChangeEmail;
+
+  /// No description provided for @profileChangePhone.
+  ///
+  /// In en, this message translates to:
+  /// **'New phone number'**
+  String get profileChangePhone;
+
+  /// No description provided for @profileContactHint.
+  ///
+  /// In en, this message translates to:
+  /// **'It is saved as not confirmed until you enter the code sent to it. Until email and SMS are set up, your IT admin gives you the code. Alerts go only to confirmed contacts.'**
+  String get profileContactHint;
+
+  /// No description provided for @profileConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the code'**
+  String get profileConfirmTitle;
+
+  /// No description provided for @profileConfirmHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask your IT admin for the 6-digit code (Admin › Codes to pass on). It is valid for a day.'**
+  String get profileConfirmHint;
+
+  /// No description provided for @profileCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Code'**
+  String get profileCode;
+
+  /// No description provided for @profileBadEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'That does not look like an email address.'**
+  String get profileBadEmail;
+
+  /// No description provided for @profileBadPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a Ugandan phone number, e.g. 0772 123456.'**
+  String get profileBadPhone;
+
+  /// No description provided for @profileWrongCode.
+  ///
+  /// In en, this message translates to:
+  /// **'That code is not right.'**
+  String get profileWrongCode;
+
+  /// No description provided for @profileCodeExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'The code has expired or had too many tries. Change it again for a new one.'**
+  String get profileCodeExpired;
+
+  /// No description provided for @profileWrongPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'That password is not right.'**
+  String get profileWrongPassword;
+
+  /// No description provided for @profileLastAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'You are the only IT admin: make another IT admin first.'**
+  String get profileLastAdmin;
+
+  /// No description provided for @profileAllAreas.
+  ///
+  /// In en, this message translates to:
+  /// **'All areas (IT admin)'**
+  String get profileAllAreas;
+
+  /// No description provided for @profileAskAreas.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask for different areas'**
+  String get profileAskAreas;
+
+  /// No description provided for @profileAreasWhy.
+  ///
+  /// In en, this message translates to:
+  /// **'Why these areas?'**
+  String get profileAreasWhy;
+
+  /// No description provided for @profileAreasReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason'**
+  String get profileAreasReason;
+
+  /// No description provided for @profileAreasHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Your areas decide what you see, so an IT admin approves the change.'**
+  String get profileAreasHint;
+
+  /// No description provided for @profileAreasPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Asked for: {areas}'**
+  String profileAreasPending(String areas);
+
+  /// No description provided for @profileAreasPendingSince.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for an IT admin since {when}'**
+  String profileAreasPendingSince(String when);
+
+  /// No description provided for @profileAreasDeclined.
+  ///
+  /// In en, this message translates to:
+  /// **'Your last request ({areas}) was declined.'**
+  String profileAreasDeclined(String areas);
+
+  /// No description provided for @profileAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get profileAccount;
+
+  /// No description provided for @profileSettingsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Appearance, time, alert channels, app lock'**
+  String get profileSettingsHint;
+
+  /// No description provided for @profileSwitch.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in as someone else'**
+  String get profileSwitch;
+
+  /// No description provided for @profileSwitchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Signs you out, then shows the sign-in page.'**
+  String get profileSwitchHint;
+
+  /// No description provided for @profileRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove this account from this device'**
+  String get profileRemove;
+
+  /// No description provided for @profileRemoveHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Signs out and erases what this device keeps for you (data, saved sign-in, PIN).'**
+  String get profileRemoveHint;
+
+  /// No description provided for @profileRemoveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from this device?'**
+  String get profileRemoveTitle;
+
+  /// No description provided for @profileRemoveBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You are signed out and the data kept on this device is erased. Nothing on the server changes; sign in again to get it back.'**
+  String get profileRemoveBody;
+
+  /// No description provided for @profileClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close my account'**
+  String get profileClose;
+
+  /// No description provided for @profileCloseHint.
+  ///
+  /// In en, this message translates to:
+  /// **'For good: sign-in stops and your email and phone are erased. Records you made stay.'**
+  String get profileCloseHint;
+
+  /// No description provided for @profileCloseTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Close your account?'**
+  String get profileCloseTitle;
+
+  /// No description provided for @profileCloseBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You will not be able to sign in again, and your contact details are erased. Alerts, notes and reviews you made stay, under your name, because the water records depend on them. An IT admin can make a new account later.'**
+  String get profileCloseBody;
+
+  /// No description provided for @profileCloseContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get profileCloseContinue;
+
+  /// No description provided for @profileClosePassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your password to close your account.'**
+  String get profileClosePassword;
+
+  /// No description provided for @profilePassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get profilePassword;
+
+  /// No description provided for @adminCodes.
+  ///
+  /// In en, this message translates to:
+  /// **'Codes to pass on'**
+  String get adminCodes;
+
+  /// No description provided for @adminCodesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmation codes people are waiting for (contacts, signing devices out)'**
+  String get adminCodesHint;
+
+  /// No description provided for @codesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Codes to pass on'**
+  String get codesTitle;
+
+  /// No description provided for @codesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Until email and SMS are set up, people confirm a new email or phone, or signing other devices out, with a code an IT admin gives them. Check it is them (call them on a number you know), then read out the code. Codes last a day.'**
+  String get codesHint;
+
+  /// No description provided for @codesNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No one is waiting for a code.'**
+  String get codesNone;
+
+  /// No description provided for @codesFor.
+  ///
+  /// In en, this message translates to:
+  /// **'{who}: {detail}'**
+  String codesFor(String who, String detail);
+
+  /// No description provided for @codesUntil.
+  ///
+  /// In en, this message translates to:
+  /// **'valid until {when}'**
+  String codesUntil(String when);
+
+  /// No description provided for @areaRequestsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Area change requests'**
+  String get areaRequestsTitle;
+
+  /// No description provided for @areaRequestLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} asks for {areas} (now: {current})'**
+  String areaRequestLine(String name, String areas, String current);
+
+  /// No description provided for @areaRequestApprove.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve'**
+  String get areaRequestApprove;
+
+  /// No description provided for @areaRequestDecline.
+  ///
+  /// In en, this message translates to:
+  /// **'Decline'**
+  String get areaRequestDecline;
+
+  /// No description provided for @legalTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Before you continue'**
+  String get legalTitle;
+
+  /// No description provided for @legalSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'WaterCheck holds personal information about testers and officials: names, contacts, where tests were made, pictures and messages. As a Console user you see this for your areas. Use it only to protect drinking water, keep it to yourself, and follow the Terms of Use. The data is hosted outside Uganda (South Africa).'**
+  String get legalSummary;
 }
 
 class _AppLocalizationsDelegate

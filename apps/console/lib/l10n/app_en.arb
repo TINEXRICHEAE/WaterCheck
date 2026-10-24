@@ -369,7 +369,7 @@
   "markCollector": "Mark collector",
   "markAsKnown": "Mark as known",
   "markAsFlagged": "Flag collector",
-  "navProfile": "Profile and settings",
+  "navProfile": "My profile",
   "profileTitle": "My profile",
   "profileOffline": "Changing notifications needs a connection.",
   "profileFailed": "Could not save. Try again.",
@@ -1591,5 +1591,121 @@
         "type": "String"
       }
     }
-  }
+  },
+  "settingsTitle": "Settings",
+  "navSettings": "Settings",
+  "profileSave": "Save",
+  "profileEdit": "Edit",
+  "profileEditDetails": "My details",
+  "profileDetails": "My details",
+  "profileFullName": "Full name",
+  "profileOrganisation": "Organisation",
+  "profilePosition": "Position",
+  "profileEmail": "Email",
+  "profilePhone": "Phone",
+  "profileNone": "Not given",
+  "profileAdd": "Add",
+  "profileChange": "Change",
+  "profileConfirm": "Confirm",
+  "profileConfirmed": "confirmed",
+  "profileNotConfirmed": "not confirmed",
+  "profileChangeEmail": "New email",
+  "profileChangePhone": "New phone number",
+  "profileContactHint": "It is saved as not confirmed until you enter the code sent to it. Until email and SMS are set up, your IT admin gives you the code. Alerts go only to confirmed contacts.",
+  "profileConfirmTitle": "Enter the code",
+  "profileConfirmHint": "Ask your IT admin for the 6-digit code (Admin › Codes to pass on). It is valid for a day.",
+  "profileCode": "Code",
+  "profileBadEmail": "That does not look like an email address.",
+  "profileBadPhone": "Enter a Ugandan phone number, e.g. 0772 123456.",
+  "profileWrongCode": "That code is not right.",
+  "profileCodeExpired": "The code has expired or had too many tries. Change it again for a new one.",
+  "profileWrongPassword": "That password is not right.",
+  "profileLastAdmin": "You are the only IT admin: make another IT admin first.",
+  "profileAllAreas": "All areas (IT admin)",
+  "profileAskAreas": "Ask for different areas",
+  "profileAreasWhy": "Why these areas?",
+  "profileAreasReason": "Reason",
+  "profileAreasHint": "Your areas decide what you see, so an IT admin approves the change.",
+  "profileAreasPending": "Asked for: {areas}",
+  "@profileAreasPending": {
+    "placeholders": {
+      "areas": {
+        "type": "String"
+      }
+    }
+  },
+  "profileAreasPendingSince": "Waiting for an IT admin since {when}",
+  "@profileAreasPendingSince": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "profileAreasDeclined": "Your last request ({areas}) was declined.",
+  "@profileAreasDeclined": {
+    "placeholders": {
+      "areas": {
+        "type": "String"
+      }
+    }
+  },
+  "profileAccount": "Account",
+  "profileSettingsHint": "Appearance, time, alert channels, app lock",
+  "profileSwitch": "Sign in as someone else",
+  "profileSwitchHint": "Signs you out, then shows the sign-in page.",
+  "profileRemove": "Remove this account from this device",
+  "profileRemoveHint": "Signs out and erases what this device keeps for you (data, saved sign-in, PIN).",
+  "profileRemoveTitle": "Remove from this device?",
+  "profileRemoveBody": "You are signed out and the data kept on this device is erased. Nothing on the server changes; sign in again to get it back.",
+  "profileClose": "Close my account",
+  "profileCloseHint": "For good: sign-in stops and your email and phone are erased. Records you made stay.",
+  "profileCloseTitle": "Close your account?",
+  "profileCloseBody": "You will not be able to sign in again, and your contact details are erased. Alerts, notes and reviews you made stay, under your name, because the water records depend on them. An IT admin can make a new account later.",
+  "profileCloseContinue": "Continue",
+  "profileClosePassword": "Enter your password to close your account.",
+  "profilePassword": "Password",
+  "adminCodes": "Codes to pass on",
+  "adminCodesHint": "Confirmation codes people are waiting for (contacts, signing devices out)",
+  "codesTitle": "Codes to pass on",
+  "codesHint": "Until email and SMS are set up, people confirm a new email or phone, or signing other devices out, with a code an IT admin gives them. Check it is them (call them on a number you know), then read out the code. Codes last a day.",
+  "codesNone": "No one is waiting for a code.",
+  "codesFor": "{who}: {detail}",
+  "@codesFor": {
+    "placeholders": {
+      "who": {
+        "type": "String"
+      },
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "codesUntil": "valid until {when}",
+  "@codesUntil": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "areaRequestsTitle": "Area change requests",
+  "areaRequestLine": "{name} asks for {areas} (now: {current})",
+  "@areaRequestLine": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "areas": {
+        "type": "String"
+      },
+      "current": {
+        "type": "String"
+      }
+    }
+  },
+  "areaRequestApprove": "Approve",
+  "areaRequestDecline": "Decline",
+  "legalTitle": "Before you continue",
+  "legalSummary": "WaterCheck holds personal information about testers and officials: names, contacts, where tests were made, pictures and messages. As a Console user you see this for your areas. Use it only to protect drinking water, keep it to yourself, and follow the Terms of Use. The data is hosted outside Uganda (South Africa)."
 }

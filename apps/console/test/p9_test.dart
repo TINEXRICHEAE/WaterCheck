@@ -11,6 +11,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:ui_kit/map_kit.dart' show MapSearchBar;
 
+import 'package:watercheck_console/app/console_sync.dart'
+    show consoleDioProvider;
 import 'package:watercheck_console/features/admin/admin_api.dart';
 
 import 'support/harness.dart';
@@ -446,11 +448,54 @@ void main() {
     await disposeConsole(tester, db);
   });
 
+  testWidgets('my profile: edit details, change a phone with its code '
+      '(ADR-025)', (tester) async {
+    final server = _ProfileServer();
+    final db = await _open(
+      tester,
+      size: const Size(1200, 2000),
+      overrides: [
+        consoleDioProvider.overrideWithValue(
+          Dio(BaseOptions(baseUrl: 'http://test'))..httpClientAdapter = server,
+        ),
+      ],
+    );
+    await tester.tap(find.byTooltip('Account'));
+    await settle(tester);
+    await tester.tap(find.text('My profile').last);
+    await settle(tester);
+    expect(find.text('My details'), findsOneWidget);
+    expect(find.text('Close my account'), findsOneWidget);
+
+    await tester.tap(find.text('Edit'));
+    await settle(tester);
+    await tester.enterText(find.byType(TextField).at(2), 'District Inspector');
+    await tester.tap(find.text('Save'));
+    await settle(tester);
+    expect(
+      server.sent['PUT /v1/me/profile']!['position'],
+      'District Inspector',
+    );
+
+    await tester.tap(find.text('Add').last);
+    await settle(tester);
+    await tester.enterText(find.byType(TextField).last, '0772 123456');
+    await tester.tap(find.text('Save'));
+    await settle(tester);
+    expect('${server.sent['POST /v1/me/contacts']!['channel']}', 'phone');
+    expect(find.text('Enter the code'), findsOneWidget);
+    await tester.enterText(find.byType(TextField).last, '482915');
+    await tester.tap(find.text('Save'));
+    await settle(tester);
+    expect(server.sent.keys, contains('POST /v1/me/contacts/req-1/confirm'));
+    await disposeConsole(tester, db);
+  });
+
   testWidgets('profile: notification channels are saved', (tester) async {
     final db = await _open(tester);
     await tester.tap(find.byTooltip('Account'));
     await settle(tester);
-    await tester.tap(find.text('Profile and settings'));
+    await tester.tap(find.text('Settings').last);
     await settle(tester);
     expect(find.text('How alerts reach me'), findsOneWidget);
 
@@ -630,6 +675,46 @@ class _AccessServer implements HttpClientAdapter {
     return ResponseBody.fromString(
       jsonEncode(body),
       200,
+      headers: {
+        Headers.contentTypeHeader: [Headers.jsonContentType],
+      },
+    );
+  }
+
+  @override
+  void close({bool force = false}) {}
+}
+
+/// The profile calls (ADR-025), recording what was sent.
+class _ProfileServer implements HttpClientAdapter {
+  final sent = <String, Map<String, dynamic>>{};
+
+  @override
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future<void>? cancelFuture,
+  ) async {
+    final key = '${options.method} ${options.uri.path}';
+    final data = options.data;
+    sent[key] = data is Map
+        ? data.cast<String, dynamic>()
+        : data is String && data.isNotEmpty
+        ? (jsonDecode(data) as Map).cast<String, dynamic>()
+        : <String, dynamic>{};
+    final Object? body = switch (key) {
+      'POST /v1/me/contacts' => {
+        'id': 'req-1',
+        'channel': 'phone',
+        'value': '+256772123456',
+        'expires_at': '2026-10-25T08:00:00Z',
+      },
+      'GET /v1/me/area-requests' => <Object>[],
+      _ => null,
+    };
+    return ResponseBody.fromString(
+      body == null ? '' : jsonEncode(body),
+      body == null ? 204 : 200,
       headers: {
         Headers.contentTypeHeader: [Headers.jsonContentType],
       },

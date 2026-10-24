@@ -555,7 +555,7 @@ class _SourcesMapState extends ConsumerState<SourcesMap>
                     : () => _map.move(me, 14),
               ),
               const SizedBox(height: 8),
-              MapZoomButtons(motion: _motion),
+              MapNavigationButtons(motion: _motion),
               const SizedBox(height: 8),
               MapLayersButton(
                 layers: _layers,

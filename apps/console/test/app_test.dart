@@ -1,6 +1,12 @@
+import 'dart:typed_data';
+
 import 'package:data/data.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:ui_kit/ui_kit.dart' show legalVersion;
+import 'package:watercheck_console/app/console_sync.dart'
+    show consoleDioProvider;
 import 'package:watercheck_console/app/router.dart';
 import 'package:watercheck_console/app/session.dart';
 
@@ -166,7 +172,7 @@ void main() {
     // The profile turns it back on: a PIN is chosen.
     await tester.tap(find.byTooltip('Account'));
     await settle(tester);
-    await tester.tap(find.text('Profile and settings'));
+    await tester.tap(find.text('Settings').last);
     await settle(tester);
     final lock = find.widgetWithText(
       SwitchListTile,
@@ -193,6 +199,32 @@ void main() {
     await signIn(tester, 'admin@example.org', newPassword);
     expect(find.text('Choose a PIN for this device'), findsOneWidget);
     expect(find.text('Skip: no PIN on this device'), findsNothing);
+    await disposeConsole(tester, db);
+  });
+
+  testWidgets('the Privacy Policy and Terms are accepted after sign-in, '
+      'and their version recorded (ADR-026)', (tester) async {
+    final env = ConsoleTestEnv(cookieMode: true);
+    env.api.users['admin@example.org']!.legalVersion = 0;
+    final dio = Dio(BaseOptions(baseUrl: 'http://test'))
+      ..httpClientAdapter = _LegalServer(
+        () => env.api.users['admin@example.org']!.legalVersion = legalVersion,
+      );
+    env.extraOverrides.add(consoleDioProvider.overrideWithValue(dio));
+    final db = await pumpConsole(tester, env: env);
+    await signIn(tester, 'admin@example.org', newPassword);
+    expect(find.text('Before you continue'), findsOneWidget);
+    await tester.tap(find.text('Terms of Use'));
+    await settle(tester);
+    expect(find.text('WaterCheck Terms of Use'), findsOneWidget);
+    await tester.pageBack();
+    await settle(tester);
+    await tester.tap(
+      find.text('I agree to the Terms of Use and the Privacy Policy'),
+    );
+    await settle(tester);
+    expect(find.text('Before you continue'), findsNothing);
+    expect(find.text('IT admin: all areas'), findsOneWidget);
     await disposeConsole(tester, db);
   });
 
@@ -387,4 +419,24 @@ void main() {
     expect(find.text('UNSAFE'), findsOneWidget);
     await disposeConsole(tester, db);
   });
+}
+
+/// Accepting the documents (ADR-026).
+class _LegalServer implements HttpClientAdapter {
+  _LegalServer(this.onAccept);
+
+  final void Function() onAccept;
+
+  @override
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future<void>? cancelFuture,
+  ) async {
+    if (options.uri.path == '/v1/me/legal') onAccept();
+    return ResponseBody.fromString('', 204);
+  }
+
+  @override
+  void close({bool force = false}) {}
 }

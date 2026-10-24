@@ -1,21 +1,38 @@
 import 'package:api_client/api_client.dart';
+import 'package:data/data.dart' show SeedBundle, SeedImporter;
+import 'package:dio/dio.dart';
+import 'package:drift/drift.dart' as drift show Table, TableInfo;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:ui_kit/ui_kit.dart';
 
+import '../../app/console_sync.dart';
+import '../../app/providers.dart';
 import '../../app/session.dart';
 import '../../l10n/app_localizations.dart';
+import '../admin/area_picker.dart';
 
-/// The signed-in user's details and how alerts reach them (F-ALR-2).
-/// In-app notifications are always on.
-extension on String {
-  String ifEmpty(String other) => isEmpty ? other : this;
-}
+ProfileClient _profile(WidgetRef ref) =>
+    WaterCheckApi(ref.read(consoleDioProvider)).profile;
 
-final _lockOnProvider = FutureProvider.autoDispose<bool>(
-  (ref) => ref.watch(sessionProvider.notifier).lockOn(),
-);
+final _areaRequestsProvider = FutureProvider.autoDispose<List<AreaRequestOut>>((
+  ref,
+) async {
+  try {
+    return await WaterCheckApi(ref.watch(consoleDioProvider)).profile
+        .myAreaRequests();
+  } on Object {
+    return const [];
+  }
+});
 
+/// My profile (ADR-025), apart from settings: my details (editable), my
+/// email and phone (confirmed with a code), my areas (a change is a request
+/// an IT admin decides) and my account: sign out, sign in as someone else,
+/// remove this account from this device, close my account.
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
 
@@ -24,70 +41,228 @@ class ProfileScreen extends ConsumerStatefulWidget {
 }
 
 class _ProfileScreenState extends ConsumerState<ProfileScreen> {
-  var _saving = false;
-  String? _error;
+  var _busy = false;
 
-  Future<void> _set({bool? email, bool? push, bool? sms}) async {
-    final me = ref.read(sessionProvider).me!;
-    setState(() {
-      _saving = true;
-      _error = null;
-    });
-    try {
-      await ref
-          .read(sessionProvider.notifier)
-          .setPreferences(
-            email: email ?? me.notifyEmail,
-            push: push ?? me.notifyPush,
-            sms: sms ?? me.notifySms,
-          );
-    } on ApiFailure catch (e) {
-      if (mounted) {
-        final l10n = AppLocalizations.of(context);
-        setState(
-          () => _error = e.isOffline ? l10n.profileOffline : l10n.profileFailed,
-        );
-      }
-    } finally {
-      if (mounted) setState(() => _saving = false);
-    }
+  String _message(AppLocalizations l10n, Object e) {
+    final code = e is DioException ? ApiFailure.from(e).code : null;
+    return switch (code) {
+      'invalid_email' => l10n.profileBadEmail,
+      'invalid_phone' => l10n.profileBadPhone,
+      'wrong_code' => l10n.profileWrongCode,
+      'request_expired' => l10n.profileCodeExpired,
+      'wrong_password' => l10n.profileWrongPassword,
+      'last_it_admin' => l10n.profileLastAdmin,
+      _ => l10n.adminNeedsConnection,
+    };
   }
 
-  Future<void> _appearance(ThemeChoice theme, TimeZoneChoice zone) async {
+  Future<bool> _run(Future<void> Function() action) async {
     final l10n = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);
+    setState(() => _busy = true);
     try {
-      await ref.read(sessionProvider.notifier).setAppearance(theme, zone);
-    } on ApiFailure {
-      messenger.showSnackBar(SnackBar(content: Text(l10n.appearanceLocalOnly)));
+      await action();
+      return true;
+    } on Object catch (e) {
+      messenger.showSnackBar(SnackBar(content: Text(_message(l10n, e))));
+      return false;
+    } finally {
+      if (mounted) setState(() => _busy = false);
     }
   }
 
-  /// Stakeholders may turn the PIN off (a shared office device).
-  Future<void> _lock(bool on) async {
-    final session = ref.read(sessionProvider.notifier);
-    if (on) return session.turnLockOn();
+  Future<List<String>?> _form(
+    String title,
+    List<(String label, String value, TextInputType? type)> fields, {
+    String? hint,
+    bool obscure = false,
+  }) {
     final l10n = AppLocalizations.of(context);
-    final ok = await showDialog<bool>(
+    final controllers = [
+      for (final f in fields) TextEditingController(text: f.$2),
+    ];
+    return showDialog<List<String>>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l10n.lockOffTitle),
-        content: Text(l10n.lockOffBody),
+      builder: (dialog) => AlertDialog(
+        title: Text(title),
+        content: SizedBox(
+          width: 420,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (hint != null) Text(hint),
+              for (final (i, f) in fields.indexed)
+                TextField(
+                  controller: controllers[i],
+                  autofocus: i == 0,
+                  obscureText: obscure,
+                  keyboardType: f.$3,
+                  decoration: InputDecoration(labelText: f.$1),
+                ),
+            ],
+          ),
+        ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context, false),
+            onPressed: () => Navigator.pop(dialog),
             child: Text(l10n.cancel),
           ),
           FilledButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: Text(l10n.lockOffConfirm),
+            onPressed: () => Navigator.pop(dialog, [
+              for (final c in controllers) c.text.trim(),
+            ]),
+            child: Text(l10n.profileSave),
           ),
         ],
       ),
     );
-    if (ok != true) return;
-    await session.skipPin();
-    ref.invalidate(_lockOnProvider);
+  }
+
+  Future<void> _editDetails(MeResponse me) async {
+    final l10n = AppLocalizations.of(context);
+    final v = await _form(l10n.profileEditDetails, [
+      (l10n.profileFullName, me.fullName, TextInputType.name),
+      (l10n.profileOrganisation, me.organisation ?? '', null),
+      (l10n.profilePosition, me.position ?? '', null),
+    ]);
+    if (v == null || v[0].isEmpty) return;
+    await _run(() async {
+      await _profile(ref).editProfile(
+        body: ProfileIn(fullName: v[0], organisation: v[1], position: v[2]),
+      );
+      await ref.read(sessionProvider.notifier).reloadMe();
+    });
+  }
+
+  /// A new email or phone, then its code (from the IT admin for now).
+  Future<void> _changeContact(ContactInChannel channel, String? current) async {
+    final l10n = AppLocalizations.of(context);
+    final email = channel == ContactInChannel.email;
+    final v = await _form(
+      email ? l10n.profileChangeEmail : l10n.profileChangePhone,
+      [
+        (
+          email ? l10n.profileEmail : l10n.profilePhone,
+          current ?? '',
+          email ? TextInputType.emailAddress : TextInputType.phone,
+        ),
+      ],
+      hint: l10n.profileContactHint,
+    );
+    if (v == null || v[0].isEmpty) return;
+    ContactPending? pending;
+    final ok = await _run(() async {
+      pending = await _profile(ref).changeContact(
+        body: ContactIn(channel: channel, value: v[0]),
+      );
+      await ref.read(sessionProvider.notifier).reloadMe();
+    });
+    if (!ok || pending == null || !mounted) return;
+    final code = await _form(l10n.profileConfirmTitle, [
+      (l10n.profileCode, '', TextInputType.number),
+    ], hint: l10n.profileConfirmHint);
+    if (code == null || code[0].isEmpty) return;
+    await _run(() async {
+      await _profile(ref).confirmContact(
+        requestId: pending!.id,
+        body: ConfirmIn(code: code[0]),
+      );
+      await ref.read(sessionProvider.notifier).reloadMe();
+    });
+  }
+
+  Future<void> _askAreas(MeResponse me) async {
+    final l10n = AppLocalizations.of(context);
+    final picked = await pickAreas(
+      context,
+      selected: [for (final a in me.areas) a.id],
+    );
+    if (picked == null || picked.isEmpty || !mounted) return;
+    final reason = await _form(l10n.profileAreasWhy, [
+      (l10n.profileAreasReason, '', null),
+    ], hint: l10n.profileAreasHint);
+    if (reason == null || reason[0].length < 3) return;
+    await _run(() async {
+      await _profile(ref).requestAreas(
+        body: AreaRequestIn(
+          areaIds: [for (final a in picked) a.id],
+          reason: reason[0],
+        ),
+      );
+      ref.invalidate(_areaRequestsProvider);
+    });
+  }
+
+  Future<bool> _sure(String title, String body, String confirm) async =>
+      await showDialog<bool>(
+        context: context,
+        builder: (dialog) => AlertDialog(
+          title: Text(title),
+          content: Text(body),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialog, false),
+              child: Text(AppLocalizations.of(context).cancel),
+            ),
+            FilledButton(
+              style: FilledButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.error,
+              ),
+              onPressed: () => Navigator.pop(dialog, true),
+              child: Text(confirm),
+            ),
+          ],
+        ),
+      ) ??
+      false;
+
+  /// Signs out and erases what this device keeps for the account (the
+  /// cached data, the saved session and PIN), then shows the sign-in page.
+  Future<void> _removeHere() async {
+    final l10n = AppLocalizations.of(context);
+    if (!await _sure(
+      l10n.profileRemoveTitle,
+      l10n.profileRemoveBody,
+      l10n.profileRemove,
+    )) {
+      return;
+    }
+    final db = ref.read(databaseProvider);
+    await ref.read(sessionProvider.notifier).signOut();
+    await db.customStatement('PRAGMA foreign_keys = OFF');
+    await db.transaction(() async {
+      for (final drift.TableInfo<drift.Table, dynamic> t in db.allTables) {
+        await db.delete(t).go();
+      }
+    });
+    await db.customStatement('PRAGMA foreign_keys = ON');
+    if (!kIsWeb) {
+      await SeedImporter(db).importBundle(await SeedBundle.fromAssets());
+    }
+  }
+
+  Future<void> _close() async {
+    final l10n = AppLocalizations.of(context);
+    if (!await _sure(
+      l10n.profileCloseTitle,
+      l10n.profileCloseBody,
+      l10n.profileCloseContinue,
+    )) {
+      return;
+    }
+    if (!mounted) return;
+    final pw = await _form(
+      l10n.profileCloseTitle,
+      [(l10n.profilePassword, '', TextInputType.visiblePassword)],
+      hint: l10n.profileClosePassword,
+      obscure: true,
+    );
+    if (pw == null || pw[0].isEmpty) return;
+    final ok = await _run(
+      () => _profile(ref).closeAccount(body: CloseIn(password: pw[0])),
+    );
+    if (ok) await ref.read(sessionProvider.notifier).signOut();
   }
 
   @override
@@ -95,104 +270,177 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     final l10n = AppLocalizations.of(context);
     final text = Theme.of(context).textTheme;
     final me = ref.watch(sessionProvider).me;
-    final admin = ref.watch(sessionProvider).isAdmin;
-    final keeps = ref.read(sessionProvider.notifier).keepsSession;
-    final lockOn = keeps ? ref.watch(_lockOnProvider).value : null;
     if (me == null) return const SizedBox.shrink();
+    final when = DateFormat('d MMM y');
+    final requests = ref.watch(_areaRequestsProvider).value ?? const [];
+    final open = requests.where((r) => r.decidedAt == null).firstOrNull;
+    final last = requests.where((r) => r.decidedAt != null).firstOrNull;
+
+    Widget contact(
+      ContactInChannel channel,
+      IconData icon,
+      String label,
+      String? value,
+      bool confirmed,
+    ) => ListTile(
+      contentPadding: EdgeInsets.zero,
+      leading: Icon(icon),
+      title: Text(label),
+      subtitle: Text(
+        value == null
+            ? l10n.profileNone
+            : '$value · ${confirmed ? l10n.profileConfirmed : l10n.profileNotConfirmed}',
+      ),
+      trailing: Wrap(
+        spacing: 4,
+        children: [
+          if (value != null && !confirmed)
+            TextButton(
+              onPressed: _busy ? null : () => _changeContact(channel, value),
+              child: Text(l10n.profileConfirm),
+            ),
+          TextButton(
+            onPressed: _busy ? null : () => _changeContact(channel, value),
+            child: Text(value == null ? l10n.profileAdd : l10n.profileChange),
+          ),
+        ],
+      ),
+    );
+
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
         Text(l10n.profileTitle, style: text.headlineSmall),
-        const InstallAppTile(),
-        const SizedBox(height: 12),
+        const SizedBox(height: 8),
         ListTile(
           contentPadding: EdgeInsets.zero,
-          leading: const Icon(Icons.account_circle_outlined),
-          title: Text(me.fullName),
+          leading: const Icon(Icons.account_circle_outlined, size: 40),
+          title: Text(me.fullName, style: text.titleLarge),
           subtitle: Text(
-            [me.username, ?me.position, ?me.organisation].join(' · '),
+            [
+              me.username,
+              me.role == 'it_admin' ? l10n.roleAdmin : l10n.roleStakeholder,
+            ].join(' · '),
           ),
         ),
-        ListTile(
-          contentPadding: EdgeInsets.zero,
-          leading: const Icon(Icons.place_outlined),
-          title: Text(l10n.profileAreas),
-          subtitle: Text(me.areas.map((a) => a.name).join(', ')),
+        const Divider(height: 24),
+        Row(
+          children: [
+            Expanded(child: Text(l10n.profileDetails, style: text.titleMedium)),
+            TextButton.icon(
+              onPressed: _busy ? null : () => _editDetails(me),
+              icon: const Icon(Icons.edit_outlined),
+              label: Text(l10n.profileEdit),
+            ),
+          ],
         ),
         ListTile(
           contentPadding: EdgeInsets.zero,
-          leading: const Icon(Icons.assignment_ind_outlined),
-          title: Text(l10n.profileResponsibilities),
-          subtitle: Text(
-            me.responsibilities.isEmpty
-                ? l10n.profileAllResponsibilities
-                : me.responsibilities.map(l10n.responsibility).join(', '),
+          leading: const Icon(Icons.business_outlined),
+          title: Text(l10n.profileOrganisation),
+          subtitle: Text(me.organisation ?? l10n.profileNone),
+        ),
+        ListTile(
+          contentPadding: EdgeInsets.zero,
+          leading: const Icon(Icons.work_outline),
+          title: Text(l10n.profilePosition),
+          subtitle: Text(me.position ?? l10n.profileNone),
+        ),
+        contact(
+          ContactInChannel.email,
+          Icons.email_outlined,
+          l10n.profileEmail,
+          me.email,
+          me.emailConfirmed,
+        ),
+        contact(
+          ContactInChannel.phone,
+          Icons.phone_outlined,
+          l10n.profilePhone,
+          me.phone,
+          me.phoneConfirmed,
+        ),
+        const Divider(height: 24),
+        Text(l10n.profileAreas, style: text.titleMedium),
+        Text(
+          me.areas.isEmpty
+              ? l10n.profileAllAreas
+              : me.areas.map((a) => a.name).join(', '),
+        ),
+        Text(
+          me.responsibilities.isEmpty
+              ? l10n.profileAllResponsibilities
+              : me.responsibilities.map(l10n.responsibility).join(', '),
+          style: text.bodySmall,
+        ),
+        if (open != null)
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.hourglass_top),
+              title: Text(l10n.profileAreasPending(open.areas.join(', '))),
+              subtitle: Text(
+                l10n.profileAreasPendingSince(
+                  when.format(WcTime.local(open.createdAt, context)),
+                ),
+              ),
+            ),
+          )
+        else if (last != null && last.approved == false)
+          Text(l10n.profileAreasDeclined(last.areas.join(', '))),
+        if (me.role != 'it_admin')
+          Align(
+            alignment: Alignment.centerLeft,
+            child: OutlinedButton.icon(
+              onPressed: _busy ? null : () => _askAreas(me),
+              icon: const Icon(Icons.edit_location_alt_outlined),
+              label: Text(l10n.profileAskAreas),
+            ),
           ),
+        const Divider(height: 24),
+        Text(l10n.profileAccount, style: text.titleMedium),
+        ListTile(
+          contentPadding: EdgeInsets.zero,
+          leading: const Icon(Icons.settings_outlined),
+          title: Text(l10n.settingsTitle),
+          subtitle: Text(l10n.profileSettingsHint),
+          trailing: const Icon(Icons.chevron_right),
+          onTap: () => context.go('/dashboard/settings'),
         ),
         ListTile(
           contentPadding: EdgeInsets.zero,
-          leading: const Icon(Icons.contact_phone_outlined),
-          title: Text(l10n.profileContacts),
-          subtitle: Text(
-            [?me.email, ?me.phone].join(' · ').ifEmpty(l10n.profileNoContacts),
+          leading: const Icon(Icons.logout),
+          title: Text(l10n.accountSignOut),
+          onTap: () => ref.read(sessionProvider.notifier).signOut(),
+        ),
+        ListTile(
+          contentPadding: EdgeInsets.zero,
+          leading: const Icon(Icons.switch_account_outlined),
+          title: Text(l10n.profileSwitch),
+          subtitle: Text(l10n.profileSwitchHint),
+          onTap: () => ref.read(sessionProvider.notifier).signOut(),
+        ),
+        ListTile(
+          contentPadding: EdgeInsets.zero,
+          leading: const Icon(Icons.phonelink_erase_outlined),
+          title: Text(l10n.profileRemove),
+          subtitle: Text(l10n.profileRemoveHint),
+          onTap: _busy ? null : _removeHere,
+        ),
+        ListTile(
+          contentPadding: EdgeInsets.zero,
+          leading: Icon(
+            Icons.no_accounts_outlined,
+            color: Theme.of(context).colorScheme.error,
           ),
-        ),
-        const Divider(height: 32),
-        Text(l10n.appearanceTitle, style: text.titleMedium),
-        Text(l10n.appearanceHint),
-        AppearanceSettings(
-          theme: ThemeChoice.parse(me.theme),
-          zone: TimeZoneChoice.parse(me.timeZone),
-          onTheme: (t) => _appearance(t, TimeZoneChoice.parse(me.timeZone)),
-          onZone: (z) => _appearance(ThemeChoice.parse(me.theme), z),
-        ),
-        const Divider(height: 32),
-        Text(l10n.notifyTitle, style: text.titleMedium),
-        Text(l10n.notifyHint),
-        SwitchListTile(
-          contentPadding: EdgeInsets.zero,
-          value: true,
-          onChanged: null,
-          title: Text(l10n.notifyInApp),
-          subtitle: Text(l10n.notifyInAppHint),
-        ),
-        SwitchListTile(
-          contentPadding: EdgeInsets.zero,
-          value: me.notifyEmail,
-          onChanged: _saving ? null : (v) => _set(email: v),
-          title: Text(l10n.notifyEmail),
-          subtitle: Text(me.email ?? l10n.notifyNoEmail),
-        ),
-        SwitchListTile(
-          contentPadding: EdgeInsets.zero,
-          value: me.notifyPush,
-          onChanged: _saving ? null : (v) => _set(push: v),
-          title: Text(l10n.notifyPush),
-          subtitle: Text(l10n.notifyPushHint),
-        ),
-        SwitchListTile(
-          contentPadding: EdgeInsets.zero,
-          value: me.notifySms,
-          onChanged: _saving ? null : (v) => _set(sms: v),
-          title: Text(l10n.notifySms),
-          subtitle: Text(me.phone ?? l10n.notifyNoPhone),
-        ),
-        if (_error != null)
-          Text(
-            _error!,
+          title: Text(
+            l10n.profileClose,
             style: TextStyle(color: Theme.of(context).colorScheme.error),
           ),
-        if (lockOn != null) ...[
-          const Divider(height: 32),
-          Text(l10n.lockTitle, style: text.titleMedium),
-          SwitchListTile(
-            contentPadding: EdgeInsets.zero,
-            value: admin || lockOn,
-            onChanged: admin ? null : _lock,
-            title: Text(l10n.lockSwitch),
-            subtitle: Text(admin ? l10n.lockAdminRequired : l10n.lockHint),
-          ),
-        ],
+          subtitle: Text(l10n.profileCloseHint),
+          onTap: _busy ? null : _close,
+        ),
+        const Divider(height: 24),
+        const LegalTiles(),
       ],
     );
   }

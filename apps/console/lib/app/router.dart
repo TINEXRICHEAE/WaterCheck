@@ -6,6 +6,7 @@ import 'package:ui_kit/ui_kit.dart';
 
 import '../features/admin/admin_screen.dart';
 import '../features/admin/archived_screen.dart';
+import '../features/admin/codes_screen.dart';
 import '../features/admin/credentials_screen.dart';
 import '../features/admin/typed_values_screen.dart';
 import '../features/admin/device_screen.dart';
@@ -29,7 +30,9 @@ import '../features/collectors/collectors_screen.dart';
 import '../features/dashboard/dashboard_screen.dart';
 import '../features/dashboard/dashboard_state.dart';
 import '../features/limits/limit_sets_screen.dart';
+import '../features/profile/legal_screen.dart';
 import '../features/profile/profile_screen.dart';
+import '../features/profile/settings_screen.dart';
 import '../features/reports/reports_screen.dart';
 import '../features/sources/source_detail_screen.dart';
 import '../features/sources/test_detail_screen.dart';
@@ -55,7 +58,13 @@ String? sessionRedirect(ConsoleSession s, String location) {
     SessionPhase.mustChangePassword => only('/change-password'),
     SessionPhase.choosePin => only('/pin'),
     SessionPhase.locked => only('/unlock'),
-    SessionPhase.signedIn when _authRoutes.contains(location) => '/dashboard',
+    // The current Privacy Policy and Terms first (ADR-026).
+    SessionPhase.signedIn
+        when (s.me?.legalVersion ?? legalVersion) < legalVersion =>
+      only('/legal'),
+    SessionPhase.signedIn
+        when _authRoutes.contains(location) || location == '/legal' =>
+      '/dashboard',
     SessionPhase.signedIn when location.startsWith('/admin') && !s.isAdmin =>
       '/dashboard',
     SessionPhase.signedIn => null,
@@ -88,6 +97,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(path: '/pin', builder: (_, _) => const ChoosePinScreen()),
       GoRoute(path: '/unlock', builder: (_, _) => const UnlockScreen()),
+      GoRoute(path: '/legal', builder: (_, _) => const LegalScreen()),
       StatefulShellRoute.indexedStack(
         builder: (context, state, shell) =>
             _ConsoleShell(shell: shell, path: state.uri.path),
@@ -101,6 +111,10 @@ final routerProvider = Provider<GoRouter>((ref) {
                   GoRoute(
                     path: 'profile',
                     builder: (_, _) => const ProfileScreen(),
+                  ),
+                  GoRoute(
+                    path: 'settings',
+                    builder: (_, _) => const SettingsScreen(),
                   ),
                   GoRoute(
                     path: 'messages',
@@ -241,6 +255,10 @@ final routerProvider = Provider<GoRouter>((ref) {
                   GoRoute(
                     path: 'parameters',
                     builder: (_, _) => const ParametersScreen(),
+                  ),
+                  GoRoute(
+                    path: 'codes',
+                    builder: (_, _) => const CodesScreen(),
                   ),
                   GoRoute(
                     path: 'typed-values',
@@ -530,6 +548,14 @@ class _AccountButton extends ConsumerWidget {
             contentPadding: EdgeInsets.zero,
             leading: const Icon(Icons.manage_accounts_outlined),
             title: Text(l10n.navProfile),
+          ),
+        ),
+        PopupMenuItem<void>(
+          onTap: () => context.go('/dashboard/settings'),
+          child: ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.settings_outlined),
+            title: Text(l10n.navSettings),
           ),
         ),
         PopupMenuItem<void>(

@@ -15,6 +15,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:watercheck_console/features/map/device_location.dart';
 import 'package:watercheck_console/features/map/map_tiles.dart';
 import 'package:watercheck_console/main.dart';
+import 'package:ui_kit/ui_kit.dart' as ui show legalVersion;
 
 const _seed = '../../infra/seed';
 const newPassword = 'BoreholeWater2026';
@@ -29,6 +30,10 @@ class FakeUser {
 
   var notify = (email: true, push: true, sms: true);
   var appearance = (theme: 'system', zone: 'Africa/Kampala');
+
+  /// Privacy Policy and Terms version accepted (ADR-026): current unless a
+  /// test says otherwise.
+  int legalVersion = ui.legalVersion;
 
   String password;
   final String role;
@@ -150,6 +155,7 @@ class FakeAuthApi implements ConsoleAuthApi {
       notifySms: u.notify.sms,
       theme: u.appearance.theme,
       timeZone: u.appearance.zone,
+      legalVersion: u.legalVersion,
     );
   }
 

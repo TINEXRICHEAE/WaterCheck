@@ -197,6 +197,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
           onPressed: _busy ? null : _forgot,
           child: Text(l10n.forgotLink),
         ),
+        const LegalLinks(),
       ],
     );
   }

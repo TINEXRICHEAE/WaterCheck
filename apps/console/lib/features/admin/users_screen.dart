@@ -12,6 +12,16 @@ import 'area_picker.dart';
 
 /// People (F-ADM-1): every Console user, at any level from village to
 /// national. Online only.
+final _areaRequestsProvider = FutureProvider.autoDispose<List<AreaRequestOut>>((
+  ref,
+) async {
+  try {
+    return await ref.watch(adminApiProvider).profile.areaRequests();
+  } on Object {
+    return const [];
+  }
+});
+
 class UsersScreen extends ConsumerStatefulWidget {
   const UsersScreen({super.key});
 
@@ -22,6 +32,27 @@ class UsersScreen extends ConsumerStatefulWidget {
 class _UsersScreenState extends ConsumerState<UsersScreen> {
   var _query = '';
   var _raw = '';
+
+  Future<void> _decide(String requestId, bool approve) async {
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      await ref
+          .read(adminApiProvider)
+          .profile
+          .decideAreaRequest(
+            requestId: requestId,
+            body: DecideIn(approve: approve),
+          );
+      ref
+        ..invalidate(_areaRequestsProvider)
+        ..invalidate(adminUsersProvider);
+    } on Object {
+      messenger.showSnackBar(
+        SnackBar(content: Text(l10n.adminNeedsConnection)),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,6 +72,38 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
             l10n.usersTitle,
             style: Theme.of(context).textTheme.headlineSmall,
           ),
+          // People asking for different areas (ADR-025).
+          ...?ref
+              .watch(_areaRequestsProvider)
+              .value
+              ?.map(
+                (r) => Card(
+                  child: ListTile(
+                    leading: const Icon(Icons.edit_location_alt_outlined),
+                    title: Text(
+                      l10n.areaRequestLine(
+                        r.fullName,
+                        r.areas.join(', '),
+                        r.current.join(', '),
+                      ),
+                    ),
+                    subtitle: Text(r.reason),
+                    trailing: Wrap(
+                      spacing: 4,
+                      children: [
+                        TextButton(
+                          onPressed: () => _decide(r.id, false),
+                          child: Text(l10n.areaRequestDecline),
+                        ),
+                        FilledButton.tonal(
+                          onPressed: () => _decide(r.id, true),
+                          child: Text(l10n.areaRequestApprove),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
           const SizedBox(height: 8),
           SearchField(
             value: _raw,
