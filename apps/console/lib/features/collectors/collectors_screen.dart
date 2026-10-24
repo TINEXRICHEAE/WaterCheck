@@ -11,6 +11,7 @@ import '../../app/providers.dart';
 import '../../app/session.dart';
 import '../../l10n/app_localizations.dart';
 import '../sources/type_labels.dart';
+import 'tester_access.dart' show assignmentsProvider;
 import '../admin/archive_actions.dart';
 import 'recovery_code.dart';
 import '../dashboard/dashboard_state.dart';
@@ -28,6 +29,12 @@ class CollectorsScreen extends ConsumerWidget {
     final rows = data?.collectors ?? const <CollectorActivity>[];
     final when = DateFormat('d MMM y');
     final admin = ref.watch(sessionProvider).isAdmin;
+    final assigned = ref.watch(assignmentsProvider).value == null
+        ? null
+        : {
+            for (final a in ref.watch(assignmentsProvider).value!)
+              a.collectorKey,
+          };
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
@@ -41,6 +48,7 @@ class CollectorsScreen extends ConsumerWidget {
         const FilterBar(),
         const SizedBox(height: 12),
         if (rows.isEmpty) Text(l10n.collectorsNone),
+        // Testers officially assigned to an area (ADR-024); empty offline.
         for (final c in rows)
           Card(
             child: ListTile(
@@ -64,6 +72,8 @@ class CollectorsScreen extends ConsumerWidget {
                   ?c.phone,
                   if (c.mark == 'known') l10n.markKnown,
                   if (c.mark == 'flagged') l10n.markFlagged,
+                  if (assigned != null && !assigned.contains(c.collectorKey))
+                    l10n.collectorNotAssigned,
                 ].join(' · '),
               ),
               trailing: PopupMenuButton<String>(

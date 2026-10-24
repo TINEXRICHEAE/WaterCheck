@@ -1939,7 +1939,7 @@ abstract class AppLocalizations {
   /// No description provided for @adminPhonesHint.
   ///
   /// In en, this message translates to:
-  /// **'Activation codes, devices in use, revoking a lost device.'**
+  /// **'Assignment codes for testers, devices in use, revoking a lost device.'**
   String get adminPhonesHint;
 
   /// No description provided for @adminChain.
@@ -2149,19 +2149,19 @@ abstract class AppLocalizations {
   /// No description provided for @phonesHint.
   ///
   /// In en, this message translates to:
-  /// **'Devices activated with a code for an area. Revoke a lost or stolen device: it stops syncing and locks itself.'**
+  /// **'Devices register themselves when Collect is opened; testers are assigned to areas with codes. Revoke a lost or stolen device: it stops syncing and locks itself.'**
   String get phonesHint;
 
   /// No description provided for @phonesNone.
   ///
   /// In en, this message translates to:
-  /// **'No devices activated yet.'**
+  /// **'No devices yet.'**
   String get phonesNone;
 
   /// No description provided for @phonesNewCode.
   ///
   /// In en, this message translates to:
-  /// **'New activation code'**
+  /// **'New assignment code'**
   String get phonesNewCode;
 
   /// No description provided for @phonesActivity.
@@ -2209,7 +2209,7 @@ abstract class AppLocalizations {
   /// No description provided for @phonesCodes.
   ///
   /// In en, this message translates to:
-  /// **'Recent activation codes'**
+  /// **'Recent assignment codes'**
   String get phonesCodes;
 
   /// No description provided for @phonesNoCodes.
@@ -2221,19 +2221,19 @@ abstract class AppLocalizations {
   /// No description provided for @phonesCodeLine.
   ///
   /// In en, this message translates to:
-  /// **'{used} of {max} devices · valid until {until}'**
+  /// **'{used} of {max} uses · valid until {until}'**
   String phonesCodeLine(int used, int max, String until);
 
   /// No description provided for @phonesNewCodeFor.
   ///
   /// In en, this message translates to:
-  /// **'Activation code for {area}'**
+  /// **'Assignment code for {area}'**
   String phonesNewCodeFor(String area);
 
   /// No description provided for @phonesMax.
   ///
   /// In en, this message translates to:
-  /// **'Up to {n} devices'**
+  /// **'Up to {n} testers'**
   String phonesMax(int n);
 
   /// No description provided for @phonesValidDays.
@@ -2257,13 +2257,13 @@ abstract class AppLocalizations {
   /// No description provided for @phonesCodeHint.
   ///
   /// In en, this message translates to:
-  /// **'Shown only now. On the device, open WaterCheck Collect and scan the QR code or type the code.'**
+  /// **'Shown only now. The tester opens Collect › Settings › Your area and devices › Enter an assignment code, and types or scans it.'**
   String get phonesCodeHint;
 
   /// No description provided for @phonesQrLabel.
   ///
   /// In en, this message translates to:
-  /// **'Activation QR code'**
+  /// **'Assignment QR code'**
   String get phonesQrLabel;
 
   /// No description provided for @chainTitle.
@@ -3175,7 +3175,7 @@ abstract class AppLocalizations {
   /// No description provided for @archiveRestorePhone.
   ///
   /// In en, this message translates to:
-  /// **'Its records come back. The device itself stays revoked: issue a new activation code to use it again.'**
+  /// **'Its records come back. The device itself stays revoked.'**
   String get archiveRestorePhone;
 
   /// No description provided for @archiveRestored.
@@ -3553,7 +3553,7 @@ abstract class AppLocalizations {
   /// No description provided for @chainAddCollector.
   ///
   /// In en, this message translates to:
-  /// **'A new collector device (activation code)'**
+  /// **'A tester for this area (assignment code)'**
   String get chainAddCollector;
 
   /// No description provided for @chainNoCandidates.
@@ -3577,7 +3577,7 @@ abstract class AppLocalizations {
   /// No description provided for @ledgerMenuHint.
   ///
   /// In en, this message translates to:
-  /// **'Every activation code and account made, and who and what used them'**
+  /// **'Every assignment code and account made, and who used them'**
   String get ledgerMenuHint;
 
   /// No description provided for @ledgerHint.
@@ -3589,7 +3589,7 @@ abstract class AppLocalizations {
   /// No description provided for @ledgerCodes.
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, =1{1 activation code} other{{count} activation codes}}'**
+  /// **'{count, plural, =1{1 assignment code} other{{count} assignment codes}}'**
   String ledgerCodes(int count);
 
   /// No description provided for @ledgerAccounts.
@@ -3625,7 +3625,7 @@ abstract class AppLocalizations {
   /// No description provided for @ledgerNoDevices.
   ///
   /// In en, this message translates to:
-  /// **'No device has used this code yet.'**
+  /// **'No tester has used this code yet.'**
   String get ledgerNoDevices;
 
   /// No description provided for @ledgerWithdraw.
@@ -3867,6 +3867,114 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Messages'**
   String get messagesSectionTitle;
+
+  /// No description provided for @testerAreaTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Area and devices'**
+  String get testerAreaTitle;
+
+  /// No description provided for @testerNotAssigned.
+  ///
+  /// In en, this message translates to:
+  /// **'Not yet assigned to an area. Testers work anywhere without one; an assignment makes them officially responsible for an area.'**
+  String get testerNotAssigned;
+
+  /// No description provided for @testerAssign.
+  ///
+  /// In en, this message translates to:
+  /// **'Assign to an area'**
+  String get testerAssign;
+
+  /// No description provided for @testerEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'End'**
+  String get testerEnd;
+
+  /// No description provided for @testerByCode.
+  ///
+  /// In en, this message translates to:
+  /// **'assigned with a code'**
+  String get testerByCode;
+
+  /// No description provided for @testerByAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'assigned by an IT admin'**
+  String get testerByAdmin;
+
+  /// No description provided for @testerDevices.
+  ///
+  /// In en, this message translates to:
+  /// **'Devices they use'**
+  String get testerDevices;
+
+  /// No description provided for @testerNoDevices.
+  ///
+  /// In en, this message translates to:
+  /// **'No device has sent anything for them yet.'**
+  String get testerNoDevices;
+
+  /// No description provided for @testerDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'Device'**
+  String get testerDevice;
+
+  /// No description provided for @testerVia.
+  ///
+  /// In en, this message translates to:
+  /// **'{via, select, created{started there} admin_code{signed in with an admin\'s code} own_code{signed in with their own code} other{signed in}}'**
+  String testerVia(String via);
+
+  /// No description provided for @testerLastUsed.
+  ///
+  /// In en, this message translates to:
+  /// **'last used {when}'**
+  String testerLastUsed(String when);
+
+  /// No description provided for @testerSignedOut.
+  ///
+  /// In en, this message translates to:
+  /// **'signed out {when}'**
+  String testerSignedOut(String when);
+
+  /// No description provided for @testerSignIns.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign-ins on other devices'**
+  String get testerSignIns;
+
+  /// No description provided for @testerPendingCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Code to give them: {code}'**
+  String testerPendingCode(String code);
+
+  /// No description provided for @testerPendingHint.
+  ///
+  /// In en, this message translates to:
+  /// **'They asked to sign out {count, plural, =1{1 device} other{{count} devices}}. Check it is them (by phone), then give them this code. Valid until {until}.'**
+  String testerPendingHint(int count, String until);
+
+  /// No description provided for @collectorNotAssigned.
+  ///
+  /// In en, this message translates to:
+  /// **'not yet assigned'**
+  String get collectorNotAssigned;
+
+  /// No description provided for @deviceSelfRegistered.
+  ///
+  /// In en, this message translates to:
+  /// **'registered itself (no area)'**
+  String get deviceSelfRegistered;
+
+  /// No description provided for @ledgerAssigned.
+  ///
+  /// In en, this message translates to:
+  /// **'assigned {when}'**
+  String ledgerAssigned(String when);
 }
 
 class _AppLocalizationsDelegate

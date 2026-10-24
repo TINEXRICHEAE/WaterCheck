@@ -1167,7 +1167,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get adminPhonesHint =>
-      'Activation codes, devices in use, revoking a lost device.';
+      'Assignment codes for testers, devices in use, revoking a lost device.';
 
   @override
   String get adminChain => 'Who covers an area';
@@ -1285,13 +1285,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get phonesHint =>
-      'Devices activated with a code for an area. Revoke a lost or stolen device: it stops syncing and locks itself.';
+      'Devices register themselves when Collect is opened; testers are assigned to areas with codes. Revoke a lost or stolen device: it stops syncing and locks itself.';
 
   @override
-  String get phonesNone => 'No devices activated yet.';
+  String get phonesNone => 'No devices yet.';
 
   @override
-  String get phonesNewCode => 'New activation code';
+  String get phonesNewCode => 'New assignment code';
 
   @override
   String phonesActivity(int collectors, int tests) {
@@ -1322,24 +1322,24 @@ class AppLocalizationsEn extends AppLocalizations {
       'It stops syncing at once. Unsent records on it are saved to an encrypted file only the server can read.';
 
   @override
-  String get phonesCodes => 'Recent activation codes';
+  String get phonesCodes => 'Recent assignment codes';
 
   @override
   String get phonesNoCodes => 'No codes yet.';
 
   @override
   String phonesCodeLine(int used, int max, String until) {
-    return '$used of $max devices · valid until $until';
+    return '$used of $max uses · valid until $until';
   }
 
   @override
   String phonesNewCodeFor(String area) {
-    return 'Activation code for $area';
+    return 'Assignment code for $area';
   }
 
   @override
   String phonesMax(int n) {
-    return 'Up to $n devices';
+    return 'Up to $n testers';
   }
 
   @override
@@ -1357,10 +1357,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get phonesCodeHint =>
-      'Shown only now. On the device, open WaterCheck Collect and scan the QR code or type the code.';
+      'Shown only now. The tester opens Collect › Settings › Your area and devices › Enter an assignment code, and types or scans it.';
 
   @override
-  String get phonesQrLabel => 'Activation QR code';
+  String get phonesQrLabel => 'Assignment QR code';
 
   @override
   String get chainTitle => 'Who covers an area';
@@ -1942,7 +1942,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get archiveRestorePhone =>
-      'Its records come back. The device itself stays revoked: issue a new activation code to use it again.';
+      'Its records come back. The device itself stays revoked.';
 
   @override
   String get archiveRestored => 'Restored';
@@ -2229,7 +2229,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chainAddStakeholder => 'A new stakeholder';
 
   @override
-  String get chainAddCollector => 'A new collector device (activation code)';
+  String get chainAddCollector => 'A tester for this area (assignment code)';
 
   @override
   String get chainNoCandidates => 'Everyone active already covers this area.';
@@ -2244,7 +2244,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ledgerMenuHint =>
-      'Every activation code and account made, and who and what used them';
+      'Every assignment code and account made, and who used them';
 
   @override
   String get ledgerHint =>
@@ -2255,8 +2255,8 @@ class AppLocalizationsEn extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count activation codes',
-      one: '1 activation code',
+      other: '$count assignment codes',
+      one: '1 assignment code',
     );
     return '$_temp0';
   }
@@ -2289,7 +2289,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ledgerUsedUp => 'used up';
 
   @override
-  String get ledgerNoDevices => 'No device has used this code yet.';
+  String get ledgerNoDevices => 'No tester has used this code yet.';
 
   @override
   String get ledgerWithdraw => 'Withdraw this code';
@@ -2489,4 +2489,83 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get messagesSectionTitle => 'Messages';
+
+  @override
+  String get testerAreaTitle => 'Area and devices';
+
+  @override
+  String get testerNotAssigned =>
+      'Not yet assigned to an area. Testers work anywhere without one; an assignment makes them officially responsible for an area.';
+
+  @override
+  String get testerAssign => 'Assign to an area';
+
+  @override
+  String get testerEnd => 'End';
+
+  @override
+  String get testerByCode => 'assigned with a code';
+
+  @override
+  String get testerByAdmin => 'assigned by an IT admin';
+
+  @override
+  String get testerDevices => 'Devices they use';
+
+  @override
+  String get testerNoDevices => 'No device has sent anything for them yet.';
+
+  @override
+  String get testerDevice => 'Device';
+
+  @override
+  String testerVia(String via) {
+    String _temp0 = intl.Intl.selectLogic(via, {
+      'created': 'started there',
+      'admin_code': 'signed in with an admin\'s code',
+      'own_code': 'signed in with their own code',
+      'other': 'signed in',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String testerLastUsed(String when) {
+    return 'last used $when';
+  }
+
+  @override
+  String testerSignedOut(String when) {
+    return 'signed out $when';
+  }
+
+  @override
+  String get testerSignIns => 'Sign-ins on other devices';
+
+  @override
+  String testerPendingCode(String code) {
+    return 'Code to give them: $code';
+  }
+
+  @override
+  String testerPendingHint(int count, String until) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count devices',
+      one: '1 device',
+    );
+    return 'They asked to sign out $_temp0. Check it is them (by phone), then give them this code. Valid until $until.';
+  }
+
+  @override
+  String get collectorNotAssigned => 'not yet assigned';
+
+  @override
+  String get deviceSelfRegistered => 'registered itself (no area)';
+
+  @override
+  String ledgerAssigned(String when) {
+    return 'assigned $when';
+  }
 }

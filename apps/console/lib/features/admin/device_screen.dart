@@ -46,7 +46,10 @@ class DeviceScreen extends ConsumerWidget {
               ? l10n.deviceTitle
               : [
                   ?device.label,
-                  '${device.area.name} (${l10n.areaLevel(device.area.level)})',
+                  if (device.area case final a?)
+                    '${a.name} (${l10n.areaLevel(a.level)})'
+                  else
+                    l10n.deviceSelfRegistered,
                   ?device.shortCode,
                 ].join(' · '),
           style: text.headlineSmall,

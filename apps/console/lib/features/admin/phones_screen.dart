@@ -61,7 +61,10 @@ class PhonesScreen extends ConsumerWidget {
                     title: Text(
                       [
                         ?p.label,
-                        '${p.area.name} (${l10n.areaLevel(p.area.level)})',
+                        if (p.area case final a?)
+                          '${a.name} (${l10n.areaLevel(a.level)})'
+                        else
+                          l10n.deviceSelfRegistered,
                         ?p.shortCode,
                         if (p.archived) l10n.archivedTag,
                       ].join(' · '),
@@ -102,7 +105,7 @@ class PhonesScreen extends ConsumerWidget {
                           ref,
                           entity: ArchiveInEntity.installation,
                           recordId: p.id,
-                          label: p.label ?? p.shortCode ?? p.area.name,
+                          label: p.label ?? p.shortCode ?? p.area?.name ?? p.id,
                         ),
                       },
                       itemBuilder: (_) => [

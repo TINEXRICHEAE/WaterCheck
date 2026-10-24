@@ -680,7 +680,7 @@
   "adminPeople": "People",
   "adminPeopleHint": "Create stakeholders and IT admins at any level, reset passwords, disable accounts.",
   "adminPhones": "Collect devices",
-  "adminPhonesHint": "Activation codes, devices in use, revoking a lost device.",
+  "adminPhonesHint": "Assignment codes for testers, devices in use, revoking a lost device.",
   "adminChain": "Who covers an area",
   "adminChainHint": "The chain of people an alert reaches, level by level, and the gaps.",
   "usersTitle": "People",
@@ -736,9 +736,9 @@
   "credentialsCopy": "Copy",
   "credentialsDone": "Done",
   "phonesTitle": "Collect devices",
-  "phonesHint": "Devices activated with a code for an area. Revoke a lost or stolen device: it stops syncing and locks itself.",
-  "phonesNone": "No devices activated yet.",
-  "phonesNewCode": "New activation code",
+  "phonesHint": "Devices register themselves when Collect is opened; testers are assigned to areas with codes. Revoke a lost or stolen device: it stops syncing and locks itself.",
+  "phonesNone": "No devices yet.",
+  "phonesNewCode": "New assignment code",
   "phonesActivity": "{collectors} collectors, {tests} tests",
   "@phonesActivity": {
     "placeholders": {
@@ -770,9 +770,9 @@
   "phonesRevoke": "Revoke",
   "phonesRevokeTitle": "Revoke this device?",
   "phonesRevokeHint": "It stops syncing at once. Unsent records on it are saved to an encrypted file only the server can read.",
-  "phonesCodes": "Recent activation codes",
+  "phonesCodes": "Recent assignment codes",
   "phonesNoCodes": "No codes yet.",
-  "phonesCodeLine": "{used} of {max} devices · valid until {until}",
+  "phonesCodeLine": "{used} of {max} uses · valid until {until}",
   "@phonesCodeLine": {
     "placeholders": {
       "used": {
@@ -786,7 +786,7 @@
       }
     }
   },
-  "phonesNewCodeFor": "Activation code for {area}",
+  "phonesNewCodeFor": "Assignment code for {area}",
   "@phonesNewCodeFor": {
     "placeholders": {
       "area": {
@@ -794,7 +794,7 @@
       }
     }
   },
-  "phonesMax": "Up to {n} devices",
+  "phonesMax": "Up to {n} testers",
   "@phonesMax": {
     "placeholders": {
       "n": {
@@ -819,8 +819,8 @@
       }
     }
   },
-  "phonesCodeHint": "Shown only now. On the device, open WaterCheck Collect and scan the QR code or type the code.",
-  "phonesQrLabel": "Activation QR code",
+  "phonesCodeHint": "Shown only now. The tester opens Collect › Settings › Your area and devices › Enter an assignment code, and types or scans it.",
+  "phonesQrLabel": "Assignment QR code",
   "chainTitle": "Who covers an area",
   "chainHint": "Pick any area to see who an alert from it reaches, level by level. Levels with nobody are skipped; the IT admins are told only when nobody covers it.",
   "chainPick": "Choose an area",
@@ -1154,7 +1154,7 @@
     }
   },
   "archiveRestoreBody": "Everything this action archived comes back to lists, dashboards, reports and devices.",
-  "archiveRestorePhone": "Its records come back. The device itself stays revoked: issue a new activation code to use it again.",
+  "archiveRestorePhone": "Its records come back. The device itself stays revoked.",
   "archiveRestored": "Restored",
   "moreActions": "More actions",
   "phonesName": "Name this device",
@@ -1334,7 +1334,7 @@
   "paramsOpenCollector": "The collector",
   "chainAddExisting": "An existing person",
   "chainAddStakeholder": "A new stakeholder",
-  "chainAddCollector": "A new collector device (activation code)",
+  "chainAddCollector": "A tester for this area (assignment code)",
   "chainNoCandidates": "Everyone active already covers this area.",
   "chainAdded": "{name} now covers {area}.",
   "@chainAdded": {
@@ -1348,9 +1348,9 @@
     }
   },
   "ledgerTitle": "Codes and accounts",
-  "ledgerMenuHint": "Every activation code and account made, and who and what used them",
+  "ledgerMenuHint": "Every assignment code and account made, and who used them",
   "ledgerHint": "Made by whom, for which area, and how each was used. The codes and passwords themselves are never kept.",
-  "ledgerCodes": "{count, plural, =1{1 activation code} other{{count} activation codes}}",
+  "ledgerCodes": "{count, plural, =1{1 assignment code} other{{count} assignment codes}}",
   "@ledgerCodes": {
     "placeholders": {
       "count": {
@@ -1387,7 +1387,7 @@
   },
   "ledgerExpired": "expired",
   "ledgerUsedUp": "used up",
-  "ledgerNoDevices": "No device has used this code yet.",
+  "ledgerNoDevices": "No tester has used this code yet.",
   "ledgerWithdraw": "Withdraw this code",
   "ledgerNotUsed": "not used yet (temporary password never changed)",
   "ledgerLastSignIn": "last signed in {when}",
@@ -1528,5 +1528,68 @@
       }
     }
   },
-  "messagesSectionTitle": "Messages"
+  "messagesSectionTitle": "Messages",
+  "testerAreaTitle": "Area and devices",
+  "testerNotAssigned": "Not yet assigned to an area. Testers work anywhere without one; an assignment makes them officially responsible for an area.",
+  "testerAssign": "Assign to an area",
+  "testerEnd": "End",
+  "testerByCode": "assigned with a code",
+  "testerByAdmin": "assigned by an IT admin",
+  "testerDevices": "Devices they use",
+  "testerNoDevices": "No device has sent anything for them yet.",
+  "testerDevice": "Device",
+  "testerVia": "{via, select, created{started there} admin_code{signed in with an admin's code} own_code{signed in with their own code} other{signed in}}",
+  "@testerVia": {
+    "placeholders": {
+      "via": {
+        "type": "String"
+      }
+    }
+  },
+  "testerLastUsed": "last used {when}",
+  "@testerLastUsed": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "testerSignedOut": "signed out {when}",
+  "@testerSignedOut": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "testerSignIns": "Sign-ins on other devices",
+  "testerPendingCode": "Code to give them: {code}",
+  "@testerPendingCode": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "testerPendingHint": "They asked to sign out {count, plural, =1{1 device} other{{count} devices}}. Check it is them (by phone), then give them this code. Valid until {until}.",
+  "@testerPendingHint": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "until": {
+        "type": "String"
+      }
+    }
+  },
+  "collectorNotAssigned": "not yet assigned",
+  "deviceSelfRegistered": "registered itself (no area)",
+  "ledgerAssigned": "assigned {when}",
+  "@ledgerAssigned": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  }
 }

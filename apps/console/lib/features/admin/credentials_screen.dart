@@ -65,7 +65,17 @@ class CredentialsScreen extends ConsumerWidget {
                   ].join(' · '),
                 ),
                 children: [
-                  if (c.devices.isEmpty)
+                  // Testers it assigned (ADR-024), then devices activated
+                  // with it before.
+                  for (final t in c.testers)
+                    ListTile(
+                      leading: const Icon(Icons.badge_outlined),
+                      title: Text(t.fullName ?? t.collectorKey),
+                      subtitle: Text(l10n.ledgerAssigned(at(t.assignedAt))),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () => context.go('/collectors/${t.collectorKey}'),
+                    ),
+                  if (c.devices.isEmpty && c.testers.isEmpty)
                     ListTile(title: Text(l10n.ledgerNoDevices)),
                   for (final dev in c.devices)
                     ListTile(

@@ -9,6 +9,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:ui_kit/map_kit.dart' show MapSearchBar;
 
 import 'package:watercheck_console/features/admin/admin_api.dart';
 
@@ -252,6 +253,49 @@ void main() {
     await disposeConsole(tester, db);
   });
 
+  testWidgets('map search finds names on the map with their sub-county', (
+    tester,
+  ) async {
+    final env = ConsoleTestEnv(cookieMode: true);
+    env.api.sessionFor('admin@example.org');
+    env.sync.serve['scope'] = [
+      ..._area(),
+      IncomingChange(
+        entity: 'place_name',
+        op: 'upsert',
+        id: _id(20),
+        data: {
+          'id': _id(20),
+          'name': 'Kalokengel Trading Centre',
+          'kind': 'locality',
+          'lat': 2.72,
+          'lon': 33.66,
+          'subcounty_id': '772071dd-af0d-5e4d-9ff6-c802d483f7ed',
+        },
+      ),
+    ];
+    _env = env;
+    final db = await pumpConsole(tester, env: env);
+    await tester.tap(find.text('Sources').last);
+    await settle(tester);
+    await tester.tap(find.text('Map'));
+    await settle(tester);
+    await tester.enterText(
+      find.descendant(
+        of: find.byType(MapSearchBar),
+        matching: find.byType(TextField),
+      ),
+      'kaloken',
+    );
+    await settle(tester);
+    expect(find.text('Kalokengel Trading Centre'), findsOneWidget);
+    expect(find.text('Alerek, Abim'), findsOneWidget);
+    await tester.tap(find.text('Kalokengel Trading Centre'));
+    await settle(tester);
+    expect(find.byIcon(Icons.location_pin), findsOneWidget);
+    await disposeConsole(tester, db);
+  });
+
   testWidgets('map: coloured dots with names, distance from the device, '
       'the latest issue; a dot opens the source', (tester) async {
     final env = ConsoleTestEnv(cookieMode: true)
@@ -363,11 +407,42 @@ void main() {
     await settle(tester);
     await tester.tap(find.text('Sign-in code for another device'));
     await settle(tester);
-    expect(server.paths, ['/v1/collectors/$_collector/recovery-code']);
+    // The list also asks which testers are assigned (ADR-024).
+    expect(server.paths.where((p) => p.endsWith('/recovery-code')), [
+      '/v1/collectors/$_collector/recovery-code',
+    ]);
     expect(find.text('Code for Example Collector'), findsOneWidget);
     expect(find.text('K7QMR-T4W9X'), findsOneWidget);
     await tester.tap(find.text('Close'));
     await settle(tester);
+    await disposeConsole(tester, db);
+  });
+
+  testWidgets('a tester page shows their area, devices, sign-ins and the '
+      'code to pass on (ADR-024)', (tester) async {
+    final server = _AccessServer();
+    final db = await _open(
+      tester,
+      size: const Size(1200, 2400),
+      overrides: [
+        adminApiProvider.overrideWithValue(
+          WaterCheckApi(
+            Dio(BaseOptions(baseUrl: 'http://test'))
+              ..httpClientAdapter = server,
+          ),
+        ),
+      ],
+    );
+    await tester.tap(find.text('Collectors').last);
+    await settle(tester);
+    expect(find.textContaining('not yet assigned'), findsOneWidget);
+    await tester.tap(find.textContaining('Example Collector'));
+    await settle(tester);
+    expect(find.text('Area and devices'), findsOneWidget);
+    expect(find.text('Code to give them: 482915'), findsOneWidget);
+    expect(find.textContaining('Not yet assigned to an area'), findsOneWidget);
+    expect(find.textContaining('signed in with their own code'), findsWidgets);
+    expect(find.text('Sign-ins on other devices'), findsOneWidget);
     await disposeConsole(tester, db);
   });
 
@@ -497,6 +572,64 @@ class _CodeServer implements HttpClientAdapter {
         'full_name': 'Example Collector',
       }),
       201,
+      headers: {
+        Headers.contentTypeHeader: [Headers.jsonContentType],
+      },
+    );
+  }
+
+  @override
+  void close({bool force = false}) {}
+}
+
+/// A tester's access, as the server reports it (ADR-024).
+class _AccessServer implements HttpClientAdapter {
+  @override
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future<void>? cancelFuture,
+  ) async {
+    final path = options.uri.path;
+    final Object body = path.endsWith('/collectors/assignments')
+        ? <Object>[]
+        : {
+            'assignments': <Object>[],
+            'devices': [
+              {
+                'installation_id': _id(40),
+                'platform': 'android',
+                'label': 'Old phone',
+                'short_code': '7Q2K',
+                'signed_in_via': 'own_code',
+                'first_seen_at': '2026-10-20T08:00:00Z',
+                'last_seen_at': '2026-10-23T08:00:00Z',
+                'signed_out_at': null,
+                'this_device': false,
+              },
+            ],
+            'sign_ins': [
+              {
+                'installation_id': _id(40),
+                'platform': 'android',
+                'label': 'Old phone',
+                'via': 'own_code',
+                'at': '2026-10-20T08:00:00Z',
+              },
+            ],
+            'pending': [
+              {
+                'id': _id(41),
+                'code': '482915',
+                'devices': 1,
+                'created_at': '2026-10-24T08:00:00Z',
+                'expires_at': '2026-10-25T08:00:00Z',
+              },
+            ],
+          };
+    return ResponseBody.fromString(
+      jsonEncode(body),
+      200,
       headers: {
         Headers.contentTypeHeader: [Headers.jsonContentType],
       },

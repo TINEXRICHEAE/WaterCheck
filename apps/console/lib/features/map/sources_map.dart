@@ -15,7 +15,8 @@ import '../../app/console_sync.dart';
 import '../../app/providers.dart';
 import '../../l10n/app_localizations.dart';
 import '../alerts/alerts_screen.dart' show severityColor, triggerText;
-import '../dashboard/dashboard_state.dart' show mapHomeProvider;
+import '../dashboard/dashboard_state.dart'
+    show dataVersionProvider, mapHomeProvider;
 import '../sources/sources_screen.dart' show sourcesQueryProvider;
 import 'device_location.dart';
 import 'map_tiles.dart';
@@ -62,6 +63,37 @@ void showSourceOnMap(BuildContext context, WidgetRef ref, String sourceId) {
   ref.read(sourcesQueryProvider.notifier).map(true);
   context.go('/sources');
 }
+
+/// Names on the map placed in their sub-county (ADR-023), ready for the
+/// search box: built once, not on every redraw (an IT admin holds all
+/// of Uganda's, about 64,000).
+final _mapNamePlacesProvider = FutureProvider<List<MapPlace>>((ref) async {
+  // Again after each sync: the first one brings the names.
+  ref.watch(consoleSyncProvider.select((s) => s.last));
+  ref.watch(dataVersionProvider);
+  final names = await MapPlaceRepository(ref.watch(databaseProvider)).all();
+  final units = {
+    for (final u
+        in await ref.watch(referenceDataRepositoryProvider).adminUnits())
+      u.id: u,
+  };
+  return [
+    for (final m in names)
+      MapPlace(
+        id: m.id,
+        name: m.name,
+        isSource: false,
+        fromMap: true,
+        lat: m.lat,
+        lon: m.lon,
+        areaId: m.subcountyId,
+        detail: [
+          ?units[m.subcountyId]?.name,
+          ?units[units[m.subcountyId]?.parentId]?.name,
+        ].join(', '),
+      ),
+  ];
+});
 
 /// The area list, for the map search and the path to a chosen place.
 final _mapAreasProvider = FutureProvider<List<AdminUnit>>(
@@ -197,6 +229,9 @@ class _SourcesMapState extends ConsumerState<SourcesMap>
   /// What the search chose (2026-10-22, ADR-021): an area, or a source
   /// (then also the focus).
   String? _areaId;
+
+  /// A name from the map that was searched for (ADR-023), pinned.
+  MapPlace? _pin;
   MapRoute? _route;
   String? _routeKey;
   var _routeLoading = false;
@@ -210,6 +245,17 @@ class _SourcesMapState extends ConsumerState<SourcesMap>
 
   /// Flies to a source, or around an area's sources.
   void _choose(MapPlace p, AreaTree tree) {
+    if (p.fromMap) {
+      // Its sub-county in the path; the map at the named point, pinned.
+      setState(() {
+        _areaId = p.areaId;
+        _pin = p;
+      });
+      ref.read(mapFocusProvider.notifier).focus(null);
+      _motion.moveTo(LatLng(p.lat!, p.lon!), 15);
+      return;
+    }
+    setState(() => _pin = null);
     if (p.isSource) {
       final s = widget.sources.where((x) => x.id == p.id).firstOrNull;
       setState(() => _areaId = s?.villageId);
@@ -314,6 +360,7 @@ class _SourcesMapState extends ConsumerState<SourcesMap>
                 if (a.level != 'country' && a.level != 'region') a.name,
             ].join(' · '),
           ),
+      ...?ref.watch(_mapNamePlacesProvider).value,
       for (final s in widget.sources)
         MapPlace(
           id: s.id,
@@ -390,6 +437,46 @@ class _SourcesMapState extends ConsumerState<SourcesMap>
               pulseId: focus?.id ?? issue?.point.id,
             ),
             if (me != null) _YouAreHere(at: me),
+            if (_pin case final pin?)
+              MarkerLayer(
+                markers: [
+                  Marker(
+                    point: LatLng(pin.lat!, pin.lon!),
+                    width: 200,
+                    height: 64,
+                    alignment: const Alignment(0, -0.6),
+                    child: Tooltip(
+                      message: [pin.name, ?pin.detail].join(' · '),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          DecoratedBox(
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.surface,
+                              borderRadius: BorderRadius.circular(6),
+                              boxShadow: const [
+                                BoxShadow(blurRadius: 3, color: Colors.black26),
+                              ],
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
+                              child: Text(
+                                pin.name,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ),
+                          const Icon(Icons.location_pin, size: 32),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
           ],
         ),
         if (widget.overlay != null)

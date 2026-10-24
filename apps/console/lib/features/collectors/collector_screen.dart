@@ -18,6 +18,7 @@ import '../admin/archive_actions.dart';
 import '../dashboard/dashboard_state.dart';
 import '../map/sources_map.dart' show showAreaOnMap;
 import 'recovery_code.dart';
+import 'tester_access.dart';
 import '../messages/messages.dart';
 
 typedef _Test = ({
@@ -229,6 +230,10 @@ class CollectorScreen extends ConsumerWidget {
                   ),
               ],
             ),
+            if (admin) ...[
+              const Divider(height: 32),
+              TesterAccessSection(collectorKey: collectorKey),
+            ],
             const Divider(height: 32),
             Text(l10n.messagesSectionTitle, style: text.titleMedium),
             const SizedBox(height: 8),
