@@ -620,3 +620,57 @@ Decisions are also recorded in [PLAN.md](PLAN.md) (decisions log and §3a), the 
 - **Finding:** two full runs hung (no CPU for 45 and 58 minutes). The test database answered at once on `127.0.0.1`, but a connection by `localhost`, the address testcontainers gives, stalled for minutes. On this machine `localhost` tries IPv6 first, which Docker Desktop's port forwarding has not answered since it was restarted earlier today. Each test opens new connections, so each one took about 2 minutes.
 - **Fix:** `tests/conftest.py` uses `127.0.0.1` when testcontainers reports `localhost` (`_host()`). The two stuck runs and their leftover test containers were removed.
 - **Outcome:** the full backend suite passes: 241 tests in 9 min 54 s. Lint, format and types are clean.
+
+### 38. Commits; map pad with key labels; own profiles (ADR-025), 2026-10-24
+- **Asked:**
+  1. Commit what was done, in groups.
+  2. A four-way pan control next to the zoom buttons on every map, with keyboard labels on computers.
+  3. A proper profile for each kind of user, apart from settings: editable name, email and phone, area if wrong, and other relevant details; sign out, switch account, remove an account from this device, delete my account.
+- **Decisions (lead):**
+  - A stakeholder's own area change is a request an admin approves (testers change theirs directly).
+  - Delete closes the account and erases contacts, and records stay.
+  - A new email or phone is confirmed with a code the IT admin passes on for now.
+- **Outcome:**
+  1. **Commits:** gitleaks found no secrets in the full history. Six local commits: 6ecbe2b backend, 3d68207 packages, 740b310 Collect, bee24b5 Console, ac7f11f tools and infra, 9e7e884 docs.
+  2. **Map pad (UI kit `MapNavigationButtons`, replacing `MapZoomButtons`):**
+     - up, down, left and right (tap: a third of the view; hold: keep moving), then zoom in and out;
+     - on Windows, macOS, Linux, or a browser on them, each button shows its key (↑ W, ↓ S, ← A, → D, R, F); tooltips name the keys everywhere;
+     - used on the Collect map and the Console sources map;
+     - tests: the pad moves each way, zooms, and shows keys only when asked.
+  3. **Profiles (ADR-025):** migration 0016, `app/api/profile.py` and `app/domain/phone.py`.
+     - **Console:**
+       - "My profile": details, contacts with confirmation, areas with "Ask for different areas", and account actions (settings, sign out, sign in as someone else, remove from this device, close my account).
+       - A separate "Settings" page: appearance, alert channels, lock, install. The account menu has both ("My profile", "Settings").
+       - Admin › "Codes to pass on" lists contact and device codes; Admin › People lists area change requests with Approve and Decline.
+     - **Collect:**
+       - "My profile" from the Home bar and Settings: details with Edit, phone and email with Confirm, assignment, sign-in code and devices, then Switch person, Sign out of this device, and Delete my profile.
+       - Signing out and deleting send everything first, and wait if anything is unsent.
+     - **Tests:**
+       - backend: edit, phone code via the admin list, area request approved, closing (sign-in then refused), a tester confirming an email and deleting their profile (records then refused);
+       - Console: the profile page;
+       - Collect: confirming a phone, then signing out of the device.
+- **Watch:**
+  - Confirmation codes are kept in clear for a day until email and SMS send them.
+  - An approved area change applies at the next token refresh (at most 15 minutes).
+  - Closing keeps the person's name on their records.
+
+### 39. Privacy Policy and Terms of Use (ADR-026), 2026-10-24
+- **Asked:** "fix the Privacy Policy as well as Terms and Conditions".
+- **Finding:**
+  - Only a version-1 paragraph on Collect's welcome screen, now out of date (phone required; no pictures, messages, map, self-registration or profile deletion).
+  - No terms, nothing in the Console.
+  - The server is hosted outside Uganda (Azure South Africa North), which the Act requires to be stated.
+- **Decisions (lead):** placeholders for the controller and contact; results kept, contacts erased on closing, unused accounts flagged after 2 years, logs 1 year; everyone accepts, by version.
+- **Outcome:**
+  - **Documents:** `packages/ui_kit/assets/legal/privacy-policy.md` (v2) and `terms.md` (v1), drafts written from what the apps actually do, with [placeholders]. `docs/legal/README.md` points there.
+  - **UI kit `legal.dart`:** `legalVersion` (2), a document reader, links, profile entries and an acceptance view.
+  - **Collect:** welcome summary, links and "I agree…" (consent records version 2, so earlier testers are asked again); documents also under My profile and Settings.
+  - **Console:**
+    - `legal_version` on the account (migration 0016) and `POST /v1/me/legal`;
+    - "Before you continue" after sign-in for anyone below the current version;
+    - links on the sign-in page and in My profile.
+  - **Tests:**
+    - Collect: documents open from the welcome screen, and agreeing continues;
+    - Console: acceptance after sign-in, version recorded;
+    - backend: the version recorded on the account.
+- **Before real data:** fill in the placeholders, confirm with PDPO and the ethics committee, and raise `legalVersion` if the substance changes. The 2-year unused-account flag is promised but not built.

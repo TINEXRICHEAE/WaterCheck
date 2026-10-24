@@ -28,3 +28,5 @@ Format: context → decision → consequences. Number them sequentially. Never r
 | [022](ADR-022-devices-context-and-conversations.md) | Every device, linked pages, pictures with context, typed "Other", conversations in the app | Accepted (built, waiting for dev check) |
 | [023](ADR-023-map-places-in-their-subcounty.md) | Names on the map placed in their sub-county: suggestions, map search, sub-county from GPS | Accepted (on dev) |
 | [024](ADR-024-testers-not-devices.md) | Testers, not devices, are assigned to areas: self-registered devices, assignment codes, own sign-in codes, signing devices out | Accepted (on dev) |
+| [025](ADR-025-own-profiles.md) | Profiles people manage themselves: details, confirmed contacts, area requests, sign out, close account | Accepted (on dev) |
+| [026](ADR-026-privacy-policy-and-terms.md) | Privacy Policy and Terms of Use, bundled in both apps and accepted by version | Accepted (drafts awaiting details) |
