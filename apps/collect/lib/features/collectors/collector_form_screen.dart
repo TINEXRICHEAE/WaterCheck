@@ -8,6 +8,7 @@ import 'package:ui_kit/ui_kit.dart';
 import '../../app/gate.dart';
 import '../../app/providers.dart';
 import '../../l10n/app_localizations.dart';
+import '../sources/online_search.dart';
 import 'area_fields.dart';
 
 /// Create or edit a collector profile (SPEC §2.1). Editing keeps the
@@ -200,6 +201,7 @@ class _CollectorFormScreenState extends ConsumerState<CollectorFormScreen> {
               subcounty: _subcounty,
               district: _district,
               mapNames: ref.watch(mapNamesProvider).value ?? const [],
+              online: ref.read(onlinePlaceSearchProvider),
             ),
             const SizedBox(height: 12),
             TextFormField(

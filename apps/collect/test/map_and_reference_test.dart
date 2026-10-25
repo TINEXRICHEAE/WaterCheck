@@ -39,8 +39,16 @@ void main() {
     await tapAndSettle(tester, find.widgetWithText(ListTile, 'Jinja').first);
     expect(find.byType(MapScreen), findsOneWidget);
     expect(find.text('Jinja'), findsWidgets);
-    // Its place in the list, and the sub-counties within it.
+    // On a phone the path is folded to its last step; a tap shows it all.
+    expect(find.text('Uganda'), findsNothing);
+    await tapAndSettle(tester, find.byTooltip('Show the whole path'));
     expect(find.text('Uganda'), findsOneWidget);
+    // The list is a sheet over the map: pulled up, the places within.
+    await tester.drag(
+      find.byType(DraggableScrollableSheet),
+      const Offset(0, -700),
+    );
+    await settle(tester);
     expect(find.text('12 areas within'), findsOneWidget);
     await tapAndSettle(tester, find.text('Budondo'));
     expect(find.textContaining('No source on this device'), findsOneWidget);
@@ -55,6 +63,9 @@ void main() {
     await tester.pumpAndSettle();
     await tapAndSettle(tester, find.text('Butagaya').last);
     expect(find.text('Butagaya (sub-county)'), findsOneWidget);
+    // Folded on every screen until asked for (ADR-027).
+    expect(find.text('Jinja (district)'), findsNothing);
+    await tapAndSettle(tester, find.byTooltip('Show the whole path'));
     expect(find.text('Jinja (district)'), findsOneWidget);
     // No "Uganda (country)" twice: the country is the first chip only.
     expect(find.textContaining('(country)'), findsNothing);

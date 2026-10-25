@@ -56,6 +56,9 @@ class FakeServer implements HttpClientAdapter {
   /// Sources the online search finds (`/v1/sources/search`).
   final searchHits = <Map<String, Object?>>[];
 
+  /// Places the online search finds (`/v1/places/search`, ADR-028).
+  final placeHits = <Map<String, Object?>>[];
+
   /// Rows served on the next pull of each stream.
   final serve = <String, List<Map<String, Object?>>>{};
 
@@ -139,6 +142,13 @@ class FakeServer implements HttpClientAdapter {
           if ('${h['code']} ${h['name']} ${h['village']}'
               .toLowerCase()
               .contains(options.uri.queryParameters['q']!.toLowerCase()))
+            h,
+      ]),
+      ('GET', '/v1/places/search') => _json(200, [
+        for (final h in placeHits)
+          if ('${h['name']}'.toLowerCase().contains(
+            options.uri.queryParameters['q']!.toLowerCase(),
+          ))
             h,
       ]),
       _ => _json(404, {'detail': 'not_found'}),

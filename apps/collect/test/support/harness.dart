@@ -1,6 +1,9 @@
 import 'dart:io';
 
+import 'dart:async';
+
 import 'package:data/data.dart';
+import 'package:domain/domain.dart' show GeoFix;
 import 'package:drift/drift.dart' show driftRuntimeOptions;
 import 'package:drift/native.dart';
 import 'package:flutter/foundation.dart';
@@ -12,6 +15,7 @@ import 'package:watercheck_collect/app/gate.dart';
 import 'package:watercheck_collect/app/services.dart';
 import 'package:api_client/api_client.dart' show InstallationSigner;
 import 'package:watercheck_collect/features/activation/collect_api.dart';
+import 'package:watercheck_collect/features/location/location_service.dart';
 import 'package:watercheck_collect/features/photos/free_space.dart';
 import 'package:watercheck_collect/features/photos/photo_service.dart';
 import 'package:watercheck_collect/features/sync/collect_sync.dart';
@@ -57,6 +61,19 @@ class FakePhotoPicker implements PhotoPicker {
   }
 }
 
+/// Fixes a test sends while travelling, and the fix a picture gets.
+class FakeLiveLocation implements LiveLocation {
+  final fixes = StreamController<GeoFix>.broadcast();
+  GeoFix? detailed;
+
+  @override
+  Stream<GeoFix> watch() => fixes.stream;
+
+  @override
+  Future<GeoFix?> detail({Duration wait = const Duration(seconds: 15)}) async =>
+      detailed;
+}
+
 class FakeFreeSpace implements FreeSpace {
   int? free = 2 * 1024 * 1024 * 1024;
 
@@ -74,6 +91,7 @@ class TestServices {
   final photos = MemoryPhotoFiles();
   final picker = FakePhotoPicker();
   final freeSpace = FakeFreeSpace();
+  final live = FakeLiveLocation();
   var onWifi = true;
   var restarts = 0;
   var deletes = 0;
@@ -106,7 +124,10 @@ class TestServices {
     restartAppProvider.overrideWithValue(() async => restarts++),
     photoFilesProvider.overrideWithValue(photos),
     photoPickerProvider.overrideWithValue(picker),
-    photoCompressorProvider.overrideWithValue((b) async => compressPhoto(b)),
+    photoCompressorProvider.overrideWithValue(
+      (b, taken) async => compressPhoto(b, taken: taken),
+    ),
+    liveLocationProvider.overrideWithValue(live),
     freeSpaceProvider.overrideWithValue(freeSpace),
     onWifiProvider.overrideWithValue(() async => onWifi),
     deletePhotosProvider.overrideWithValue(() async {}),

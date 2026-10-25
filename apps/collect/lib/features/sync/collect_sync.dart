@@ -263,6 +263,7 @@ class SyncController extends Notifier<SyncUiState> {
     final profiles = ref.read(collectorProfileRepositoryProvider);
     for (final k in keys) {
       await profiles.deactivate(k);
+      await ref.read(tripRepositoryProvider).deleteFor(k);
     }
     if (keys.contains(ref.read(appGateProvider).activeCollectorKey)) {
       await ref.read(appGateProvider.notifier).clearCollector();

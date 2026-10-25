@@ -3,6 +3,7 @@ import 'package:domain/domain.dart' show alertTriggers;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:ui_kit/map_kit.dart';
 import 'package:ui_kit/ui_kit.dart';
 
 import '../../app/providers.dart';
@@ -47,13 +48,18 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
   Future<void> _addPicture(PhotoFrom from) async {
     final l10n = AppLocalizations.of(context);
     setState(() => _picking = true);
-    final (outcome, jpeg) = await preparePhoto(ref, from);
+    final (outcome, photo) = await preparePhoto(ref, from);
     if (!mounted) return;
     setState(() => _picking = false);
-    if (jpeg != null) {
+    if (photo != null) {
       ref
           .read(testDraftProvider.notifier)
-          .update((d) => d.copyWith(photos: [...d.photos, jpeg]));
+          .update(
+            (d) => d.copyWith(
+              photos: [...d.photos, photo.jpeg],
+              photoTaken: {...d.photoTaken, photo.jpeg: ?photo.taken},
+            ),
+          );
       return;
     }
     final message = switch (outcome) {
@@ -69,15 +75,20 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
 
   void _viewPictures(int at) {
     final l10n = AppLocalizations.of(context);
-    final photos = ref.read(testDraftProvider).photos;
+    final ui = UiKitLocalizations.of(context);
+    final draft = ref.read(testDraftProvider);
     showPhotoViewer(
       context,
       initial: at,
       photos: [
-        for (final jpeg in photos)
+        for (final jpeg in draft.photos)
           ViewedPhoto(
             load: () async => jpeg,
             caption: l10n.reviewPicture,
+            taken: switch (draft.photoTaken[jpeg]) {
+              final t? => takenText(ui, t),
+              null => null,
+            },
             onRemove: () async {
               ref
                   .read(testDraftProvider.notifier)
@@ -144,6 +155,7 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
         owner: PhotoOwner.test,
         ownerId: ids.sessionId,
         jpeg: jpeg,
+        taken: draft.photoTaken[jpeg],
         origin: origin,
       );
     }

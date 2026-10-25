@@ -1,10 +1,12 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:data/data.dart';
+import 'package:domain/domain.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../app/providers.dart';
+import '../location/location_service.dart';
 import 'free_space.dart';
 
 enum PhotoFrom { camera, gallery }
@@ -37,11 +39,13 @@ class DevicePhotoPicker implements PhotoPicker {
 bool get canUseCamera =>
     !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
 
-/// Compresses off the UI thread (an isolate); tests run it directly.
+/// Compresses off the UI thread (an isolate), writing where the picture
+/// was taken into it (ADR-029); tests run it directly.
 final photoCompressorProvider =
-    Provider<Future<Uint8List?> Function(Uint8List)>(
+    Provider<Future<Uint8List?> Function(Uint8List, GeoFix?)>(
       (ref) =>
-          (bytes) => compute(compressPhoto, bytes),
+          (bytes, taken) =>
+              compute(compressPhotoTaken, (bytes: bytes, taken: taken)),
     );
 
 final photoFilesProvider = Provider<PhotoFiles>((ref) => DevicePhotoFiles());
@@ -97,10 +101,15 @@ final photoNetworkAllowedProvider = Provider<Future<bool> Function()>((ref) {
 
 enum PhotoOutcome { saved, cancelled, lowStorage, notAnImage, noCollector }
 
-/// Takes or chooses a photo and compresses it (≤ 300 KB, no EXIF), not yet
-/// saved: a test's picture waits for the test (ADR-022). Refuses below
-/// 100 MB free so readings can still be saved (chaos #7).
-Future<(PhotoOutcome, Uint8List?)> preparePhoto(
+/// A picture ready to save: the JPEG and where it was taken, if known.
+typedef PreparedPhoto = ({Uint8List jpeg, GeoFix? taken});
+
+/// Takes or chooses a photo and compresses it (≤ 300 KB; only where and
+/// when it was taken is written into it, ADR-029), not yet saved: a
+/// test's picture waits for the test (ADR-022). The fix is sought while
+/// the camera is open. Refuses below 100 MB free so readings can still be
+/// saved (chaos #7).
+Future<(PhotoOutcome, PreparedPhoto?)> preparePhoto(
   WidgetRef ref,
   PhotoFrom from,
 ) async {
@@ -111,11 +120,13 @@ Future<(PhotoOutcome, Uint8List?)> preparePhoto(
   if (ref.read(submissionOriginProvider) == null) {
     return (PhotoOutcome.noCollector, null);
   }
+  final fix = ref.read(liveLocationProvider).detail();
   final picked = await ref.read(photoPickerProvider).pick(from);
   if (picked == null) return (PhotoOutcome.cancelled, null);
-  final jpeg = await ref.read(photoCompressorProvider)(picked);
+  final taken = await fix;
+  final jpeg = await ref.read(photoCompressorProvider)(picked, taken);
   if (jpeg == null) return (PhotoOutcome.notAnImage, null);
-  return (PhotoOutcome.saved, jpeg);
+  return (PhotoOutcome.saved, (jpeg: jpeg, taken: taken));
 }
 
 /// Takes or chooses a photo, compresses it and queues it.
@@ -125,14 +136,15 @@ Future<PhotoOutcome> addPhoto(
   required String ownerId,
   required PhotoFrom from,
 }) async {
-  final (outcome, jpeg) = await preparePhoto(ref, from);
-  if (jpeg == null) return outcome;
+  final (outcome, photo) = await preparePhoto(ref, from);
+  if (photo == null) return outcome;
   await ref
       .read(attachmentRepositoryProvider)
       .addPhoto(
         owner: owner,
         ownerId: ownerId,
-        jpeg: jpeg,
+        jpeg: photo.jpeg,
+        taken: photo.taken,
         origin: ref.read(submissionOriginProvider)!,
       );
   return PhotoOutcome.saved;

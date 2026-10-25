@@ -1,5 +1,9 @@
+import 'dart:async';
+import 'dart:math' as math;
+
 import 'package:data/data.dart';
 import 'package:dio/dio.dart';
+import 'package:domain/domain.dart' show GeoFix;
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -12,10 +16,16 @@ import '../../app/gate.dart';
 import '../../app/providers.dart';
 import '../../l10n/app_localizations.dart';
 import '../location/location_service.dart';
+import '../sources/online_search.dart';
 import '../sources/source_providers.dart';
 import '../sources/source_status.dart';
 import '../sync/refresh_button.dart';
 import 'map_tiles.dart';
+
+/// Open alerts on this device, for the notices at the bottom of the map.
+final _openAlertsProvider = StreamProvider<List<AlertListItem>>(
+  (ref) => ref.watch(alertRepositoryProvider).watchList(),
+);
 
 /// The map in Collect (ADR-019 slice B, ADR-021): the sources on this phone
 /// by status over the labelled map of Uganda. One search finds any area
@@ -24,7 +34,9 @@ import 'map_tiles.dart';
 /// [placeId] a name on the map in that area (ADR-023), pinned; the path
 /// above it reads Uganda › region › district › … › source. Layers: source
 /// names, straight-line distances from here, and the road route to the
-/// chosen source by motorbike/car or on foot.
+/// chosen source, place or area by motorbike/car or on foot (ADR-028).
+/// "Go" follows the device there live and keeps the trip (ADR-029); a long
+/// press adds a place missing from the map.
 class MapScreen extends ConsumerStatefulWidget {
   const MapScreen({super.key, this.areaId, this.sourceId, this.placeId});
 
@@ -40,6 +52,37 @@ class _MapScreenState extends ConsumerState<MapScreen>
     with TickerProviderStateMixin {
   final _map = MapController();
   late final _motion = MapMotion(_map, this);
+  final _sheet = DraggableScrollableController();
+
+  /// Wide screens: the list beside the map, closed until asked for.
+  var _listOpen = false;
+
+  /// "You are here", kept current while the map is open (2026-10-25).
+  StreamSubscription<GeoFix>? _hereFixes;
+
+  /// Places found online and chosen, not (yet) on this device.
+  final _online = <String, MapName>{};
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _hereFixes = ref.read(liveLocationProvider).watch().listen(
+        (f) {
+          if (mounted) setState(() => _here = LatLng(f.lat, f.lon));
+        },
+        // Location off or refused: the locate button still asks.
+        onError: (Object _) {},
+      );
+    });
+  }
+
+  /// Live navigation (ADR-029): the trip, its fixes and its stored record.
+  LiveTrip? _trip;
+  StreamSubscription<GeoFix>? _fixes;
+  String? _tripId;
+  var _tripEnded = false;
   var _layers = const MapLayers();
   LatLng? _here;
   var _locating = false;
@@ -50,8 +93,40 @@ class _MapScreenState extends ConsumerState<MapScreen>
   MapName? _place() => widget.placeId == null
       ? null
       : (ref.read(mapNamesProvider).value ?? const <MapName>[])
-            .where((m) => m.id == widget.placeId)
-            .firstOrNull;
+                .where((m) => m.id == widget.placeId)
+                .firstOrNull ??
+            _online[widget.placeId];
+
+  /// Places anywhere in Uganda from the server, for the search box.
+  Future<List<MapPlace>> _searchOnline(String text, AreaTree tree) async {
+    final ui = UiKitLocalizations.of(context);
+    final hits = await ref.read(onlinePlaceSearchProvider)(text);
+    return [
+      for (final h in hits)
+        if (h.lat != null &&
+            h.lon != null &&
+            h.subcountyId != null &&
+            tree.byId[h.subcountyId] != null &&
+            // Areas on this device are already in the local list.
+            tree.byId[h.id] == null)
+          MapPlace(
+            id: h.id,
+            name: h.name,
+            isSource: false,
+            fromMap: true,
+            lat: h.lat,
+            lon: h.lon,
+            areaId: h.subcountyId,
+            addedBy: h.addedBy,
+            detail: [
+              if (h.addedBy case final by?) ui.placeAddedBy(by),
+              ?tree.byId[h.subcountyId]?.name,
+              ?tree.byId[tree.byId[h.subcountyId]?.parentId]?.name,
+            ].join(' · '),
+          ),
+    ];
+  }
+
   var _routeLoading = false;
 
   @override
@@ -68,9 +143,163 @@ class _MapScreenState extends ConsumerState<MapScreen>
 
   @override
   void dispose() {
+    unawaited(_hereFixes?.cancel());
+    unawaited(_fixes?.cancel());
+    if (_tripId case final id? when !_tripEnded) {
+      unawaited(
+        ref.read(tripRepositoryProvider).end(id, arrived: _trip!.arrived),
+      );
+    }
+    _trip?.dispose();
     _motion.dispose();
     _map.dispose();
+    _sheet.dispose();
     super.dispose();
+  }
+
+  /// Follows the device to [to] live, keeping the trip on this phone.
+  Future<void> _go(LatLng to, String name) async {
+    await _stop();
+    final trips = ref.read(tripRepositoryProvider);
+    final mode = _layers.mode;
+    final api = ref.read(credentialsProvider)?.apiUrl ?? defaultApiUrl();
+    final id = await trips.start(
+      toName: name,
+      toLat: to.latitude,
+      toLon: to.longitude,
+      mode: mode == TravelMode.vehicle ? 'car' : 'foot',
+      collectorKey: ref.read(submissionOriginProvider)?.collectorKey,
+    );
+    final trip = LiveTrip(
+      target: to,
+      targetName: name,
+      mode: mode,
+      routeTo: (from, to) => fetchRoute(
+        Dio(),
+        base: routingBase(api),
+        mode: mode,
+        from: from,
+        to: to,
+      ),
+      onFix: (f) => unawaited(trips.addFix(id, f)),
+    )..addListener(_tripChanged);
+    if (!mounted) return;
+    setState(() {
+      _trip = trip;
+      _tripId = id;
+      _tripEnded = false;
+    });
+    _fixes = ref
+        .read(liveLocationProvider)
+        .watch()
+        .listen(
+          (f) {
+            final at = LatLng(f.lat, f.lon);
+            unawaited(trip.add(f));
+            if (!mounted) return;
+            setState(() => _here = at);
+            if (trip.follow) {
+              _map.move(at, math.max(_map.camera.zoom, 15));
+            }
+          },
+          onError: (Object _) {
+            if (!mounted) return;
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(AppLocalizations.of(context).locationUnavailable),
+              ),
+            );
+            unawaited(_stop());
+          },
+        );
+  }
+
+  /// Arrival ends the stored trip at once; the panel stays until Done.
+  void _tripChanged() {
+    final trip = _trip, id = _tripId;
+    if (trip != null && id != null && trip.arrived && !_tripEnded) {
+      _tripEnded = true;
+      unawaited(_fixes?.cancel());
+      unawaited(ref.read(tripRepositoryProvider).end(id, arrived: true));
+    }
+    if (mounted) setState(() {});
+  }
+
+  Future<void> _stop() async {
+    await _fixes?.cancel();
+    _fixes = null;
+    final trip = _trip, id = _tripId;
+    if (id != null && !_tripEnded) {
+      await ref.read(tripRepositoryProvider).end(id, arrived: false);
+    }
+    trip?.dispose();
+    if (mounted) {
+      setState(() {
+        _trip = null;
+        _tripId = null;
+        _tripEnded = false;
+      });
+    }
+  }
+
+  /// Adds a place missing from the map at [at] (ADR-028): in the sub-county
+  /// of the nearest known name or area centre; the server sets the real one.
+  Future<void> _addPlace(LatLng at, AreaTree tree) async {
+    final ui = UiKitLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final origin = ref.read(submissionOriginProvider);
+    if (origin == null) return;
+    final repo = MapPlaceRepository(ref.read(databaseProvider));
+    final sub =
+        await repo.nearestSubcounty(at.latitude, at.longitude) ??
+        _nearestSubcounty(at, tree);
+    if (!mounted) return;
+    if (sub == null) {
+      messenger.showSnackBar(SnackBar(content: Text(ui.placeOutside)));
+      return;
+    }
+    final answer = await showAddPlaceDialog(context, kinds: addedPlaceKinds);
+    if (answer == null || !mounted) return;
+    final place = await repo.add(
+      name: answer.name,
+      kind: answer.kind,
+      lat: at.latitude,
+      lon: at.longitude,
+      subcountyId: sub,
+      origin: origin,
+    );
+    ref.invalidate(mapNamesProvider);
+    if (!mounted) return;
+    messenger.showSnackBar(SnackBar(content: Text(ui.placeAdded(place.name))));
+    context.go('/map?area=$sub&place=${place.id}');
+  }
+
+  /// The sub-county whose centre is nearest [at], within about 15 km.
+  static String? _nearestSubcounty(LatLng at, AreaTree tree) {
+    const distance = Distance();
+    String? best;
+    var bestM = 15000.0;
+    for (final u in tree.byId.values) {
+      if (u.level != 'subcounty') continue;
+      final c = tree.centre(u.id);
+      if (c == null) continue;
+      final m = distance(at, LatLng(c.lat, c.lon));
+      if (m < bestM) {
+        bestM = m;
+        best = u.id;
+      }
+    }
+    return best;
+  }
+
+  /// A tap on the sheet's handle opens the list halfway, or folds it back.
+  void _toggleSheet() {
+    if (!_sheet.isAttached) return;
+    _sheet.animateTo(
+      _sheet.size > 0.3 ? 0.12 : 0.5,
+      duration: const Duration(milliseconds: 250),
+      curve: Curves.easeOut,
+    );
   }
 
   Future<void> _locate({bool fly = true}) async {
@@ -179,6 +408,7 @@ class _MapScreenState extends ConsumerState<MapScreen>
     final units = ref.watch(adminUnitsProvider).value;
     final summaries = ref.watch(sourceSummariesProvider).value;
     final template = ref.watch(mapTemplateProvider).value;
+    final alerts = ref.watch(_openAlertsProvider).value ?? const [];
     if (units == null || summaries == null) {
       return const Scaffold(body: PageLoading());
     }
@@ -219,15 +449,28 @@ class _MapScreenState extends ConsumerState<MapScreen>
               if (u.level != 'country') u,
           ];
     final chosenAt = chosen == null ? null : at(chosen);
-    if (chosenAt != null) _ensureRoute(chosenAt);
+    // Where routes and "Go" lead (ADR-028): the chosen source, else the
+    // named place, else the chosen area's centre (sub-county and below).
+    final pinned = _place();
+    final target = chosenAt != null
+        ? (at: chosenAt, name: chosen!.source.name ?? chosen.source.code)
+        : pinned != null
+        ? (at: LatLng(pinned.lat, pinned.lon), name: pinned.name)
+        : area != null &&
+              const {'subcounty', 'parish', 'village'}.contains(area.level) &&
+              centre != null
+        ? (at: LatLng(centre.lat, centre.lon), name: area.name)
+        : null;
+    final trip = _trip;
+    if (target != null && trip == null) _ensureRoute(target.at);
 
-    // Straight lines: to the chosen source, else to the 5 nearest.
+    // Straight lines: to what is chosen, else to the 5 nearest sources.
     final here = _here;
     const distance = Distance();
-    final lineTargets = here == null || !_layers.lines
+    final lineTargets = here == null || !_layers.lines || trip != null
         ? const <LatLng>[]
-        : chosenAt != null
-        ? [chosenAt]
+        : target != null
+        ? [target.at]
         : ([
                 for (final s in placed) at(s)!,
               ]..sort((a, b) => distance(here, a).compareTo(distance(here, b))))
@@ -257,12 +500,15 @@ class _MapScreenState extends ConsumerState<MapScreen>
           lat: m.lat,
           lon: m.lon,
           areaId: m.subcountyId,
-          detail: l10n.mapOnMap(
-            [
-              ?tree.byId[m.subcountyId]?.name,
-              ?tree.byId[tree.byId[m.subcountyId]?.parentId]?.name,
-            ].join(', '),
-          ),
+          detail: [
+            if (m.addedBy case final by?) ui.placeAddedBy(by),
+            l10n.mapOnMap(
+              [
+                ?tree.byId[m.subcountyId]?.name,
+                ?tree.byId[tree.byId[m.subcountyId]?.parentId]?.name,
+              ].join(', '),
+            ),
+          ].join(' · '),
         ),
       for (final s in summaries)
         MapPlace(
@@ -309,6 +555,13 @@ class _MapScreenState extends ConsumerState<MapScreen>
             backgroundColor: Theme.of(context)
                 .colorScheme
                 .surfaceContainerHighest,
+            // A long press (or right-click) adds a place (ADR-028).
+            onLongPress: (_, p) => _addPlace(p, tree),
+            onSecondaryTap: (_, p) => _addPlace(p, tree),
+            // Moving the map by hand stops following the device.
+            onPositionChanged: (_, byHand) {
+              if (byHand && (trip?.follow ?? false)) trip!.setFollow(false);
+            },
           ),
           children: [
             if (template != null)
@@ -317,7 +570,11 @@ class _MapScreenState extends ConsumerState<MapScreen>
                 maxNativeZoom: 18,
                 userAgentPackageName: 'org.watercheck.collect',
               ),
-            if (_layers.route && _route != null) RouteLayer(route: _route!),
+            if (trip?.route case final r?)
+              RouteLayer(route: r)
+            else if (_layers.route && _route != null && trip == null)
+              RouteLayer(route: _route!),
+            if (trip != null) TrackLayer(fixes: trip.track),
             if (here != null && lineTargets.isNotEmpty)
               StraightLinesLayer(from: here, to: lineTargets),
             MarkerLayer(
@@ -362,15 +619,9 @@ class _MapScreenState extends ConsumerState<MapScreen>
                 if (here != null)
                   Marker(
                     point: here,
-                    width: 20,
-                    height: 20,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Theme.of(context).colorScheme.primary,
-                        border: Border.all(color: Colors.white, width: 3),
-                      ),
-                    ),
+                    width: 22,
+                    height: 22,
+                    child: HereMarker(headingDeg: trip?.last?.headingDeg),
                   ),
               ],
             ),
@@ -381,93 +632,153 @@ class _MapScreenState extends ConsumerState<MapScreen>
           ],
         ),
         Positioned(
-          top: 12,
-          left: 12,
-          right: 72,
-          child: Align(
-            alignment: Alignment.topLeft,
-            child: MapSearchBar(
-              places: places,
-              onSelected: (p) {
-                if (p.fromMap) {
-                  // Its sub-county is chosen (the path and the list
-                  // follow); the map goes to the named point.
-                  context.go('/map?area=${p.areaId}&place=${p.id}');
-                  return;
-                }
-                context.go(
-                  p.isSource ? '/map?source=${p.id}' : '/map?area=${p.id}',
-                );
-              },
-            ),
-          ),
-        ),
-        Positioned(
-          top: 12,
-          right: 12,
+          top: 8,
+          left: 8,
+          right: 60,
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              MapLayersButton(layers: _layers, onChanged: _setLayers),
-              const SizedBox(height: 8),
-              MapNavigationButtons(motion: _motion),
+              MapSearchBar(
+                places: places,
+                online: (t) => _searchOnline(t, tree),
+                onSelected: (p) {
+                  if (p.fromMap) {
+                    // Found online: kept so the pin shows (ADR-028).
+                    _online[p.id] = (
+                      id: p.id,
+                      name: p.name,
+                      kind: 'place',
+                      lat: p.lat!,
+                      lon: p.lon!,
+                      subcountyId: p.areaId!,
+                      addedBy: p.addedBy,
+                    );
+                    // Its sub-county is chosen (the path and the list
+                    // follow); the map goes to the named point.
+                    context.go('/map?area=${p.areaId}&place=${p.id}');
+                    return;
+                  }
+                  context.go(
+                    p.isSource ? '/map?source=${p.id}' : '/map?area=${p.id}',
+                  );
+                },
+              ),
+              // The path to what is chosen, folded on phones (2026-10-25).
+              if (path.isNotEmpty || chosen != null) ...[
+                const SizedBox(height: 6),
+                MapPathBar(
+                  items: [
+                    MapPathItem(
+                      label: l10n.mapAllAreas,
+                      icon: Icons.public,
+                      onTap: () => context.go('/map'),
+                    ),
+                    for (final u in path)
+                      MapPathItem(
+                        label: '${u.name} (${areaLevelText(l10n, u.level)})',
+                        onTap: () => context.go('/map?area=${u.id}'),
+                      ),
+                    if (chosen != null)
+                      MapPathItem(
+                        label: chosen.source.name ?? chosen.source.code,
+                        icon: Icons.water_drop,
+                        onTap: () =>
+                            context.push('/sources/${chosen.source.id}'),
+                      ),
+                  ],
+                ),
+              ],
+              if (trip != null) ...[
+                const SizedBox(height: 6),
+                LiveTripPanel(trip: trip, onStop: _stop),
+              ] else if (target != null || chosen != null) ...[
+                const SizedBox(height: 6),
+                _TargetBar(
+                  line: [
+                    if (chosen == null && pinned?.addedBy != null)
+                      ui.placeAddedBy(pinned!.addedBy!),
+                    if (target == null)
+                      l10n.mapNoLocation
+                    else if (here == null)
+                      l10n.mapLocateForDistance
+                    else
+                      distanceSummary(
+                        ui,
+                        straight: distance(here, target.at),
+                        route: _layers.route ? _route : null,
+                        mode: _layers.mode,
+                        routeWanted: _layers.route,
+                        routeLoading: _routeLoading,
+                      ),
+                  ].join(' · '),
+                  onGo: target == null
+                      ? null
+                      : () => _go(target.at, target.name),
+                  onOpen: chosen == null
+                      ? null
+                      : () => context.push('/sources/${chosen.source.id}'),
+                ),
+              ],
             ],
           ),
         ),
-        if (chosen != null)
+        Positioned(
+          top: 8,
+          right: 8,
+          child: Column(
+            children: [
+              MapLayersButton(layers: _layers, onChanged: _setLayers),
+              const SizedBox(height: 6),
+              MapNavigationButtons(motion: _motion),
+              if (MediaQuery.sizeOf(context).width > 760) ...[
+                const SizedBox(height: 6),
+                Material(
+                  elevation: 2,
+                  shape: const CircleBorder(),
+                  color: Theme.of(context).colorScheme.surface,
+                  child: IconButton(
+                    tooltip: _listOpen ? l10n.mapListHide : l10n.mapListShow,
+                    icon: Icon(_listOpen ? Icons.close_fullscreen : Icons.list),
+                    onPressed: () => setState(() => _listOpen = !_listOpen),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+        // The bottom is for notices about sources: open alerts, newest first.
+        if (alerts.isNotEmpty)
           Positioned(
-            left: 12,
-            right: 12,
-            bottom: 28,
-            child: _ChosenCard(
-              summary: chosen,
-              line: chosenAt == null
-                  ? l10n.mapNoLocation
-                  : here == null
-                  ? l10n.mapLocateForDistance
-                  : distanceSummary(
-                      ui,
-                      straight: distance(here, chosenAt),
-                      route: _layers.route ? _route : null,
-                      mode: _layers.mode,
-                      routeWanted: _layers.route,
-                      routeLoading: _routeLoading,
-                    ),
-            ),
+            left: 8,
+            right: 8,
+            // Phones: above the peeking list.
+            bottom: isPhone(context) ? 92 : 12,
+            child: _AlertNotices(alerts: alerts),
           ),
       ],
     );
 
-    final list = ListView(
+    Widget list([ScrollController? scroll]) => ListView(
+      controller: scroll,
       padding: const EdgeInsets.only(bottom: 24),
       children: [
-        if (path.isNotEmpty || chosen != null)
-          Padding(
-            padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
-            child: Wrap(
-              spacing: 4,
-              runSpacing: 4,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              children: [
-                ActionChip(
-                  label: Text(l10n.mapAllAreas),
-                  onPressed: () => context.go('/map'),
+        if (scroll != null)
+          // The sheet's handle: drag up for the list, or tap it.
+          Tooltip(
+            message: UiKitLocalizations.of(context).mapMore,
+            child: InkWell(
+              onTap: _toggleSheet,
+              child: Center(
+                child: Container(
+                  margin: const EdgeInsets.symmetric(vertical: 10),
+                  width: 36,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.outlineVariant,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
                 ),
-                for (final u in path)
-                  ActionChip(
-                    avatar: const Icon(Icons.chevron_right, size: 16),
-                    label: Text('${u.name} (${areaLevelText(l10n, u.level)})'),
-                    onPressed: chosen == null && u.id == area!.id
-                        ? null
-                        : () => context.go('/map?area=${u.id}'),
-                  ),
-                if (chosen != null)
-                  ActionChip(
-                    avatar: const Icon(Icons.water_drop, size: 16),
-                    label: Text(chosen.source.name ?? chosen.source.code),
-                    onPressed: () =>
-                        context.push('/sources/${chosen.source.id}'),
-                  ),
-              ],
+              ),
             ),
           ),
         if (within.isNotEmpty) ...[
@@ -553,17 +864,39 @@ class _MapScreenState extends ConsumerState<MapScreen>
       ),
       body: LayoutBuilder(
         builder: (context, box) => box.maxWidth > 760
+            // Wide: the map fills the screen; the list opens beside it, a
+            // share of the width (2026-10-25).
             ? Row(
                 children: [
                   Expanded(child: map),
-                  SizedBox(width: 380, child: list),
+                  if (_listOpen)
+                    SizedBox(
+                      width: box.maxWidth * 0.3,
+                      child: Material(elevation: 2, child: list()),
+                    ),
                 ],
               )
-            : Column(
+            // Narrower: the map keeps the whole screen; the list is a
+            // sheet that peeks from the bottom and is pulled up (2026-10-25).
+            : Stack(
                 children: [
-                  SizedBox(height: box.maxHeight * 0.55, child: map),
-                  const Divider(height: 1),
-                  Expanded(child: list),
+                  Positioned.fill(child: map),
+                  DraggableScrollableSheet(
+                    controller: _sheet,
+                    initialChildSize: 0.12,
+                    minChildSize: 0.08,
+                    maxChildSize: 0.85,
+                    snap: true,
+                    snapSizes: const [0.12, 0.5],
+                    builder: (context, scroll) => Material(
+                      elevation: 6,
+                      color: Theme.of(context).colorScheme.surface,
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(16),
+                      ),
+                      child: list(scroll),
+                    ),
+                  ),
                 ],
               ),
       ),
@@ -637,27 +970,133 @@ class _Dot extends StatelessWidget {
   }
 }
 
-/// The chosen source over the map: status, distance and route, and a way in.
-class _ChosenCard extends StatelessWidget {
-  const _ChosenCard({required this.summary, required this.line});
+/// What is chosen, under the search: distance and route, "Go" and the
+/// way into a source (ADR-028).
+class _TargetBar extends StatelessWidget {
+  const _TargetBar({required this.line, this.onGo, this.onOpen});
 
-  final SourceSummary summary;
   final String line;
+  final VoidCallback? onGo;
+  final VoidCallback? onOpen;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return Card(
-      elevation: 4,
-      child: ListTile(
-        leading: StatusBadge(statusOf(summary)),
-        title: Text(summary.source.name ?? summary.source.code),
-        subtitle: Text(line),
-        trailing: FilledButton.tonal(
-          onPressed: () => context.push('/sources/${summary.source.id}'),
-          child: Text(l10n.mapOpenSource),
+    final ui = UiKitLocalizations.of(context);
+    return Material(
+      elevation: 2,
+      borderRadius: BorderRadius.circular(10),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(8, 2, 2, 2),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Flexible(
+              child: Text(
+                line,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: isPhone(context)
+                    ? Theme.of(context).textTheme.labelSmall
+                    : null,
+              ),
+            ),
+            if (onGo != null)
+              Tooltip(
+                message: ui.tripGoTooltip,
+                child: TextButton.icon(
+                  onPressed: onGo,
+                  icon: const Icon(Icons.navigation, size: 16),
+                  label: Text(ui.tripGo),
+                ),
+              ),
+            if (onOpen != null)
+              IconButton(
+                visualDensity: VisualDensity.compact,
+                tooltip: l10n.mapOpenSource,
+                icon: const Icon(Icons.open_in_new, size: 18),
+                onPressed: onOpen,
+              ),
+          ],
         ),
       ),
+    );
+  }
+}
+
+/// Open alerts on this device, one line each (newest first, three at
+/// most): a tap shows the source on the map; the arrow opens the alert.
+class _AlertNotices extends StatelessWidget {
+  const _AlertNotices({required this.alerts});
+
+  final List<AlertListItem> alerts;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final colours = Theme.of(context).extension<StatusColors>()!;
+    final text = Theme.of(context).textTheme;
+    final shown = alerts.take(3).toList();
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        for (final a in shown)
+          Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: Material(
+              elevation: 3,
+              borderRadius: BorderRadius.circular(20),
+              color: Theme.of(context).colorScheme.surface,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(20),
+                onTap: () => context.go('/map?source=${a.sourceId}'),
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(8, 2, 2, 2),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.warning_amber_rounded,
+                        size: 18,
+                        color: a.severity == 'high' || a.severity == 'critical'
+                            ? colours.unsafe
+                            : colours.due,
+                      ),
+                      const SizedBox(width: 6),
+                      Flexible(
+                        child: Text(
+                          (a.triggerRule == 'unsafe' || a.triggerRule == 'ecoli'
+                              ? l10n.mapAlertUnsafe
+                              : l10n.mapAlertOther)(
+                            a.sourceName ?? a.sourceCode,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: text.labelMedium,
+                        ),
+                      ),
+                      IconButton(
+                        visualDensity: VisualDensity.compact,
+                        tooltip: l10n.mapAlertOpen,
+                        icon: const Icon(Icons.chevron_right, size: 18),
+                        onPressed: () => context.push('/alerts/${a.id}'),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        if (alerts.length > shown.length)
+          Padding(
+            padding: const EdgeInsets.only(top: 4, left: 8),
+            child: Text(
+              l10n.mapAlertsMore(alerts.length - shown.length),
+              style: text.labelSmall,
+            ),
+          ),
+      ],
     );
   }
 }

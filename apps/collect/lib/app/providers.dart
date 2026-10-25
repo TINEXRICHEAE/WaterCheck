@@ -109,6 +109,11 @@ final adminUnitsProvider = FutureProvider<List<AdminUnit>>(
   (ref) => ref.watch(referenceDataRepositoryProvider).adminUnits(),
 );
 
+/// Trips followed live, kept on this device (ADR-029).
+final tripRepositoryProvider = Provider<TripRepository>(
+  (ref) => TripRepository(ref.watch(databaseProvider)),
+);
+
 /// Places a collector names that are not in the list yet (ADR-019).
 final placeRepositoryProvider = Provider<PlaceRepository>(
   (ref) => PlaceRepository(ref.watch(databaseProvider)),

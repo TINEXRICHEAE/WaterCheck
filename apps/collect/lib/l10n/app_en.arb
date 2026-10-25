@@ -26,7 +26,7 @@
   "startupRetry": "Try again",
   "welcomeTitle": "Welcome to WaterCheck",
   "privacyHeading": "In short",
-  "privacyBody": "WaterCheck records water tests at shared water sources so that communities and districts can act when water may be unsafe.\n\nWith each test it saves your name, the area you give, where you tested (GPS) and any pictures of the test or the source. Your phone and email are optional. Stakeholders for the area see your records and can contact you; other testers see results and your name, not your contacts.\n\nWaterCheck does not ask for national ID numbers or information about households. Please do not photograph people.\n\nYour work is kept on this device (encrypted in the Android and Windows apps) and sent to the WaterCheck server, hosted outside Uganda (South Africa), when there is internet. You can edit your details, or delete your profile, any time under My profile.\n\nA test result is a warning, not a guarantee that water is safe: always follow the advice of your health officials.",
+  "privacyBody": "WaterCheck records water tests at shared water sources so that communities and districts can act when water may be unsafe.\n\nWith each test it saves your name, the area you give, where you tested (GPS) and any pictures of the test or the source, with where and when each was taken. Places you add to the map show your name. Trips you follow with Go stay on this device. Your phone and email are optional. Stakeholders for the area see your records and can contact you; other testers see results and your name, not your contacts.\n\nWaterCheck does not ask for national ID numbers or information about households. Please do not photograph people.\n\nYour work is kept on this device (encrypted in the Android and Windows apps) and sent to the WaterCheck server, hosted outside Uganda (South Africa), when there is internet. You can edit your details, or delete your profile, any time under My profile.\n\nA test result is a warning, not a guarantee that water is safe: always follow the advice of your health officials.",
   "privacyVersion": "Privacy notice version {version}",
   "@privacyVersion": {
     "placeholders": {
@@ -984,5 +984,59 @@
       }
     }
   },
-  "profileSendFirst": "Some of your work is not sent yet. Connect and sync, then try again."
+  "profileSendFirst": "Some of your work is not sent yet. Connect and sync, then try again.",
+  "mapListShow": "Show the list of areas and sources",
+  "mapListHide": "Hide the list",
+  "tripsTitle": "My trips",
+  "tripsTileHint": "Trips you followed live to a source or place",
+  "tripsHint": "Trips you followed live with Go. They stay on this device and are not sent anywhere.",
+  "tripsNone": "No trips yet. Choose a source or place on the map and press Go.",
+  "tripsArrived": "Arrived",
+  "tripsStopped": "Stopped",
+  "tripsTopSpeed": "top speed {speed}",
+  "@tripsTopSpeed": {
+    "placeholders": {
+      "speed": {
+        "type": "String"
+      }
+    }
+  },
+  "tripsAltitude": "{low}–{high} m high",
+  "@tripsAltitude": {
+    "placeholders": {
+      "low": {
+        "type": "String"
+      },
+      "high": {
+        "type": "String"
+      }
+    }
+  },
+  "tripsDelete": "Delete this trip",
+  "tripsDeleteTitle": "Delete this trip from this device?",
+  "mapAlertUnsafe": "Unsafe result: {source}",
+  "@mapAlertUnsafe": {
+    "placeholders": {
+      "source": {
+        "type": "String"
+      }
+    }
+  },
+  "mapAlertOther": "Alert: {source}",
+  "@mapAlertOther": {
+    "placeholders": {
+      "source": {
+        "type": "String"
+      }
+    }
+  },
+  "mapAlertOpen": "Open the alert",
+  "mapAlertsMore": "{count, plural, =1{1 more alert} other{{count} more alerts}}",
+  "@mapAlertsMore": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

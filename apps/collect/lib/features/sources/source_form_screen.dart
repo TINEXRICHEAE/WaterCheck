@@ -10,6 +10,7 @@ import '../../l10n/app_localizations.dart';
 import '../location/location_service.dart';
 import '../collectors/area_fields.dart';
 import '../sync/collect_sync.dart' show collectApiDioProvider;
+import 'online_search.dart';
 
 /// GPS accuracy above which the collector is asked to try again.
 const poorAccuracyMetres = 30.0;
@@ -349,6 +350,7 @@ class _SourceFormScreenState extends ConsumerState<SourceFormScreen> {
                 subcounty: _subcounty,
                 district: _district,
                 mapNames: ref.watch(mapNamesProvider).value ?? const [],
+                online: ref.read(onlinePlaceSearchProvider),
               ),
             ],
             const SizedBox(height: 20),

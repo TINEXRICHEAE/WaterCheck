@@ -74,7 +74,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get privacyBody =>
-      'WaterCheck records water tests at shared water sources so that communities and districts can act when water may be unsafe.\n\nWith each test it saves your name, the area you give, where you tested (GPS) and any pictures of the test or the source. Your phone and email are optional. Stakeholders for the area see your records and can contact you; other testers see results and your name, not your contacts.\n\nWaterCheck does not ask for national ID numbers or information about households. Please do not photograph people.\n\nYour work is kept on this device (encrypted in the Android and Windows apps) and sent to the WaterCheck server, hosted outside Uganda (South Africa), when there is internet. You can edit your details, or delete your profile, any time under My profile.\n\nA test result is a warning, not a guarantee that water is safe: always follow the advice of your health officials.';
+      'WaterCheck records water tests at shared water sources so that communities and districts can act when water may be unsafe.\n\nWith each test it saves your name, the area you give, where you tested (GPS) and any pictures of the test or the source, with where and when each was taken. Places you add to the map show your name. Trips you follow with Go stay on this device. Your phone and email are optional. Stakeholders for the area see your records and can contact you; other testers see results and your name, not your contacts.\n\nWaterCheck does not ask for national ID numbers or information about households. Please do not photograph people.\n\nYour work is kept on this device (encrypted in the Android and Windows apps) and sent to the WaterCheck server, hosted outside Uganda (South Africa), when there is internet. You can edit your details, or delete your profile, any time under My profile.\n\nA test result is a warning, not a guarantee that water is safe: always follow the advice of your health officials.';
 
   @override
   String privacyVersion(int version) {
@@ -1914,4 +1914,70 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get profileSendFirst =>
       'Some of your work is not sent yet. Connect and sync, then try again.';
+
+  @override
+  String get mapListShow => 'Show the list of areas and sources';
+
+  @override
+  String get mapListHide => 'Hide the list';
+
+  @override
+  String get tripsTitle => 'My trips';
+
+  @override
+  String get tripsTileHint => 'Trips you followed live to a source or place';
+
+  @override
+  String get tripsHint =>
+      'Trips you followed live with Go. They stay on this device and are not sent anywhere.';
+
+  @override
+  String get tripsNone =>
+      'No trips yet. Choose a source or place on the map and press Go.';
+
+  @override
+  String get tripsArrived => 'Arrived';
+
+  @override
+  String get tripsStopped => 'Stopped';
+
+  @override
+  String tripsTopSpeed(String speed) {
+    return 'top speed $speed';
+  }
+
+  @override
+  String tripsAltitude(String low, String high) {
+    return '$low–$high m high';
+  }
+
+  @override
+  String get tripsDelete => 'Delete this trip';
+
+  @override
+  String get tripsDeleteTitle => 'Delete this trip from this device?';
+
+  @override
+  String mapAlertUnsafe(String source) {
+    return 'Unsafe result: $source';
+  }
+
+  @override
+  String mapAlertOther(String source) {
+    return 'Alert: $source';
+  }
+
+  @override
+  String get mapAlertOpen => 'Open the alert';
+
+  @override
+  String mapAlertsMore(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count more alerts',
+      one: '1 more alert',
+    );
+    return '$_temp0';
+  }
 }

@@ -45,6 +45,7 @@ class TestDraft {
     this.values = const {},
     this.revealed = const {},
     this.photos = const [],
+    this.photoTaken = const {},
   });
 
   final String? sourceId;
@@ -67,6 +68,9 @@ class TestDraft {
   /// Pictures of the test, saved with it (ADR-022).
   final List<Uint8List> photos;
 
+  /// Where and when each picture was taken, by picture (ADR-029).
+  final Map<Uint8List, GeoFix> photoTaken;
+
   TestDraft copyWith({
     String? sourceId,
     String? calibrationId,
@@ -79,6 +83,7 @@ class TestDraft {
     Map<String, FieldInput>? values,
     Set<String>? revealed,
     List<Uint8List>? photos,
+    Map<Uint8List, GeoFix>? photoTaken,
   }) => TestDraft(
     sourceId: sourceId ?? this.sourceId,
     retestOf: retestOf,
@@ -93,6 +98,7 @@ class TestDraft {
     values: values ?? this.values,
     revealed: revealed ?? this.revealed,
     photos: photos ?? this.photos,
+    photoTaken: photoTaken ?? this.photoTaken,
   );
 
   /// Parameter codes shown on the entry screen, in display order:

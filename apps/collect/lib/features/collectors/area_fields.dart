@@ -1,7 +1,11 @@
+import 'dart:async';
+
 import 'package:data/data.dart';
 import 'package:flutter/material.dart';
+import 'package:ui_kit/ui_kit.dart';
 
 import '../../l10n/app_localizations.dart';
+import '../sources/online_search.dart';
 
 /// A suggestion: a known area, a name on the map (ADR-023), or "Other"
 /// (typed, not in any list).
@@ -24,12 +28,17 @@ class AreaFields extends StatefulWidget {
     required this.subcounty,
     required this.district,
     this.mapNames = const [],
+    this.online,
   });
 
   final List<AdminUnit> units;
 
   /// Names on the map in the device's districts.
   final List<MapName> mapNames;
+
+  /// Places anywhere in Uganda from the server: map names, places people
+  /// added, and parishes and villages added from phones elsewhere.
+  final Future<List<OnlinePlace>> Function(String text)? online;
   final TextEditingController village;
   final TextEditingController parish;
   final TextEditingController subcounty;
@@ -130,6 +139,45 @@ class _AreaFieldsState extends State<AreaFields> {
     if (sc != null) _pickSubcounty(sc);
   });
 
+  /// A parish found online (added from another phone): its name, and the
+  /// sub-county it sits in.
+  void _pickOnlineParish(MapName m) => setState(() {
+    _parishUnit = null;
+    widget.parish.text = m.name;
+    final sc = _byId[m.subcountyId];
+    if (sc != null) _pickSubcounty(sc);
+  });
+
+  /// Server hits of [kinds] in a sub-county this device knows, as names
+  /// to pick (the field adds them after its own suggestions).
+  Future<List<_Option>> _onlineOptions(
+    String typed,
+    bool Function(String kind) kinds,
+  ) async {
+    final hits = await widget.online!(typed.trim());
+    return [
+      for (final h in hits)
+        if (kinds(h.kind) &&
+            h.subcountyId != null &&
+            _byId[h.subcountyId] != null &&
+            _byId[h.id] == null &&
+            (_subcountyUnit == null || h.subcountyId == _subcountyUnit!.id))
+          (
+            unit: null,
+            place: (
+              id: h.id,
+              name: h.name,
+              kind: h.kind,
+              lat: h.lat ?? 0,
+              lon: h.lon ?? 0,
+              subcountyId: h.subcountyId!,
+              addedBy: h.addedBy,
+            ),
+            name: h.name,
+          ),
+    ];
+  }
+
   void _pickVillage(AdminUnit v) => setState(() {
     widget.village.text = v.name;
     final p = _parent(v);
@@ -221,6 +269,18 @@ class _AreaFieldsState extends State<AreaFields> {
           label: l10n.profileVillage,
           hint: l10n.areaVillageHint,
           options: (t) => _villageOptions(villages, t),
+          online: widget.online == null
+              ? null
+              : (t) => _onlineOptions(
+                  t,
+                  (k) => !const {
+                    'country',
+                    'region',
+                    'district',
+                    'subcounty',
+                    'parish',
+                  }.contains(k),
+                ),
           describe: _above,
           describeMap: (m) => _onMap(l10n, m),
           onPicked: (o) =>
@@ -232,8 +292,14 @@ class _AreaFieldsState extends State<AreaFields> {
           label: l10n.profileParish,
           hint: l10n.areaParishHint,
           options: (t) => _match(parishes, t, other: true),
+          online: widget.online == null
+              ? null
+              : (t) => _onlineOptions(t, (k) => k == 'parish'),
           describe: _above,
-          onPicked: (o) => o.unit == null
+          describeMap: (m) => _onMap(l10n, m),
+          onPicked: (o) => o.place != null
+              ? _pickOnlineParish(o.place!)
+              : o.unit == null
               ? setState(() => _parishUnit = null)
               : _pickParish(o.unit!),
           onTyped: () => _parishUnit = null,
@@ -321,12 +387,16 @@ class _AreaField extends StatefulWidget {
     required this.validator,
     this.onTyped,
     this.describeMap,
+    this.online,
   });
 
   final TextEditingController controller;
   final String label;
   final String hint;
   final Iterable<_Option> Function(String typed) options;
+
+  /// More suggestions from the server, shown under these when they arrive.
+  final Future<List<_Option>> Function(String typed)? online;
   final String Function(AdminUnit) describe;
   final String Function(MapName)? describeMap;
   final void Function(_Option) onPicked;
@@ -342,10 +412,65 @@ class _AreaField extends StatefulWidget {
 class _AreaFieldState extends State<_AreaField> {
   final _focus = FocusNode();
 
+  /// Stands in the options while the server is asked, so the list shows.
+  static const _Option _pending = (unit: null, place: null, name: ' ');
+  Timer? _wait;
+  String _asked = '';
+  String _answered = '';
+  List<_Option> _found = const [];
+
   @override
   void dispose() {
+    _wait?.cancel();
     _focus.dispose();
     super.dispose();
+  }
+
+  Iterable<_Option> _options(String typed) {
+    final local = widget.options(typed);
+    final ask = widget.online;
+    final text = typed.trim();
+    if (ask == null || text.length < 3) return local;
+    if (text != _asked) {
+      _asked = text;
+      _wait?.cancel();
+      _wait = Timer(const Duration(milliseconds: 300), () async {
+        List<_Option> found;
+        try {
+          found = await ask(text);
+        } on Object {
+          found = const [];
+        }
+        if (!mounted || _asked != text) return;
+        setState(() {
+          _answered = text;
+          _found = found;
+        });
+      });
+    }
+    return [...local, _pending];
+  }
+
+  /// The field's own suggestions, then the server's (not repeating a
+  /// name), with the typed "Other" last.
+  List<_Option> _merged(Iterable<_Option> options) {
+    final local = [
+      for (final o in options)
+        if (!identical(o, _pending) && (o.unit != null || o.place != null)) o,
+    ];
+    final other = [
+      for (final o in options)
+        if (!identical(o, _pending) && o.unit == null && o.place == null) o,
+    ];
+    final waiting = options.any((o) => identical(o, _pending));
+    final seen = {for (final o in local) o.name.toLowerCase()};
+    return [
+      ...local,
+      if (waiting && _answered == _asked)
+        for (final o in _found)
+          if (seen.add(o.name.toLowerCase())) o,
+      ...other,
+    ];
   }
 
   @override
@@ -354,7 +479,7 @@ class _AreaFieldState extends State<_AreaField> {
     return RawAutocomplete<_Option>(
       textEditingController: widget.controller,
       focusNode: _focus,
-      optionsBuilder: (v) => widget.options(v.text),
+      optionsBuilder: (v) => _options(v.text),
       displayStringForOption: (o) => o.name,
       onSelected: widget.onPicked,
       fieldViewBuilder: (context, controller, focus, onSubmit) => TextFormField(
@@ -379,15 +504,15 @@ class _AreaFieldState extends State<_AreaField> {
               child: Material(
                 elevation: 4,
                 child: ConstrainedBox(
-                  constraints: const BoxConstraints(
-                    maxHeight: 280,
-                    maxWidth: 480,
+                  constraints: BoxConstraints(
+                    maxHeight: MediaQuery.sizeOf(context).height * 0.35,
+                    maxWidth: screenShare(context, tablet: 0.6, desktop: 0.4),
                   ),
                   child: ListView(
                     padding: EdgeInsets.zero,
                     shrinkWrap: true,
                     children: [
-                      for (final o in options)
+                      for (final o in _merged(options))
                         ListTile(
                           dense: true,
                           leading: Icon(
@@ -408,6 +533,18 @@ class _AreaFieldState extends State<_AreaField> {
                               ? Text(l10n.areaOtherHint)
                               : Text(widget.describe(o.unit!)),
                           onTap: () => onSelected(o),
+                        ),
+                      if (options.any((o) => identical(o, _pending)) &&
+                          _answered != _asked)
+                        ListTile(
+                          dense: true,
+                          leading: const SizedBox.square(
+                            dimension: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
+                          title: Text(
+                            UiKitLocalizations.of(context).mapSearchingOnline,
+                          ),
                         ),
                     ],
                   ),

@@ -323,6 +323,8 @@ class _TesterAccountScreenState extends ConsumerState<TesterAccountScreen> {
     });
     if (!done) return;
     await ref.read(collectorProfileRepositoryProvider).deactivate(key);
+    // Their trips stay on no device once they leave it (ADR-029).
+    await ref.read(tripRepositoryProvider).deleteFor(key);
     await ref.read(appGateProvider.notifier).clearCollector();
     router.go('/who');
   }
@@ -518,6 +520,13 @@ class _TesterAccountScreenState extends ConsumerState<TesterAccountScreen> {
               ),
             ],
           },
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.route),
+            title: Text(l10n.tripsTitle),
+            subtitle: Text(l10n.tripsTileHint),
+            onTap: () => context.push('/profile/trips'),
+          ),
           const Divider(height: 32),
           Text(l10n.profileAccountTitle, style: text.titleMedium),
           ListTile(

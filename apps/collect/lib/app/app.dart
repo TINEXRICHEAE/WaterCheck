@@ -33,17 +33,20 @@ class CollectApp extends ConsumerWidget {
       localizationsDelegates: localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       routerConfig: ref.watch(routerProvider),
-      builder: (context, child) => TimeZoneScope(
-        zone: zone,
-        child: SessionWatcher(
-          // A field app: on a large monitor it keeps a comfortable width,
-          // centred, rather than stretching every list (ADR-022).
-          child: ColoredBox(
-            color: Theme.of(context).colorScheme.surfaceContainerLow,
-            child: Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 1280),
-                child: child ?? const SizedBox(),
+      builder: (context, child) => PhoneDensity(
+        child: TimeZoneScope(
+          zone: zone,
+          child: SessionWatcher(
+            // A field app: on a large monitor it keeps most of the width,
+            // centred (ADR-022); a share of the screen, not a fixed cap.
+            child: ColoredBox(
+              color: Theme.of(context).colorScheme.surfaceContainerLow,
+              child: Center(
+                child: RelativeWidth(
+                  tablet: 1,
+                  desktop: 0.9,
+                  child: child ?? const SizedBox(),
+                ),
               ),
             ),
           ),

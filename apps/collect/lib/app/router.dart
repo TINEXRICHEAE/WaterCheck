@@ -29,6 +29,7 @@ import '../features/testing/pick_source_screen.dart';
 import '../features/testing/result_screen.dart';
 import '../features/testing/review_screen.dart';
 import '../features/testing/session_setup_screen.dart';
+import '../features/map/trips_screen.dart';
 import '../features/messages/messages.dart';
 import '../l10n/app_localizations.dart';
 import 'gate.dart';
@@ -132,7 +133,19 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
         ],
       ),
-      GoRoute(path: '/profile', builder: (_, _) => const TesterAccountScreen()),
+      GoRoute(
+        path: '/profile',
+        builder: (_, _) => const TesterAccountScreen(),
+        routes: [
+          // Trips followed live, kept on this device (ADR-029).
+          GoRoute(path: 'trips', builder: (_, _) => const TripsScreen()),
+          GoRoute(
+            path: 'trips/:id',
+            builder: (_, state) =>
+                TripScreen(tripId: state.pathParameters['id']!),
+          ),
+        ],
+      ),
       GoRoute(
         path: '/messages',
         builder: (_, _) => const InboxScreen(),

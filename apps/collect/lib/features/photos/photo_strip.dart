@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:data/data.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ui_kit/map_kit.dart';
 import 'package:ui_kit/ui_kit.dart';
 
 import '../../app/providers.dart';
@@ -76,6 +77,10 @@ class _PhotoStripState extends ConsumerState<PhotoStrip> {
           ViewedPhoto(
             load: () => repo.read(p.path),
             caption: widget.title,
+            taken: switch (p.taken) {
+              final t? => takenText(UiKitLocalizations.of(context), t),
+              null => null,
+            },
             onRemove:
                 origin != null &&
                     (p.collectorKey == null ||

@@ -211,7 +211,7 @@ abstract class AppLocalizations {
   /// No description provided for @privacyBody.
   ///
   /// In en, this message translates to:
-  /// **'WaterCheck records water tests at shared water sources so that communities and districts can act when water may be unsafe.\n\nWith each test it saves your name, the area you give, where you tested (GPS) and any pictures of the test or the source. Your phone and email are optional. Stakeholders for the area see your records and can contact you; other testers see results and your name, not your contacts.\n\nWaterCheck does not ask for national ID numbers or information about households. Please do not photograph people.\n\nYour work is kept on this device (encrypted in the Android and Windows apps) and sent to the WaterCheck server, hosted outside Uganda (South Africa), when there is internet. You can edit your details, or delete your profile, any time under My profile.\n\nA test result is a warning, not a guarantee that water is safe: always follow the advice of your health officials.'**
+  /// **'WaterCheck records water tests at shared water sources so that communities and districts can act when water may be unsafe.\n\nWith each test it saves your name, the area you give, where you tested (GPS) and any pictures of the test or the source, with where and when each was taken. Places you add to the map show your name. Trips you follow with Go stay on this device. Your phone and email are optional. Stakeholders for the area see your records and can contact you; other testers see results and your name, not your contacts.\n\nWaterCheck does not ask for national ID numbers or information about households. Please do not photograph people.\n\nYour work is kept on this device (encrypted in the Android and Windows apps) and sent to the WaterCheck server, hosted outside Uganda (South Africa), when there is internet. You can edit your details, or delete your profile, any time under My profile.\n\nA test result is a warning, not a guarantee that water is safe: always follow the advice of your health officials.'**
   String get privacyBody;
 
   /// No description provided for @privacyVersion.
@@ -3255,6 +3255,102 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Some of your work is not sent yet. Connect and sync, then try again.'**
   String get profileSendFirst;
+
+  /// No description provided for @mapListShow.
+  ///
+  /// In en, this message translates to:
+  /// **'Show the list of areas and sources'**
+  String get mapListShow;
+
+  /// No description provided for @mapListHide.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide the list'**
+  String get mapListHide;
+
+  /// No description provided for @tripsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My trips'**
+  String get tripsTitle;
+
+  /// No description provided for @tripsTileHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Trips you followed live to a source or place'**
+  String get tripsTileHint;
+
+  /// No description provided for @tripsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Trips you followed live with Go. They stay on this device and are not sent anywhere.'**
+  String get tripsHint;
+
+  /// No description provided for @tripsNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No trips yet. Choose a source or place on the map and press Go.'**
+  String get tripsNone;
+
+  /// No description provided for @tripsArrived.
+  ///
+  /// In en, this message translates to:
+  /// **'Arrived'**
+  String get tripsArrived;
+
+  /// No description provided for @tripsStopped.
+  ///
+  /// In en, this message translates to:
+  /// **'Stopped'**
+  String get tripsStopped;
+
+  /// No description provided for @tripsTopSpeed.
+  ///
+  /// In en, this message translates to:
+  /// **'top speed {speed}'**
+  String tripsTopSpeed(String speed);
+
+  /// No description provided for @tripsAltitude.
+  ///
+  /// In en, this message translates to:
+  /// **'{low}–{high} m high'**
+  String tripsAltitude(String low, String high);
+
+  /// No description provided for @tripsDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this trip'**
+  String get tripsDelete;
+
+  /// No description provided for @tripsDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this trip from this device?'**
+  String get tripsDeleteTitle;
+
+  /// No description provided for @mapAlertUnsafe.
+  ///
+  /// In en, this message translates to:
+  /// **'Unsafe result: {source}'**
+  String mapAlertUnsafe(String source);
+
+  /// No description provided for @mapAlertOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Alert: {source}'**
+  String mapAlertOther(String source);
+
+  /// No description provided for @mapAlertOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the alert'**
+  String get mapAlertOpen;
+
+  /// No description provided for @mapAlertsMore.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 more alert} other{{count} more alerts}}'**
+  String mapAlertsMore(int count);
 }
 
 class _AppLocalizationsDelegate
