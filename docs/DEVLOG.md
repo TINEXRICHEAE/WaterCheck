@@ -691,3 +691,116 @@ Decisions are also recorded in [PLAN.md](PLAN.md) (decisions log and §3a), the 
 - **Watch:**
   - Everyone is asked to accept the Privacy Policy and Terms (version 2), which still have [placeholders].
   - Windows and Android apps were not rebuilt (0.1.1 keeps working with activation).
+
+### 41. Phone screens: the map keeps the screen (2026-10-25)
+- **Asked:** on a phone (screenshot `phone.jpeg`) the icons and the path ("breadcrumb") cover the map. The path should fold and open on a tap, the zoom and move buttons should open on demand, and text and icons should be much smaller on small screens. Other map information should fold into narrow pop-ups, and other screens should be adjusted.
+- **Decisions (lead):** "phone" means narrower than 600 px; folding is the default there. Wider screens are unchanged.
+- **Outcome:**
+  - **Phone theme (`ui_kit` `PhoneDensity`):** applied in both apps below 600 px.
+    - Text is 84 % of its usual size, never below 10.5 pt.
+    - Icons are 20 px; the app bar is 44 px; the bottom bar is 56 px with small labels.
+    - Fields, chips, segmented buttons and list rows are dense; the "Test a source" button and others are smaller.
+    - Touch targets stay at least 40 px.
+  - **Map path (`MapPathBar`):** on phones it shows only the last step and "+N"; a tap shows the whole path, and another folds it.
+  - **Move and zoom (`MapNavigationButtons`):** on phones these are one button; a tap opens the pad with zoom, and a tap folds it again.
+  - **Collect map:** on narrow screens the map fills the screen. The list of areas and sources is a sheet that peeks at the bottom; drag it up, or tap its handle. The chosen source's card is compact.
+  - **Console map:**
+    - The List/Map toggle shows icons only.
+    - The latest issue is a one-line strip, opened on a tap.
+    - The distance line is small.
+  - **Fix:** the long "I agree…" button no longer clips its text on phones.
+  - **Tests:**
+    - UI kit: folding of the move and zoom buttons and of the path;
+    - Collect: the map test unfolds the path and pulls up the sheet.
+    - Console: "a test synced from Collect…" used a fixed date (10 October), which had become overdue and listed the source twice; it now uses yesterday.
+  - **Checked:** with headless Chrome at 390 × 844 on both dev previews (Console Sources map, Collect onboarding and map), with each fold opened and closed.
+- **Watch:**
+  - Headless Chrome reports Windows, so the key labels showed there; real phones hide them.
+  - The Android app still has to be rebuilt to get this.
+
+### 42. Dark mode, folding everywhere, places, live navigation, located pictures (2026-10-25)
+- **Asked:**
+  - Dark mode looks very poor in all apps. (The prompt's first line, "black and white coloring is progression", was a mistake; this is what was meant.)
+  - Routes to places as well as sources.
+  - The path and controls should fold on every device, so the map is always full screen.
+  - Sizes should follow the detected screen rather than fixed caps.
+  - Routes should show live movement, speed, altitude and time, and pictures should carry these location details.
+  - It should be possible to add places missing from the map, searchable and routable.
+  - Live movement like Google Maps or SafeBoda.
+  - What would a satellite view take?
+- **Decisions (lead):**
+  - The map stays light in dark mode.
+  - Added places are seen by everyone at once.
+  - Location goes on the picture's record and in the file.
+  - Live navigation has no voice, and the trip is kept on the device.
+- **Outcome:** ADR-027, ADR-028 and ADR-029.
+  - **Dark mode:**
+    - standard-contrast dark scheme with deep-navy surfaces and blue for what is chosen;
+    - warning icons use the status colours;
+    - a ring around the logo;
+    - dashboard icons in the accent colour.
+  - **Folding everywhere:** the path, move/zoom pad, latest issue and Collect's list start folded on all screens. On wide screens, Collect's list opens as a side panel at 30 % of the width.
+  - **Relative sizes:** `screenShare` / `RelativeWidth` replace 14 fixed limits, including the 1280/1440 px app caps.
+  - **Routes to any place:** source, named or added place, or area centre (sub-county and below), each with **Go**.
+  - **Added places:**
+    - a long press or right-click on either map adds one;
+    - migration 0017 adds who added each place and when;
+    - a `place_name` push, with the sub-county set by the server from the boundaries;
+    - `PATCH`/`DELETE /v1/places/{id}` for IT admins (rename and remove in the Console);
+    - removals reach devices.
+  - **Live navigation** (UI kit `LiveTrip`):
+    - the map follows the device;
+    - a panel shows speed, altitude, heading, accuracy, time, distance left and arrival time;
+    - the route is fetched again when more than 50 m off it (at most every 20 s);
+    - arrival within 30 m.
+    - **Collect** keeps trips in device schema 11, under My profile › My trips, deleted with the profile. The **Console** keeps none.
+  - **Located pictures:**
+    - a fix (up to 15 s) is taken while the camera is open;
+    - it is stored on the record (attachment columns, migration 0017), sent and shown under the picture;
+    - it is written as EXIF GPS and the time taken; nothing about the device.
+  - **Privacy Policy version 3,** with both in-app summaries updated; everyone accepts again.
+  - **Tests:**
+    - backend: added place, outside Uganda, duplicate, rename, remove, from-the-map refused, located picture;
+    - data:
+      - EXIF written and read back;
+      - an added place queued and then removed;
+      - trips;
+      - migration 10 → 11;
+    - UI kit: `LiveTrip` (route, reroute throttle, arrival, panel) and the folding tests;
+    - Collect: Go to arrival and My trips, a long press adds a place, a located picture;
+    - updated tests for folded defaults.
+- **Found and fixed:**
+  - Distance left counted the whole current route segment.
+  - A Console test used a fixed date that has become overdue.
+- **Satellite view:** not built. It needs a provider (Esri, MapTiler, Mapbox or Google): an account, terms, perhaps cost, online only, and the area viewed is sent to them. About a day of work once chosen.
+- **Watch:**
+  - Production needs migration 0017.
+  - Collect web and Android need rebuilding for live navigation and located pictures.
+  - Browsers often give no altitude or speed, shown as "—".
+
+### 43. Map follow-up: Go by the search, notices at the bottom, all-Uganda search, live location (2026-10-25)
+- **Asked:**
+  - On Collect, put Go next to the search as in the Console, and leave the bottom of the map for source notices such as unsafe tests.
+  - Collect's search still stops at sub-county: add all map areas and custom-added areas to the map search, the tester form and anywhere else areas are used.
+  - On both maps, "my location" is stuck at the last place seen after travelling across several districts.
+- **Finding:**
+  - Collect searched only what the device holds: official areas (all of Uganda, down to sub-county), its own custom areas, and map names for the districts it syncs.
+  - The Console read its position once per session, at "medium" accuracy (in a browser, often a network guess).
+  - Collect's map took one fix when asked and never updated it.
+- **Outcome:**
+  - **Collect map:**
+    - under the search: the distance and route line, **Go**, and "Open" for a source; the live trip panel replaces it while travelling;
+    - at the bottom: open alerts, one line each (newest three, then "+N more"); a tap shows the source on the map and the arrow opens the alert.
+  - **Search:**
+    - **All of Uganda:** the map search (both apps) and Collect's village and parish fields (tester and source forms) add `/v1/places/search` results after the local ones, with "Searching all of Uganda…" while waiting; local suggestions never wait.
+    - **What the server returns:** names on the map and added places everywhere, plus parishes and villages added from other phones; it now gives their sub-county and district.
+  - **Location:**
+    - **Both maps:** "you are here" now follows the device while the map is open (a fresh high-accuracy fix, then every 10 m).
+    - **Console:** the position is a stream that stops when no page shows it.
+  - **Tests:**
+    - server: parish and village search hits carry their sub-county;
+    - Collect:
+      - online map search with "added by";
+      - alert notices;
+      - online village and parish suggestions fill the sub-county.
+- **Watch:** on a phone browser, the location prompt appears when the map opens.

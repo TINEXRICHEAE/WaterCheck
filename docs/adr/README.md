@@ -30,3 +30,6 @@ Format: context → decision → consequences. Number them sequentially. Never r
 | [024](ADR-024-testers-not-devices.md) | Testers, not devices, are assigned to areas: self-registered devices, assignment codes, own sign-in codes, signing devices out | Accepted (on dev) |
 | [025](ADR-025-own-profiles.md) | Profiles people manage themselves: details, confirmed contacts, area requests, sign out, close account | Accepted (on dev) |
 | [026](ADR-026-privacy-policy-and-terms.md) | Privacy Policy and Terms of Use, bundled in both apps and accepted by version | Accepted (drafts awaiting details) |
+| [027](ADR-027-screens-follow-the-device.md) | Screens follow the device: dark colours, controls folded on every screen, sizes relative to the screen | Accepted (built, waiting for dev check) |
+| [028](ADR-028-added-places-and-routes-to-any-place.md) | Places added from the map, seen by everyone; routes to any source, place or area | Accepted (built, waiting for dev check) |
+| [029](ADR-029-live-navigation-and-located-pictures.md) | Live navigation with trips kept on the device; pictures with where and when they were taken | Accepted (built, waiting for dev check) |
