@@ -1091,6 +1091,23 @@ lockfile (`uv lock --upgrade-package certifi` in `backend`), confirm with
 
 ## 20. Current deployment status
 
+Update (2026-10-25), ADR-027 to ADR-029:
+
+- Backup `~/backups/watercheck-before-0017-20261025-1705.dump` (61 tables)
+  taken first.
+- The VM is at `d0a5bce`, with migration 0017 (places added from the map, and
+  where pictures were taken). Nothing is needed by hand.
+- Both web apps rebuilt against production, checksummed, swapped (`web.old`
+  kept) and Caddy recreated. Smoke checks: both apps, Privacy Policy version
+  3, health, tiles and routing answer; place search and rename ask for
+  sign-in. No errors in the logs.
+- **Build the web apps from Git Bash with `MSYS_NO_PATHCONV=1`.** Without it,
+  `--base-href /` becomes a Windows path and the build stops.
+- **On the dev machine:**
+  - check free space before building;
+  - delete old `apps/*/.dart_tool/flutter_build/*` folders and the `web-prod`
+    outputs afterwards.
+
 Update (2026-10-24, later), rounds ADR-023 to ADR-026:
 
 - Backup `~/backups/watercheck-before-0016-*.dump` (52 tables) taken first.

@@ -804,3 +804,63 @@ Decisions are also recorded in [PLAN.md](PLAN.md) (decisions log and §3a), the 
       - alert notices;
       - online village and parish suggestions fill the sub-county.
 - **Watch:** on a phone browser, the location prompt appears when the map opens.
+
+### 44. ADR-027 to ADR-029 deployed to production; disk space recovered (2026-10-25)
+- **Asked:**
+  - "GitHub checks have passed, let's deploy". The first push failed `backend / check`: mypy over the tests had been skipped locally. The test types were fixed in `d0a5bce`.
+  - During the deploy: "stop and first create storage space, you are about to crash my ssd" (C: at 92%; the rest of the SSD is a Linux dual-boot).
+- **Disk:**
+  - **Removed:** about 30 old Flutter build-cache folders in `apps/*/.dart_tool/flutter_build` (2.3 GB, one per build configuration; `tools/cleanup.ps1` keeps `.dart_tool`, so they had built up). The newest two per app were kept.
+  - **Docker's disk file:** compacted after a trim, 9.9 → 9.3 GB; that is what Docker really holds.
+  - **Result:** C: went from 16 GB to 21 GB free.
+- **Production:**
+  - **Backup:** `~/backups/watercheck-before-0017-20261025-1705.dump` (61 tables of data).
+  - **Code:** the VM, clean, was pulled from `0a369c3` to `d0a5bce`.
+  - **Database:** `up -d --build migrate api worker` took it to migration 0017.
+  - **Web apps:**
+    - built against production (`/` and `/collect/`), checksummed;
+    - swapped in (`web.old` kept), and Caddy recreated.
+  - **Checks:**
+    - both apps and their scripts answer;
+    - Privacy Policy version 3 is served;
+    - health, tiles and routing answer;
+    - place search and rename ask for sign-in;
+    - no errors in the logs;
+    - the VM disk is at 38%.
+  - **Local:** the production builds and archives were removed afterwards.
+- **Watch:**
+  - Everyone is asked to accept Privacy Policy version 3, which still has [placeholders].
+  - The Windows and Android apps were not rebuilt.
+  - The local Docker stack is stopped; start Docker Desktop and run `docker compose up -d` in `infra` for dev.
+
+### 45. iPhone display, install prompts, app splash, location reasons (2026-10-25)
+- **Asked:**
+  - On an iPhone the web app's edges are cut off (screenshot `iphone.jpeg`).
+  - The part for installing the app is gone; browsers should offer to install with their own icon near the address bar.
+  - An installed app should open with its own icon, not Chrome's.
+  - Location fails, and the permission prompt does not help.
+- **Finding:**
+  - **Edges cut off:** Flutter sets its own viewport (pinch zoom up to 5×) and types into a hidden field that takes the text's size. On phones that is 13.4 px (ADR-027 density), and iPhone Safari zooms in on any field under 16 px and stays zoomed, which cut the edges.
+  - **Install offer:** both pages called `preventDefault()` on the browser's install offer, which hides Chrome's own install banner. The Settings item appears only when the offer comes, which never happens on iPhone.
+  - **Opening:** the page was blank until the app drew. Chrome's icon on launch means the app was added as a shortcut, not installed.
+  - **Location:** in a browser, a refused or switched-off location arrives as a plugin error. That escaped the map's handling, so no message showed, or only a generic one.
+- **Outcome:**
+  - **Both page templates:**
+    - the hidden typing field is held at 16 px by CSS (nothing visible changes);
+    - the browser's install icon and banner are no longer suppressed;
+    - a navy screen with the WaterCheck icon shows until the first frame;
+    - `apple-mobile-web-app-capable`.
+  - **Settings › Install app:** on iPhone and iPad it explains Share › Add to Home Screen.
+  - **Collect location:**
+    - every failure becomes a reason (`problemOf`), and the map and Nearby show it for 10 s;
+    - in a browser, the message says where to allow location, iPhone Settings included.
+  - **Console:** the locate button, with no position, says how to allow location.
+  - **Checked on the dev preview (headless Chrome, 390 px):**
+    - the splash is removed after the first frame;
+    - the focused typing field measures 16 px;
+    - the layout is unchanged.
+  - **Tests:** the failure-to-reason mapping. Suites: UI kit 36, Collect 73, Console 48.
+- **Watch:**
+  - This needs a production web deploy to reach phones.
+  - An app added earlier as a shortcut should be removed and installed again from the browser's install offer.
+  - Not checked on a real iPhone yet.
