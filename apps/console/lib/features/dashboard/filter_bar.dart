@@ -80,7 +80,10 @@ class _Dropdown<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => ConstrainedBox(
-    constraints: const BoxConstraints(minWidth: 160, maxWidth: 320),
+    constraints: BoxConstraints(
+      minWidth: 160,
+      maxWidth: screenShare(context, tablet: 0.3, desktop: 0.2),
+    ),
     child: DropdownButtonFormField<T>(
       // Keyed by value: "Reset filters" must redraw the choice.
       key: ValueKey(value),

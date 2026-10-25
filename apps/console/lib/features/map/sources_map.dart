@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'dart:math' as math;
 
+import 'package:api_client/api_client.dart' show PlaceRename, WaterCheckApi;
 import 'package:data/data.dart';
 import 'package:domain/domain.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +15,7 @@ import 'package:ui_kit/ui_kit.dart';
 
 import '../../app/console_sync.dart';
 import '../../app/providers.dart';
+import '../../app/session.dart';
 import '../../l10n/app_localizations.dart';
 import '../alerts/alerts_screen.dart' show severityColor, triggerText;
 import '../dashboard/dashboard_state.dart'
@@ -67,7 +70,7 @@ void showSourceOnMap(BuildContext context, WidgetRef ref, String sourceId) {
 /// Names on the map placed in their sub-county (ADR-023), ready for the
 /// search box: built once, not on every redraw (an IT admin holds all
 /// of Uganda's, about 64,000).
-final _mapNamePlacesProvider = FutureProvider<List<MapPlace>>((ref) async {
+final mapNamePlacesProvider = FutureProvider<List<MapPlace>>((ref) async {
   // Again after each sync: the first one brings the names.
   ref.watch(consoleSyncProvider.select((s) => s.last));
   ref.watch(dataVersionProvider);
@@ -87,6 +90,7 @@ final _mapNamePlacesProvider = FutureProvider<List<MapPlace>>((ref) async {
         lat: m.lat,
         lon: m.lon,
         areaId: m.subcountyId,
+        addedBy: m.addedBy,
         detail: [
           ?units[m.subcountyId]?.name,
           ?units[units[m.subcountyId]?.parentId]?.name,
@@ -236,11 +240,247 @@ class _SourcesMapState extends ConsumerState<SourcesMap>
   String? _routeKey;
   var _routeLoading = false;
 
+  /// Live navigation (ADR-029); the Console does not keep the track.
+  LiveTrip? _trip;
+  StreamSubscription<GeoFix>? _fixes;
+
   @override
   void dispose() {
+    unawaited(_fixes?.cancel());
+    _trip?.dispose();
     _motion.dispose();
     _map.dispose();
     super.dispose();
+  }
+
+  /// Follows this device to [to] live.
+  Future<void> _go(LatLng to, String name) async {
+    await _stop();
+    final mode = _layers.mode;
+    final trip = LiveTrip(
+      target: to,
+      targetName: name,
+      mode: mode,
+      routeTo: (from, to) => fetchRoute(
+        Dio(),
+        base: routingBase(defaultApiUrl()),
+        mode: mode,
+        from: from,
+        to: to,
+      ),
+    )..addListener(() => mounted ? setState(() {}) : null);
+    setState(() => _trip = trip);
+    _fixes = ref
+        .read(deviceFixesProvider)()
+        .listen(
+          (f) {
+            unawaited(trip.add(f));
+            if (trip.arrived) unawaited(_fixes?.cancel());
+            if (mounted && trip.follow) {
+              _map.move(LatLng(f.lat, f.lon), math.max(_map.camera.zoom, 15));
+            }
+          },
+          onError: (Object _) {
+            if (!mounted) return;
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(AppLocalizations.of(context).mapNoLocation),
+              ),
+            );
+            unawaited(_stop());
+          },
+        );
+  }
+
+  Future<void> _stop() async {
+    await _fixes?.cancel();
+    _fixes = null;
+    _trip?.dispose();
+    if (mounted) setState(() => _trip = null);
+  }
+
+  /// Adds a place missing from the map at [at] (ADR-028), sent with the
+  /// Console's next sync.
+  Future<void> _addPlace(LatLng at, AreaTree tree) async {
+    final ui = UiKitLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final me = ref.read(sessionProvider).me;
+    if (me == null) return;
+    final repo = MapPlaceRepository(ref.read(databaseProvider));
+    String? nearestCentre() {
+      String? best;
+      var bestM = 15000.0;
+      for (final u in tree.byId.values) {
+        if (u.level != 'subcounty') continue;
+        final c = tree.centre(u.id);
+        if (c == null) continue;
+        final m = metresBetween(at, LatLng(c.lat, c.lon));
+        if (m < bestM) {
+          bestM = m;
+          best = u.id;
+        }
+      }
+      return best;
+    }
+
+    final sub =
+        await repo.nearestSubcounty(at.latitude, at.longitude) ??
+        nearestCentre();
+    if (!mounted) return;
+    if (sub == null) {
+      messenger.showSnackBar(SnackBar(content: Text(ui.placeOutside)));
+      return;
+    }
+    final answer = await showAddPlaceDialog(context, kinds: addedPlaceKinds);
+    if (answer == null || !mounted) return;
+    final place = await repo.add(
+      name: answer.name,
+      kind: answer.kind,
+      lat: at.latitude,
+      lon: at.longitude,
+      subcountyId: sub,
+      origin: SubmissionOrigin.console(userId: me.id),
+      byName: me.fullName,
+    );
+    ref.invalidate(mapNamePlacesProvider);
+    unawaited(ref.read(consoleSyncProvider.notifier).run());
+    if (!mounted) return;
+    messenger.showSnackBar(SnackBar(content: Text(ui.placeAdded(place.name))));
+    setState(() {
+      _areaId = sub;
+      _pin = MapPlace(
+        id: place.id,
+        name: place.name,
+        isSource: false,
+        fromMap: true,
+        lat: place.lat,
+        lon: place.lon,
+        areaId: sub,
+        addedBy: place.addedBy,
+      );
+    });
+  }
+
+  /// IT admins correct places people added (ADR-028).
+  Future<void> _renamePin(MapPlace pin) async {
+    final l10n = AppLocalizations.of(context);
+    final ui = UiKitLocalizations.of(context);
+    final name = TextEditingController(text: pin.name);
+    final next = await showDialog<String>(
+      context: context,
+      builder: (c) => AlertDialog(
+        title: Text(l10n.mapPlaceRenameTitle),
+        content: TextField(
+          controller: name,
+          autofocus: true,
+          maxLength: 120,
+          decoration: InputDecoration(labelText: ui.placeName),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(c), child: Text(ui.cancel)),
+          FilledButton(
+            onPressed: () => Navigator.pop(c, name.text.trim()),
+            child: Text(l10n.mapPlaceRename),
+          ),
+        ],
+      ),
+    );
+    name.dispose();
+    if (next == null || next.isEmpty || next == pin.name || !mounted) return;
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      await WaterCheckApi(ref.read(consoleDioProvider)).reference.renamePlace(
+        placeId: pin.id,
+        body: PlaceRename(name: next),
+      );
+    } on DioException {
+      messenger.showSnackBar(SnackBar(content: Text(l10n.mapPlaceNotChanged)));
+      return;
+    }
+    await MapPlaceRepository(ref.read(databaseProvider)).rename(pin.id, next);
+    ref.invalidate(mapNamePlacesProvider);
+    if (mounted) {
+      setState(
+        () => _pin = MapPlace(
+          id: pin.id,
+          name: next,
+          isSource: false,
+          fromMap: true,
+          lat: pin.lat,
+          lon: pin.lon,
+          areaId: pin.areaId,
+          addedBy: pin.addedBy,
+          detail: pin.detail,
+        ),
+      );
+    }
+  }
+
+  Future<void> _removePin(MapPlace pin) async {
+    final l10n = AppLocalizations.of(context);
+    final ui = UiKitLocalizations.of(context);
+    final sure = await showDialog<bool>(
+      context: context,
+      builder: (c) => AlertDialog(
+        title: Text(l10n.mapPlaceRemoveTitle(pin.name)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(c, false),
+            child: Text(ui.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(c, true),
+            child: Text(l10n.mapPlaceRemove),
+          ),
+        ],
+      ),
+    );
+    if (sure != true || !mounted) return;
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      await WaterCheckApi(ref.read(consoleDioProvider)).reference
+          .removePlace(placeId: pin.id);
+    } on DioException {
+      messenger.showSnackBar(SnackBar(content: Text(l10n.mapPlaceNotChanged)));
+      return;
+    }
+    await MapPlaceRepository(ref.read(databaseProvider)).forget(pin.id);
+    ref.invalidate(mapNamePlacesProvider);
+    if (mounted) setState(() => _pin = null);
+    messenger.showSnackBar(
+      SnackBar(content: Text(l10n.mapPlaceRemoved(pin.name))),
+    );
+  }
+
+  /// Places anywhere in Uganda from the server, for the search box:
+  /// names on the map and places people added outside this account's
+  /// districts, and parishes and villages added from phones (ADR-028).
+  Future<List<MapPlace>> _searchOnline(String text, AreaTree tree) async {
+    final ui = UiKitLocalizations.of(context);
+    final hits = await WaterCheckApi(ref.read(consoleDioProvider)).reference
+        .searchPlaces(q: text);
+    return [
+      for (final h in hits)
+        if (h.lat != null &&
+            h.lon != null &&
+            h.subcountyId != null &&
+            tree.byId[h.id] == null)
+          MapPlace(
+            id: h.id,
+            name: h.name,
+            isSource: false,
+            fromMap: true,
+            lat: h.lat!.toDouble(),
+            lon: h.lon!.toDouble(),
+            areaId: h.subcountyId,
+            addedBy: h.addedBy,
+            detail: [
+              if (h.addedBy case final by?) ui.placeAddedBy(by),
+              ?h.subcounty,
+              ?h.district,
+            ].join(' · '),
+          ),
+    ];
   }
 
   /// Flies to a source, or around an area's sources.
@@ -346,7 +586,29 @@ class _SourcesMapState extends ConsumerState<SourcesMap>
               if (u.level != 'country') u,
           ];
     final focusAt = focus == null ? null : LatLng(focus.lat, focus.lon);
-    if (me != null && focusAt != null) _ensureRoute(me, focusAt);
+    // Where routes and "Go" lead (ADR-028): the source, else the pinned
+    // place, else the chosen area's centre (sub-county and below).
+    final chosenArea = areaId == null ? null : tree.byId[areaId];
+    final areaCentre = chosenArea == null ? null : tree.centre(chosenArea.id);
+    final pin = _pin;
+    final target = focusAt != null
+        ? (at: focusAt, name: chosenSource?.name ?? focus!.code)
+        : pin != null
+        ? (at: LatLng(pin.lat!, pin.lon!), name: pin.name)
+        : chosenArea != null &&
+              const {
+                'subcounty',
+                'parish',
+                'village',
+              }.contains(chosenArea.level) &&
+              areaCentre != null
+        ? (at: LatLng(areaCentre.lat, areaCentre.lon), name: chosenArea.name)
+        : null;
+    final trip = _trip;
+    if (me != null && target != null && trip == null) {
+      _ensureRoute(me, target.at);
+    }
+    final isAdmin = ref.watch(sessionProvider).isAdmin;
     final places = [
       for (final u in units)
         if (u.level != 'country')
@@ -360,7 +622,7 @@ class _SourcesMapState extends ConsumerState<SourcesMap>
                 if (a.level != 'country' && a.level != 'region') a.name,
             ].join(' · '),
           ),
-      ...?ref.watch(_mapNamePlacesProvider).value,
+      ...?ref.watch(mapNamePlacesProvider).value,
       for (final s in widget.sources)
         MapPlace(
           id: s.id,
@@ -416,6 +678,13 @@ class _SourcesMapState extends ConsumerState<SourcesMap>
             backgroundColor: Theme.of(context)
                 .colorScheme
                 .surfaceContainerHighest,
+            // A long press (or right-click) adds a place (ADR-028).
+            onLongPress: (_, p) => _addPlace(p, tree),
+            onSecondaryTap: (_, p) => _addPlace(p, tree),
+            // Moving the map by hand stops following the device.
+            onPositionChanged: (_, byHand) {
+              if (byHand && (trip?.follow ?? false)) trip!.setFollow(false);
+            },
           ),
           children: [
             if (tiles.available)
@@ -425,18 +694,36 @@ class _SourcesMapState extends ConsumerState<SourcesMap>
                 maxNativeZoom: 18,
                 userAgentPackageName: 'org.watercheck.console',
               ),
-            if (_layers.route && _route != null && focusAt != null)
+            if (trip?.route case final r?)
+              RouteLayer(route: r)
+            else if (_layers.route &&
+                _route != null &&
+                target != null &&
+                trip == null)
               RouteLayer(route: _route!),
-            if (_layers.lines && me != null)
-              focusAt != null
-                  ? StraightLinesLayer(from: me, to: [focusAt])
+            if (trip != null) TrackLayer(fixes: trip.track),
+            if (_layers.lines && me != null && trip == null)
+              target != null
+                  ? StraightLinesLayer(from: me, to: [target.at])
                   : _DistanceLines(from: me, to: concerns),
             _Dots(
               points: dots,
               labels: _layers.labels,
               pulseId: focus?.id ?? issue?.point.id,
             ),
-            if (me != null) _YouAreHere(at: me),
+            if (trip?.here case final h?)
+              MarkerLayer(
+                markers: [
+                  Marker(
+                    point: h,
+                    width: 22,
+                    height: 22,
+                    child: HereMarker(headingDeg: trip!.last?.headingDeg),
+                  ),
+                ],
+              )
+            else if (me != null)
+              _YouAreHere(at: me),
             if (_pin case final pin?)
               MarkerLayer(
                 markers: [
@@ -484,57 +771,99 @@ class _SourcesMapState extends ConsumerState<SourcesMap>
         // One search for areas and sources; the path to what was chosen,
         // and its distance and route from here.
         Positioned(
-          top: widget.overlay == null ? 12 : 68,
-          left: 12,
-          right: 72,
+          top: widget.overlay == null ? 8 : (isPhone(context) ? 56 : 68),
+          left: 8,
+          right: 60,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              MapSearchBar(places: places, onSelected: (p) => _choose(p, tree)),
-              if (path.isNotEmpty) ...[
-                const SizedBox(height: 8),
-                Wrap(
-                  spacing: 4,
-                  runSpacing: 4,
-                  children: [
+              MapSearchBar(
+                places: places,
+                online: (t) => _searchOnline(t, tree),
+                onSelected: (p) => _choose(p, tree),
+              ),
+              if (path.isNotEmpty || chosenSource != null) ...[
+                const SizedBox(height: 6),
+                // Folded on phones: the last step; a tap shows the rest.
+                MapPathBar(
+                  items: [
                     for (final u in path)
-                      ActionChip(
-                        avatar: const Icon(Icons.chevron_right, size: 16),
-                        label: Text(u.name),
-                        onPressed: () => _choose(
+                      MapPathItem(
+                        label: u.name,
+                        onTap: () => _choose(
                           MapPlace(id: u.id, name: u.name, isSource: false),
                           tree,
                         ),
                       ),
                     if (chosenSource != null)
-                      ActionChip(
-                        avatar: const Icon(Icons.water_drop, size: 16),
-                        label: Text(chosenSource.name ?? chosenSource.code),
-                        onPressed: () =>
-                            context.go('/sources/${chosenSource.id}'),
+                      MapPathItem(
+                        label: chosenSource.name ?? chosenSource.code,
+                        icon: Icons.water_drop,
+                        onTap: () => context.go('/sources/${chosenSource.id}'),
                       ),
                   ],
                 ),
               ],
-              if (focusAt != null && me != null) ...[
-                const SizedBox(height: 8),
+              if (target != null && trip == null) ...[
+                const SizedBox(height: 6),
                 Material(
                   elevation: 2,
                   borderRadius: BorderRadius.circular(10),
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 6,
-                    ),
-                    child: Text(
-                      distanceSummary(
-                        UiKitLocalizations.of(context),
-                        straight: metresBetween(me, focusAt),
-                        route: _layers.route ? _route : null,
-                        mode: _layers.mode,
-                        routeWanted: _layers.route,
-                        routeLoading: _routeLoading,
-                      ),
+                    padding: const EdgeInsets.fromLTRB(8, 2, 2, 2),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Flexible(
+                          child: Text(
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: isPhone(context)
+                                ? Theme.of(context).textTheme.labelSmall
+                                : null,
+                            [
+                              if (pin?.addedBy case final by?
+                                  when focusAt == null)
+                                UiKitLocalizations.of(context).placeAddedBy(by),
+                              if (me != null)
+                                distanceSummary(
+                                  UiKitLocalizations.of(context),
+                                  straight: metresBetween(me, target.at),
+                                  route: _layers.route ? _route : null,
+                                  mode: _layers.mode,
+                                  routeWanted: _layers.route,
+                                  routeLoading: _routeLoading,
+                                )
+                              else
+                                target.name,
+                            ].join(' · '),
+                          ),
+                        ),
+                        Tooltip(
+                          message: UiKitLocalizations.of(context).tripGoTooltip,
+                          child: TextButton.icon(
+                            onPressed: () => _go(target.at, target.name),
+                            icon: const Icon(Icons.navigation, size: 16),
+                            label: Text(UiKitLocalizations.of(context).tripGo),
+                          ),
+                        ),
+                        if (isAdmin &&
+                            focusAt == null &&
+                            pin?.addedBy != null) ...[
+                          IconButton(
+                            visualDensity: VisualDensity.compact,
+                            tooltip: l10n.mapPlaceRename,
+                            icon: const Icon(Icons.edit_outlined, size: 18),
+                            onPressed: () => _renamePin(pin!),
+                          ),
+                          IconButton(
+                            visualDensity: VisualDensity.compact,
+                            tooltip: l10n.mapPlaceRemove,
+                            icon: const Icon(Icons.delete_outline, size: 18),
+                            onPressed: () => _removePin(pin!),
+                          ),
+                        ],
+                      ],
                     ),
                   ),
                 ),
@@ -543,8 +872,8 @@ class _SourcesMapState extends ConsumerState<SourcesMap>
           ),
         ),
         Positioned(
-          top: 12,
-          right: 12,
+          top: 8,
+          right: 8,
           child: Column(
             children: [
               _MapButton(
@@ -554,9 +883,9 @@ class _SourcesMapState extends ConsumerState<SourcesMap>
                     ? () => ref.invalidate(deviceLocationProvider)
                     : () => _map.move(me, 14),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 6),
               MapNavigationButtons(motion: _motion),
-              const SizedBox(height: 8),
+              const SizedBox(height: 6),
               MapLayersButton(
                 layers: _layers,
                 onChanged: (v) => setState(() {
@@ -571,14 +900,21 @@ class _SourcesMapState extends ConsumerState<SourcesMap>
         if (tiles.available)
           Positioned(
             right: 12,
-            bottom: issue == null ? 4 : 96,
+            bottom: issue == null ? 4 : (isPhone(context) ? 52 : 96),
             child: _Credit(text: '© ${l10n.mapAttribution}'),
           ),
-        if (issue != null)
+        if (trip != null)
           Positioned(
-            left: 12,
-            right: 12,
-            bottom: 12,
+            left: 8,
+            right: 8,
+            bottom: 8,
+            child: LiveTripPanel(trip: trip, onStop: _stop),
+          )
+        else if (issue != null)
+          Positioned(
+            left: 8,
+            right: 8,
+            bottom: 8,
             child: IssueCallout(issue: issue, from: me),
           ),
       ],
@@ -711,21 +1047,70 @@ class IssueMapCard extends ConsumerWidget {
 }
 
 /// The issue card over the map: what, how serious, how far, when.
-class IssueCallout extends StatelessWidget {
+class IssueCallout extends StatefulWidget {
   const IssueCallout({super.key, required this.issue, this.from});
 
   final MapIssue issue;
   final LatLng? from;
 
   @override
+  State<IssueCallout> createState() => _IssueCalloutState();
+}
+
+/// On phones the latest issue is a one-line strip, opened on a tap
+/// (2026-10-25), so the map keeps the screen.
+class _IssueCalloutState extends State<IssueCallout> {
+  bool? _open;
+
+  @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final text = Theme.of(context).textTheme;
+    final issue = widget.issue;
+    final from = widget.from;
     final color = severityColor(context, issue.severity);
     final s = issue.point;
     final far = from == null
         ? null
-        : formatDistance(metresBetween(from!, LatLng(s.lat, s.lon)));
+        : formatDistance(metresBetween(from, LatLng(s.lat, s.lon)));
+    final open = _open ?? false;
+    if (!open) {
+      return Align(
+        alignment: Alignment.bottomLeft,
+        child: Material(
+          elevation: 3,
+          borderRadius: BorderRadius.circular(20),
+          color: Theme.of(context).colorScheme.surface,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(20),
+            onTap: () => setState(() => _open = true),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(8, 4, 4, 4),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.warning_amber_rounded, color: color, size: 18),
+                  const SizedBox(width: 6),
+                  Flexible(
+                    child: Text(
+                      '${triggerText(l10n, issue.rule)}: ${s.name ?? s.code}',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: text.labelMedium,
+                    ),
+                  ),
+                  Icon(
+                    Icons.expand_less,
+                    size: 18,
+                    semanticLabel: UiKitLocalizations.of(context).mapMore,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    }
     return Material(
       elevation: 4,
       borderRadius: BorderRadius.circular(16),
@@ -784,6 +1169,12 @@ class IssueCallout extends StatelessWidget {
                 ),
               ),
               Icon(Icons.info_outline, semanticLabel: l10n.mapOpenSource),
+              IconButton(
+                visualDensity: VisualDensity.compact,
+                tooltip: UiKitLocalizations.of(context).mapLess,
+                icon: const Icon(Icons.expand_more),
+                onPressed: () => setState(() => _open = false),
+              ),
             ],
           ),
         ),

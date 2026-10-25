@@ -25,11 +25,13 @@ String statusText(AppLocalizations l10n, AlertStatus s) => switch (s) {
 };
 
 Color severityColor(BuildContext context, String severity) {
-  final scheme = Theme.of(context).colorScheme;
+  // The status colours, tuned for each theme (the scheme's own error and
+  // tertiary turned pale in dark mode).
+  final c = Theme.of(context).extension<StatusColors>()!;
   return switch (severity) {
-    'critical' || 'high' => scheme.error,
-    'medium' => scheme.tertiary,
-    _ => scheme.outline,
+    'critical' || 'high' => c.unsafe,
+    'medium' => c.due,
+    _ => c.neutral,
   };
 }
 

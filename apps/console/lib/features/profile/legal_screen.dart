@@ -19,8 +19,9 @@ class LegalScreen extends ConsumerWidget {
     return Scaffold(
       body: SafeArea(
         child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 560),
+          child: RelativeWidth(
+            tablet: 0.75,
+            desktop: 0.45,
             child: ListView(
               padding: const EdgeInsets.all(24),
               shrinkWrap: true,

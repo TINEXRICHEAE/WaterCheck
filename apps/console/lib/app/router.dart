@@ -429,8 +429,10 @@ class _ConsoleShell extends ConsumerWidget {
                 ? shell
                 : Align(
                     alignment: Alignment.topCenter,
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 1440),
+                    // Most of a large screen, never a fixed width.
+                    child: RelativeWidth(
+                      tablet: 1,
+                      desktop: 0.94,
                       child: shell,
                     ),
                   ),

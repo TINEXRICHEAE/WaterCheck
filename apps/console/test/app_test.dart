@@ -349,9 +349,13 @@ void main() {
     const ses = '01a1aaaa-0000-7000-8000-000000000002';
     const res = '01a1aaaa-0000-7000-8000-000000000003';
     const profile = 'ba9093d7-4551-54b4-9da1-3c14a7041644';
-    const at = '2026-10-10T08:30:00Z';
+    // Yesterday: recent, so the source is not also listed as overdue.
+    final at = DateTime.now()
+        .toUtc()
+        .subtract(const Duration(days: 1))
+        .toIso8601String();
     env.sync.serve['scope'] = [
-      const IncomingChange(
+      IncomingChange(
         entity: 'water_source',
         op: 'upsert',
         id: src,
@@ -368,7 +372,7 @@ void main() {
           'updated_at_device': at,
         },
       ),
-      const IncomingChange(
+      IncomingChange(
         entity: 'test_session',
         op: 'upsert',
         id: ses,
@@ -382,7 +386,7 @@ void main() {
           'collector_snapshot': {'full_name': 'Example Collector'},
         },
       ),
-      const IncomingChange(
+      IncomingChange(
         entity: 'test_result',
         op: 'upsert',
         id: res,
@@ -396,7 +400,7 @@ void main() {
           'created_at_device': at,
         },
       ),
-      const IncomingChange(
+      IncomingChange(
         entity: 'classification',
         op: 'upsert',
         id: '$res/$profile',

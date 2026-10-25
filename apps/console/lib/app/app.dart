@@ -36,11 +36,13 @@ class ConsoleApp extends ConsumerWidget {
       localizationsDelegates: localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       routerConfig: ref.watch(routerProvider),
-      builder: (context, child) => TimeZoneScope(
-        zone: zone,
-        child: IdleWatcher(
-          child: SyncWatcher(
-            child: RequestActivityBar(child: child ?? const SizedBox()),
+      builder: (context, child) => PhoneDensity(
+        child: TimeZoneScope(
+          zone: zone,
+          child: IdleWatcher(
+            child: SyncWatcher(
+              child: RequestActivityBar(child: child ?? const SizedBox()),
+            ),
           ),
         ),
       ),

@@ -46,8 +46,9 @@ class ReferenceDataScreen extends ConsumerWidget {
         onRetry: () => ref.invalidate(_referenceDataProvider),
       ),
       data: (d) => Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 900),
+        child: RelativeWidth(
+          tablet: 1,
+          desktop: 0.7,
           child: ReferenceDataView(
             catalogue: d.catalogue,
             profiles: d.profiles,

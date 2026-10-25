@@ -357,7 +357,9 @@ Future<AppDatabase> pumpConsole(
         consoleSyncTransportProvider.overrideWithValue(env.sync),
         notificationsApiProvider.overrideWithValue(env.notifications),
         mapTilesProvider.overrideWith((ref) async => MapTiles.none),
-        deviceLocationProvider.overrideWith((ref) async => env.location),
+        deviceLocationProvider.overrideWith(
+          (ref) => Stream.value(env.location),
+        ),
         ...env.extraOverrides,
       ],
     ),

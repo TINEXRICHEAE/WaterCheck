@@ -29,8 +29,9 @@ class AuthCard extends StatelessWidget {
         child: Center(
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(16),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 420),
+            child: RelativeWidth(
+              tablet: 0.6,
+              desktop: 0.32,
               child: Card(
                 child: Padding(
                   padding: const EdgeInsets.all(24),

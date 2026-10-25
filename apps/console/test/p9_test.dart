@@ -309,6 +309,11 @@ void main() {
     // The dashboard card points at the latest issue, with its distance.
     expect(find.text('Latest issue'), findsOneWidget);
     expect(find.textContaining('Unsafe result: Main borehole'), findsOneWidget);
+    // Folded to one line until tapped (ADR-027).
+    expect(find.textContaining('km away'), findsNothing);
+    await tester.tap(find.textContaining('Unsafe result: Main borehole'));
+    // The issue's dot pulses, so the frames never settle.
+    await tester.pump(const Duration(milliseconds: 300));
     expect(find.textContaining('km away'), findsOneWidget);
     await tester.tap(find.text('Open map'));
     await settle(tester);

@@ -1707,5 +1707,25 @@
   "areaRequestApprove": "Approve",
   "areaRequestDecline": "Decline",
   "legalTitle": "Before you continue",
-  "legalSummary": "WaterCheck holds personal information about testers and officials: names, contacts, where tests were made, pictures and messages. As a Console user you see this for your areas. Use it only to protect drinking water, keep it to yourself, and follow the Terms of Use. The data is hosted outside Uganda (South Africa)."
+  "legalSummary": "WaterCheck holds personal information about testers and officials: names, contacts, where tests were made, pictures with where and when they were taken, places people added, and messages. As a Console user you see this for your areas. Use it only to protect drinking water, keep it to yourself, and follow the Terms of Use. The data is hosted outside Uganda (South Africa).",
+  "mapPlaceRename": "Rename",
+  "mapPlaceRenameTitle": "Rename this place",
+  "mapPlaceRemove": "Remove",
+  "mapPlaceRemoveTitle": "Remove {name} for everyone?",
+  "@mapPlaceRemoveTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "mapPlaceRemoved": "{name} removed",
+  "@mapPlaceRemoved": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "mapPlaceNotChanged": "Not changed: the server could not be reached. Try again."
 }

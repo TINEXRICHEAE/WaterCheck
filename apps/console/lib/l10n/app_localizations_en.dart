@@ -2789,5 +2789,28 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get legalSummary =>
-      'WaterCheck holds personal information about testers and officials: names, contacts, where tests were made, pictures and messages. As a Console user you see this for your areas. Use it only to protect drinking water, keep it to yourself, and follow the Terms of Use. The data is hosted outside Uganda (South Africa).';
+      'WaterCheck holds personal information about testers and officials: names, contacts, where tests were made, pictures with where and when they were taken, places people added, and messages. As a Console user you see this for your areas. Use it only to protect drinking water, keep it to yourself, and follow the Terms of Use. The data is hosted outside Uganda (South Africa).';
+
+  @override
+  String get mapPlaceRename => 'Rename';
+
+  @override
+  String get mapPlaceRenameTitle => 'Rename this place';
+
+  @override
+  String get mapPlaceRemove => 'Remove';
+
+  @override
+  String mapPlaceRemoveTitle(String name) {
+    return 'Remove $name for everyone?';
+  }
+
+  @override
+  String mapPlaceRemoved(String name) {
+    return '$name removed';
+  }
+
+  @override
+  String get mapPlaceNotChanged =>
+      'Not changed: the server could not be reached. Try again.';
 }

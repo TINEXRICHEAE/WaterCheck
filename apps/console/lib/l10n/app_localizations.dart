@@ -4363,8 +4363,44 @@ abstract class AppLocalizations {
   /// No description provided for @legalSummary.
   ///
   /// In en, this message translates to:
-  /// **'WaterCheck holds personal information about testers and officials: names, contacts, where tests were made, pictures and messages. As a Console user you see this for your areas. Use it only to protect drinking water, keep it to yourself, and follow the Terms of Use. The data is hosted outside Uganda (South Africa).'**
+  /// **'WaterCheck holds personal information about testers and officials: names, contacts, where tests were made, pictures with where and when they were taken, places people added, and messages. As a Console user you see this for your areas. Use it only to protect drinking water, keep it to yourself, and follow the Terms of Use. The data is hosted outside Uganda (South Africa).'**
   String get legalSummary;
+
+  /// No description provided for @mapPlaceRename.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename'**
+  String get mapPlaceRename;
+
+  /// No description provided for @mapPlaceRenameTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename this place'**
+  String get mapPlaceRenameTitle;
+
+  /// No description provided for @mapPlaceRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get mapPlaceRemove;
+
+  /// No description provided for @mapPlaceRemoveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove {name} for everyone?'**
+  String mapPlaceRemoveTitle(String name);
+
+  /// No description provided for @mapPlaceRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} removed'**
+  String mapPlaceRemoved(String name);
+
+  /// No description provided for @mapPlaceNotChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Not changed: the server could not be reached. Try again.'**
+  String get mapPlaceNotChanged;
 }
 
 class _AppLocalizationsDelegate

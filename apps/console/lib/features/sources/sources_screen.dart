@@ -179,17 +179,25 @@ class _ViewToggle extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
+    // Phones: icons only, so the map keeps the screen (2026-10-25).
+    final phone = isPhone(context);
     return SegmentedButton<bool>(
+      showSelectedIcon: !phone,
+      style: phone
+          ? const ButtonStyle(visualDensity: VisualDensity.compact)
+          : null,
       segments: [
         ButtonSegment(
           value: false,
           icon: const Icon(Icons.list),
-          label: Text(l10n.viewList),
+          tooltip: l10n.viewList,
+          label: phone ? null : Text(l10n.viewList),
         ),
         ButtonSegment(
           value: true,
           icon: const Icon(Icons.map_outlined),
-          label: Text(l10n.viewMap),
+          tooltip: l10n.viewMap,
+          label: phone ? null : Text(l10n.viewMap),
         ),
       ],
       selected: {map},

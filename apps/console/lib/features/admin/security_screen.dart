@@ -103,7 +103,7 @@ class _SecurityScreenState extends ConsumerState<SecurityScreen> {
             Padding(
               padding: const EdgeInsets.only(bottom: 12),
               child: SizedBox(
-                width: 360,
+                width: screenShare(context, tablet: 0.5, desktop: 0.3),
                 child: TextField(
                   key: ValueKey('security-$k'),
                   controller: _c[k],
