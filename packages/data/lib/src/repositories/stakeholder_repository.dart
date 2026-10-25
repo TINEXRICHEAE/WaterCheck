@@ -1,7 +1,9 @@
 import 'dart:convert';
 
+import 'package:domain/domain.dart';
 import 'package:drift/drift.dart';
 
+import '../attachments/attachment_repository.dart';
 import '../db/database.dart';
 import 'support.dart';
 
@@ -12,6 +14,9 @@ typedef PhotoSummary = ({
   bool uploaded,
   String ownerId,
   bool ofSource,
+
+  /// Where and when it was taken (ADR-029), if known.
+  GeoFix? taken,
 });
 
 typedef InspectionListItem = ({
@@ -53,6 +58,7 @@ class StakeholderRepository {
           uploaded: a.uploadStatus == 'uploaded',
           ownerId: a.ownerId,
           ofSource: a.ownerId == sourceId,
+          taken: takenOf(a),
         ),
     ];
   }

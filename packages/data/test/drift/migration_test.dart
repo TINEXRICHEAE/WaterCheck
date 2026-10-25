@@ -89,4 +89,26 @@ void main() {
     expect(unit.centerLat, isNull);
     await db.close();
   });
+
+  test('v10 → v11 keeps names and pictures, adds who added a place, where '
+      'a picture was taken, and trips', () async {
+    final schema = await verifier.schemaAt(10);
+    schema.rawDatabase
+      ..execute(
+        "INSERT INTO place_names (id, name, kind, lat, lon, subcounty_id) "
+        "VALUES ('p-1', 'Kabojja', 'village', 0.3, 32.5, 's-1')",
+      )
+      ..execute(
+        "INSERT INTO attachments (id, owner_type, owner_id, sha256, bytes, mime) "
+        "VALUES ('a-1', 'water_source', 'src-1', 'x', 10, 'image/jpeg')",
+      );
+    final db = AppDatabase(schema.newConnection());
+    await verifier.migrateAndValidate(db, localSchemaVersion);
+    final place = await db.select(db.placeNames).getSingle();
+    expect((place.name, place.addedAt), ('Kabojja', null));
+    final picture = await db.select(db.attachments).getSingle();
+    expect((picture.id, picture.takenLat), ('a-1', null));
+    expect(await db.select(db.trips).get(), isEmpty);
+    await db.close();
+  });
 }

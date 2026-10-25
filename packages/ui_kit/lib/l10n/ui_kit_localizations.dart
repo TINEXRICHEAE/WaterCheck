@@ -879,6 +879,258 @@ abstract class UiKitLocalizations {
   /// In en, this message translates to:
   /// **'The Privacy Policy or Terms of Use have changed. Please read them and agree again to keep using WaterCheck.'**
   String get legalChanged;
+
+  /// No description provided for @mapPathOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Show the whole path'**
+  String get mapPathOpen;
+
+  /// No description provided for @mapPathFold.
+  ///
+  /// In en, this message translates to:
+  /// **'Fold the path'**
+  String get mapPathFold;
+
+  /// No description provided for @mapPathMore.
+  ///
+  /// In en, this message translates to:
+  /// **'+{count}'**
+  String mapPathMore(int count);
+
+  /// No description provided for @mapControlsOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Move and zoom'**
+  String get mapControlsOpen;
+
+  /// No description provided for @mapControlsFold.
+  ///
+  /// In en, this message translates to:
+  /// **'Fold the move and zoom buttons'**
+  String get mapControlsFold;
+
+  /// No description provided for @mapMore.
+  ///
+  /// In en, this message translates to:
+  /// **'More'**
+  String get mapMore;
+
+  /// No description provided for @mapLess.
+  ///
+  /// In en, this message translates to:
+  /// **'Less'**
+  String get mapLess;
+
+  /// No description provided for @tripGo.
+  ///
+  /// In en, this message translates to:
+  /// **'Go'**
+  String get tripGo;
+
+  /// No description provided for @tripGoTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow me there, live'**
+  String get tripGoTooltip;
+
+  /// No description provided for @tripStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop'**
+  String get tripStop;
+
+  /// No description provided for @tripDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get tripDone;
+
+  /// No description provided for @tripTo.
+  ///
+  /// In en, this message translates to:
+  /// **'To {name}'**
+  String tripTo(String name);
+
+  /// No description provided for @tripArrived.
+  ///
+  /// In en, this message translates to:
+  /// **'You have arrived'**
+  String get tripArrived;
+
+  /// No description provided for @tripWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for your position…'**
+  String get tripWaiting;
+
+  /// No description provided for @tripRerouting.
+  ///
+  /// In en, this message translates to:
+  /// **'Finding the way again…'**
+  String get tripRerouting;
+
+  /// No description provided for @tripLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'{distance} left · arrive about {time} ({duration})'**
+  String tripLeft(String distance, String time, String duration);
+
+  /// No description provided for @tripLeftNoTime.
+  ///
+  /// In en, this message translates to:
+  /// **'{distance} left'**
+  String tripLeftNoTime(String distance);
+
+  /// No description provided for @tripFollow.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow my position'**
+  String get tripFollow;
+
+  /// No description provided for @fixSpeed.
+  ///
+  /// In en, this message translates to:
+  /// **'{value} km/h'**
+  String fixSpeed(String value);
+
+  /// No description provided for @fixAltitude.
+  ///
+  /// In en, this message translates to:
+  /// **'{value} m high'**
+  String fixAltitude(String value);
+
+  /// No description provided for @fixHeading.
+  ///
+  /// In en, this message translates to:
+  /// **'heading {value}'**
+  String fixHeading(String value);
+
+  /// No description provided for @fixAccuracy.
+  ///
+  /// In en, this message translates to:
+  /// **'±{value} m'**
+  String fixAccuracy(String value);
+
+  /// No description provided for @photoTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'Taken {when}'**
+  String photoTaken(String when);
+
+  /// No description provided for @placeAddHere.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a place here'**
+  String get placeAddHere;
+
+  /// No description provided for @placeAddTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a place that is not on the map'**
+  String get placeAddTitle;
+
+  /// No description provided for @placeName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get placeName;
+
+  /// No description provided for @placeKind.
+  ///
+  /// In en, this message translates to:
+  /// **'What is it?'**
+  String get placeKind;
+
+  /// No description provided for @placeAddExplain.
+  ///
+  /// In en, this message translates to:
+  /// **'Everyone will find it in searches and on the map, with your name. Admins can correct it.'**
+  String get placeAddExplain;
+
+  /// No description provided for @placeAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get placeAdd;
+
+  /// No description provided for @placeAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} added'**
+  String placeAdded(String name);
+
+  /// No description provided for @placeAddedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Added by {name}'**
+  String placeAddedBy(String name);
+
+  /// No description provided for @placeOutside.
+  ///
+  /// In en, this message translates to:
+  /// **'This point is not in Uganda\'s areas on this device yet. Choose a point near a known place.'**
+  String get placeOutside;
+
+  /// No description provided for @placeKindVillage.
+  ///
+  /// In en, this message translates to:
+  /// **'Village'**
+  String get placeKindVillage;
+
+  /// No description provided for @placeKindTradingCentre.
+  ///
+  /// In en, this message translates to:
+  /// **'Trading centre'**
+  String get placeKindTradingCentre;
+
+  /// No description provided for @placeKindSchool.
+  ///
+  /// In en, this message translates to:
+  /// **'School'**
+  String get placeKindSchool;
+
+  /// No description provided for @placeKindHealthCentre.
+  ///
+  /// In en, this message translates to:
+  /// **'Health centre'**
+  String get placeKindHealthCentre;
+
+  /// No description provided for @placeKindMarket.
+  ///
+  /// In en, this message translates to:
+  /// **'Market'**
+  String get placeKindMarket;
+
+  /// No description provided for @placeKindWorship.
+  ///
+  /// In en, this message translates to:
+  /// **'Place of worship'**
+  String get placeKindWorship;
+
+  /// No description provided for @placeKindLandmark.
+  ///
+  /// In en, this message translates to:
+  /// **'Landmark'**
+  String get placeKindLandmark;
+
+  /// No description provided for @placeKindOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get placeKindOther;
+
+  /// No description provided for @mapSearchingOnline.
+  ///
+  /// In en, this message translates to:
+  /// **'Searching all of Uganda…'**
+  String get mapSearchingOnline;
+
+  /// No description provided for @mapSearchNothing.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing found'**
+  String get mapSearchNothing;
 }
 
 class _UiKitLocalizationsDelegate

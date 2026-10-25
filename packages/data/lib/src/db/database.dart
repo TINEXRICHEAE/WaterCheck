@@ -40,6 +40,8 @@ part 'database.g.dart';
     ChangeTrails,
     Messages,
     PlaceNames,
+    Trips,
+    TripPoints,
   ],
   include: {'immutability.drift'},
 )
@@ -47,7 +49,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.executor);
 
   @override
-  int get schemaVersion => 10;
+  int get schemaVersion => 11;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -114,6 +116,29 @@ class AppDatabase extends _$AppDatabase {
       if (from < 10) {
         // A tester's optional email (ADR-024).
         await m.addColumn(collectorProfiles, collectorProfiles.email);
+      }
+      if (from < 11) {
+        // Places added from the map (ADR-028); where pictures were taken
+        // and trips followed live (ADR-029).
+        // Only when the table already existed (v9 or v10): from older
+        // versions the v9 step above made it with these columns.
+        if (from >= 9) {
+          await m.addColumn(placeNames, placeNames.addedByName);
+          await m.addColumn(placeNames, placeNames.addedAt);
+        }
+        for (final c in [
+          attachments.takenLat,
+          attachments.takenLon,
+          attachments.takenAccuracyM,
+          attachments.takenAltitudeM,
+          attachments.takenSpeedMps,
+          attachments.takenHeadingDeg,
+          attachments.takenAt,
+        ]) {
+          await m.addColumn(attachments, c);
+        }
+        await m.createTable(trips);
+        await m.createTable(tripPoints);
       }
     },
     beforeOpen: (details) async {

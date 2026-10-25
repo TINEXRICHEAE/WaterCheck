@@ -400,6 +400,16 @@ class Attachments extends Table with ServerSeq {
 
   /// Who added it: only they may remove it (ADR-022). Added in v7.
   TextColumn get collectorKey => text().nullable()();
+
+  /// Where and when it was taken (ADR-029), when the device had a fix.
+  /// Added in v11.
+  RealColumn get takenLat => real().nullable()();
+  RealColumn get takenLon => real().nullable()();
+  RealColumn get takenAccuracyM => real().nullable()();
+  RealColumn get takenAltitudeM => real().nullable()();
+  RealColumn get takenSpeedMps => real().nullable()();
+  RealColumn get takenHeadingDeg => real().nullable()();
+  DateTimeColumn get takenAt => dateTime().nullable()();
   TextColumn get uploadStatus =>
       text().withDefault(const Constant('pending'))();
 
@@ -545,8 +555,50 @@ class PlaceNames extends Table {
   RealColumn get lat => real()();
   RealColumn get lon => real()();
   TextColumn get subcountyId => text()();
+
+  /// A place someone added from the map (ADR-028): who, and when. Null for
+  /// names from OpenStreetMap. Added in v11.
+  TextColumn get addedByName => text().nullable()();
+  DateTimeColumn get addedAt => dateTime().nullable()();
   IntColumn get serverSeq => integer().nullable()();
 
   @override
   Set<Column> get primaryKey => {id};
+}
+
+/// A trip followed live to a source or place (ADR-029). Kept on this
+/// device only; never synced. Added in v11.
+@DataClassName('TripRow')
+class Trips extends Table {
+  TextColumn get id => text()();
+
+  /// The tester it belongs to; removed with their profile.
+  TextColumn get collectorKey => text().nullable()();
+  TextColumn get toName => text()();
+  RealColumn get toLat => real()();
+  RealColumn get toLon => real()();
+
+  /// `car` or `foot`, as for routes.
+  TextColumn get mode => text()();
+  DateTimeColumn get startedAt => dateTime()();
+  DateTimeColumn get endedAt => dateTime().nullable()();
+  BoolColumn get arrived => boolean().withDefault(const Constant(false))();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// The fixes of a trip, in order (ADR-029).
+@DataClassName('TripPointRow')
+class TripPoints extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get tripId =>
+      text().references(Trips, #id, onDelete: KeyAction.cascade)();
+  DateTimeColumn get at => dateTime()();
+  RealColumn get lat => real()();
+  RealColumn get lon => real()();
+  RealColumn get accuracyM => real().nullable()();
+  RealColumn get altitudeM => real().nullable()();
+  RealColumn get speedMps => real().nullable()();
+  RealColumn get headingDeg => real().nullable()();
 }

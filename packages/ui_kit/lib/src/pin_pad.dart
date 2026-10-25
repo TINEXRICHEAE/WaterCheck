@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../l10n/ui_kit_localizations.dart';
+import 'theme.dart';
 
 /// A large numeric keypad for PINs (works with wet fingers and on small
 /// phones; digits and Enter also work from a keyboard on Windows).
@@ -80,8 +81,10 @@ class _PinPadState extends State<PinPad> {
       focusNode: _focus,
       autofocus: true,
       onKeyEvent: _onKey,
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 320),
+      child: RelativeWidth(
+        phone: 0.85,
+        tablet: 0.45,
+        desktop: 0.25,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [

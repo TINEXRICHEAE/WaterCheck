@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 
 import '../l10n/ui_kit_localizations.dart';
 import 'preferences.dart';
+import 'theme.dart';
 
 /// One message as a conversation shows it.
 class ConversationMessage {
@@ -88,7 +89,14 @@ class _ConversationViewState extends State<ConversationView> {
           Align(
             alignment: m.mine ? Alignment.centerRight : Alignment.centerLeft,
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 560),
+              constraints: BoxConstraints(
+                maxWidth: screenShare(
+                  context,
+                  phone: 0.85,
+                  tablet: 0.6,
+                  desktop: 0.45,
+                ),
+              ),
               child: Semantics(
                 container: true,
                 label: l10n.conversationFrom(

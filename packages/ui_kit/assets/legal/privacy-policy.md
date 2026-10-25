@@ -1,6 +1,6 @@
 # WaterCheck Privacy Policy
 
-Version 2 · Effective: [date of approval]
+Version 3 · Effective: [date of approval]
 
 > Draft for review. This text describes what the WaterCheck apps do. It is
 > not legal advice. Before real data is collected, the project lead confirms
@@ -27,11 +27,13 @@ WaterCheck helps communities and districts in Uganda check that shared drinking-
   - water sources, with their name, type and location;
   - test readings and results;
   - checks of the surroundings;
-  - pictures of sources and tests;
+  - pictures of sources and tests, with where and when each was taken (position, accuracy, height, speed and direction, from GPS); this is written into the picture file too, so a copied picture keeps it;
   - why a test has no picture;
   - messages you write;
-  - names you type under "Other".
+  - names you type under "Other";
+  - places you add to the map, with your name, which everyone using WaterCheck can see.
 - **Where you tested:** the position of your device at each test (from GPS), how accurate it was, its distance from the source, and the reason if you tested away from it.
+- **Trips you follow with "Go":** your positions, speed, height and times along the way. They stay on your device: they are never sent to our server, and you can delete them under My trips. Deleting your profile from a device deletes its trips.
 - **Your devices:**
   - an ID the device creates when WaterCheck first runs;
   - its type (Android, Windows or web) and, if you give one, its name;
@@ -80,9 +82,9 @@ We rely on your consent, and on the public-health purpose of monitoring drinking
 - **On your device:**
   - In the Android and Windows apps, WaterCheck keeps its data encrypted.
   - On the web, your browser keeps it unencrypted, so use your own device and a private window only when you must.
-  - Your PIN never leaves the device.
+  - Your PIN never leaves the device, and neither do the trips you follow with "Go".
 - **On our server:** in Microsoft Azure, in the South Africa North region, outside Uganda. Transfers there follow the Data Protection and Privacy Act, 2019, and [the safeguards confirmed with PDPO].
-- **Maps and routes:** these come from our own server. Your position is only sent to it to draw the map and work out a route, and it is not stored for that.
+- **Maps and routes:** these come from our own server. Your position is only sent to it to draw the map and work out a route (again while you follow a route with "Go"), and it is not stored for that.
 - **Map data:** map data © OpenStreetMap contributors. Area boundaries are from the Uganda Bureau of Statistics (via OCHA).
 
 ## 7. How long we keep it

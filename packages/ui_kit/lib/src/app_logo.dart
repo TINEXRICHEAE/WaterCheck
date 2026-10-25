@@ -13,15 +13,29 @@ class AppLogo extends StatelessWidget {
   final bool decorative;
 
   @override
-  Widget build(BuildContext context) => Image.asset(
-    'assets/watercheck.png',
-    package: 'ui_kit',
-    width: size,
-    height: size,
-    filterQuality: FilterQuality.medium,
-    excludeFromSemantics: decorative,
-    semanticLabel: decorative ? null : UiKitLocalizations.of(context).appLogo,
-  );
+  Widget build(BuildContext context) {
+    final logo = Image.asset(
+      'assets/watercheck.png',
+      package: 'ui_kit',
+      width: size,
+      height: size,
+      filterQuality: FilterQuality.medium,
+      excludeFromSemantics: decorative,
+      semanticLabel: decorative ? null : UiKitLocalizations.of(context).appLogo,
+    );
+    if (Theme.of(context).brightness == Brightness.light) return logo;
+    // The dark round logo needs a ring to stand out on a dark background.
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(
+          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.6),
+          width: size < 40 ? 1.5 : 2,
+        ),
+      ),
+      child: logo,
+    );
+  }
 }
 
 /// The logo with the app's name, for sign-in, activation and splash screens.

@@ -1,8 +1,10 @@
 import 'package:drift/drift.dart';
 
 import '../db/database.dart';
+import 'support.dart';
 
-/// A name on the map placed in its sub-county (ADR-023).
+/// A name on the map placed in its sub-county (ADR-023), or a place
+/// someone added from the map ([addedBy], ADR-028).
 typedef MapName = ({
   String id,
   String name,
@@ -10,15 +12,34 @@ typedef MapName = ({
   double lat,
   double lon,
   String subcountyId,
+  String? addedBy,
 });
+
+/// Kinds of place a person may add from the map (ADR-028).
+const addedPlaceKinds = [
+  'village',
+  'trading_centre',
+  'school',
+  'health_centre',
+  'market',
+  'worship',
+  'landmark',
+  'other',
+];
 
 /// Names on the map for the districts this device holds: suggestions when a
 /// place is typed or searched, and a guess of the sub-county at a point
 /// when there is no connection.
 class MapPlaceRepository {
-  MapPlaceRepository(this._db);
+  MapPlaceRepository(
+    this._db, {
+    this.clock = systemClock,
+    this.ids = const IdGenerator(),
+  });
 
   final AppDatabase _db;
+  final Clock clock;
+  final IdGenerator ids;
 
   static MapName _place(PlaceNameRow r) => (
     id: r.id,
@@ -27,7 +48,65 @@ class MapPlaceRepository {
     lat: r.lat,
     lon: r.lon,
     subcountyId: r.subcountyId,
+    addedBy: r.addedAt == null ? null : (r.addedByName ?? ''),
   );
+
+  /// Adds a place missing from the map (ADR-028): on this device at once,
+  /// in [subcountyId] (the best guess; the server sets the real one from
+  /// the boundaries), and queued for everyone.
+  Future<MapName> add({
+    required String name,
+    required String kind,
+    required double lat,
+    required double lon,
+    required String subcountyId,
+    required SubmissionOrigin origin,
+    String? byName,
+  }) => _db.transaction(() async {
+    final id = ids.next();
+    final clean = name.trim().split(RegExp(r'\s+')).join(' ');
+    final row = await _db
+        .into(_db.placeNames)
+        .insertReturning(
+          PlaceNamesCompanion.insert(
+            id: id,
+            name: clean,
+            kind: kind,
+            lat: lat,
+            lon: lon,
+            subcountyId: subcountyId,
+            addedByName: Value(origin.collector?.fullName ?? byName),
+            addedAt: Value(clock()),
+          ),
+        );
+    await enqueueOutbox(
+      _db,
+      entity: 'place_name',
+      entityId: id,
+      op: OutboxOp.insert,
+      payload: {
+        'name': clean,
+        'kind': kind,
+        'lat': lat,
+        'lon': lon,
+        'installation_id': origin.installationId,
+        'collector_key': origin.collectorKey,
+        'collector_snapshot': origin.snapshotJson,
+      },
+      at: clock(),
+    );
+    return _place(row);
+  });
+
+  /// An admin's correction, here at once; the server's copy follows.
+  Future<void> rename(String id, String name) =>
+      (_db.update(_db.placeNames)..where((p) => p.id.equals(id))).write(
+        PlaceNamesCompanion(name: Value(name)),
+      );
+
+  /// An admin's removal, here at once; other devices drop it with sync.
+  Future<void> forget(String id) =>
+      (_db.delete(_db.placeNames)..where((p) => p.id.equals(id))).go();
 
   static double _d2(double lat1, double lon1, double lat2, double lon2) =>
       (lat1 - lat2) * (lat1 - lat2) + (lon1 - lon2) * (lon1 - lon2);

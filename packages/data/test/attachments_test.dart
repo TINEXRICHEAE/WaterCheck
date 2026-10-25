@@ -7,7 +7,7 @@ import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
 import 'package:data/data.dart';
-import 'package:domain/domain.dart' show CollectorSnapshot;
+import 'package:domain/domain.dart' show CollectorSnapshot, GeoFix;
 import 'package:data/src/db/database.dart'
     show AttachmentQueueCompanion, OutboxCompanion;
 import 'package:drift/drift.dart' show Value;
@@ -81,6 +81,41 @@ void main() {
       compressPhoto(Uint8List.fromList(utf8.encode('not an image'))),
       isNull,
     );
+  });
+
+  test('a located photo carries only where and when it was taken', () {
+    final small = compressPhoto(
+      noisyJpeg(width: 800, height: 600),
+      taken: GeoFix(
+        lat: 0.4512,
+        lon: -33.2041,
+        at: DateTime.utc(2026, 10, 25, 8, 30, 5),
+        accuracyM: 6.5,
+        altitudeM: 1143.2,
+        speedMps: 2.5,
+        headingDeg: 271,
+      ),
+    )!;
+    final exif = img.decodeJpg(small)!.exif;
+    final gps = exif.gpsIfd;
+    double deg(String tag) {
+      final r = gps[tag]!.toRational(0);
+      final m = gps[tag]!.toRational(1);
+      final s = gps[tag]!.toRational(2);
+      return r.toDouble() + m.toDouble() / 60 + s.toDouble() / 3600;
+    }
+
+    expect(gps['GPSLatitudeRef']!.toString(), 'N');
+    expect(deg('GPSLatitude'), closeTo(0.4512, 1e-6));
+    expect(gps['GPSLongitudeRef']!.toString(), 'W');
+    expect(deg('GPSLongitude'), closeTo(33.2041, 1e-6));
+    expect(gps['GPSAltitude']!.toRational().toDouble(), closeTo(1143.2, 0.01));
+    expect(gps['GPSSpeed']!.toRational().toDouble(), closeTo(9, 0.01));
+    expect(gps['GPSDate']!.toString(), '2026:10:25');
+    expect(exif.exifIfd['DateTimeOriginal']!.toString(), '2026:10:25 08:30:05');
+    // Nothing about the device.
+    expect(exif.imageIfd['Make'], isNull);
+    expect(exif.imageIfd['Model'], isNull);
   });
 
   group('photos and uploads', () {

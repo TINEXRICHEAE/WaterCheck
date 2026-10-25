@@ -312,5 +312,130 @@
     }
   },
   "legalAccept": "I agree to the Terms of Use and the Privacy Policy",
-  "legalChanged": "The Privacy Policy or Terms of Use have changed. Please read them and agree again to keep using WaterCheck."
+  "legalChanged": "The Privacy Policy or Terms of Use have changed. Please read them and agree again to keep using WaterCheck.",
+  "mapPathOpen": "Show the whole path",
+  "mapPathFold": "Fold the path",
+  "mapPathMore": "+{count}",
+  "@mapPathMore": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "mapControlsOpen": "Move and zoom",
+  "mapControlsFold": "Fold the move and zoom buttons",
+  "mapMore": "More",
+  "mapLess": "Less",
+  "tripGo": "Go",
+  "tripGoTooltip": "Follow me there, live",
+  "tripStop": "Stop",
+  "tripDone": "Done",
+  "tripTo": "To {name}",
+  "@tripTo": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "tripArrived": "You have arrived",
+  "tripWaiting": "Waiting for your position…",
+  "tripRerouting": "Finding the way again…",
+  "tripLeft": "{distance} left · arrive about {time} ({duration})",
+  "@tripLeft": {
+    "placeholders": {
+      "distance": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      },
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "tripLeftNoTime": "{distance} left",
+  "@tripLeftNoTime": {
+    "placeholders": {
+      "distance": {
+        "type": "String"
+      }
+    }
+  },
+  "tripFollow": "Follow my position",
+  "fixSpeed": "{value} km/h",
+  "@fixSpeed": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "fixAltitude": "{value} m high",
+  "@fixAltitude": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "fixHeading": "heading {value}",
+  "@fixHeading": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "fixAccuracy": "±{value} m",
+  "@fixAccuracy": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "photoTaken": "Taken {when}",
+  "@photoTaken": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "placeAddHere": "Add a place here",
+  "placeAddTitle": "Add a place that is not on the map",
+  "placeName": "Name",
+  "placeKind": "What is it?",
+  "placeAddExplain": "Everyone will find it in searches and on the map, with your name. Admins can correct it.",
+  "placeAdd": "Add",
+  "placeAdded": "{name} added",
+  "@placeAdded": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "placeAddedBy": "Added by {name}",
+  "@placeAddedBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "placeOutside": "This point is not in Uganda's areas on this device yet. Choose a point near a known place.",
+  "placeKindVillage": "Village",
+  "placeKindTradingCentre": "Trading centre",
+  "placeKindSchool": "School",
+  "placeKindHealthCentre": "Health centre",
+  "placeKindMarket": "Market",
+  "placeKindWorship": "Place of worship",
+  "placeKindLandmark": "Landmark",
+  "placeKindOther": "Other",
+  "mapSearchingOnline": "Searching all of Uganda…",
+  "mapSearchNothing": "Nothing found"
 }

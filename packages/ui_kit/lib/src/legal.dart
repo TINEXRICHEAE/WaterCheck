@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../l10n/ui_kit_localizations.dart';
+import 'theme.dart';
 
 /// The Privacy Policy and Terms of Use (2026-10-24), bundled with both apps
 /// from `assets/legal/`. Raise [legalVersion] whenever either text changes
@@ -16,7 +17,7 @@ enum LegalDocument {
 }
 
 /// The version of the two documents together that people accept.
-const legalVersion = 2;
+const legalVersion = 3;
 
 Future<String> loadLegal(LegalDocument doc) =>
     rootBundle.loadString('packages/ui_kit/${doc.asset}');
@@ -45,8 +46,9 @@ class LegalDocumentScreen extends StatelessWidget {
         builder: (context, snap) => snap.data == null
             ? const Center(child: CircularProgressIndicator())
             : Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 760),
+                child: RelativeWidth(
+                  tablet: 0.85,
+                  desktop: 0.6,
                   child: SelectionArea(child: LegalText(snap.data!)),
                 ),
               ),
@@ -256,7 +258,11 @@ class _LegalAcceptViewState extends State<LegalAcceptView> {
                     if (mounted) setState(() => _busy = false);
                   }
                 },
-          child: Text(l10n.legalAccept),
+          // Long on a phone: room for two centred lines (2026-10-25).
+          style: FilledButton.styleFrom(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          ),
+          child: Text(l10n.legalAccept, textAlign: TextAlign.center),
         ),
       ],
     );

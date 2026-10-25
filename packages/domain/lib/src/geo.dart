@@ -24,3 +24,32 @@ bool isValidCoordinate(GeoPoint point) =>
     point.lat <= 90 &&
     point.lon >= -180 &&
     point.lon <= 180;
+
+/// One GPS fix with what the device knew at that moment (ADR-029): where,
+/// how sure, how high, how fast, which way and when. Phones give all of
+/// it; a browser often gives no altitude, speed or direction.
+class GeoFix {
+  const GeoFix({
+    required this.lat,
+    required this.lon,
+    required this.at,
+    this.accuracyM,
+    this.altitudeM,
+    this.speedMps,
+    this.headingDeg,
+  });
+
+  final double lat;
+  final double lon;
+  final DateTime at;
+  final double? accuracyM;
+  final double? altitudeM;
+
+  /// Metres per second.
+  final double? speedMps;
+
+  /// Degrees clockwise from north.
+  final double? headingDeg;
+
+  GeoPoint get point => GeoPoint(lat: lat, lon: lon, accuracyM: accuracyM);
+}

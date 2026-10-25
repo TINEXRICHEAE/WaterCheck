@@ -1,4 +1,5 @@
 import 'package:crypto/crypto.dart';
+import 'package:domain/domain.dart';
 import 'package:drift/drift.dart';
 
 import '../db/database.dart';
@@ -23,11 +24,15 @@ class LocalPhoto {
     required this.bytes,
     required this.status,
     this.collectorKey,
+    this.taken,
   });
 
   final String id;
   final String path;
   final int bytes;
+
+  /// Where and when it was taken (ADR-029), if the device had a fix.
+  final GeoFix? taken;
 
   /// Who added it; only they may remove it (ADR-022).
   final String? collectorKey;
@@ -38,12 +43,13 @@ class LocalPhoto {
 
 abstract interface class AttachmentRepository {
   /// Stores an already compressed JPEG and queues its metadata (outbox)
-  /// and its bytes (upload queue) together.
+  /// and its bytes (upload queue) together, with where it was [taken].
   Future<String> addPhoto({
     required PhotoOwner owner,
     required String ownerId,
     required Uint8List jpeg,
     required SubmissionOrigin origin,
+    GeoFix? taken,
   });
 
   Stream<List<LocalPhoto>> watchPhotos(PhotoOwner owner, String ownerId);
@@ -78,6 +84,7 @@ class DriftAttachmentRepository implements AttachmentRepository {
     required String ownerId,
     required Uint8List jpeg,
     required SubmissionOrigin origin,
+    GeoFix? taken,
   }) async {
     final id = ids.next();
     final path = await _files.save(id, jpeg);
@@ -94,6 +101,13 @@ class DriftAttachmentRepository implements AttachmentRepository {
                 bytes: jpeg.length,
                 mime: 'image/jpeg',
                 collectorKey: Value(origin.collectorKey),
+                takenLat: Value(taken?.lat),
+                takenLon: Value(taken?.lon),
+                takenAccuracyM: Value(taken?.accuracyM),
+                takenAltitudeM: Value(taken?.altitudeM),
+                takenSpeedMps: Value(taken?.speedMps),
+                takenHeadingDeg: Value(taken?.headingDeg),
+                takenAt: Value(taken?.at),
               ),
             );
         await _db
@@ -146,6 +160,7 @@ class DriftAttachmentRepository implements AttachmentRepository {
             bytes: r.readTable(_db.attachments).bytes,
             status: r.readTable(_db.attachmentQueue).status,
             collectorKey: r.readTable(_db.attachments).collectorKey,
+            taken: takenOf(r.readTable(_db.attachments)),
           ),
       ],
     );
@@ -210,3 +225,17 @@ class DriftAttachmentRepository implements AttachmentRepository {
   @override
   Future<Uint8List?> read(String path) => _files.read(path);
 }
+
+/// Where and when a stored picture was taken (ADR-029), if known.
+GeoFix? takenOf(AttachmentRow a) =>
+    a.takenLat == null || a.takenLon == null || a.takenAt == null
+    ? null
+    : GeoFix(
+        lat: a.takenLat!,
+        lon: a.takenLon!,
+        at: a.takenAt!,
+        accuracyM: a.takenAccuracyM,
+        altitudeM: a.takenAltitudeM,
+        speedMps: a.takenSpeedMps,
+        headingDeg: a.takenHeadingDeg,
+      );

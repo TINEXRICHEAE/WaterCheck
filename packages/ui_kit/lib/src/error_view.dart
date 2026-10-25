@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../l10n/ui_kit_localizations.dart';
+import 'theme.dart';
 
 /// What went wrong, in terms a user can act on.
 enum ErrorKind {
@@ -158,10 +159,7 @@ class ErrorView extends StatelessWidget {
           : Center(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(24),
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 480),
-                  child: body,
-                ),
+                child: RelativeWidth(tablet: 0.6, desktop: 0.4, child: body),
               ),
             ),
     );

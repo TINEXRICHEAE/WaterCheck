@@ -32,9 +32,17 @@ bool get mapKeysLikely => switch (defaultTargetPlatform) {
 /// moving) beside the zoom buttons. On a computer each button shows its
 /// key: arrows or W/A/S/D, R and F (2026-10-24).
 class MapNavigationButtons extends StatefulWidget {
-  const MapNavigationButtons({super.key, required this.motion, this.showKeys});
+  const MapNavigationButtons({
+    super.key,
+    required this.motion,
+    this.showKeys,
+    this.folded,
+  });
 
   final MapMotion motion;
+
+  /// Start folded into one small button; by default on phones only.
+  final bool? folded;
 
   /// Key labels; by default on computers only ([mapKeysLikely]).
   final bool? showKeys;
@@ -45,6 +53,7 @@ class MapNavigationButtons extends StatefulWidget {
 
 class _MapNavigationButtonsState extends State<MapNavigationButtons> {
   Timer? _hold;
+  bool? _folded;
 
   @override
   void dispose() {
@@ -134,6 +143,20 @@ class _MapNavigationButtonsState extends State<MapNavigationButtons> {
   @override
   Widget build(BuildContext context) {
     final l10n = UiKitLocalizations.of(context);
+    // Folded by default on every screen, so the map keeps it (2026-10-25).
+    final folded = _folded ?? widget.folded ?? true;
+    if (folded) {
+      return Material(
+        elevation: 3,
+        borderRadius: BorderRadius.circular(12),
+        color: Theme.of(context).colorScheme.surface,
+        child: IconButton(
+          tooltip: l10n.mapControlsOpen,
+          icon: const Icon(Icons.open_with),
+          onPressed: () => setState(() => _folded = false),
+        ),
+      );
+    }
     const up = Offset(0, -1), down = Offset(0, 1);
     const left = Offset(-1, 0), right = Offset(1, 0);
     return Material(
@@ -145,6 +168,12 @@ class _MapNavigationButtonsState extends State<MapNavigationButtons> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            IconButton(
+              visualDensity: VisualDensity.compact,
+              tooltip: l10n.mapControlsFold,
+              icon: const Icon(Icons.close_fullscreen, size: 16),
+              onPressed: () => setState(() => _folded = true),
+            ),
             _button(
               icon: Icons.keyboard_arrow_up,
               tooltip: l10n.mapMoveUp,

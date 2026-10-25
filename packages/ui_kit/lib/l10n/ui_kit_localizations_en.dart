@@ -486,4 +486,154 @@ class UiKitLocalizationsEn extends UiKitLocalizations {
   @override
   String get legalChanged =>
       'The Privacy Policy or Terms of Use have changed. Please read them and agree again to keep using WaterCheck.';
+
+  @override
+  String get mapPathOpen => 'Show the whole path';
+
+  @override
+  String get mapPathFold => 'Fold the path';
+
+  @override
+  String mapPathMore(int count) {
+    return '+$count';
+  }
+
+  @override
+  String get mapControlsOpen => 'Move and zoom';
+
+  @override
+  String get mapControlsFold => 'Fold the move and zoom buttons';
+
+  @override
+  String get mapMore => 'More';
+
+  @override
+  String get mapLess => 'Less';
+
+  @override
+  String get tripGo => 'Go';
+
+  @override
+  String get tripGoTooltip => 'Follow me there, live';
+
+  @override
+  String get tripStop => 'Stop';
+
+  @override
+  String get tripDone => 'Done';
+
+  @override
+  String tripTo(String name) {
+    return 'To $name';
+  }
+
+  @override
+  String get tripArrived => 'You have arrived';
+
+  @override
+  String get tripWaiting => 'Waiting for your position…';
+
+  @override
+  String get tripRerouting => 'Finding the way again…';
+
+  @override
+  String tripLeft(String distance, String time, String duration) {
+    return '$distance left · arrive about $time ($duration)';
+  }
+
+  @override
+  String tripLeftNoTime(String distance) {
+    return '$distance left';
+  }
+
+  @override
+  String get tripFollow => 'Follow my position';
+
+  @override
+  String fixSpeed(String value) {
+    return '$value km/h';
+  }
+
+  @override
+  String fixAltitude(String value) {
+    return '$value m high';
+  }
+
+  @override
+  String fixHeading(String value) {
+    return 'heading $value';
+  }
+
+  @override
+  String fixAccuracy(String value) {
+    return '±$value m';
+  }
+
+  @override
+  String photoTaken(String when) {
+    return 'Taken $when';
+  }
+
+  @override
+  String get placeAddHere => 'Add a place here';
+
+  @override
+  String get placeAddTitle => 'Add a place that is not on the map';
+
+  @override
+  String get placeName => 'Name';
+
+  @override
+  String get placeKind => 'What is it?';
+
+  @override
+  String get placeAddExplain =>
+      'Everyone will find it in searches and on the map, with your name. Admins can correct it.';
+
+  @override
+  String get placeAdd => 'Add';
+
+  @override
+  String placeAdded(String name) {
+    return '$name added';
+  }
+
+  @override
+  String placeAddedBy(String name) {
+    return 'Added by $name';
+  }
+
+  @override
+  String get placeOutside =>
+      'This point is not in Uganda\'s areas on this device yet. Choose a point near a known place.';
+
+  @override
+  String get placeKindVillage => 'Village';
+
+  @override
+  String get placeKindTradingCentre => 'Trading centre';
+
+  @override
+  String get placeKindSchool => 'School';
+
+  @override
+  String get placeKindHealthCentre => 'Health centre';
+
+  @override
+  String get placeKindMarket => 'Market';
+
+  @override
+  String get placeKindWorship => 'Place of worship';
+
+  @override
+  String get placeKindLandmark => 'Landmark';
+
+  @override
+  String get placeKindOther => 'Other';
+
+  @override
+  String get mapSearchingOnline => 'Searching all of Uganda…';
+
+  @override
+  String get mapSearchNothing => 'Nothing found';
 }

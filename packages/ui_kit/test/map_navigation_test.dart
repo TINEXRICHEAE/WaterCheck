@@ -61,6 +61,9 @@ void main() {
     tester,
   ) async {
     final map = await _pump(tester);
+    // Folded on every screen until asked for (2026-10-25).
+    await tester.tap(find.byTooltip('Move and zoom'));
+    await tester.pumpAndSettle();
     LatLng centre() => map.map.camera.center;
     final start = centre();
 
@@ -82,8 +85,54 @@ void main() {
 
   testWidgets('on a computer each button shows its key', (tester) async {
     await _pump(tester, showKeys: true);
+    await tester.tap(find.byTooltip('Move and zoom'));
+    await tester.pumpAndSettle();
     for (final key in ['↑ W', '↓ S', '← A', '→ D', 'R', 'F']) {
       expect(find.text(key), findsOneWidget);
     }
+  });
+
+  testWidgets('the buttons fold into one, opened on a tap', (tester) async {
+    tester.view.physicalSize = const Size(360, 720);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await _pump(tester);
+    expect(find.byTooltip('Zoom in (R key)'), findsNothing);
+    await tester.tap(find.byTooltip('Move and zoom'));
+    await tester.pumpAndSettle();
+    expect(find.byTooltip('Zoom in (R key)'), findsOneWidget);
+    await tester.tap(find.byTooltip('Fold the move and zoom buttons'));
+    await tester.pumpAndSettle();
+    expect(find.byTooltip('Zoom in (R key)'), findsNothing);
+  });
+
+  testWidgets('on a phone the path shows its last step until opened', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(360, 720);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    var went = '';
+    await tester.pumpWidget(
+      MaterialApp(
+        localizationsDelegates: UiKitLocalizations.localizationsDelegates,
+        supportedLocales: UiKitLocalizations.supportedLocales,
+        home: Scaffold(
+          body: MapPathBar(
+            items: [
+              for (final n in ['Jinja', 'Butembe', 'Budondo'])
+                MapPathItem(label: n, onTap: () => went = n),
+            ],
+          ),
+        ),
+      ),
+    );
+    expect(find.text('Budondo'), findsOneWidget);
+    expect(find.text('Jinja'), findsNothing);
+    expect(find.text('+2'), findsOneWidget);
+    await tester.tap(find.byTooltip('Show the whole path'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Jinja'));
+    expect(went, 'Jinja');
   });
 }

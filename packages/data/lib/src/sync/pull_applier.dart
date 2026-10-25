@@ -117,8 +117,19 @@ class PullApplier {
       db.sanitaryInspections,
       SanitaryInspectionRow.fromJson(j, serializer: _s),
     ),
-    'place_name': (db, j) =>
-        _upsert(db, db.placeNames, PlaceNameRow.fromJson(j, serializer: _s)),
+    // A place an admin removed (ADR-028) leaves this device.
+    'place_name': (db, j) async {
+      if (j['removed_at'] != null) {
+        final id = j['id']! as String;
+        await (db.delete(db.placeNames)..where((p) => p.id.equals(id))).go();
+        return;
+      }
+      await _upsert(
+        db,
+        db.placeNames,
+        PlaceNameRow.fromJson(j, serializer: _s),
+      );
+    },
     'change_trail': (db, j) =>
         _keep(db, db.changeTrails, ChangeTrailRow.fromJson(j, serializer: _s)),
     // A message (ADR-022): the server's copy fills in the author and time,

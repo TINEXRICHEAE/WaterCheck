@@ -4,12 +4,21 @@ import 'package:flutter/services.dart';
 import '../l10n/ui_kit_localizations.dart';
 
 /// One picture for [showPhotoViewer]: its bytes (loaded when shown), an
-/// optional caption, and [onRemove] when the viewer may take it away.
+/// optional caption, where and when it was [taken], and [onRemove] when
+/// the viewer may take it away.
 class ViewedPhoto {
-  const ViewedPhoto({required this.load, this.caption, this.onRemove});
+  const ViewedPhoto({
+    required this.load,
+    this.caption,
+    this.taken,
+    this.onRemove,
+  });
 
   final Future<Uint8List?> Function() load;
   final String? caption;
+
+  /// "Taken 25 Oct 2026, 08:30 · 0.45120, 33.20410 · ±6 m…" (ADR-029).
+  final String? taken;
 
   /// Removes the picture; false (or an error) keeps the viewer as it was.
   final Future<bool> Function()? onRemove;
@@ -176,15 +185,28 @@ class _PhotoViewerState extends State<PhotoViewer> {
                   ],
                 ),
               ),
-              if (photo.caption case final caption? when caption.isNotEmpty)
+              if ((photo.caption ?? '').isNotEmpty || photo.taken != null)
                 SafeArea(
                   top: false,
                   child: Padding(
                     padding: const EdgeInsets.all(16),
-                    child: Text(
-                      caption,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(color: light),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (photo.caption case final caption?
+                            when caption.isNotEmpty)
+                          Text(
+                            caption,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(color: light),
+                          ),
+                        if (photo.taken case final taken?)
+                          Text(
+                            taken,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(color: light, fontSize: 12),
+                          ),
+                      ],
                     ),
                   ),
                 ),
