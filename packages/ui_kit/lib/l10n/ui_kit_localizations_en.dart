@@ -636,4 +636,11 @@ class UiKitLocalizationsEn extends UiKitLocalizations {
 
   @override
   String get mapSearchNothing => 'Nothing found';
+
+  @override
+  String get installAppIos => 'Add WaterCheck to your Home Screen';
+
+  @override
+  String get installAppIosHint =>
+      'In Safari, tap Share, then Add to Home Screen. WaterCheck then opens like an app, full screen.';
 }

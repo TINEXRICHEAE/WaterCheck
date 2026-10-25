@@ -437,5 +437,7 @@
   "placeKindLandmark": "Landmark",
   "placeKindOther": "Other",
   "mapSearchingOnline": "Searching all of Uganda…",
-  "mapSearchNothing": "Nothing found"
+  "mapSearchNothing": "Nothing found",
+  "installAppIos": "Add WaterCheck to your Home Screen",
+  "installAppIosHint": "In Safari, tap Share, then Add to Home Screen. WaterCheck then opens like an app, full screen."
 }

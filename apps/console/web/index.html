@@ -22,6 +22,7 @@
 
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="apple-mobile-web-app-title" content="WaterCheck Console">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -34,8 +35,25 @@
 
   <title>WaterCheck Console</title>
   <link rel="manifest" href="manifest.json">
+  <style>
+    /* Flutter types into a hidden field that takes the text's own size.
+       Below 16px, iPhone Safari zooms the page in on every tap into a
+       field and stays zoomed, cutting the edges off (2026-10-25). The
+       field is invisible, so its size changes nothing on screen. */
+    .flt-text-editing { font-size: 16px !important; }
+    html, body { margin: 0; background: #0F172A; }
+    /* Shown until the app draws its first frame: the app's own icon on its
+       own colours, not a blank or browser page (2026-10-25). */
+    #wc-splash {
+      position: fixed; inset: 0; display: flex; align-items: center;
+      justify-content: center; background: #0F172A; z-index: 10;
+      transition: opacity .25s;
+    }
+    #wc-splash img { width: 96px; height: 96px; border-radius: 22px; }
+  </style>
 </head>
 <body>
+  <div id="wc-splash"><img src="icons/Icon-192.png" alt=""></div>
   <!--
     You can customize the "flutter_bootstrap.js" script.
     This is useful to provide a custom configuration to the Flutter loader
@@ -52,13 +70,24 @@
         navigator.serviceWorker.register('sw.js').catch(() => {});
       });
     }
+    // The browser's own install icon and banner stay (no preventDefault);
+    // the event is also kept for the app's "Install app" item.
     window.wcInstallPrompt = null;
     window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
       window.wcInstallPrompt = e;
     });
     window.addEventListener('appinstalled', () => { window.wcInstallPrompt = null; });
     window.wcCanInstall = () => window.wcInstallPrompt !== null;
+    // iPhone and iPad Safari have no install prompt: "Add to Home Screen"
+    // from the Share menu, explained in Settings. False once installed.
+    window.wcIsIosBrowser = () =>
+      /iPad|iPhone|iPod/.test(navigator.userAgent) && !navigator.standalone;
+    window.addEventListener('flutter-first-frame', () => {
+      const s = document.getElementById('wc-splash');
+      if (!s) return;
+      s.style.opacity = '0';
+      setTimeout(() => s.remove(), 300);
+    });
     window.wcInstall = async () => {
       const p = window.wcInstallPrompt;
       if (!p) return false;

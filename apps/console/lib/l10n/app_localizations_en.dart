@@ -2813,4 +2813,8 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get mapPlaceNotChanged =>
       'Not changed: the server could not be reached. Try again.';
+
+  @override
+  String get mapLocationHelp =>
+      'Your location is not available. Allow location for this site (the icon in the address bar, or the site settings) and switch location on for the device. On iPhone: Settings › Privacy & Security › Location Services › Safari Websites › While Using the App. A laptop without GPS may show an approximate place.';
 }

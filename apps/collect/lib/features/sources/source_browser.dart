@@ -55,11 +55,14 @@ class _SourceBrowserState extends ConsumerState<SourceBrowser> {
     try {
       final here = await ref.read(locationServiceProvider).currentFix();
       if (mounted) setState(() => _here = here);
-    } on LocationException {
+    } on LocationException catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(AppLocalizations.of(context).locationUnavailable),
+            duration: const Duration(seconds: 10),
+            content: Text(
+              locationProblemText(AppLocalizations.of(context), e.problem),
+            ),
           ),
         );
       }

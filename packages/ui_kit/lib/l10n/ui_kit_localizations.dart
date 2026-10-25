@@ -1131,6 +1131,18 @@ abstract class UiKitLocalizations {
   /// In en, this message translates to:
   /// **'Nothing found'**
   String get mapSearchNothing;
+
+  /// No description provided for @installAppIos.
+  ///
+  /// In en, this message translates to:
+  /// **'Add WaterCheck to your Home Screen'**
+  String get installAppIos;
+
+  /// No description provided for @installAppIosHint.
+  ///
+  /// In en, this message translates to:
+  /// **'In Safari, tap Share, then Add to Home Screen. WaterCheck then opens like an app, full screen.'**
+  String get installAppIosHint;
 }
 
 class _UiKitLocalizationsDelegate

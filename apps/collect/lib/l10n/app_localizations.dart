@@ -3351,6 +3351,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =1{1 more alert} other{{count} more alerts}}'**
   String mapAlertsMore(int count);
+
+  /// No description provided for @locationBlockedWeb.
+  ///
+  /// In en, this message translates to:
+  /// **'This browser is not letting WaterCheck see your location. Allow location for this site (the icon in the address bar, or the site settings), then try again. On iPhone: Settings › Privacy & Security › Location Services › Safari Websites › While Using the App, then choose Allow in Safari.'**
+  String get locationBlockedWeb;
+
+  /// No description provided for @locationOffWeb.
+  ///
+  /// In en, this message translates to:
+  /// **'Location is switched off for this browser or device. On iPhone: Settings › Privacy & Security › Location Services, switch it on, and set Safari Websites to While Using the App. On Android: switch Location on, and allow it for the browser.'**
+  String get locationOffWeb;
 }
 
 class _AppLocalizationsDelegate

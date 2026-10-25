@@ -2,3 +2,5 @@
 bool pwaCanInstall() => false;
 
 Future<bool> pwaInstall() async => false;
+
+bool pwaIsIosBrowser() => false;

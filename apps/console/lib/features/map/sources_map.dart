@@ -880,7 +880,16 @@ class _SourcesMapState extends ConsumerState<SourcesMap>
                 tooltip: me == null ? l10n.mapNoLocation : l10n.mapLocateMe,
                 icon: me == null ? Icons.location_disabled : Icons.my_location,
                 onPressed: me == null
-                    ? () => ref.invalidate(deviceLocationProvider)
+                    ? () {
+                        // Ask again, and say where location is allowed.
+                        ref.invalidate(deviceLocationProvider);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            duration: const Duration(seconds: 10),
+                            content: Text(l10n.mapLocationHelp),
+                          ),
+                        );
+                      }
                     : () => _map.move(me, 14),
               ),
               const SizedBox(height: 6),

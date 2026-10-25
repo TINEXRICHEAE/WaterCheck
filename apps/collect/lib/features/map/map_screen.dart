@@ -202,11 +202,17 @@ class _MapScreenState extends ConsumerState<MapScreen>
               _map.move(at, math.max(_map.camera.zoom, 15));
             }
           },
-          onError: (Object _) {
+          onError: (Object e) {
             if (!mounted) return;
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text(AppLocalizations.of(context).locationUnavailable),
+                duration: const Duration(seconds: 10),
+                content: Text(
+                  locationProblemText(
+                    AppLocalizations.of(context),
+                    problemOf(e),
+                  ),
+                ),
               ),
             );
             unawaited(_stop());
@@ -311,11 +317,14 @@ class _MapScreenState extends ConsumerState<MapScreen>
       if (!mounted) return;
       setState(() => _here = here);
       if (fly) await _motion.moveTo(here, 14);
-    } on LocationException {
+    } on LocationException catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(AppLocalizations.of(context).locationUnavailable),
+            duration: const Duration(seconds: 10),
+            content: Text(
+              locationProblemText(AppLocalizations.of(context), e.problem),
+            ),
           ),
         );
       }

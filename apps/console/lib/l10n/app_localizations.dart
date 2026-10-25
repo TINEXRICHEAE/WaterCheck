@@ -4401,6 +4401,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Not changed: the server could not be reached. Try again.'**
   String get mapPlaceNotChanged;
+
+  /// No description provided for @mapLocationHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Your location is not available. Allow location for this site (the icon in the address bar, or the site settings) and switch location on for the device. On iPhone: Settings › Privacy & Security › Location Services › Safari Websites › While Using the App. A laptop without GPS may show an approximate place.'**
+  String get mapLocationHelp;
 }
 
 class _AppLocalizationsDelegate
