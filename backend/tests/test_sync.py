@@ -750,7 +750,7 @@ async def test_only_the_author_removes_a_picture_and_a_test_keeps_its_no_photo_r
     changes = visit(a)
     session = next(c for c in changes if c["entity"] == "test_session")
     session["data"]["no_photo_reason"] = "Camera not working"
-    picture = {
+    picture: dict[str, Any] = {
         "entity": "attachment",
         "op": "insert",
         "id": str(uuid.uuid4()),
@@ -929,10 +929,10 @@ async def test_map_places_are_found_by_name_and_placed_in_their_subcounty(
             }
         )
     )
-    with psycopg.connect(owner_conn_str) as conn:
-        assert "2 map places (2 new or changed)" in load(conn, tmp_path)
-    with psycopg.connect(owner_conn_str) as conn:
-        assert load(conn, tmp_path) == "places: already loaded"
+    with psycopg.connect(owner_conn_str) as pg:
+        assert "2 map places (2 new or changed)" in load(pg, tmp_path)
+    with psycopg.connect(owner_conn_str) as pg:
+        assert load(pg, tmp_path) == "places: already loaded"
 
     a = await phone(client, owner_db, district)
     hits = await a.get(f"/v1/places/search?q=kabojjatest&near_lat={lat0}&near_lon={lon0}")
