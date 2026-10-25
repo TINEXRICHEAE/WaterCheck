@@ -760,11 +760,22 @@ async def test_only_the_author_removes_a_picture_and_a_test_keeps_its_no_photo_r
             "sha256": "a" * 64,
             "bytes": 1000,
             "mime": "image/jpeg",
+            # Where and when it was taken (ADR-029).
+            "taken_lat": 0.4512,
+            "taken_lon": 33.2041,
+            "taken_accuracy_m": 6.5,
+            "taken_altitude_m": 1143.0,
+            "taken_speed_mps": 0.0,
+            "taken_heading_deg": 271.0,
+            "taken_at": "2026-10-25T08:30:00Z",
             **a.origin(),
         },
     }
-    out = (await a.push([*changes, picture]))["results"]
-    assert all(r["status"] == "applied" for r in out), out
+    half = {**picture, "id": str(uuid.uuid4())}
+    half["data"] = {**picture["data"], "taken_lon": None}
+    out = (await a.push([*changes, picture, half]))["results"]
+    assert [r["status"] for r in out[:-1]] == ["applied"] * len(changes) + ["applied"], out
+    assert out[-1]["reason"] == "invalid:taken_lat"
     remove = {"entity": "attachment", "op": "update", "id": picture["id"]}
     # Someone else on the device cannot remove it.
     other = {**a.origin(), "collector_key": str(uuid.uuid4())}
@@ -775,6 +786,8 @@ async def test_only_the_author_removes_a_picture_and_a_test_keeps_its_no_photo_r
     pulled = (await a.pull(f"area:{a.village}")).json()["changes"]
     pic = next(c for c in pulled if c["entity"] == "attachment")
     assert pic["data"]["removed_at"]
+    assert (pic["data"]["taken_lat"], pic["data"]["taken_altitude_m"]) == (0.4512, 1143.0)
+    assert pic["data"]["taken_at"].startswith("2026-10-25T08:30:00")
     ses = next(c for c in pulled if c["entity"] == "test_session")
     assert ses["data"]["no_photo_reason"] == "Camera not working"
 
@@ -927,6 +940,15 @@ async def test_map_places_are_found_by_name_and_placed_in_their_subcounty(
     assert hits[0]["subcounty"] == "Test Sub"
     assert hits[0]["district_id"] == str(district["id"])
     assert hits[0]["source"] == "map"
+    # A parish and village (as added from a phone) come with their
+    # sub-county and district, so any device can place them.
+    parish = await make_area(owner_db, "parish", parent=sub["id"])
+    village = await make_area(owner_db, "village", parent=parish["id"])
+    for area in (parish, village):
+        found = await a.get(f"/v1/places/search?q={area['code'].lower()}")
+        assert [(h["source"], h["subcounty"], h["district_id"]) for h in found] == [
+            ("official", "Test Sub", str(district["id"]))
+        ]
 
     admin = await signed_in(client, owner_db, role="it_admin")
     at = await client.get(
@@ -939,6 +961,63 @@ async def test_map_places_are_found_by_name_and_placed_in_their_subcounty(
     pulled = (await a.pull(f"area:{district['id']}")).json()["changes"]
     names = {c["data"]["name"] for c in pulled if c["entity"] == "place_name"}
     assert names == {"Kabojjatest", "Kabojjatest Trading Centre"}
+
+    # ADR-028: a place added from the map is put in its sub-county by the
+    # server and found by everyone, with who added it.
+    added = str(uuid.uuid4())
+
+    def place(pid: str, lat: float, lon: float, kind: str = "trading_centre") -> dict[str, Any]:
+        return {
+            "entity": "place_name",
+            "op": "insert",
+            "id": pid,
+            "data": {
+                "name": "  Kabojjatest   Market ",
+                "kind": kind,
+                "lat": lat,
+                "lon": lon,
+                **a.origin(),
+            },
+        }
+
+    out = (
+        await a.push(
+            [
+                place(added, lat0 + 0.006, lon0 + 0.006),
+                place(str(uuid.uuid4()), 51.5, 0.1),
+                place(str(uuid.uuid4()), lat0 + 0.006, lon0 + 0.006, kind="castle"),
+            ]
+        )
+    )["results"]
+    assert [r["status"] for r in out] == ["applied", "rejected", "rejected"]
+    assert [r["reason"] for r in out[1:]] == ["outside_uganda", "invalid_value"]
+    again = (await a.push([place(added, lat0 + 0.006, lon0 + 0.006)]))["results"][0]
+    assert again["status"] == "duplicate"
+    hits = await a.get("/v1/places/search?q=kabojjatest%20market")
+    assert [(h["name"], h["source"], h["added_by"], h["subcounty"]) for h in hits] == [
+        ("Kabojjatest Market", "added", "Example Collector", "Test Sub")
+    ]
+    pulled = (await a.pull(f"area:{district['id']}")).json()["changes"]
+    mine = next(c for c in pulled if c["id"] == added)
+    assert mine["data"]["added_by_name"] == "Example Collector"
+    assert mine["data"]["removed_at"] is None
+
+    # An IT admin renames or removes an added place; names from the map
+    # are corrected at the source.
+    stakeholder = await signed_in(client, owner_db, role="stakeholder")
+    r = await client.patch(f"/v1/places/{added}", json={"name": "X"}, headers=stakeholder)
+    assert r.status_code == 403
+    r = await client.patch(f"/v1/places/{added}", json={"name": "Kabojja Market"}, headers=admin)
+    assert r.status_code == 204, r.text
+    from_map = await a.get("/v1/places/search?q=kabojjatest%20trading")
+    r = await client.delete(f"/v1/places/{from_map[0]['id']}", headers=admin)
+    assert r.status_code == 409
+    r = await client.delete(f"/v1/places/{added}", headers=admin)
+    assert r.status_code == 204
+    assert await a.get("/v1/places/search?q=kabojja%20market") == []
+    pulled = (await a.pull(f"area:{district['id']}")).json()["changes"]
+    gone = next(c for c in pulled if c["id"] == added)
+    assert gone["data"]["name"] == "Kabojja Market" and gone["data"]["removed_at"]
 
 
 async def _registered(client: AsyncClient, village: str) -> Phone:

@@ -38,6 +38,7 @@ Status = Literal["applied", "duplicate", "conflict", "rejected"]
 # Parents first; within an entity, the order the client queued them.
 ORDER = [
     "admin_unit",
+    "place_name",
     "parameter_definition",
     "reference_standard",
     "water_source",
@@ -58,6 +59,7 @@ ATTACHMENT_MIME = {"image/jpeg"}
 # What a signed-in Console user may queue (SPEC §8.4, P6).
 USER_ENTITIES = {
     "water_source",
+    "place_name",
     "alert_event",
     "collector_mark",
     "submission_flag",
@@ -86,6 +88,18 @@ _THREAD_AREA = {
     ),
 }
 
+
+# Kinds of place a person may add from the map (ADR-028).
+ADDED_PLACE_KINDS = {
+    "village",
+    "trading_centre",
+    "school",
+    "health_centre",
+    "market",
+    "worship",
+    "landmark",
+    "other",
+}
 
 # Area levels a phone may add below (district down), top first.
 _PLACE_ORDER = ["district", "subcounty", "parish", "village"]
@@ -446,6 +460,68 @@ class PushService:
             },
         )
         return Outcome(c.id, c.entity, "applied", reason=reason)
+
+    async def place_name_insert(self, c: Change) -> Outcome:
+        """A place added from the map (ADR-028): a name and a kind at a
+        point. The server puts it in its sub-county from the boundaries;
+        everyone sees it with the next sync."""
+        d, o = c.data, self._origin(c.data)
+        pid = _uuid(c.id, "id")
+        name = " ".join(str(_req(d, "name")).split())
+        kind = str(_req(d, "kind"))
+        if not name or len(name) > 120 or kind not in ADDED_PLACE_KINDS:
+            raise Rejected("invalid_value")
+        lat, lon = _num(_req(d, "lat"), "lat"), _num(_req(d, "lon"), "lon")
+        if lat is None or lon is None or not (-90 <= lat <= 90 and -180 <= lon <= 180):
+            raise Rejected("invalid_value")
+        if (
+            await self.conn.execute(text("SELECT 1 FROM place_name WHERE id = :id"), {"id": pid})
+        ).first():
+            return Outcome(c.id, c.entity, "duplicate")
+        subcounty = (
+            await self.conn.execute(
+                text("SELECT wc_subcounty_at(:lat, :lon)"),
+                {"lat": float(lat), "lon": float(lon)},
+            )
+        ).scalar()
+        if subcounty is None:
+            raise Rejected("outside_uganda")
+        # The name shown as "added by …": the tester's, or the user's.
+        if o["by"] is not None:
+            who = (
+                await self.conn.execute(
+                    text("SELECT full_name FROM app_user WHERE id = :id"), {"id": o["by"]}
+                )
+            ).scalar()
+        else:
+            snapshot = d.get("collector_snapshot")
+            if isinstance(snapshot, str):
+                try:
+                    snapshot = json.loads(snapshot)
+                except ValueError:
+                    snapshot = None
+            who = snapshot.get("full_name") if isinstance(snapshot, dict) else None
+        await self.conn.execute(
+            text(
+                "INSERT INTO place_name (id, name, kind, lat, lon, subcounty_id, "
+                "added_by_installation, added_collector_snapshot, added_by_user, added_by_name, "
+                "added_at, server_seq) VALUES (:id, :name, :kind, :lat, :lon, :sub, :inst, "
+                "CAST(:cs AS jsonb), :by, :who, now(), 0)"
+            ),
+            {
+                "id": pid,
+                "name": name,
+                "kind": kind,
+                "lat": float(lat),
+                "lon": float(lon),
+                "sub": subcounty,
+                "inst": o["inst"],
+                "cs": o["cs"],
+                "by": o["by"],
+                "who": who,
+            },
+        )
+        return Outcome(c.id, c.entity, "applied")
 
     async def water_source_insert(self, c: Change) -> Outcome:
         d, o = c.data, self._origin(c.data)
@@ -865,13 +941,32 @@ class PushService:
         if owner_type not in ("water_source", "test_session"):
             raise Rejected("invalid:owner_type")
         aid = _uuid(c.id, "id")
+        lat, lon = _num(d.get("taken_lat"), "taken_lat"), _num(d.get("taken_lon"), "taken_lon")
+        if (lat is None) != (lon is None) or (
+            lat is not None and lon is not None and not (-90 <= lat <= 90 and -180 <= lon <= 180)
+        ):
+            raise Rejected("invalid:taken_lat")
+
+        def num(field: str) -> float | None:
+            v = _num(d.get(field), field)
+            return None if v is None else float(v)
+
         return await self._insert(
             c,
             "INSERT INTO attachment (id, owner_type, owner_id, object_key, sha256, bytes, mime, "
-            "installation_id, created_by, collector_key, server_seq) VALUES (:id, :ot, :oid, "
-            ":key, :sha, :bytes, :mime, :inst, :by, :ck, 0) "
+            "installation_id, created_by, collector_key, taken_lat, taken_lon, "
+            "taken_accuracy_m, taken_altitude_m, taken_speed_mps, taken_heading_deg, taken_at, "
+            "server_seq) VALUES (:id, :ot, :oid, :key, :sha, :bytes, :mime, :inst, :by, :ck, "
+            ":tlat, :tlon, :tacc, :talt, :tspd, :thead, :tat, 0) "
             "ON CONFLICT (id) DO NOTHING RETURNING 1",
             {
+                "tlat": num("taken_lat"),
+                "tlon": num("taken_lon"),
+                "tacc": num("taken_accuracy_m"),
+                "talt": num("taken_altitude_m"),
+                "tspd": num("taken_speed_mps"),
+                "thead": num("taken_heading_deg"),
+                "tat": _ts(d.get("taken_at"), "taken_at"),
                 "id": aid,
                 "ot": owner_type,
                 "oid": _uuid(_req(d, "owner_id"), "owner_id"),
@@ -1141,6 +1236,7 @@ STATUS_EVENTS = {"acknowledged", "action_in_progress", "closed", "false_alarm"}
 _Handler = Callable[[PushService, Change], Awaitable[Outcome]]
 _HANDLERS: dict[tuple[str, str], _Handler] = {
     ("admin_unit", "insert"): PushService.admin_unit_insert,
+    ("place_name", "insert"): PushService.place_name_insert,
     ("water_source", "insert"): PushService.water_source_insert,
     ("water_source", "update"): PushService.water_source_update,
     ("calibration", "insert"): PushService.calibration_insert,

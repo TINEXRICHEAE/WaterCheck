@@ -15,7 +15,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request, status
 from pydantic import BaseModel
 from sqlalchemy import text
 
-from app.api.deps import DbDep, SettingsDep, UserDep, current_user
+from app.api.deps import AdminDep, DbDep, SettingsDep, UserDep, current_user
 from app.api.installations import current_installation
 from app.db.database import Principal
 
@@ -259,6 +259,8 @@ class PlaceHit(BaseModel):
     subcounty: str | None
     district_id: UUID | None
     district: str | None
+    # Places people added from the map (ADR-028): who added it.
+    added_by: str | None = None
 
 
 @router.get("/places/search")
@@ -283,16 +285,25 @@ async def search_places(
         rows = await conn.execute(
             text(
                 "SELECT * FROM ("
-                " SELECT p.id, p.name, p.kind, 'map' AS source, p.lat, p.lon, "
-                " p.subcounty_id, s.name AS subcounty, d.id AS district_id, d.name AS district "
+                " SELECT p.id, p.name, p.kind, "
+                " CASE WHEN p.osm_id IS NULL THEN 'added' ELSE 'map' END AS source, p.lat, p.lon, "
+                " p.subcounty_id, s.name AS subcounty, d.id AS district_id, d.name AS district, "
+                " p.added_by_name AS added_by "
                 " FROM place_name p JOIN admin_unit s ON s.id = p.subcounty_id "
                 " LEFT JOIN admin_unit d ON d.id = s.parent_id AND d.level = 'district' "
-                " WHERE lower(p.name) LIKE :contains "
+                " WHERE lower(p.name) LIKE :contains AND p.removed_at IS NULL "
                 " UNION ALL "
+                # Official areas, and parishes and villages added from
+                # devices, with the sub-county and district they sit in.
                 " SELECT a.id, a.name, a.level, 'official', a.center_lat, a.center_lon, "
-                " CASE WHEN a.level = 'subcounty' THEN a.id END, "
-                " CASE WHEN a.level = 'subcounty' THEN a.name END, NULL, NULL "
-                " FROM admin_unit a WHERE a.level <> 'country' AND lower(a.name) LIKE :contains"
+                " s.id, s.name, d.id, d.name, NULL "
+                " FROM admin_unit a "
+                " LEFT JOIN admin_unit p1 ON p1.id = a.parent_id "
+                " LEFT JOIN admin_unit p2 ON p2.id = p1.parent_id "
+                " LEFT JOIN admin_unit s ON s.id = CASE a.level WHEN 'subcounty' THEN a.id "
+                "   WHEN 'parish' THEN p1.id WHEN 'village' THEN p2.id END "
+                " LEFT JOIN admin_unit d ON d.id = s.parent_id AND d.level = 'district' "
+                " WHERE a.level <> 'country' AND lower(a.name) LIKE :contains"
                 ") hits ORDER BY (lower(name) LIKE :prefix) DESC, "
                 "CASE WHEN :near THEN (lat - :nlat) * (lat - :nlat) "
                 "+ (lon - :nlon) * (lon - :nlon) END, name LIMIT :limit"
@@ -370,3 +381,62 @@ async def collectors(user: UserDep, db: DbDep) -> list[CollectorSummary]:
                 )
             )
     return sorted(out, key=lambda c: c.last_submission, reverse=True)
+
+
+class PlaceRename(BaseModel):
+    name: str
+
+
+async def _place_change(
+    db: Any, admin: Principal, place_id: UUID, sql: str, params: dict[str, Any], action: str
+) -> None:
+    """Applies an admin's change to a place people added (ADR-028); names
+    from the map are corrected at the source, not here."""
+    async with db.transaction(admin) as conn:
+        row = (
+            await conn.execute(
+                text("SELECT osm_id, removed_at FROM place_name WHERE id = :id"), {"id": place_id}
+            )
+        ).first()
+        if row is None or row.removed_at is not None:
+            raise HTTPException(status.HTTP_404_NOT_FOUND, "not_found")
+        if row.osm_id is not None:
+            raise HTTPException(status.HTTP_409_CONFLICT, "from_the_map")
+        await conn.execute(text(sql), {"id": place_id, **params})
+        await conn.execute(
+            text(
+                "INSERT INTO audit_log (actor_id, platform, action, entity, entity_id, after) "
+                "VALUES (:by, 'console', :a, 'place_name', :id, CAST(:after AS jsonb))"
+            ),
+            {"by": admin.user_id, "a": action, "id": place_id, "after": json.dumps(params)},
+        )
+
+
+@router.patch("/places/{place_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def rename_place(place_id: UUID, body: PlaceRename, admin: AdminDep, db: DbDep) -> None:
+    """Renames a place someone added from the map (IT admins)."""
+    name = " ".join(body.name.split())
+    if not name or len(name) > 120:
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, "invalid_name")
+    await _place_change(
+        db,
+        admin,
+        place_id,
+        "UPDATE place_name SET name = :name WHERE id = :id",
+        {"name": name},
+        "place_renamed",
+    )
+
+
+@router.delete("/places/{place_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def remove_place(place_id: UUID, admin: AdminDep, db: DbDep) -> None:
+    """Removes a place someone added from the map (IT admins); devices drop
+    it with their next sync."""
+    await _place_change(
+        db,
+        admin,
+        place_id,
+        "UPDATE place_name SET removed_at = now() WHERE id = :id",
+        {},
+        "place_removed",
+    )

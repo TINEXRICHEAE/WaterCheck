@@ -17,6 +17,7 @@ PlaceHit _$PlaceHitFromJson(Map<String, dynamic> json) => PlaceHit(
   subcounty: json['subcounty'] as String?,
   districtId: json['district_id'] as String?,
   district: json['district'] as String?,
+  addedBy: json['added_by'] as String?,
 );
 
 Map<String, dynamic> _$PlaceHitToJson(PlaceHit instance) => <String, dynamic>{
@@ -30,4 +31,5 @@ Map<String, dynamic> _$PlaceHitToJson(PlaceHit instance) => <String, dynamic>{
   'subcounty': instance.subcounty,
   'district_id': instance.districtId,
   'district': instance.district,
+  'added_by': instance.addedBy,
 };

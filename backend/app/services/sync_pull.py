@@ -131,7 +131,8 @@ AREA: dict[str, str] = {
     ),
     "attachment": (
         "SELECT id, owner_type, owner_id, object_key, sha256, bytes, mime, upload_status, "
-        "collector_key, removed_at, {cols} "
+        "collector_key, removed_at, taken_lat, taken_lon, taken_accuracy_m, taken_altitude_m, "
+        "taken_speed_mps, taken_heading_deg, taken_at, {cols} "
         "FROM attachment x WHERE {area:"
         + _SRC.format(
             col="CASE WHEN x.owner_type = 'water_source' THEN x.owner_id ELSE "
@@ -162,9 +163,11 @@ AREA: dict[str, str] = {
         + "} AND NOT wc_archived('water_source', x.source_id)"
     ),
     # Names on the map, in the sub-county they lie in (ADR-023): a device
-    # gets those of the districts it holds.
+    # gets those of the districts it holds, with places people added and
+    # those an admin removed (ADR-028).
     "place_name": (
-        "SELECT id, name, kind, lat, lon, subcounty_id, {cols} "
+        "SELECT id, name, kind, lat, lon, subcounty_id, added_by_name, added_at, "
+        "removed_at, {cols} "
         "FROM place_name x WHERE {area:x.subcounty_id}"
     ),
     # Conversations (ADR-022): every message in the area's threads.

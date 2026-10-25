@@ -21,6 +21,7 @@ class PlaceHit {
     required this.subcounty,
     required this.districtId,
     required this.district,
+    this.addedBy,
   });
 
   factory PlaceHit.fromJson(Map<String, Object?> json) =>
@@ -38,6 +39,8 @@ class PlaceHit {
   @JsonKey(name: 'district_id')
   final String? districtId;
   final String? district;
+  @JsonKey(name: 'added_by')
+  final String? addedBy;
 
   Map<String, Object?> toJson() => _$PlaceHitToJson(this);
 }

@@ -10,6 +10,7 @@ import '../models/catalogue.dart';
 import '../models/collector_summary.dart';
 import '../models/place_at.dart';
 import '../models/place_hit.dart';
+import '../models/place_rename.dart';
 import '../models/source_hit.dart';
 
 part 'reference_client.g.dart';
@@ -84,4 +85,20 @@ abstract class ReferenceClient {
   /// the latest self-declared snapshot, counts and last submission.
   @GET('/v1/collectors')
   Future<List<CollectorSummary>> collectors();
+
+  /// Rename Place.
+  ///
+  /// Renames a place someone added from the map (IT admins).
+  @PATCH('/v1/places/{place_id}')
+  Future<void> renamePlace({
+    @Path('place_id') required String placeId,
+    @Body() required PlaceRename body,
+  });
+
+  /// Remove Place.
+  ///
+  /// Removes a place someone added from the map (IT admins); devices drop.
+  /// it with their next sync.
+  @DELETE('/v1/places/{place_id}')
+  Future<void> removePlace({@Path('place_id') required String placeId});
 }

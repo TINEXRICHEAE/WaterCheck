@@ -88,6 +88,7 @@ export 'models/pending_parameter.dart';
 export 'models/place_at.dart';
 export 'models/place_hit.dart';
 export 'models/place_out.dart';
+export 'models/place_rename.dart';
 export 'models/preferences_in.dart';
 export 'models/profile_in.dart';
 export 'models/pull_response.dart';
