@@ -864,3 +864,13 @@ Decisions are also recorded in [PLAN.md](PLAN.md) (decisions log and §3a), the 
   - This needs a production web deploy to reach phones.
   - An app added earlier as a shortcut should be removed and installed again from the browser's install offer.
   - Not checked on a real iPhone yet.
+
+### 46. Web display and install fixes deployed (2026-10-26)
+- **Asked:** "the checks passed, let's deploy".
+- **Outcome:**
+  - The VM was pulled to `e0d6aef`. Both web apps were rebuilt against production, checksummed, swapped (`web.old` kept) and Caddy recreated. No database change.
+  - **Checked:**
+    - both pages carry the 16 px field rule and the splash, and no longer suppress the install offer;
+    - the apps, health and tiles answer.
+  - The local builds and archives were removed; 21 GB free on C:.
+- **Watch:** to be checked on the lead's iPhone and Android phone.
