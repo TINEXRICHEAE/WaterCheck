@@ -15,7 +15,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:watercheck_console/features/map/device_location.dart';
 import 'package:watercheck_console/features/map/map_tiles.dart';
 import 'package:watercheck_console/main.dart';
-import 'package:ui_kit/ui_kit.dart' as ui show legalVersion;
+import 'package:domain/domain.dart' show AppSide, legalVersions;
 
 const _seed = '../../infra/seed';
 const newPassword = 'BoreholeWater2026';
@@ -26,19 +26,31 @@ class FakeUser {
     required this.role,
     this.mustChange = false,
     this.areas = const [],
-  });
+    String? side,
+    this.person,
+  }) : side = side ?? (role == 'it_admin' ? 'all' : 'water');
 
   var notify = (email: true, push: true, sms: true);
   var appearance = (theme: 'system', zone: 'Africa/Kampala');
 
-  /// Privacy Policy and Terms version accepted (ADR-026): current unless a
+  /// Each side's documents accepted (ADR-026, ADR-031): current unless a
   /// test says otherwise.
-  int legalVersion = ui.legalVersion;
+  Map<String, int> legal = {
+    for (final e in legalVersions.entries) e.key.wire: e.value,
+  };
 
   String password;
   final String role;
   bool mustChange;
   final List<Area> areas;
+
+  /// 'water', 'research' or 'all' (IT admins), and the person's accounts
+  /// on other sides share [person].
+  final String side;
+  String? person;
+
+  Iterable<AppSide> get sides =>
+      side == 'all' ? AppSide.values : [AppSide.parse(side)!];
 }
 
 /// An in-memory stand-in for the auth endpoints, in either token mode.
@@ -94,14 +106,95 @@ class FakeAuthApi implements ConsoleAuthApi {
     return t.refreshToken ?? cookie!;
   }
 
+  /// The key of [username]'s account on [side] in [users] (a second
+  /// side's account is `name#side`).
+  String? _account(String username, AppSide side) {
+    for (final k in [username, '$username#${side.wire}']) {
+      final u = users[k];
+      if (u != null && (u.side == side.wire || u.side == 'all')) return k;
+    }
+    return null;
+  }
+
   @override
-  Future<TokenResponse> login(String username, String password) async {
+  Future<TokenResponse> login(
+    String username,
+    String password, {
+    AppSide side = AppSide.water,
+  }) async {
     _online();
-    final u = users[username];
+    final key = _account(username, side);
+    final u = key == null ? null : users[key];
     if (u == null || u.password != password) {
       throw const ApiFailure('invalid_credentials', status: 401);
     }
-    return _issue(username);
+    return _issue(key!);
+  }
+
+  @override
+  Future<TokenResponse> signUp({
+    required AppSide side,
+    required String username,
+    required String fullName,
+    required String password,
+    String? organisation,
+    String? phone,
+  }) async {
+    _online();
+    if (_account(username, side) != null) {
+      throw const ApiFailure('username_taken', status: 409);
+    }
+    final key = users.containsKey(username)
+        ? '$username#${side.wire}'
+        : username;
+    users[key] =
+        FakeUser(password: password, role: 'stakeholder', side: side.wire)
+          ..person = key
+          ..legal = {side.wire: legalVersions[side]!};
+    return _issue(key);
+  }
+
+  @override
+  Future<TokenResponse> join(
+    String accessToken,
+    AppSide side,
+    String password,
+  ) async {
+    _online();
+    final name = _access[accessToken]!;
+    final me = users[name]!;
+    if (me.password != password) {
+      throw const ApiFailure('invalid_credentials', status: 401);
+    }
+    final username = name.split('#').first;
+    final key = '$username#${side.wire}';
+    users[key] ??=
+        FakeUser(password: password, role: 'stakeholder', side: side.wire)
+          ..person = me.person ??= name
+          ..legal = {side.wire: legalVersions[side]!};
+    return _issue(key);
+  }
+
+  @override
+  Future<TokenResponse> switchSide(String accessToken, AppSide side) async {
+    _online();
+    final me = users[_access[accessToken]!]!;
+    final other = users.entries
+        .where(
+          (e) =>
+              e.value.person != null &&
+              e.value.person == me.person &&
+              e.value.side == side.wire,
+        )
+        .firstOrNull;
+    if (other == null) throw const ApiFailure('not_on_side', status: 404);
+    return _issue(other.key);
+  }
+
+  @override
+  Future<void> acceptLegal(String accessToken, AppSide side) async {
+    _online();
+    users[_access[accessToken]!]!.legal[side.wire] = legalVersions[side]!;
   }
 
   @override
@@ -142,7 +235,7 @@ class FakeAuthApi implements ConsoleAuthApi {
     final u = users[name]!;
     return MeResponse(
       id: 'u-$name',
-      username: name,
+      username: name.split('#').first,
       fullName: u.role == 'it_admin' ? 'Example Admin' : 'Example Officer',
       organisation: null,
       position: null,
@@ -155,7 +248,16 @@ class FakeAuthApi implements ConsoleAuthApi {
       notifySms: u.notify.sms,
       theme: u.appearance.theme,
       timeZone: u.appearance.zone,
-      legalVersion: u.legalVersion,
+      side: u.side,
+      legal: u.legal,
+      legalDue: [
+        for (final s in u.sides)
+          if ((u.legal[s.wire] ?? 0) < legalVersions[s]!) s.wire,
+      ],
+      linkedSides: [
+        for (final o in users.values)
+          if (o != u && o.person != null && o.person == u.person) o.side,
+      ],
     );
   }
 

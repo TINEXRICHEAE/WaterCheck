@@ -1,14 +1,28 @@
-# WaterCheck
+# FieldQuire
 
-WaterCheck is a community drinking-water monitoring system for Uganda. It
-helps field workers record water-source tests, works when connectivity is poor,
-syncs results when a connection returns, and gives stakeholders and IT
-administrators a web/desktop dashboard for reviewing sources, results, alerts
-and reports.
+FieldQuire is a platform for field data collection, monitoring, analysis and
+reporting, built for Uganda.
 
-The pilot started in Abim District, but the data model, area hierarchy and map
-scope support Uganda-wide operation: regions, districts, sub-counties,
-parishes and villages.
+- **FieldQuire Collect** is the app for people who collect, and it works
+  without a connection.
+- **FieldQuire Console** is where stakeholders and researchers plan, review,
+  analyse and report.
+
+It has separate sides for different kinds of work (ADR-031), each with its own
+people, pages, records, Terms of Use and Privacy Policy. More sides may be
+added later.
+
+- **Water testing** (WaterCheck, where FieldQuire began): community
+  drinking-water monitoring. Testers record water-source tests, and
+  stakeholders follow up results, alerts and reports.
+- **Research** (ADR-030): researchers build forms, and collectors fill them in
+  the field. Records keep where and when they were made, then are analysed
+  and exported.
+
+The water pilot started in Abim District, but the data model, area hierarchy
+and map scope support Uganda-wide operation: regions, districts, sub-counties,
+parishes and villages. The code keeps the `watercheck` names of its folders and
+packages.
 
 ## Quick start for a new computer
 

@@ -21,9 +21,13 @@ class _CollectorsClient implements CollectorsClient {
   final ParseErrorLogger? errorLogger;
 
   @override
-  Future<RecoveryCodeOut> issueCode({required String collectorKey}) async {
+  Future<RecoveryCodeOut> issueCode({
+    required String collectorKey,
+    Side? side,
+  }) async {
     final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{r'side': side?.toJson()};
+    queryParameters.removeWhere((k, v) => v == null);
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
     final _options = _setStreamType<RecoveryCodeOut>(

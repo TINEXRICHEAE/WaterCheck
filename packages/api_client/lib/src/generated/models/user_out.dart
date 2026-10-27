@@ -26,6 +26,8 @@ class UserOut {
     required this.createdAt,
     required this.areas,
     required this.responsibilities,
+    this.side = 'water',
+    this.createdVia = 'admin',
   });
 
   factory UserOut.fromJson(Map<String, Object?> json) =>
@@ -51,6 +53,9 @@ class UserOut {
   final DateTime createdAt;
   final List<AreaOut> areas;
   final List<String> responsibilities;
+  final String side;
+  @JsonKey(name: 'created_via')
+  final String createdVia;
 
   Map<String, Object?> toJson() => _$UserOutToJson(this);
 }

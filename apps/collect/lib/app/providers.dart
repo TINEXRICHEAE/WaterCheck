@@ -3,6 +3,7 @@ import 'package:domain/domain.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'gate.dart';
+import '../features/research/research.dart' show appModeProvider;
 import '../features/sync/collect_sync.dart' show syncControllerProvider;
 
 /// The opened database; overridden at startup (see `bootstrap.dart`).
@@ -62,6 +63,13 @@ final syncSummaryProvider = StreamProvider<SyncSummary>(
 
 final collectorProfilesProvider = StreamProvider<List<CollectorSnapshot>>(
   (ref) => ref.watch(collectorProfileRepositoryProvider).watchActive(),
+);
+
+/// The people of the side in use (ADR-031), for "Who is collecting?".
+final sideProfilesProvider = StreamProvider<List<CollectorSnapshot>>(
+  (ref) => ref
+      .watch(collectorProfileRepositoryProvider)
+      .watchActive(side: ref.watch(appModeProvider).side),
 );
 
 /// The collector currently testing, or null if none is chosen.

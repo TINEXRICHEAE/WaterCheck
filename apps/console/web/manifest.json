@@ -5,7 +5,7 @@
     "display": "standalone",
     "background_color": "#0F172A",
     "theme_color": "#0F172A",
-    "description": "Water quality and research: dashboards, forms, analysis and administration.",
+    "description": "Plan, monitor, analyse and report on field data: water testing, research and more.",
     "orientation": "any",
     "prefer_related_applications": false,
     "icons": [

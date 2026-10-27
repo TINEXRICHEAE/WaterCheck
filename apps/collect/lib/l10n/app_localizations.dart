@@ -181,7 +181,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsAboutBody.
   ///
   /// In en, this message translates to:
-  /// **'FieldQuire Collect {version}. Water quality screening for communities across Uganda. Results are screening only, not laboratory confirmation.'**
+  /// **'FieldQuire Collect {version}. Collect field data, also without a connection: water tests at shared sources, research forms and more, each record with where and when it was made. Water test results are screening only, not laboratory confirmation.'**
   String settingsAboutBody(String version);
 
   /// No description provided for @startupFailed.
@@ -196,23 +196,11 @@ abstract class AppLocalizations {
   /// **'Try again'**
   String get startupRetry;
 
-  /// No description provided for @welcomeTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Welcome to FieldQuire'**
-  String get welcomeTitle;
-
   /// No description provided for @privacyHeading.
   ///
   /// In en, this message translates to:
   /// **'In short'**
   String get privacyHeading;
-
-  /// No description provided for @privacyBody.
-  ///
-  /// In en, this message translates to:
-  /// **'FieldQuire records water tests at shared water sources so that communities and districts can act when water may be unsafe.\n\nWith each test it saves your name, the area you give, where you tested (GPS) and any pictures of the test or the source, with where and when each was taken. Places you add to the map show your name. Trips you follow with Go stay on this device. Your phone and email are optional. Stakeholders for the area see your records and can contact you; other testers see results and your name, not your contacts.\n\nFieldQuire does not ask for national ID numbers or information about households. Please do not photograph people.\n\nYour work is kept on this device (encrypted in the Android and Windows apps) and sent to the FieldQuire server, hosted outside Uganda (South Africa), when there is internet. You can edit your details, or delete your profile, any time under My profile.\n\nA test result is a warning, not a guarantee that water is safe: always follow the advice of your health officials.'**
-  String get privacyBody;
 
   /// No description provided for @privacyVersion.
   ///
@@ -493,7 +481,7 @@ abstract class AppLocalizations {
   /// No description provided for @locationDenied.
   ///
   /// In en, this message translates to:
-  /// **'FieldQuire may not use your location. Allow it to record where the source is.'**
+  /// **'FieldQuire may not use your location. Allow it to record where your records are made.'**
   String get locationDenied;
 
   /// No description provided for @locationDeniedForever.
@@ -3687,6 +3675,168 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Open the record'**
   String get researchOpenRecord;
+
+  /// No description provided for @legalForProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Before {name} continues'**
+  String legalForProfile(String name);
+
+  /// No description provided for @legalTickBoth.
+  ///
+  /// In en, this message translates to:
+  /// **'Tick both boxes to accept the Terms of Use and the Privacy Policy.'**
+  String get legalTickBoth;
+
+  /// No description provided for @profileJoinTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Join {side}'**
+  String profileJoinTitle(String side);
+
+  /// No description provided for @profileNewTitleSide.
+  ///
+  /// In en, this message translates to:
+  /// **'New {side} profile'**
+  String profileNewTitleSide(String side);
+
+  /// No description provided for @profileJoinIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'A separate {side} profile is made with your details below, linked to the one you use now. Each keeps its own records, forms and sign-in codes, and you can switch between them.'**
+  String profileJoinIntro(String side);
+
+  /// No description provided for @profileNewWaterIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'For people who test shared water sources. You can test anywhere at once; an IT admin may also make you officially responsible for an area.'**
+  String get profileNewWaterIntro;
+
+  /// No description provided for @profileNewResearchIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'For people who collect data for research projects: you fill the forms you are given, join with a code, or that are open to all.'**
+  String get profileNewResearchIntro;
+
+  /// No description provided for @profileCreate.
+  ///
+  /// In en, this message translates to:
+  /// **'Create my profile'**
+  String get profileCreate;
+
+  /// No description provided for @profileTitleWater.
+  ///
+  /// In en, this message translates to:
+  /// **'My water-testing profile'**
+  String get profileTitleWater;
+
+  /// No description provided for @profileTitleResearch.
+  ///
+  /// In en, this message translates to:
+  /// **'My research profile'**
+  String get profileTitleResearch;
+
+  /// No description provided for @accountFormsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The research forms on this phone that you may fill.'**
+  String get accountFormsHint;
+
+  /// No description provided for @researchNoFormsShort.
+  ///
+  /// In en, this message translates to:
+  /// **'No forms yet. Join one with a code from the research team.'**
+  String get researchNoFormsShort;
+
+  /// No description provided for @whoEmptySide.
+  ///
+  /// In en, this message translates to:
+  /// **'Nobody on this phone collects for {side} yet. Add yourself, or come back with a recovery code.'**
+  String whoEmptySide(String side);
+
+  /// No description provided for @sideJoin.
+  ///
+  /// In en, this message translates to:
+  /// **'Also collect for {side}'**
+  String sideJoin(String side);
+
+  /// No description provided for @sideJoinHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Make a separate {side} profile with your details and its own Terms of Use.'**
+  String sideJoinHint(String side);
+
+  /// No description provided for @sideSwitch.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch to {side}'**
+  String sideSwitch(String side);
+
+  /// No description provided for @sideSwitchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'As {name}'**
+  String sideSwitchHint(String name);
+
+  /// No description provided for @sideSwitchBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You will collect with your {side} profile, with its own records, forms and settings.'**
+  String sideSwitchBody(String side);
+
+  /// No description provided for @sideSwitchGo.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch'**
+  String get sideSwitchGo;
+
+  /// No description provided for @sideSwitchNotYet.
+  ///
+  /// In en, this message translates to:
+  /// **'Not on {side} yet: choose how to start there.'**
+  String sideSwitchNotYet(String side);
+
+  /// No description provided for @switchSideIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'{side} is a separate side of FieldQuire, with its own people, forms or sources, and records. Choose how to collect there.'**
+  String switchSideIntro(String side);
+
+  /// No description provided for @switchSideOnPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Already on this phone for {side}'**
+  String switchSideOnPhone(String side);
+
+  /// No description provided for @switchSideJoin.
+  ///
+  /// In en, this message translates to:
+  /// **'Use my details to join {side}'**
+  String switchSideJoin(String side);
+
+  /// No description provided for @switchSideCode.
+  ///
+  /// In en, this message translates to:
+  /// **'I have a {side} profile on another phone'**
+  String switchSideCode(String side);
+
+  /// No description provided for @switchSideCodeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Come back with a sign-in or recovery code.'**
+  String get switchSideCodeHint;
+
+  /// No description provided for @switchSideNew.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a new person for {side}'**
+  String switchSideNew(String side);
+
+  /// No description provided for @switchSideNewHint.
+  ///
+  /// In en, this message translates to:
+  /// **'With other details, and the side\'s own Terms of Use.'**
+  String get switchSideNewHint;
 }
 
 class _AppLocalizationsDelegate

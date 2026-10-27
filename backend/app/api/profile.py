@@ -19,7 +19,7 @@ from datetime import datetime, timedelta
 from typing import Literal
 from uuid import UUID, uuid4
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, Request, status
 from pydantic import BaseModel, Field
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncConnection
@@ -30,6 +30,7 @@ from app.api.testers import _holds
 from app.core.security import utcnow, verify_password
 from app.db.database import Principal
 from app.domain.phone import normalize_uganda_phone
+from app.services.auth import record_acceptance
 
 router = APIRouter(prefix="/v1", tags=["profile"])
 
@@ -82,6 +83,9 @@ class AreaRequestOut(BaseModel):
 
 class LegalIn(BaseModel):
     version: int = Field(ge=1)
+    # The side whose documents were accepted (ADR-031); older apps send
+    # none and accept the combined documents.
+    side: Literal["water", "research"] | None = None
 
 
 class CloseIn(BaseModel):
@@ -341,24 +345,43 @@ async def my_area_requests(user: UserDep, db: DbDep) -> list[AreaRequestOut]:
 
 
 @router.post("/me/legal", status_code=status.HTTP_204_NO_CONTENT)
-async def accept_legal(body: LegalIn, user: UserDep, db: DbDep) -> None:
+async def accept_legal(body: LegalIn, request: Request, user: UserDep, db: DbDep) -> None:
     """Records that the person accepted this version of the Privacy Policy
     and Terms of Use (the version only goes up)."""
     async with db.transaction(Principal.system()) as conn:
-        await conn.execute(
-            text(
-                "UPDATE app_user SET legal_version = :v, legal_accepted_at = now() "
-                "WHERE id = :id AND legal_version < :v"
-            ),
-            {"v": body.version, "id": user.user_id},
-        )
+        if body.side is None:
+            await conn.execute(
+                text(
+                    "UPDATE app_user SET legal_version = :v, legal_accepted_at = now() "
+                    "WHERE id = :id AND legal_version < :v"
+                ),
+                {"v": body.version, "id": user.user_id},
+            )
+        else:
+            await conn.execute(
+                text(
+                    "UPDATE app_user SET legal = legal || jsonb_build_object(CAST(:s AS text), "
+                    ":v), legal_accepted_at = now() WHERE id = :id "
+                    "AND coalesce((legal->>CAST(:s AS text))::int, 0) < :v"
+                ),
+                {"s": body.side, "v": body.version, "id": user.user_id},
+            )
+            if user.user_id is not None:
+                await record_acceptance(
+                    conn,
+                    user_id=user.user_id,
+                    side=body.side,
+                    version=body.version,
+                    how="prompt",
+                    ip=request.client.host if request.client else None,
+                )
         await _audit(
             conn,
             actor=user.user_id,
             action="user.accepted_legal",
             entity="app_user",
             eid=user.user_id,
-            after={"version": body.version},
+            after={"version": body.version, "side": body.side},
         )
 
 

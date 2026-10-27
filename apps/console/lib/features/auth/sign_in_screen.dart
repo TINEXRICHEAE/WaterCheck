@@ -1,6 +1,7 @@
 import 'package:api_client/api_client.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:ui_kit/ui_kit.dart';
 
 import '../../app/session.dart';
@@ -87,7 +88,8 @@ class ErrorText extends StatelessWidget {
   );
 }
 
-/// Sign-in with credentials issued by the IT admin (F-AUTH-1).
+/// Sign-in to the side chosen at the top (F-AUTH-1, ADR-031), with an
+/// account made by sign-up or by an IT admin.
 class SignInScreen extends ConsumerStatefulWidget {
   const SignInScreen({super.key});
 
@@ -121,7 +123,11 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
     try {
       await ref
           .read(sessionProvider.notifier)
-          .signIn(_username.text, _password.text);
+          .signIn(
+            _username.text,
+            _password.text,
+            side: ref.read(consoleModeProvider).side,
+          );
     } on ApiFailure catch (e) {
       if (mounted) setState(() => _error = signInError(l10n, e));
     } finally {
@@ -202,7 +208,13 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
           onPressed: _busy ? null : _forgot,
           child: Text(l10n.forgotLink),
         ),
-        const LegalLinks(),
+        // Open sign-up on the side chosen above (ADR-031).
+        OutlinedButton(
+          onPressed: _busy ? null : () => context.go('/sign-up'),
+          child: Text(l10n.signUpLink),
+        ),
+        const SizedBox(height: 8),
+        LegalLinks(side: ref.watch(consoleModeProvider).side),
       ],
     );
   }

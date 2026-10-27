@@ -1,5 +1,6 @@
 import 'package:api_client/api_client.dart';
 import 'package:data/data.dart';
+import 'package:domain/domain.dart' show AppSide;
 import 'package:flutter/material.dart';
 import 'package:ui_kit/ui_kit.dart';
 import 'package:flutter/services.dart';
@@ -7,6 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import '../../l10n/app_localizations.dart';
+import '../collectors/tester_access.dart';
 import 'admin_api.dart';
 import 'area_picker.dart';
 
@@ -57,7 +59,8 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final users = ref.watch(adminUsersProvider);
+    final side = adminSide(context);
+    final users = ref.watch(adminUsersProvider(side));
     final when = DateFormat('d MMM y, HH:mm');
     return Scaffold(
       floatingActionButton: FloatingActionButton.extended(
@@ -72,38 +75,44 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
             l10n.usersTitle,
             style: Theme.of(context).textTheme.headlineSmall,
           ),
-          // People asking for different areas (ADR-025).
-          ...?ref
-              .watch(_areaRequestsProvider)
-              .value
-              ?.map(
-                (r) => Card(
-                  child: ListTile(
-                    leading: const Icon(Icons.edit_location_alt_outlined),
-                    title: Text(
-                      l10n.areaRequestLine(
-                        r.fullName,
-                        r.areas.join(', '),
-                        r.current.join(', '),
+          Text(
+            side == AppSide.research
+                ? l10n.usersResearchHint
+                : l10n.usersWaterHint,
+          ),
+          // People asking for different areas (ADR-025): water testing.
+          if (side == AppSide.water)
+            ...?ref
+                .watch(_areaRequestsProvider)
+                .value
+                ?.map(
+                  (r) => Card(
+                    child: ListTile(
+                      leading: const Icon(Icons.edit_location_alt_outlined),
+                      title: Text(
+                        l10n.areaRequestLine(
+                          r.fullName,
+                          r.areas.join(', '),
+                          r.current.join(', '),
+                        ),
                       ),
-                    ),
-                    subtitle: Text(r.reason),
-                    trailing: Wrap(
-                      spacing: 4,
-                      children: [
-                        TextButton(
-                          onPressed: () => _decide(r.id, false),
-                          child: Text(l10n.areaRequestDecline),
-                        ),
-                        FilledButton.tonal(
-                          onPressed: () => _decide(r.id, true),
-                          child: Text(l10n.areaRequestApprove),
-                        ),
-                      ],
+                      subtitle: Text(r.reason),
+                      trailing: Wrap(
+                        spacing: 4,
+                        children: [
+                          TextButton(
+                            onPressed: () => _decide(r.id, false),
+                            child: Text(l10n.areaRequestDecline),
+                          ),
+                          FilledButton.tonal(
+                            onPressed: () => _decide(r.id, true),
+                            child: Text(l10n.areaRequestApprove),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
           const SizedBox(height: 8),
           SearchField(
             value: _raw,
@@ -180,7 +189,7 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
   Future<void> _edit(UserOut? user) async {
     final result = await showDialog<_Saved>(
       context: context,
-      builder: (_) => _UserDialog(user: user),
+      builder: (_) => _UserDialog(user: user, side: adminSide(context)),
     );
     if (result == null || !mounted) return;
     ref.invalidate(adminUsersProvider);
@@ -254,9 +263,16 @@ Future<void> showCredentials(
 }
 
 class _UserDialog extends ConsumerStatefulWidget {
-  const _UserDialog({this.user, this.presetAreas = const []});
+  const _UserDialog({
+    this.user,
+    this.presetAreas = const [],
+    this.side = AppSide.water,
+  });
 
   final UserOut? user;
+
+  /// The side a new account is made on (ADR-031); IT admins work on all.
+  final AppSide side;
 
   /// A new person's first area (from "Who covers an area", ADR-022).
   final List<AdminUnit> presetAreas;
@@ -318,6 +334,7 @@ class _UserDialogState extends ConsumerState<_UserDialog> {
             email: _opt(_email),
             areaIds: [for (final a in _areas) a.id],
             responsibilities: _resp.toList(),
+            side: NewUserInSide.values.byName(widget.side.name),
           ),
         );
         if (mounted) {
@@ -423,74 +440,82 @@ class _UserDialogState extends ConsumerState<_UserDialog> {
                 selected: {_role},
                 onSelectionChanged: (v) => setState(() => _role = v.single),
               ),
-              const SizedBox(height: 12),
-              Text(
-                l10n.usersAreas,
-                style: Theme.of(context).textTheme.titleSmall,
-              ),
-              Wrap(
-                spacing: 6,
-                runSpacing: 6,
-                children: [
-                  for (final a in _areas)
-                    InputChip(
-                      label: Text('${a.name} (${l10n.areaLevel(a.level)})'),
-                      onDeleted: () => setState(
-                        () => _areas = [
-                          for (final x in _areas)
-                            if (x.id != a.id) x,
-                        ],
-                      ),
-                    ),
-                  ActionChip(
-                    avatar: const Icon(
-                      Icons.add_location_alt_outlined,
-                      size: 18,
-                    ),
-                    label: Text(l10n.usersAddArea),
-                    onPressed: () async {
-                      final picked = await pickAreas(
-                        context,
-                        selected: [for (final a in _areas) a.id],
-                      );
-                      if (picked != null) {
-                        setState(
+              // Areas and alert responsibilities are water testing's.
+              if (widget.side == AppSide.water) ...[
+                const SizedBox(height: 12),
+                Text(
+                  l10n.usersAreas,
+                  style: Theme.of(context).textTheme.titleSmall,
+                ),
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 6,
+                  children: [
+                    for (final a in _areas)
+                      InputChip(
+                        label: Text('${a.name} (${l10n.areaLevel(a.level)})'),
+                        onDeleted: () => setState(
                           () => _areas = [
-                            for (final AdminUnit p in picked)
-                              (id: p.id, name: p.name, level: p.level),
+                            for (final x in _areas)
+                              if (x.id != a.id) x,
                           ],
-                        );
-                      }
-                    },
-                  ),
-                ],
-              ),
-              Text(
-                l10n.usersAreasHint,
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-              const SizedBox(height: 12),
-              Text(
-                l10n.usersResponsibilities,
-                style: Theme.of(context).textTheme.titleSmall,
-              ),
-              Wrap(
-                spacing: 6,
-                children: [
-                  for (final r in responsibilities)
-                    FilterChip(
-                      label: Text(r.name),
-                      selected: _resp.contains(r.code),
-                      onSelected: (v) => setState(
-                        () => v ? _resp.add(r.code) : _resp.remove(r.code),
+                        ),
                       ),
+                    ActionChip(
+                      avatar: const Icon(
+                        Icons.add_location_alt_outlined,
+                        size: 18,
+                      ),
+                      label: Text(l10n.usersAddArea),
+                      onPressed: () async {
+                        final picked = await pickAreas(
+                          context,
+                          selected: [for (final a in _areas) a.id],
+                        );
+                        if (picked != null) {
+                          setState(
+                            () => _areas = [
+                              for (final AdminUnit p in picked)
+                                (id: p.id, name: p.name, level: p.level),
+                            ],
+                          );
+                        }
+                      },
                     ),
-                ],
-              ),
-              Text(
-                l10n.usersResponsibilitiesHint,
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
+                  ],
+                ),
+                Text(
+                  l10n.usersAreasHint,
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  l10n.usersResponsibilities,
+                  style: Theme.of(context).textTheme.titleSmall,
+                ),
+                Wrap(
+                  spacing: 6,
+                  children: [
+                    for (final r in responsibilities)
+                      FilterChip(
+                        label: Text(r.name),
+                        selected: _resp.contains(r.code),
+                        onSelected: (v) => setState(
+                          () => v ? _resp.add(r.code) : _resp.remove(r.code),
+                        ),
+                      ),
+                  ],
+                ),
+                Text(
+                  l10n.usersResponsibilitiesHint,
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+              ],
+              // When they accepted their side's documents (ADR-031).
+              if (u != null) ...[
+                const SizedBox(height: 12),
+                LegalAcceptancesSection(userId: u!.id),
+              ],
               if (u != null)
                 SwitchListTile(
                   contentPadding: EdgeInsets.zero,

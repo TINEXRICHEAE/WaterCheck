@@ -13,7 +13,7 @@ from __future__ import annotations
 import json
 import secrets
 from datetime import datetime, timedelta
-from typing import Any
+from typing import Any, Literal
 from uuid import UUID, uuid4
 
 from fastapi import APIRouter, HTTPException, status
@@ -22,6 +22,7 @@ from sqlalchemy import text
 
 from app.api.deps import DbDep, UserDep
 from app.api.reference import AnyPrincipal
+from app.api.research import may_recover_research
 from app.core.security import token_hash, utcnow
 from app.db.database import Principal
 
@@ -56,22 +57,60 @@ class RecoveredCollector(BaseModel):
 
 
 @router.post("/{collector_key}/recovery-code", status_code=status.HTTP_201_CREATED)
-async def issue_code(collector_key: UUID, user: UserDep, db: DbDep) -> RecoveryCodeOut:
-    """A one-time code for this collector, valid 24 hours."""
-    async with db.transaction(user) as conn:
-        # A stakeholder only for collectors who work in their areas: their
-        # tests or sources must be visible to them.
-        seen = (
+async def issue_code(
+    collector_key: UUID,
+    user: UserDep,
+    db: DbDep,
+    side: Literal["water", "research"] | None = None,
+) -> RecoveryCodeOut:
+    """A one-time code for this collector, valid 24 hours. From the research
+    pages (`side=research`), a profile made before sides that never tested
+    water becomes a research profile (ADR-031)."""
+    if side == "research" and user.side in ("research", "all"):
+        async with db.transaction(Principal.system()) as conn:
             await conn.execute(
                 text(
-                    "SELECT 1 FROM test_session WHERE collector_key = :k "
-                    "UNION ALL SELECT 1 FROM water_source WHERE collector_key = :k LIMIT 1"
+                    "UPDATE collector_profile SET side = 'research', "
+                    'snapshot = snapshot || \'{"side": "research"}\'::jsonb '
+                    "WHERE collector_key = :k AND side = 'water' "
+                    "AND NOT EXISTS (SELECT 1 FROM test_session WHERE collector_key = :k) "
+                    "AND NOT EXISTS (SELECT 1 FROM water_source WHERE collector_key = :k)"
                 ),
                 {"k": collector_key},
             )
-        ).first()
-    if not user.is_admin and seen is None:
-        raise HTTPException(status.HTTP_403_FORBIDDEN, "not_in_your_areas")
+    async with db.transaction(user) as conn:
+        side = (
+            await conn.execute(
+                text("SELECT side FROM collector_profile WHERE collector_key = :k"),
+                {"k": collector_key},
+            )
+        ).scalar_one_or_none()
+        if side == "research":
+            # Research collectors (ADR-031): an IT admin or the team of a
+            # project they collect for.
+            allowed = user.side in ("research", "all") and await may_recover_research(
+                conn, collector_key
+            )
+        else:
+            # Water testers: a water Console user who can see their tests or
+            # sources (every water user, now areas no longer limit what is
+            # seen), or an IT admin.
+            allowed = user.is_admin or (
+                user.side == "water"
+                and (
+                    await conn.execute(
+                        text(
+                            "SELECT 1 FROM test_session WHERE collector_key = :k "
+                            "UNION ALL SELECT 1 FROM water_source WHERE collector_key = :k "
+                            "LIMIT 1"
+                        ),
+                        {"k": collector_key},
+                    )
+                ).first()
+                is not None
+            )
+    if not allowed:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "not_your_collector")
     code = "".join(secrets.choice(_ALPHABET) for _ in range(10))
     async with db.transaction(Principal.system()) as conn:
         profile = (
@@ -131,7 +170,7 @@ async def recover(body: RecoverIn, principal: AnyPrincipal, db: DbDep) -> Recove
             raise HTTPException(status.HTTP_404_NOT_FOUND, "invalid_code")
         profile = (
             await conn.execute(
-                text("SELECT snapshot FROM collector_profile WHERE collector_key = :k"),
+                text("SELECT snapshot, side FROM collector_profile WHERE collector_key = :k"),
                 {"k": row.collector_key},
             )
         ).one()
@@ -161,5 +200,7 @@ async def recover(body: RecoverIn, principal: AnyPrincipal, db: DbDep) -> Recove
             ),
             {"i": principal.installation_id, "k": row.collector_key},
         )
-    snap = _snapshot(profile.snapshot)
+    # The profile's side comes back with it (ADR-031), also for profiles
+    # whose details were sent before sides.
+    snap = _snapshot(profile.snapshot) | {"side": profile.side}
     return RecoveredCollector(collector_key=row.collector_key, snapshot=snap)

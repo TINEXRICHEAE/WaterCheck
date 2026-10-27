@@ -47,9 +47,9 @@ async def test_marks_and_flags_reach_the_area_and_no_phone(
     await p.push(changes)
     _, officer, _ = await person(client, owner_db, areas=(district["code"],))
     _, colleague, _ = await person(client, owner_db, areas=(district["code"],))
-    _, outsider, _ = await person(
-        client, owner_db, areas=((await make_area(owner_db, "district"))["code"],)
-    )
+    # Areas no longer limit water users (ADR-031): the outsider is on the
+    # research side.
+    _, outsider, _ = await person(client, owner_db, side="research")
 
     flag_id = str(uuid.uuid4())
     out = await push(

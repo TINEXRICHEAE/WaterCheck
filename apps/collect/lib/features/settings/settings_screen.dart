@@ -42,17 +42,11 @@ class SettingsScreen extends ConsumerWidget {
       body: ListView(
         children: [
           const InstallAppTile(),
-          // Water testing or research (ADR-030).
-          ListTile(
-            leading: const Icon(Icons.swap_horiz),
-            title: Text(l10n.modeChoose),
-            subtitle: const Padding(
-              padding: EdgeInsets.only(top: 8),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: ModeSwitch(),
-              ),
-            ),
+          // The other side (ADR-031): switch for those who joined it,
+          // or join it with the same details.
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: SideSwitchTile(),
           ),
           // Testers, not devices, are assigned to areas (ADR-024).
           if (collector != null)
@@ -61,7 +55,8 @@ class SettingsScreen extends ConsumerWidget {
               title: Text(l10n.profileTitle),
               subtitle: Text(l10n.profileMenuHint(collector.fullName)),
               trailing: const Icon(Icons.chevron_right),
-              onTap: () => context.push('/profile'),
+              onTap: () =>
+                  context.push(sidePath(ref.read(appModeProvider), '/profile')),
             ),
           if (credentials != null)
             ListTile(
@@ -153,13 +148,15 @@ class SettingsScreen extends ConsumerWidget {
               )),
             ),
           const Divider(height: 32),
-          ListTile(
-            leading: const Icon(Icons.dataset_outlined),
-            title: Text(l10n.settingsReferenceData),
-            subtitle: Text(l10n.settingsReferenceDataHint),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => context.go('/settings/reference-data'),
-          ),
+          // Reference data (parameters, limits) is water testing's.
+          if (ref.watch(appModeProvider) == AppMode.water)
+            ListTile(
+              leading: const Icon(Icons.dataset_outlined),
+              title: Text(l10n.settingsReferenceData),
+              subtitle: Text(l10n.settingsReferenceDataHint),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => context.go('/settings/reference-data'),
+            ),
           ListTile(
             leading: const Icon(Icons.restart_alt),
             title: Text(l10n.settingsReset),
@@ -178,9 +175,9 @@ class SettingsScreen extends ConsumerWidget {
               version: appVersion,
             ),
           ),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            child: LegalTiles(),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: LegalTiles(side: ref.watch(appModeProvider).side),
           ),
         ],
       ),

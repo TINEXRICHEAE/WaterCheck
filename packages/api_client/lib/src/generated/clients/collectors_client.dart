@@ -8,6 +8,7 @@ import 'package:retrofit/retrofit.dart';
 import '../models/recover_in.dart';
 import '../models/recovered_collector.dart';
 import '../models/recovery_code_out.dart';
+import '../models/side.dart';
 
 part 'collectors_client.g.dart';
 
@@ -17,10 +18,13 @@ abstract class CollectorsClient {
 
   /// Issue Code.
   ///
-  /// A one-time code for this collector, valid 24 hours.
+  /// A one-time code for this collector, valid 24 hours. From the research.
+  /// pages (`side=research`), a profile made before sides that never tested.
+  /// water becomes a research profile (ADR-031).
   @POST('/v1/collectors/{collector_key}/recovery-code')
   Future<RecoveryCodeOut> issueCode({
     @Path('collector_key') required String collectorKey,
+    @Query('side') Side? side,
   });
 
   /// Recover.

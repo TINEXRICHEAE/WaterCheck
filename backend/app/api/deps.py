@@ -50,6 +50,7 @@ def _user_principal(
         user_id=claims.user_id,
         role=claims.role,
         scope_units=claims.scope_units,
+        side=claims.side,
     )
 
 
@@ -75,6 +76,14 @@ def current_admin(principal: Annotated[Principal, Depends(current_user)]) -> Pri
     return principal
 
 
+def current_researcher(principal: Annotated[Principal, Depends(current_user)]) -> Principal:
+    """A Research account or an IT admin (ADR-031)."""
+    if principal.side not in ("research", "all"):
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "research_accounts_only")
+    return principal
+
+
 UserDep = Annotated[Principal, Depends(current_user)]
+ResearcherDep = Annotated[Principal, Depends(current_researcher)]
 AnyUserDep = Annotated[Principal, Depends(current_user_any)]
 AdminDep = Annotated[Principal, Depends(current_admin)]

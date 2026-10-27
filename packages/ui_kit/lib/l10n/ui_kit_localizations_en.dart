@@ -287,7 +287,7 @@ class UiKitLocalizationsEn extends UiKitLocalizations {
 
   @override
   String get aboutLegalese =>
-      'Community drinking water monitoring. Licensed under the project licence; open-source components are listed under View licences.';
+      'Field data collection, monitoring, analysis and reporting: water testing, research and more. Licensed under the project licence; open-source components are listed under View licences.';
 
   @override
   String get cancel => 'Cancel';
@@ -478,14 +478,6 @@ class UiKitLocalizationsEn extends UiKitLocalizations {
   String legalVersionLine(int version) {
     return 'Version $version';
   }
-
-  @override
-  String get legalAccept =>
-      'I agree to the Terms of Use and the Privacy Policy';
-
-  @override
-  String get legalChanged =>
-      'The Privacy Policy or Terms of Use have changed. Please read them and agree again to keep using FieldQuire.';
 
   @override
   String get mapPathOpen => 'Show the whole path';
@@ -724,4 +716,41 @@ class UiKitLocalizationsEn extends UiKitLocalizations {
   @override
   String get formNotYet =>
       'This kind of question comes in a later version of FieldQuire.';
+
+  @override
+  String get legalAbout => 'About FieldQuire';
+
+  @override
+  String get sideWater => 'Water testing';
+
+  @override
+  String get sideResearch => 'Research';
+
+  @override
+  String legalRead(String document) {
+    return 'Read: $document';
+  }
+
+  @override
+  String legalAcceptTerms(String side) {
+    return 'I accept the $side Terms of Use';
+  }
+
+  @override
+  String legalAcceptPrivacy(String side) {
+    return 'I have read the $side Privacy Policy and agree to how my information is used';
+  }
+
+  @override
+  String legalNewSide(String side) {
+    return 'FieldQuire now has separate documents for each of its sides. Please read the $side Terms of Use and Privacy Policy and accept them once to continue.';
+  }
+
+  @override
+  String legalChangedSide(String side) {
+    return 'The $side Terms of Use or Privacy Policy have changed. Please read them and accept them again to continue.';
+  }
+
+  @override
+  String get legalContinue => 'Accept and continue';
 }

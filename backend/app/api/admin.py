@@ -55,12 +55,17 @@ class UserOut(BaseModel):
     created_at: datetime
     areas: list[AreaOut]
     responsibilities: list[str]
+    # 'water', 'research' or 'all' (ADR-031); 'admin', 'signup' or 'join'.
+    side: str = "water"
+    created_via: str = "admin"
 
 
 class NewUserIn(BaseModel):
     username: str = Field(min_length=3, max_length=200)
     full_name: str = Field(min_length=1, max_length=200)
     role: Literal["stakeholder", "it_admin"] = "stakeholder"
+    # The side of a stakeholder's account; IT admins work on all.
+    side: Literal["water", "research"] = "water"
     organisation: str | None = None
     position: str | None = None
     phone: str | None = None
@@ -124,20 +129,33 @@ async def _user(conn: object, user_id: UUID) -> UserOut:
     return UserOut.model_validate(users[0], from_attributes=True)
 
 
+SideFilter = Literal["water", "research"] | None
+
+
 @router.get("/users")
-async def users(admin: AdminDep, db: DbDep) -> list[UserOut]:
+async def users(admin: AdminDep, db: DbDep, side: SideFilter = None) -> list[UserOut]:
+    """Console accounts; with `side`, that side's accounts and the IT admins,
+    who work on every side (ADR-031)."""
     async with db.transaction(admin) as conn:
         found = await admin_users.list_users(conn)
-    return [UserOut.model_validate(u, from_attributes=True) for u in found]
+    return [
+        UserOut.model_validate(u, from_attributes=True)
+        for u in found
+        if side is None or u.side in (side, "all")
+    ]
 
 
 @router.post("/users", status_code=status.HTTP_201_CREATED)
 async def new_user(body: NewUserIn, admin: AdminDep, db: DbDep) -> CredentialsOut:
+    side = "all" if body.role == "it_admin" else body.side
     async with db.transaction(admin) as conn:
         taken = (
             await conn.execute(
-                text("SELECT 1 FROM app_user WHERE lower(username) = lower(:u)"),
-                {"u": body.username.strip()},
+                text(
+                    "SELECT 1 FROM app_user WHERE lower(username) = lower(:u) "
+                    "AND (side = :s OR side = 'all' OR :s = 'all')"
+                ),
+                {"u": body.username.strip(), "s": side},
             )
         ).first()
         if taken:
@@ -148,6 +166,7 @@ async def new_user(body: NewUserIn, admin: AdminDep, db: DbDep) -> CredentialsOu
                 username=body.username,
                 full_name=body.full_name,
                 role=body.role,
+                side=side,
                 organisation=body.organisation,
                 position=body.position,
                 phone=body.phone,
@@ -197,24 +216,46 @@ async def reset_password(user_id: UUID, admin: AdminDep, db: DbDep) -> Credentia
     return CredentialsOut(user=user, temporary_password=password)
 
 
+# Devices of a side (ADR-031): used by one of its testers, or (water) by
+# nobody yet.
+_DEVICE_SIDE = (
+    "(CAST(:side AS text) IS NULL OR EXISTS (SELECT 1 FROM collector_device d "
+    "JOIN collector_profile p ON p.collector_key = d.collector_key "
+    "WHERE d.installation_id = i.id AND p.side = :side) OR (:side = 'water' AND NOT EXISTS "
+    "(SELECT 1 FROM collector_device d WHERE d.installation_id = i.id)))"
+)
+
+
 @router.get("/installations")
-async def installations(admin: AdminDep, db: DbDep) -> list[InstallationOut]:
+async def installations(
+    admin: AdminDep, db: DbDep, side: SideFilter = None
+) -> list[InstallationOut]:
+    """Devices; with `side`, those its testers use. `tests` counts that
+    side's records (water tests or research records)."""
     async with db.transaction(admin) as conn:
         rows = (
             await conn.execute(
                 text(
-                    "SELECT i.id, i.platform, i.app_version, i.short_code, i.activated_at, "
+                    "SELECT i.id, i.platform, i.app_version, i.short_code, i.activated_at, "  # noqa: S608
                     "i.last_seen_at, i.revoked_at, coalesce(i.label, i.device_label) AS label, "
                     "i.registered_via, "
                     "wc_archived('installation', i.id) AS archived, "
                     "a.id AS area_id, a.code, a.name, a.level, "
-                    "(SELECT count(DISTINCT s.collector_key) FROM test_session s "
-                    " WHERE s.installation_id = i.id) AS collectors_seen, "
-                    "(SELECT count(*) FROM test_session s WHERE s.installation_id = i.id "
-                    " AND NOT wc_archived('test_session', s.id)) "
-                    "AS tests FROM installation i LEFT JOIN admin_unit a ON a.id = i.admin_unit_id "
+                    "CASE WHEN :side = 'research' THEN (SELECT count(DISTINCT d.collector_key) "
+                    " FROM collector_device d JOIN collector_profile p "
+                    " ON p.collector_key = d.collector_key WHERE d.installation_id = i.id "
+                    " AND p.side = 'research') ELSE (SELECT count(DISTINCT s.collector_key) "
+                    " FROM test_session s WHERE s.installation_id = i.id) END "
+                    "AS collectors_seen, "
+                    "CASE WHEN :side = 'research' THEN (SELECT count(*) FROM research.record r "
+                    " WHERE r.installation_id = i.id) ELSE (SELECT count(*) FROM test_session s "
+                    " WHERE s.installation_id = i.id AND NOT wc_archived('test_session', s.id)) "
+                    "END AS tests FROM installation i "
+                    "LEFT JOIN admin_unit a ON a.id = i.admin_unit_id "
+                    f"WHERE {_DEVICE_SIDE} "
                     "ORDER BY i.revoked_at IS NOT NULL, i.last_seen_at DESC NULLS LAST"
-                )
+                ),
+                {"side": side},
             )
         ).all()
     return [
@@ -395,7 +436,7 @@ class Ledger(BaseModel):
 
 
 @router.get("/credentials")
-async def credentials(admin: AdminDep, db: DbDep) -> Ledger:
+async def credentials(admin: AdminDep, db: DbDep, side: SideFilter = None) -> Ledger:
     """Every activation code and Console account made, by whom, for which
     area, and their use: devices activated, first and last sign-in
     (ADR-022). The codes and passwords themselves are never stored."""
@@ -442,10 +483,16 @@ async def credentials(admin: AdminDep, db: DbDep) -> Ledger:
                     " JOIN admin_unit a ON a.id = s.admin_unit_id WHERE s.user_id = u.id),"
                     " '{}') AS areas "
                     "FROM app_user u LEFT JOIN app_user m ON m.id = u.created_by "
+                    "WHERE CAST(:side AS text) IS NULL OR u.side IN (:side, 'all') "
                     "ORDER BY u.created_at DESC"
-                )
+                ),
+                {"side": side},
             )
         ).all()
+        if side == "research":
+            # Activation and assignment codes belong to water testing;
+            # research uses form access codes and recovery codes.
+            codes = []
     by_code: dict[UUID, list[LedgerDevice]] = {}
     for d in devices:
         by_code.setdefault(d.activation_code_id, []).append(
@@ -579,3 +626,41 @@ async def chain(area_id: UUID, admin: AdminDep, db: DbDep) -> ChainOut:
         first_notice=active[0].area if active else None,
         gaps=[lv.area for lv in levels if not any(x.is_active for x in lv.people)],
     )
+
+
+class AcceptanceOut(BaseModel):
+    side: str
+    version: int
+    terms_accepted: bool
+    privacy_accepted: bool
+    how: str
+    accepted_at: datetime
+    ip: str | None
+    device: str | None
+
+
+@router.get("/legal-acceptances")
+async def legal_acceptances(
+    admin: AdminDep,
+    db: DbDep,
+    user_id: UUID | None = None,
+    collector_key: UUID | None = None,
+) -> list[AcceptanceOut]:
+    """Each time an account or a tester accepted a side's Terms of Use and
+    Privacy Policy (ADR-031): kept for accountability, newest first."""
+    if (user_id is None) == (collector_key is None):
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, "one_of_user_or_collector")
+    async with db.transaction(admin) as conn:
+        rows = await conn.execute(
+            text(
+                "SELECT l.side, l.version, l.terms_accepted, l.privacy_accepted, l.how, "
+                "l.accepted_at, host(l.ip) AS ip, coalesce(i.label, i.device_label, "
+                "i.short_code) AS device FROM legal_acceptance l "
+                "LEFT JOIN installation i ON i.id = l.installation_id "
+                "WHERE (CAST(:u AS uuid) IS NOT NULL AND l.user_id = CAST(:u AS uuid)) "
+                "OR (CAST(:k AS uuid) IS NOT NULL AND l.collector_key = CAST(:k AS uuid)) "
+                "ORDER BY l.accepted_at DESC"
+            ),
+            {"u": user_id, "k": collector_key},
+        )
+        return [AcceptanceOut(**r._mapping) for r in rows]

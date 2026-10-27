@@ -6,6 +6,7 @@ import 'package:ui_kit/ui_kit.dart';
 
 import '../../app/providers.dart';
 import '../../l10n/app_localizations.dart';
+import '../research/research.dart';
 
 final messageRepositoryProvider = Provider<MessageRepository>(
   (ref) => MessageRepository(ref.watch(databaseProvider)),
@@ -96,7 +97,8 @@ class MessagesButton extends ConsumerWidget {
     final unread = ref.watch(unreadMessagesProvider).value ?? 0;
     return IconButton(
       tooltip: unread == 0 ? l10n.messagesTitle : l10n.messagesUnread(unread),
-      onPressed: () => context.push('/messages'),
+      onPressed: () =>
+          context.push(sidePath(ref.read(appModeProvider), '/messages')),
       icon: Badge(
         isLabelVisible: unread > 0,
         label: Text('$unread'),
@@ -116,7 +118,13 @@ class InboxScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final threads = ref.watch(_inboxProvider).value;
+    // Each side's own conversations (ADR-031).
+    final research = ref.watch(appModeProvider) == AppMode.research;
+    final threads = ref
+        .watch(_inboxProvider)
+        .value
+        ?.where((t) => (t.kind == ThreadKind.research) == research)
+        .toList();
     return Scaffold(
       appBar: AppBar(title: Text(l10n.messagesTitle)),
       body: threads == null
@@ -141,8 +149,12 @@ class InboxScreen extends ConsumerWidget {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    onTap: () =>
-                        context.push('/messages/${t.kind.name}/${t.subjectId}'),
+                    onTap: () => context.push(
+                      sidePath(
+                        ref.read(appModeProvider),
+                        '/messages/${t.kind.name}/${t.subjectId}',
+                      ),
+                    ),
                   ),
               ],
             ),

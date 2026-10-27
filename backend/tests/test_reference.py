@@ -245,5 +245,5 @@ async def test_collector_registry_groups_submissions(
     assert mine[0]["full_name"] == "Registry Collector"
 
     # Someone with no area sees no collectors at all.
-    outsider = await signed_in(client, owner_db)
+    outsider = await signed_in(client, owner_db, side="research")
     assert (await client.get("/v1/collectors", headers=outsider)).json() == []

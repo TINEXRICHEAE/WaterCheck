@@ -1706,8 +1706,6 @@
   },
   "areaRequestApprove": "Approve",
   "areaRequestDecline": "Decline",
-  "legalTitle": "Before you continue",
-  "legalSummary": "FieldQuire holds personal information about testers and officials: names, contacts, where tests were made, pictures with where and when they were taken, places people added, and messages. As a Console user you see this for your areas. Use it only to protect drinking water, keep it to yourself, and follow the Terms of Use. The data is hosted outside Uganda (South Africa).",
   "mapPlaceRename": "Rename",
   "mapPlaceRenameTitle": "Rename this place",
   "mapPlaceRemove": "Remove",
@@ -2407,5 +2405,199 @@
   },
   "builderChoiceValue": "Code",
   "builderAddChoice": "Add a choice",
-  "builderDone": "Done"
+  "builderDone": "Done",
+  "joinAlready": "This account is already on that side.",
+  "joinGo": "Join {side}",
+  "@joinGo": {
+    "placeholders": {
+      "side": {
+        "type": "String"
+      }
+    }
+  },
+  "joinHow": "A separate {side} account is made for {email}, with the same password. It is linked to this one, so you can switch between them; each keeps its own pages, records and settings.",
+  "@joinHow": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      },
+      "side": {
+        "type": "String"
+      }
+    }
+  },
+  "joinMenu": "Join {side}",
+  "@joinMenu": {
+    "placeholders": {
+      "side": {
+        "type": "String"
+      }
+    }
+  },
+  "joinPassword": "Your password (to confirm it is you)",
+  "joinResearchIntro": "Research is where projects are planned, forms are built and published, and records from collectors are analysed and reported on.",
+  "joinTitle": "Join {side}",
+  "@joinTitle": {
+    "placeholders": {
+      "side": {
+        "type": "String"
+      }
+    }
+  },
+  "joinWaterIntro": "Water testing is where water sources and test results are followed up, alerts are handled and reports are made.",
+  "legalTitleSide": "{side}: Terms of Use and Privacy Policy",
+  "@legalTitleSide": {
+    "placeholders": {
+      "side": {
+        "type": "String"
+      }
+    }
+  },
+  "profileAdminAllSides": "As an IT admin you work on every side, and switch between them.",
+  "profileLinked": "You have an account there too.",
+  "profileNotJoined": "Not joined. Joining makes a separate, linked account.",
+  "profileSideHint": "This account belongs to this side only; other sides have their own accounts.",
+  "profileSides": "Sides of FieldQuire",
+  "profileThisSide": "This account: {side}",
+  "@profileThisSide": {
+    "placeholders": {
+      "side": {
+        "type": "String"
+      }
+    }
+  },
+  "recoveryGive": "Give a recovery code",
+  "researchCollectorAccess": "Getting back in",
+  "researchCollectorAccessHint": "A collector who lost their phone, or uses another one, gets back in as the same person with a one-time recovery code. Pass it on in person or by phone.",
+  "researchCollectorLastSeen": "Last seen",
+  "researchCollectorNoForms": "No forms of your projects yet.",
+  "researchCollectorRole": "Research collector",
+  "researchFindCollector": "Find a collector",
+  "roleOnSide": "{side} account",
+  "@roleOnSide": {
+    "placeholders": {
+      "side": {
+        "type": "String"
+      }
+    }
+  },
+  "signUpEmail": "Enter a valid email address.",
+  "signUpEmailHint": "You sign in with it.",
+  "signUpEmailLabel": "Email",
+  "signUpFullName": "Full name",
+  "signUpGo": "Create the account",
+  "signUpHaveAccount": "I already have an account",
+  "signUpLink": "Create an account",
+  "signUpName": "Enter your name.",
+  "signUpOrganisation": "Organisation (optional)",
+  "signUpResearchIntro": "For researchers and their teams: start projects, build forms, give them to collectors, and analyse the records. The account works at once.",
+  "signUpTaken": "An account on this side already uses that email. Sign in instead.",
+  "signUpTick": "Tick both boxes to accept the Terms of Use and the Privacy Policy.",
+  "signUpTitle": "Create a {side} account",
+  "@signUpTitle": {
+    "placeholders": {
+      "side": {
+        "type": "String"
+      }
+    }
+  },
+  "signUpWaterIntro": "For district officers and other stakeholders: follow water sources and test results, act on alerts and make reports. The account works at once; an IT admin may add the areas you are officially responsible for.",
+  "switchBody": "You will use your {side} account, with its own pages, records and settings.",
+  "@switchBody": {
+    "placeholders": {
+      "side": {
+        "type": "String"
+      }
+    }
+  },
+  "switchGo": "Switch",
+  "switchTo": "Switch to {side}",
+  "@switchTo": {
+    "placeholders": {
+      "side": {
+        "type": "String"
+      }
+    }
+  },
+  "usersWaterHint": "Water testing accounts and the IT admins. Research accounts are managed on the research side.",
+  "usersResearchHint": "Research accounts and the IT admins. Water testing accounts are managed on the water side.",
+  "testerAccessTitle": "Devices, sign-ins and codes",
+  "acceptancesTitle": "Terms of Use and Privacy Policy accepted",
+  "acceptancesNone": "No acceptance recorded yet.",
+  "acceptancesLine": "{side}, version {version}",
+  "@acceptancesLine": {
+    "placeholders": {
+      "side": {
+        "type": "String"
+      },
+      "version": {
+        "type": "int"
+      }
+    }
+  },
+  "acceptancesHow": "{how, select, signup{when signing up} join{when joining from the other side} prompt{when asked after a change} profile{on a phone} other{{how}}}",
+  "@acceptancesHow": {
+    "placeholders": {
+      "how": {
+        "type": "String"
+      }
+    }
+  },
+  "researchAdminLedger": "Accounts, sign-ins and codes",
+  "switchIntro": "{side} is a separate side of FieldQuire, with its own people, pages and records. Choose how to go there.",
+  "@switchIntro": {
+    "placeholders": {
+      "side": {
+        "type": "String"
+      }
+    }
+  },
+  "switchSignIn": "I have a {side} account",
+  "@switchSignIn": {
+    "placeholders": {
+      "side": {
+        "type": "String"
+      }
+    }
+  },
+  "switchSignInHint": "Sign in with its email and password. You leave this account first.",
+  "@switchSignInHint": {
+    "placeholders": {
+      "side": {
+        "type": "String"
+      }
+    }
+  },
+  "switchJoin": "Use my details here to join {side}",
+  "@switchJoin": {
+    "placeholders": {
+      "side": {
+        "type": "String"
+      }
+    }
+  },
+  "switchJoinHint": "A separate {side} account with your email and password, linked to this one, after you accept its Terms of Use and Privacy Policy.",
+  "@switchJoinHint": {
+    "placeholders": {
+      "side": {
+        "type": "String"
+      }
+    }
+  },
+  "switchNew": "Create a new {side} account",
+  "@switchNew": {
+    "placeholders": {
+      "side": {
+        "type": "String"
+      }
+    }
+  },
+  "switchNewHint": "With other details. You leave this account first.",
+  "@switchNewHint": {
+    "placeholders": {
+      "side": {
+        "type": "String"
+      }
+    }
+  }
 }

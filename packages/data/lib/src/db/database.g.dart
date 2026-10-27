@@ -11723,6 +11723,39 @@ class $CollectorProfilesTable extends CollectorProfiles
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _sideMeta = const VerificationMeta('side');
+  @override
+  late final GeneratedColumn<String> side = GeneratedColumn<String>(
+    'side',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('water'),
+  );
+  static const VerificationMeta _legalVersionMeta = const VerificationMeta(
+    'legalVersion',
+  );
+  @override
+  late final GeneratedColumn<int> legalVersion = GeneratedColumn<int>(
+    'legal_version',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _linkedKeyMeta = const VerificationMeta(
+    'linkedKey',
+  );
+  @override
+  late final GeneratedColumn<String> linkedKey = GeneratedColumn<String>(
+    'linked_key',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _isActiveMeta = const VerificationMeta(
     'isActive',
   );
@@ -11762,6 +11795,9 @@ class $CollectorProfilesTable extends CollectorProfiles
     district,
     organisation,
     email,
+    side,
+    legalVersion,
+    linkedKey,
     isActive,
     updatedAt,
   ];
@@ -11873,6 +11909,27 @@ class $CollectorProfilesTable extends CollectorProfiles
         email.isAcceptableOrUnknown(data['email']!, _emailMeta),
       );
     }
+    if (data.containsKey('side')) {
+      context.handle(
+        _sideMeta,
+        side.isAcceptableOrUnknown(data['side']!, _sideMeta),
+      );
+    }
+    if (data.containsKey('legal_version')) {
+      context.handle(
+        _legalVersionMeta,
+        legalVersion.isAcceptableOrUnknown(
+          data['legal_version']!,
+          _legalVersionMeta,
+        ),
+      );
+    }
+    if (data.containsKey('linked_key')) {
+      context.handle(
+        _linkedKeyMeta,
+        linkedKey.isAcceptableOrUnknown(data['linked_key']!, _linkedKeyMeta),
+      );
+    }
     if (data.containsKey('is_active')) {
       context.handle(
         _isActiveMeta,
@@ -11940,6 +11997,18 @@ class $CollectorProfilesTable extends CollectorProfiles
         DriftSqlType.string,
         data['${effectivePrefix}email'],
       ),
+      side: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}side'],
+      )!,
+      legalVersion: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}legal_version'],
+      )!,
+      linkedKey: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}linked_key'],
+      ),
       isActive: attachedDatabase.typeMapping.read(
         DriftSqlType.bool,
         data['${effectivePrefix}is_active'],
@@ -11972,6 +12041,13 @@ class CollectorProfileRow extends DataClass
 
   /// Added in v10 (ADR-024): optional, like the phone now.
   final String? email;
+
+  /// Added in v13 (ADR-031): the side the profile collects for, the
+  /// version of that side's documents accepted, and the same person's
+  /// profile on the other side.
+  final String side;
+  final int legalVersion;
+  final String? linkedKey;
   final bool isActive;
   final DateTime updatedAt;
   const CollectorProfileRow({
@@ -11986,6 +12062,9 @@ class CollectorProfileRow extends DataClass
     required this.district,
     this.organisation,
     this.email,
+    required this.side,
+    required this.legalVersion,
+    this.linkedKey,
     required this.isActive,
     required this.updatedAt,
   });
@@ -12006,6 +12085,11 @@ class CollectorProfileRow extends DataClass
     }
     if (!nullToAbsent || email != null) {
       map['email'] = Variable<String>(email);
+    }
+    map['side'] = Variable<String>(side);
+    map['legal_version'] = Variable<int>(legalVersion);
+    if (!nullToAbsent || linkedKey != null) {
+      map['linked_key'] = Variable<String>(linkedKey);
     }
     map['is_active'] = Variable<bool>(isActive);
     map['updated_at'] = Variable<DateTime>(updatedAt);
@@ -12029,6 +12113,11 @@ class CollectorProfileRow extends DataClass
       email: email == null && nullToAbsent
           ? const Value.absent()
           : Value(email),
+      side: Value(side),
+      legalVersion: Value(legalVersion),
+      linkedKey: linkedKey == null && nullToAbsent
+          ? const Value.absent()
+          : Value(linkedKey),
       isActive: Value(isActive),
       updatedAt: Value(updatedAt),
     );
@@ -12051,6 +12140,9 @@ class CollectorProfileRow extends DataClass
       district: serializer.fromJson<String>(json['district']),
       organisation: serializer.fromJson<String?>(json['organisation']),
       email: serializer.fromJson<String?>(json['email']),
+      side: serializer.fromJson<String>(json['side']),
+      legalVersion: serializer.fromJson<int>(json['legal_version']),
+      linkedKey: serializer.fromJson<String?>(json['linked_key']),
       isActive: serializer.fromJson<bool>(json['is_active']),
       updatedAt: serializer.fromJson<DateTime>(json['updated_at']),
     );
@@ -12070,6 +12162,9 @@ class CollectorProfileRow extends DataClass
       'district': serializer.toJson<String>(district),
       'organisation': serializer.toJson<String?>(organisation),
       'email': serializer.toJson<String?>(email),
+      'side': serializer.toJson<String>(side),
+      'legal_version': serializer.toJson<int>(legalVersion),
+      'linked_key': serializer.toJson<String?>(linkedKey),
       'is_active': serializer.toJson<bool>(isActive),
       'updated_at': serializer.toJson<DateTime>(updatedAt),
     };
@@ -12087,6 +12182,9 @@ class CollectorProfileRow extends DataClass
     String? district,
     Value<String?> organisation = const Value.absent(),
     Value<String?> email = const Value.absent(),
+    String? side,
+    int? legalVersion,
+    Value<String?> linkedKey = const Value.absent(),
     bool? isActive,
     DateTime? updatedAt,
   }) => CollectorProfileRow(
@@ -12101,6 +12199,9 @@ class CollectorProfileRow extends DataClass
     district: district ?? this.district,
     organisation: organisation.present ? organisation.value : this.organisation,
     email: email.present ? email.value : this.email,
+    side: side ?? this.side,
+    legalVersion: legalVersion ?? this.legalVersion,
+    linkedKey: linkedKey.present ? linkedKey.value : this.linkedKey,
     isActive: isActive ?? this.isActive,
     updatedAt: updatedAt ?? this.updatedAt,
   );
@@ -12125,6 +12226,11 @@ class CollectorProfileRow extends DataClass
           ? data.organisation.value
           : this.organisation,
       email: data.email.present ? data.email.value : this.email,
+      side: data.side.present ? data.side.value : this.side,
+      legalVersion: data.legalVersion.present
+          ? data.legalVersion.value
+          : this.legalVersion,
+      linkedKey: data.linkedKey.present ? data.linkedKey.value : this.linkedKey,
       isActive: data.isActive.present ? data.isActive.value : this.isActive,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
@@ -12144,6 +12250,9 @@ class CollectorProfileRow extends DataClass
           ..write('district: $district, ')
           ..write('organisation: $organisation, ')
           ..write('email: $email, ')
+          ..write('side: $side, ')
+          ..write('legalVersion: $legalVersion, ')
+          ..write('linkedKey: $linkedKey, ')
           ..write('isActive: $isActive, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -12163,6 +12272,9 @@ class CollectorProfileRow extends DataClass
     district,
     organisation,
     email,
+    side,
+    legalVersion,
+    linkedKey,
     isActive,
     updatedAt,
   );
@@ -12181,6 +12293,9 @@ class CollectorProfileRow extends DataClass
           other.district == this.district &&
           other.organisation == this.organisation &&
           other.email == this.email &&
+          other.side == this.side &&
+          other.legalVersion == this.legalVersion &&
+          other.linkedKey == this.linkedKey &&
           other.isActive == this.isActive &&
           other.updatedAt == this.updatedAt);
 }
@@ -12197,6 +12312,9 @@ class CollectorProfilesCompanion extends UpdateCompanion<CollectorProfileRow> {
   final Value<String> district;
   final Value<String?> organisation;
   final Value<String?> email;
+  final Value<String> side;
+  final Value<int> legalVersion;
+  final Value<String?> linkedKey;
   final Value<bool> isActive;
   final Value<DateTime> updatedAt;
   final Value<int> rowid;
@@ -12212,6 +12330,9 @@ class CollectorProfilesCompanion extends UpdateCompanion<CollectorProfileRow> {
     this.district = const Value.absent(),
     this.organisation = const Value.absent(),
     this.email = const Value.absent(),
+    this.side = const Value.absent(),
+    this.legalVersion = const Value.absent(),
+    this.linkedKey = const Value.absent(),
     this.isActive = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -12228,6 +12349,9 @@ class CollectorProfilesCompanion extends UpdateCompanion<CollectorProfileRow> {
     required String district,
     this.organisation = const Value.absent(),
     this.email = const Value.absent(),
+    this.side = const Value.absent(),
+    this.legalVersion = const Value.absent(),
+    this.linkedKey = const Value.absent(),
     this.isActive = const Value.absent(),
     required DateTime updatedAt,
     this.rowid = const Value.absent(),
@@ -12253,6 +12377,9 @@ class CollectorProfilesCompanion extends UpdateCompanion<CollectorProfileRow> {
     Expression<String>? district,
     Expression<String>? organisation,
     Expression<String>? email,
+    Expression<String>? side,
+    Expression<int>? legalVersion,
+    Expression<String>? linkedKey,
     Expression<bool>? isActive,
     Expression<DateTime>? updatedAt,
     Expression<int>? rowid,
@@ -12269,6 +12396,9 @@ class CollectorProfilesCompanion extends UpdateCompanion<CollectorProfileRow> {
       if (district != null) 'district': district,
       if (organisation != null) 'organisation': organisation,
       if (email != null) 'email': email,
+      if (side != null) 'side': side,
+      if (legalVersion != null) 'legal_version': legalVersion,
+      if (linkedKey != null) 'linked_key': linkedKey,
       if (isActive != null) 'is_active': isActive,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (rowid != null) 'rowid': rowid,
@@ -12287,6 +12417,9 @@ class CollectorProfilesCompanion extends UpdateCompanion<CollectorProfileRow> {
     Value<String>? district,
     Value<String?>? organisation,
     Value<String?>? email,
+    Value<String>? side,
+    Value<int>? legalVersion,
+    Value<String?>? linkedKey,
     Value<bool>? isActive,
     Value<DateTime>? updatedAt,
     Value<int>? rowid,
@@ -12303,6 +12436,9 @@ class CollectorProfilesCompanion extends UpdateCompanion<CollectorProfileRow> {
       district: district ?? this.district,
       organisation: organisation ?? this.organisation,
       email: email ?? this.email,
+      side: side ?? this.side,
+      legalVersion: legalVersion ?? this.legalVersion,
+      linkedKey: linkedKey ?? this.linkedKey,
       isActive: isActive ?? this.isActive,
       updatedAt: updatedAt ?? this.updatedAt,
       rowid: rowid ?? this.rowid,
@@ -12345,6 +12481,15 @@ class CollectorProfilesCompanion extends UpdateCompanion<CollectorProfileRow> {
     if (email.present) {
       map['email'] = Variable<String>(email.value);
     }
+    if (side.present) {
+      map['side'] = Variable<String>(side.value);
+    }
+    if (legalVersion.present) {
+      map['legal_version'] = Variable<int>(legalVersion.value);
+    }
+    if (linkedKey.present) {
+      map['linked_key'] = Variable<String>(linkedKey.value);
+    }
     if (isActive.present) {
       map['is_active'] = Variable<bool>(isActive.value);
     }
@@ -12371,6 +12516,9 @@ class CollectorProfilesCompanion extends UpdateCompanion<CollectorProfileRow> {
           ..write('district: $district, ')
           ..write('organisation: $organisation, ')
           ..write('email: $email, ')
+          ..write('side: $side, ')
+          ..write('legalVersion: $legalVersion, ')
+          ..write('linkedKey: $linkedKey, ')
           ..write('isActive: $isActive, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('rowid: $rowid')
@@ -30597,6 +30745,9 @@ typedef $$CollectorProfilesTableCreateCompanionBuilder =
       required String district,
       Value<String?> organisation,
       Value<String?> email,
+      Value<String> side,
+      Value<int> legalVersion,
+      Value<String?> linkedKey,
       Value<bool> isActive,
       required DateTime updatedAt,
       Value<int> rowid,
@@ -30614,6 +30765,9 @@ typedef $$CollectorProfilesTableUpdateCompanionBuilder =
       Value<String> district,
       Value<String?> organisation,
       Value<String?> email,
+      Value<String> side,
+      Value<int> legalVersion,
+      Value<String?> linkedKey,
       Value<bool> isActive,
       Value<DateTime> updatedAt,
       Value<int> rowid,
@@ -30680,6 +30834,21 @@ class $$CollectorProfilesTableFilterComposer
 
   ColumnFilters<String> get email => $composableBuilder(
     column: $table.email,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get side => $composableBuilder(
+    column: $table.side,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get legalVersion => $composableBuilder(
+    column: $table.legalVersion,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get linkedKey => $composableBuilder(
+    column: $table.linkedKey,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -30758,6 +30927,21 @@ class $$CollectorProfilesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get side => $composableBuilder(
+    column: $table.side,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get legalVersion => $composableBuilder(
+    column: $table.legalVersion,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get linkedKey => $composableBuilder(
+    column: $table.linkedKey,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<bool> get isActive => $composableBuilder(
     column: $table.isActive,
     builder: (column) => ColumnOrderings(column),
@@ -30819,6 +31003,17 @@ class $$CollectorProfilesTableAnnotationComposer
   GeneratedColumn<String> get email =>
       $composableBuilder(column: $table.email, builder: (column) => column);
 
+  GeneratedColumn<String> get side =>
+      $composableBuilder(column: $table.side, builder: (column) => column);
+
+  GeneratedColumn<int> get legalVersion => $composableBuilder(
+    column: $table.legalVersion,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get linkedKey =>
+      $composableBuilder(column: $table.linkedKey, builder: (column) => column);
+
   GeneratedColumn<bool> get isActive =>
       $composableBuilder(column: $table.isActive, builder: (column) => column);
 
@@ -30877,6 +31072,9 @@ class $$CollectorProfilesTableTableManager
                 Value<String> district = const Value.absent(),
                 Value<String?> organisation = const Value.absent(),
                 Value<String?> email = const Value.absent(),
+                Value<String> side = const Value.absent(),
+                Value<int> legalVersion = const Value.absent(),
+                Value<String?> linkedKey = const Value.absent(),
                 Value<bool> isActive = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
@@ -30892,6 +31090,9 @@ class $$CollectorProfilesTableTableManager
                 district: district,
                 organisation: organisation,
                 email: email,
+                side: side,
+                legalVersion: legalVersion,
+                linkedKey: linkedKey,
                 isActive: isActive,
                 updatedAt: updatedAt,
                 rowid: rowid,
@@ -30909,6 +31110,9 @@ class $$CollectorProfilesTableTableManager
                 required String district,
                 Value<String?> organisation = const Value.absent(),
                 Value<String?> email = const Value.absent(),
+                Value<String> side = const Value.absent(),
+                Value<int> legalVersion = const Value.absent(),
+                Value<String?> linkedKey = const Value.absent(),
                 Value<bool> isActive = const Value.absent(),
                 required DateTime updatedAt,
                 Value<int> rowid = const Value.absent(),
@@ -30924,6 +31128,9 @@ class $$CollectorProfilesTableTableManager
                 district: district,
                 organisation: organisation,
                 email: email,
+                side: side,
+                legalVersion: legalVersion,
+                linkedKey: linkedKey,
                 isActive: isActive,
                 updatedAt: updatedAt,
                 rowid: rowid,

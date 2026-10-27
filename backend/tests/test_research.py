@@ -27,10 +27,17 @@ async def _person(
     username = f"r-{uuid.uuid4().hex[:8]}@example.org"
     async with owner_db.transaction(Principal.system()) as conn:
         created = await create_user(
-            conn, NewUser(username=username, full_name=f"Researcher {username[:6]}", role=role)
+            conn,
+            NewUser(
+                username=username,
+                full_name=f"Researcher {username[:6]}",
+                role=role,
+                side="research",
+            ),
         )
     first = await client.post(
-        "/v1/auth/login", json={"username": username, "password": created.temporary_password}
+        "/v1/auth/login",
+        json={"username": username, "password": created.temporary_password, "side": "research"},
     )
     changed = await client.post(
         "/v1/auth/change-password",
@@ -124,6 +131,7 @@ async def test_researcher_builds_publishes_and_collects(
     # A phone joins with the code (after its tester first synced) and gets it.
     district = await make_area(owner_db, "district")
     a = await phone(client, owner_db, district)
+    a.side = "research"
     hello = {
         "entity": "message",
         "op": "insert",

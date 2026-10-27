@@ -8,15 +8,22 @@ import 'package:ui_kit/ui_kit.dart';
 import '../../app/gate.dart';
 import '../../app/providers.dart';
 import '../../l10n/app_localizations.dart';
+import '../research/research.dart';
 import '../sources/online_search.dart';
 import 'area_fields.dart';
 
 /// Create or edit a collector profile (SPEC §2.1). Editing keeps the
-/// collector key and stores a new profile version.
+/// collector key and stores a new profile version. A new profile belongs
+/// to the side in use (ADR-031) and accepts that side's Terms of Use and
+/// Privacy Policy with the usual ticks; from [fromKey], it is the same
+/// person's linked profile on the other side, prefilled from theirs.
 class CollectorFormScreen extends ConsumerStatefulWidget {
-  const CollectorFormScreen({super.key, this.collectorKey});
+  const CollectorFormScreen({super.key, this.collectorKey, this.fromKey});
 
   final String? collectorKey;
+
+  /// The person's profile on another side, to join this one with.
+  final String? fromKey;
 
   @override
   ConsumerState<CollectorFormScreen> createState() =>
@@ -36,6 +43,7 @@ class _CollectorFormScreenState extends ConsumerState<CollectorFormScreen> {
   String? _type;
   bool _loaded = false;
   bool _saving = false;
+  bool _ticked = false;
 
   @override
   void dispose() {
@@ -59,7 +67,7 @@ class _CollectorFormScreenState extends ConsumerState<CollectorFormScreen> {
     if (_loaded) return;
     _loaded = true;
     final existing = profiles
-        .where((p) => p.collectorKey == widget.collectorKey)
+        .where((p) => p.collectorKey == (widget.collectorKey ?? widget.fromKey))
         .firstOrNull;
     if (existing != null) {
       _name.text = existing.fullName;
@@ -89,8 +97,24 @@ class _CollectorFormScreenState extends ConsumerState<CollectorFormScreen> {
     _district.text = district?.name ?? '';
   }
 
-  Future<void> _save() async {
+  /// The side of a new profile: the other side of [CollectorFormScreen.fromKey]'s
+  /// profile, or the side in use.
+  AppSide _side(List<CollectorSnapshot> profiles) {
+    final from = profiles
+        .where((p) => p.collectorKey == widget.fromKey)
+        .firstOrNull;
+    return from?.side.other ?? ref.read(appModeProvider).side;
+  }
+
+  Future<void> _save(AppSide side) async {
     if (!_form.currentState!.validate()) return;
+    final isNew = widget.collectorKey == null;
+    if (isNew && !_ticked) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(AppLocalizations.of(context).legalTickBoth)),
+      );
+      return;
+    }
     setState(() => _saving = true);
     final saved = await ref
         .read(collectorProfileRepositoryProvider)
@@ -110,9 +134,15 @@ class _CollectorFormScreenState extends ConsumerState<CollectorFormScreen> {
             organisation: _organisation.text.trim().isEmpty
                 ? null
                 : _organisation.text,
+            side: side,
+            legalVersion: isNew ? legalVersions[side] : null,
+            linkedKey: widget.fromKey,
           ),
           key: widget.collectorKey,
         );
+    if (ref.read(appModeProvider).side != saved.side) {
+      await ref.read(appModeProvider.notifier).set(AppMode.of(saved.side));
+    }
     await ref
         .read(appGateProvider.notifier)
         .selectCollector(saved.collectorKey);
@@ -129,6 +159,15 @@ class _CollectorFormScreenState extends ConsumerState<CollectorFormScreen> {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
     _prefill(profiles, units);
+    final isNew = widget.collectorKey == null;
+    final side = isNew
+        ? _side(profiles)
+        : profiles
+                  .where((p) => p.collectorKey == widget.collectorKey)
+                  .firstOrNull
+                  ?.side ??
+              AppSide.water;
+    final sideLabel = sideName(UiKitLocalizations.of(context), side);
     final types = (lists['collector_types']! as List)
         .cast<Map<String, Object?>>();
     String? required(String? v) =>
@@ -137,8 +176,10 @@ class _CollectorFormScreenState extends ConsumerState<CollectorFormScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          widget.collectorKey == null
-              ? l10n.profileNewTitle
+          widget.fromKey != null
+              ? l10n.profileJoinTitle(sideLabel)
+              : isNew
+              ? l10n.profileNewTitleSide(sideLabel)
               : l10n.profileEditTitle,
         ),
       ),
@@ -147,6 +188,20 @@ class _CollectorFormScreenState extends ConsumerState<CollectorFormScreen> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
+            if (widget.fromKey != null)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: Text(l10n.profileJoinIntro(sideLabel)),
+              )
+            else if (isNew)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: Text(
+                  side == AppSide.water
+                      ? l10n.profileNewWaterIntro
+                      : l10n.profileNewResearchIntro,
+                ),
+              ),
             TextFormField(
               controller: _name,
               decoration: InputDecoration(labelText: l10n.profileFullName),
@@ -216,10 +271,17 @@ class _CollectorFormScreenState extends ConsumerState<CollectorFormScreen> {
               l10n.profileNoId,
               style: Theme.of(context).textTheme.bodySmall,
             ),
+            if (isNew) ...[
+              const SizedBox(height: 12),
+              LegalConsentChecks(
+                side: side,
+                onChanged: (v) => setState(() => _ticked = v),
+              ),
+            ],
             const SizedBox(height: 24),
             FilledButton(
-              onPressed: _saving ? null : _save,
-              child: Text(l10n.profileSave),
+              onPressed: _saving ? null : () => _save(side),
+              child: Text(isNew ? l10n.profileCreate : l10n.profileSave),
             ),
           ],
         ),

@@ -176,6 +176,13 @@ class CollectorProfiles extends Table {
 
   /// Added in v10 (ADR-024): optional, like the phone now.
   TextColumn get email => text().nullable()();
+
+  /// Added in v13 (ADR-031): the side the profile collects for, the
+  /// version of that side's documents accepted, and the same person's
+  /// profile on the other side.
+  TextColumn get side => text().withDefault(const Constant('water'))();
+  IntColumn get legalVersion => integer().withDefault(const Constant(0))();
+  TextColumn get linkedKey => text().nullable()();
   BoolColumn get isActive => boolean().withDefault(const Constant(true))();
   DateTimeColumn get updatedAt => dateTime()();
 

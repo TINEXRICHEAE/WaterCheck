@@ -23,6 +23,7 @@ MeResponse _$MeResponseFromJson(Map<String, dynamic> json) => MeResponse(
   phoneConfirmed: json['phone_confirmed'] as bool? ?? false,
   emailConfirmed: json['email_confirmed'] as bool? ?? false,
   legalVersion: (json['legal_version'] as num?)?.toInt() ?? 0,
+  side: json['side'] as String? ?? 'water',
   notifyEmail: json['notify_email'] as bool? ?? true,
   notifyPush: json['notify_push'] as bool? ?? true,
   notifySms: json['notify_sms'] as bool? ?? true,
@@ -31,6 +32,15 @@ MeResponse _$MeResponseFromJson(Map<String, dynamic> json) => MeResponse(
   timeZone: json['time_zone'] as String? ?? 'Africa/Kampala',
   phone: json['phone'] as String?,
   email: json['email'] as String?,
+  legal: (json['legal'] as Map<String, dynamic>?)?.map(
+    (k, e) => MapEntry(k, (e as num).toInt()),
+  ),
+  legalDue: (json['legal_due'] as List<dynamic>?)
+      ?.map((e) => e as String)
+      .toList(),
+  linkedSides: (json['linked_sides'] as List<dynamic>?)
+      ?.map((e) => e as String)
+      .toList(),
 );
 
 Map<String, dynamic> _$MeResponseToJson(MeResponse instance) =>
@@ -49,6 +59,10 @@ Map<String, dynamic> _$MeResponseToJson(MeResponse instance) =>
       'phone_confirmed': instance.phoneConfirmed,
       'email_confirmed': instance.emailConfirmed,
       'legal_version': instance.legalVersion,
+      'side': instance.side,
+      'legal': instance.legal,
+      'legal_due': instance.legalDue,
+      'linked_sides': instance.linkedSides,
       'notify_email': instance.notifyEmail,
       'notify_push': instance.notifyPush,
       'notify_sms': instance.notifySms,

@@ -9,10 +9,19 @@ part of 'login_request.dart';
 LoginRequest _$LoginRequestFromJson(Map<String, dynamic> json) => LoginRequest(
   username: json['username'] as String,
   password: json['password'] as String,
+  side:
+      $enumDecodeNullable(_$LoginRequestSideEnumMap, json['side']) ??
+      LoginRequestSide.water,
 );
 
 Map<String, dynamic> _$LoginRequestToJson(LoginRequest instance) =>
     <String, dynamic>{
       'username': instance.username,
       'password': instance.password,
+      'side': instance.side,
     };
+
+const _$LoginRequestSideEnumMap = {
+  LoginRequestSide.water: 'water',
+  LoginRequestSide.research: 'research',
+};

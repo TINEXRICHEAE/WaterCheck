@@ -8,6 +8,7 @@
 
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from uuid import UUID, uuid4
@@ -26,6 +27,7 @@ from app.core.security import (
     utcnow,
     verify_password,
 )
+from app.core.sides import LEGAL_VERSIONS
 from app.db.database import Database, Principal
 from app.services.policy import security_policy
 
@@ -51,24 +53,30 @@ class AuthService:
         self.db = db
         self.settings = settings
 
-    async def login(self, username: str, password: str, *, ip: str | None = None) -> TokenPair:
+    async def login(
+        self, username: str, password: str, *, side: str = "water", ip: str | None = None
+    ) -> TokenPair:
         # Failures are recorded (attempt counts, audit) and committed before
         # the error is raised; raising inside the transaction would roll back.
-        outcome = await self._login(username, password, ip)
+        outcome = await self._login(username, password, side, ip)
         if isinstance(outcome, str):
             raise AuthError(outcome)
         return outcome
 
-    async def _login(self, username: str, password: str, ip: str | None) -> TokenPair | str:
+    async def _login(
+        self, username: str, password: str, side: str, ip: str | None
+    ) -> TokenPair | str:
         now = utcnow()
         async with self.db.transaction(Principal.auth()) as conn:
+            # The account on this side, or an IT admin's (all sides).
             user = (
                 await conn.execute(
                     text(
                         "SELECT id, password_hash, is_active, failed_attempts, locked_until "
-                        "FROM app_user WHERE lower(username) = lower(:u)"
+                        "FROM app_user WHERE lower(username) = lower(:u) "
+                        "AND side IN (:side, 'all') ORDER BY side = :side DESC LIMIT 1"
                     ),
-                    {"u": username.strip()},
+                    {"u": username.strip(), "side": side},
                 )
             ).one_or_none()
             if user is None:
@@ -196,19 +204,153 @@ class AuthService:
         async with self.db.transaction(Principal.auth()) as conn:
             user_id = (
                 await conn.execute(
-                    text("SELECT id FROM app_user WHERE lower(username) = lower(:u)"),
+                    text("SELECT id FROM app_user WHERE lower(username) = lower(:u) LIMIT 1"),
                     {"u": username.strip()},
                 )
             ).scalar_one_or_none()
             if user_id is not None:
                 await _audit(conn, user_id, "auth.password_help_requested", ip)
 
+    async def register(self, new: Registration, *, ip: str | None = None) -> TokenPair:
+        """Open sign-up on a side (ADR-031): the account works at once, with
+        that side's Privacy Policy and Terms accepted."""
+        async with self.db.transaction(Principal.auth()) as conn:
+            policy = await security_policy(conn, self.settings)
+        if password_problem(new.password, policy.password_min_length) is not None:
+            raise AuthError("weak_password")
+        if new.accepted_legal < LEGAL_VERSIONS[new.side]:
+            raise AuthError("legal_not_accepted")
+        now = utcnow()
+        async with self.db.transaction(Principal.auth()) as conn:
+            if await _taken(conn, new.username, new.side):
+                raise AuthError("username_taken")
+            user_id = uuid4()
+            await conn.execute(
+                text(
+                    "INSERT INTO app_user (id, username, full_name, organisation, phone, email, "
+                    "password_hash, must_change_password, role, side, person_id, legal, "
+                    "created_via, legal_accepted_at) VALUES (:id, :u, :name, :org, :phone, :u, "
+                    ":hash, false, 'stakeholder', :side, :id, CAST(:legal AS jsonb), 'signup', "
+                    ":now)"
+                ),
+                {
+                    "id": user_id,
+                    "u": new.username.strip(),
+                    "name": new.full_name.strip(),
+                    "org": (new.organisation or "").strip() or None,
+                    "phone": (new.phone or "").strip() or None,
+                    "hash": hash_password(new.password),
+                    "side": new.side,
+                    "legal": json.dumps({new.side: new.accepted_legal}),
+                    "now": now,
+                },
+            )
+            await _audit(conn, user_id, f"auth.signed_up.{new.side}", ip)
+            await record_acceptance(
+                conn,
+                user_id=user_id,
+                side=new.side,
+                version=new.accepted_legal,
+                how="signup",
+                ip=ip,
+            )
+            return await self._issue(conn, user_id, family_id=uuid4(), now=now)
+
+    async def join(
+        self, user_id: UUID, side: str, password: str, accepted_legal: int, *, ip: str | None = None
+    ) -> TokenPair:
+        """A person signed in on one side opens an account on another with the
+        same email and password (confirmed again), after accepting that
+        side's documents. The accounts stay separate but linked, so they can
+        switch between them (ADR-031)."""
+        if accepted_legal < LEGAL_VERSIONS[side]:
+            raise AuthError("legal_not_accepted")
+        now = utcnow()
+        async with self.db.transaction(Principal.auth()) as conn:
+            me = (
+                await conn.execute(
+                    text(
+                        "SELECT username, full_name, organisation, position, phone, email, "
+                        "password_hash, person_id, side, theme, time_zone FROM app_user "
+                        "WHERE id = :id AND is_active"
+                    ),
+                    {"id": user_id},
+                )
+            ).one_or_none()
+            if me is None or not verify_password(me.password_hash, password):
+                raise AuthError("invalid_credentials")
+            if me.side in (side, "all"):
+                raise AuthError("already_on_side")
+            linked = (
+                await conn.execute(
+                    text(
+                        "SELECT id FROM app_user WHERE person_id = :p AND side = :s AND is_active"
+                    ),
+                    {"p": me.person_id, "s": side},
+                )
+            ).scalar_one_or_none()
+            if linked is None:
+                if await _taken(conn, me.username, side):
+                    # Someone already signed up on that side with this email.
+                    raise AuthError("username_taken")
+                linked = uuid4()
+                await conn.execute(
+                    text(
+                        "INSERT INTO app_user (id, username, full_name, organisation, position, "
+                        "phone, email, password_hash, must_change_password, role, side, "
+                        "person_id, legal, created_via, legal_accepted_at, theme, time_zone) "
+                        "VALUES (:id, :u, :name, :org, :pos, :phone, :email, :hash, false, "
+                        "'stakeholder', :side, :person, CAST(:legal AS jsonb), 'join', :now, "
+                        ":theme, :tz)"
+                    ),
+                    {
+                        "id": linked,
+                        "u": me.username,
+                        "name": me.full_name,
+                        "org": me.organisation,
+                        "pos": me.position,
+                        "phone": me.phone,
+                        "email": me.email,
+                        "hash": me.password_hash,
+                        "side": side,
+                        "person": me.person_id,
+                        "legal": json.dumps({side: accepted_legal}),
+                        "now": now,
+                        "theme": me.theme,
+                        "tz": me.time_zone,
+                    },
+                )
+                await _audit(conn, linked, f"auth.joined.{side}", ip)
+                await record_acceptance(
+                    conn, user_id=linked, side=side, version=accepted_legal, how="join", ip=ip
+                )
+            return await self._issue(conn, linked, family_id=uuid4(), now=now)
+
+    async def switch(self, user_id: UUID, side: str, *, ip: str | None = None) -> TokenPair:
+        """Signs in to the same person's linked account on another side."""
+        now = utcnow()
+        async with self.db.transaction(Principal.auth()) as conn:
+            target = (
+                await conn.execute(
+                    text(
+                        "SELECT o.id FROM app_user me "
+                        "JOIN app_user o ON o.person_id = me.person_id "
+                        "WHERE me.id = :id AND me.is_active AND o.side = :s AND o.is_active"
+                    ),
+                    {"id": user_id, "s": side},
+                )
+            ).scalar_one_or_none()
+            if target is None:
+                raise AuthError("not_on_side")
+            await _audit(conn, target, f"auth.switched.{side}", ip)
+            return await self._issue(conn, target, family_id=uuid4(), now=now)
+
     async def _issue(
         self, conn: AsyncConnection, user_id: UUID, *, family_id: UUID, now: datetime
     ) -> TokenPair:
         user = (
             await conn.execute(
-                text("SELECT role, must_change_password FROM app_user WHERE id = :id"),
+                text("SELECT role, must_change_password, side FROM app_user WHERE id = :id"),
                 {"id": user_id},
             )
         ).one()
@@ -239,6 +381,7 @@ class AuthService:
                 role=user.role,
                 scope_units=scope,
                 must_change_password=user.must_change_password,
+                side=user.side,
             ),
             now,
         )
@@ -248,6 +391,47 @@ class AuthService:
             must_change_password=user.must_change_password,
             expires_in=self.settings.access_token_minutes * 60,
         )
+
+
+@dataclass(frozen=True)
+class Registration:
+    side: str
+    username: str
+    full_name: str
+    password: str
+    accepted_legal: int
+    organisation: str | None = None
+    phone: str | None = None
+
+
+async def _taken(conn: AsyncConnection, username: str, side: str) -> bool:
+    return (
+        await conn.execute(
+            text(
+                "SELECT 1 FROM app_user WHERE lower(username) = lower(:u) AND side IN (:s, 'all')"
+            ),
+            {"u": username.strip(), "s": side},
+        )
+    ).first() is not None
+
+
+async def record_acceptance(
+    conn: AsyncConnection,
+    *,
+    user_id: UUID,
+    side: str,
+    version: int,
+    how: str,
+    ip: str | None,
+) -> None:
+    """Keeps an acceptance of a side's Terms and Privacy Policy (ADR-031)."""
+    await conn.execute(
+        text(
+            "INSERT INTO legal_acceptance (side, version, user_id, how, ip) "
+            "VALUES (:s, :v, :u, :how, CAST(:ip AS inet))"
+        ),
+        {"s": side, "v": version, "u": user_id, "how": how, "ip": ip},
+    )
 
 
 async def _audit(conn: AsyncConnection, user_id: UUID | None, action: str, ip: str | None) -> None:

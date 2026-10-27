@@ -55,9 +55,15 @@ def load(conn: psycopg.Connection) -> str:
     with conn.cursor() as cur:
         cur.execute(
             "INSERT INTO app_user (id, username, full_name, organisation, password_hash, "
-            "must_change_password, role, is_active) VALUES (%s, %s, %s, %s, '!', false, "
-            "'stakeholder', false) ON CONFLICT (id) DO NOTHING",
-            (OWNER["id"], OWNER["username"], OWNER["full_name"], OWNER["organisation"]),
+            "must_change_password, role, is_active, side, person_id) VALUES (%s, %s, %s, %s, "
+            "'!', false, 'stakeholder', false, 'research', %s) ON CONFLICT (id) DO NOTHING",
+            (
+                OWNER["id"],
+                OWNER["username"],
+                OWNER["full_name"],
+                OWNER["organisation"],
+                OWNER["id"],
+            ),
         )
         if cur.rowcount:
             made.append("owner")

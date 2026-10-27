@@ -7,6 +7,7 @@ import 'package:retrofit/retrofit.dart';
 
 import '../models/clone_in.dart';
 import '../models/collector_assign_in.dart';
+import '../models/collector_detail.dart';
 import '../models/collector_out.dart';
 import '../models/draft_in.dart';
 import '../models/form_detail.dart';
@@ -224,9 +225,19 @@ abstract class ResearchClient {
 
   /// Find Testers.
   ///
-  /// Testers on Collect, found by name or phone, to give a form to.
+  /// Research collectors on Collect, found by name or phone, to give a.
+  /// form to (water testers are other people, ADR-031).
   @GET('/v1/research/testers')
   Future<List<TesterOut>> findTesters({@Query('q') required String q});
+
+  /// Research Collector.
+  ///
+  /// A research collector: details, the forms of the caller's projects.
+  /// they have, and their records there.
+  @GET('/v1/research/collectors/{collector_key}')
+  Future<CollectorDetail> researchCollector({
+    @Path('collector_key') required String collectorKey,
+  });
 
   /// Assign Collector.
   ///

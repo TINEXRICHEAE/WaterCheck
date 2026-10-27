@@ -23,6 +23,7 @@ class MeResponse {
     this.phoneConfirmed = false,
     this.emailConfirmed = false,
     this.legalVersion = 0,
+    this.side = 'water',
     this.notifyEmail = true,
     this.notifyPush = true,
     this.notifySms = true,
@@ -31,6 +32,9 @@ class MeResponse {
     this.timeZone = 'Africa/Kampala',
     this.phone,
     this.email,
+    this.legal,
+    this.legalDue,
+    this.linkedSides,
   });
 
   factory MeResponse.fromJson(Map<String, Object?> json) =>
@@ -55,6 +59,12 @@ class MeResponse {
   final bool emailConfirmed;
   @JsonKey(name: 'legal_version')
   final int legalVersion;
+  final String side;
+  final Map<String, int>? legal;
+  @JsonKey(name: 'legal_due')
+  final List<String>? legalDue;
+  @JsonKey(name: 'linked_sides')
+  final List<String>? linkedSides;
   @JsonKey(name: 'notify_email')
   final bool notifyEmail;
   @JsonKey(name: 'notify_push')

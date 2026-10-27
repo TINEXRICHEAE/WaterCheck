@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:ui_kit/ui_kit.dart';
 
 import '../messages/messages.dart';
+import '../research/research.dart';
 import '../../app/providers.dart';
 import '../../l10n/app_localizations.dart';
 import '../sync/refresh_button.dart';
@@ -36,6 +37,7 @@ class HomeScreen extends ConsumerWidget {
             icon: const Icon(Icons.account_circle_outlined),
             onPressed: () => context.push('/profile'),
           ),
+          const SideSwitchButton(),
           const MessagesButton(),
           const SyncRefreshButton(),
           SyncIndicator(

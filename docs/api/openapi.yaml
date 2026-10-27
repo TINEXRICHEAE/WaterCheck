@@ -55,6 +55,118 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
+  /v1/auth/register:
+    post:
+      tags:
+      - auth
+      summary: Register
+      description: Anyone may make an account on a side; it works at once (ADR-031).
+      operationId: register
+      parameters:
+      - name: X-Token-Transport
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Token-Transport
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignUpRequest'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/auth/join:
+    post:
+      tags:
+      - auth
+      summary: Join Side
+      description: 'Opens this person''s account on another side (or signs in to it
+        if it
+
+        exists) and returns its tokens: the app switches to that side.'
+      operationId: join_side
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: X-Token-Transport
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Token-Transport
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JoinRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/auth/switch:
+    post:
+      tags:
+      - auth
+      summary: Switch Side
+      description: Signs in to this person's linked account on another side.
+      operationId: switch_side
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: X-Token-Transport
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Token-Transport
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SwitchRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
   /v1/auth/refresh:
     post:
       tags:
@@ -1562,7 +1674,10 @@ paths:
       tags:
       - research
       summary: Find Testers
-      description: Testers on Collect, found by name or phone, to give a form to.
+      description: 'Research collectors on Collect, found by name or phone, to give
+        a
+
+        form to (water testers are other people, ADR-031).'
       operationId: find_testers
       security:
       - HTTPBearer: []
@@ -1585,6 +1700,38 @@ paths:
                 items:
                   $ref: '#/components/schemas/TesterOut'
                 title: Response Find Testers
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/research/collectors/{collector_key}:
+    get:
+      tags:
+      - research
+      summary: Research Collector
+      description: 'A research collector: details, the forms of the caller''s projects
+
+        they have, and their records there.'
+      operationId: research_collector
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: collector_key
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Collector Key
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CollectorDetail'
         '422':
           description: Validation Error
           content:
@@ -2474,30 +2621,54 @@ paths:
       tags:
       - admin
       summary: Users
+      description: 'Console accounts; with `side`, that side''s accounts and the IT
+        admins,
+
+        who work on every side (ADR-031).'
       operationId: users
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: side
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - enum:
+            - water
+            - research
+            type: string
+          - type: 'null'
+          title: Side
       responses:
         '200':
           description: Successful Response
           content:
             application/json:
               schema:
+                type: array
                 items:
                   $ref: '#/components/schemas/UserOut'
-                type: array
                 title: Response Users
-      security:
-      - HTTPBearer: []
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
     post:
       tags:
       - admin
       summary: New User
       operationId: new_user
+      security:
+      - HTTPBearer: []
       requestBody:
+        required: true
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/NewUserIn'
-        required: true
       responses:
         '201':
           description: Successful Response
@@ -2511,8 +2682,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
-      security:
-      - HTTPBearer: []
   /v1/admin/users/{user_id}:
     patch:
       tags:
@@ -2582,19 +2751,40 @@ paths:
       tags:
       - admin
       summary: Installations
+      description: 'Devices; with `side`, those its testers use. `tests` counts that
+
+        side''s records (water tests or research records).'
       operationId: installations
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: side
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - enum:
+            - water
+            - research
+            type: string
+          - type: 'null'
+          title: Side
       responses:
         '200':
           description: Successful Response
           content:
             application/json:
               schema:
+                type: array
                 items:
                   $ref: '#/components/schemas/InstallationOut'
-                type: array
                 title: Response Installations
-      security:
-      - HTTPBearer: []
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
   /v1/admin/installations/{installation_id}/collectors:
     get:
       tags:
@@ -2642,6 +2832,20 @@ paths:
 
         (ADR-022). The codes and passwords themselves are never stored.'
       operationId: credentials
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: side
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - enum:
+            - water
+            - research
+            type: string
+          - type: 'null'
+          title: Side
       responses:
         '200':
           description: Successful Response
@@ -2649,8 +2853,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Ledger'
-      security:
-      - HTTPBearer: []
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
   /v1/admin/activation-codes/{code_id}/revoke:
     post:
       tags:
@@ -2702,6 +2910,53 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ChainOut'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/admin/legal-acceptances:
+    get:
+      tags:
+      - admin
+      summary: Legal Acceptances
+      description: 'Each time an account or a tester accepted a side''s Terms of Use
+        and
+
+        Privacy Policy (ADR-031): kept for accountability, newest first.'
+      operationId: legal_acceptances
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: user_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: User Id
+      - name: collector_key
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Collector Key
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AcceptanceOut'
+                title: Response Legal Acceptances
         '422':
           description: Validation Error
           content:
@@ -4211,7 +4466,11 @@ paths:
       tags:
       - collectors
       summary: Issue Code
-      description: A one-time code for this collector, valid 24 hours.
+      description: 'A one-time code for this collector, valid 24 hours. From the research
+
+        pages (`side=research`), a profile made before sides that never tested
+
+        water becomes a research profile (ADR-031).'
       operationId: issue_code
       security:
       - HTTPBearer: []
@@ -4223,6 +4482,17 @@ paths:
           type: string
           format: uuid
           title: Collector Key
+      - name: side
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - enum:
+            - water
+            - research
+            type: string
+          - type: 'null'
+          title: Side
       responses:
         '201':
           description: Successful Response
@@ -4264,6 +4534,48 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
+    AcceptanceOut:
+      properties:
+        side:
+          type: string
+          title: Side
+        version:
+          type: integer
+          title: Version
+        terms_accepted:
+          type: boolean
+          title: Terms Accepted
+        privacy_accepted:
+          type: boolean
+          title: Privacy Accepted
+        how:
+          type: string
+          title: How
+        accepted_at:
+          type: string
+          format: date-time
+          title: Accepted At
+        ip:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Ip
+        device:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Device
+      type: object
+      required:
+      - side
+      - version
+      - terms_accepted
+      - privacy_accepted
+      - how
+      - accepted_at
+      - ip
+      - device
+      title: AcceptanceOut
     ActivateRequest:
       properties:
         code:
@@ -5047,6 +5359,75 @@ components:
       required:
       - collector_key
       title: CollectorAssignIn
+    CollectorDetail:
+      properties:
+        collector_key:
+          type: string
+          format: uuid
+          title: Collector Key
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Phone
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Email
+        organisation:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Organisation
+        first_seen_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: First Seen At
+        last_seen_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Last Seen At
+        forms:
+          items:
+            $ref: '#/components/schemas/CollectorForm'
+          type: array
+          title: Forms
+        records:
+          type: integer
+          title: Records
+        last_record_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Last Record At
+        can_recover:
+          type: boolean
+          title: Can Recover
+      type: object
+      required:
+      - collector_key
+      - name
+      - phone
+      - email
+      - organisation
+      - first_seen_at
+      - last_seen_at
+      - forms
+      - records
+      - last_record_at
+      - can_recover
+      title: CollectorDetail
     CollectorForm:
       properties:
         form_id:
@@ -5889,6 +6270,29 @@ components:
       required:
       - form_id
       title: JoinOut
+    JoinRequest:
+      properties:
+        side:
+          type: string
+          enum:
+          - water
+          - research
+          title: Side
+        password:
+          type: string
+          maxLength: 200
+          minLength: 1
+          title: Password
+        accepted_legal:
+          type: integer
+          minimum: 0.0
+          title: Accepted Legal
+      type: object
+      required:
+      - side
+      - password
+      - accepted_legal
+      title: JoinRequest
     LabelIn:
       properties:
         label:
@@ -6192,6 +6596,14 @@ components:
           type: integer
           minimum: 1.0
           title: Version
+        side:
+          anyOf:
+          - type: string
+            enum:
+            - water
+            - research
+          - type: 'null'
+          title: Side
       type: object
       required:
       - version
@@ -6286,6 +6698,13 @@ components:
           maxLength: 200
           minLength: 1
           title: Password
+        side:
+          type: string
+          enum:
+          - water
+          - research
+          title: Side
+          default: water
       type: object
       required:
       - username
@@ -6351,6 +6770,25 @@ components:
           type: integer
           title: Legal Version
           default: 0
+        side:
+          type: string
+          title: Side
+          default: water
+        legal:
+          additionalProperties:
+            type: integer
+          type: object
+          title: Legal
+        legal_due:
+          items:
+            type: string
+          type: array
+          title: Legal Due
+        linked_sides:
+          items:
+            type: string
+          type: array
+          title: Linked Sides
         notify_email:
           type: boolean
           title: Notify Email
@@ -6606,6 +7044,13 @@ components:
           - it_admin
           title: Role
           default: stakeholder
+        side:
+          type: string
+          enum:
+          - water
+          - research
+          title: Side
+          default: water
         organisation:
           anyOf:
           - type: string
@@ -8032,6 +8477,54 @@ components:
       - request_id
       - expires_at
       title: SignOutRequested
+    SignUpRequest:
+      properties:
+        side:
+          type: string
+          enum:
+          - water
+          - research
+          title: Side
+        username:
+          type: string
+          maxLength: 200
+          pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+          title: Username
+        full_name:
+          type: string
+          maxLength: 200
+          minLength: 1
+          title: Full Name
+        password:
+          type: string
+          maxLength: 200
+          minLength: 1
+          title: Password
+        accepted_legal:
+          type: integer
+          minimum: 0.0
+          title: Accepted Legal
+        organisation:
+          anyOf:
+          - type: string
+            maxLength: 200
+          - type: 'null'
+          title: Organisation
+        phone:
+          anyOf:
+          - type: string
+            maxLength: 40
+          - type: 'null'
+          title: Phone
+      type: object
+      required:
+      - side
+      - username
+      - full_name
+      - password
+      - accepted_legal
+      title: SignUpRequest
+      description: Open sign-up on one side, with its documents accepted (ADR-031).
     SmsAck:
       properties:
         status:
@@ -8113,6 +8606,18 @@ components:
       - lon
       - latest
       title: SourceHit
+    SwitchRequest:
+      properties:
+        side:
+          type: string
+          enum:
+          - water
+          - research
+          title: Side
+      type: object
+      required:
+      - side
+      title: SwitchRequest
     TesterAccess:
       properties:
         assignments:
@@ -8522,6 +9027,14 @@ components:
             type: string
           type: array
           title: Responsibilities
+        side:
+          type: string
+          title: Side
+          default: water
+        created_via:
+          type: string
+          title: Created Via
+          default: admin
       type: object
       required:
       - id

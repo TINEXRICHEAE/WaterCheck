@@ -1,25 +1,17 @@
 import 'package:data/data.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:ui_kit/ui_kit.dart' show legalVersion;
 
 import 'providers.dart';
-
-/// The version of the Privacy Policy and Terms of Use people accept (SPEC
-/// §9.3): the documents' own version, so a change asks everyone again.
-const privacyNoticeVersion = legalVersion;
 
 /// What the router needs to decide where a user may go.
 class AppGate {
   const AppGate({
-    required this.consented,
     required this.activeCollectorKey,
     this.activated = true,
     this.revoked = false,
     this.lockDecided = true,
     this.locked = false,
   });
-
-  final bool consented;
 
   /// Activated once online with an IT admin's code (F-AUTH-7).
   final bool activated;
@@ -38,7 +30,6 @@ class AppGate {
   final String? activeCollectorKey;
 
   AppGate copyWith({
-    bool? consented,
     bool? activated,
     bool? revoked,
     bool? lockDecided,
@@ -46,7 +37,6 @@ class AppGate {
     String? activeCollectorKey,
     bool clearCollector = false,
   }) => AppGate(
-    consented: consented ?? this.consented,
     activated: activated ?? this.activated,
     revoked: revoked ?? this.revoked,
     lockDecided: lockDecided ?? this.lockDecided,
@@ -65,13 +55,6 @@ class AppGateNotifier extends Notifier<AppGate> {
 
   @override
   AppGate build() => _initial;
-
-  Future<void> giveConsent() async {
-    await ref
-        .read(localSettingsRepositoryProvider)
-        .recordConsent(privacyNoticeVersion);
-    state = state.copyWith(consented: true);
-  }
 
   void activated() => state = state.copyWith(activated: true);
 

@@ -1,4 +1,5 @@
 import 'package:api_client/api_client.dart';
+import 'package:domain/domain.dart' show AppSide;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -29,9 +30,17 @@ final assignmentsProvider = FutureProvider.autoDispose<List<AssignmentOut>>((
 /// is waiting for (until email and SMS are set up, the admin passes them
 /// on).
 class TesterAccessSection extends ConsumerWidget {
-  const TesterAccessSection({super.key, required this.collectorKey});
+  const TesterAccessSection({
+    super.key,
+    required this.collectorKey,
+    this.areas = true,
+  });
 
   final String collectorKey;
+
+  /// Official areas are water testing's; research collectors have none
+  /// (ADR-031).
+  final bool areas;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -59,7 +68,10 @@ class TesterAccessSection extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(l10n.testerAreaTitle, style: text.titleMedium),
+        Text(
+          areas ? l10n.testerAreaTitle : l10n.testerAccessTitle,
+          style: text.titleMedium,
+        ),
         ...access.when(
           loading: () => [const LinearProgressIndicator()],
           error: (_, _) => [Text(l10n.adminNeedsConnection)],
@@ -83,8 +95,8 @@ class TesterAccessSection extends ConsumerWidget {
                   ],
                 ),
               ),
-            if (a.assignments.isEmpty) Text(l10n.testerNotAssigned),
-            for (final s in a.assignments)
+            if (areas && a.assignments.isEmpty) Text(l10n.testerNotAssigned),
+            for (final s in areas ? a.assignments : const <AssignmentOut>[])
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 leading: const Icon(Icons.verified_outlined),
@@ -105,23 +117,24 @@ class TesterAccessSection extends ConsumerWidget {
                   child: Text(l10n.testerEnd),
                 ),
               ),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: OutlinedButton.icon(
-                icon: const Icon(Icons.add_location_alt_outlined),
-                label: Text(l10n.testerAssign),
-                onPressed: () async {
-                  final picked = await pickAreas(context, multiple: false);
-                  if (picked == null || picked.isEmpty) return;
-                  await act(
-                    () => api.assignDirectly(
-                      collectorKey: collectorKey,
-                      body: AssignAreaIn(areaId: picked.single.id),
-                    ),
-                  );
-                },
+            if (areas)
+              Align(
+                alignment: Alignment.centerLeft,
+                child: OutlinedButton.icon(
+                  icon: const Icon(Icons.add_location_alt_outlined),
+                  label: Text(l10n.testerAssign),
+                  onPressed: () async {
+                    final picked = await pickAreas(context, multiple: false);
+                    if (picked == null || picked.isEmpty) return;
+                    await act(
+                      () => api.assignDirectly(
+                        collectorKey: collectorKey,
+                        body: AssignAreaIn(areaId: picked.single.id),
+                      ),
+                    );
+                  },
+                ),
               ),
-            ),
             const SizedBox(height: 12),
             Text(l10n.testerDevices, style: text.titleSmall),
             if (a.devices.isEmpty) Text(l10n.testerNoDevices),
@@ -166,6 +179,70 @@ class TesterAccessSection extends ConsumerWidget {
             ],
           ],
         ),
+      ],
+    );
+  }
+}
+
+final _acceptancesProvider = FutureProvider.autoDispose
+    .family<List<AcceptanceOut>, ({String? user, String? collector})>(
+      (ref, who) => ref
+          .watch(adminApiProvider)
+          .admin
+          .legalAcceptances(userId: who.user, collectorKey: who.collector),
+    );
+
+/// When a person (an account or a tester) accepted their side's Terms of
+/// Use and Privacy Policy, and how (ADR-031): kept for accountability, for
+/// IT admins.
+class LegalAcceptancesSection extends ConsumerWidget {
+  const LegalAcceptancesSection({super.key, this.userId, this.collectorKey});
+
+  final String? userId;
+  final String? collectorKey;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final when = DateFormat('d MMM y, HH:mm');
+    final rows = ref
+        .watch(_acceptancesProvider((user: userId, collector: collectorKey)))
+        .value;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          l10n.acceptancesTitle,
+          style: Theme.of(context).textTheme.titleSmall,
+        ),
+        if (rows == null)
+          const LinearProgressIndicator()
+        else if (rows.isEmpty)
+          Text(l10n.acceptancesNone)
+        else
+          for (final r in rows)
+            ListTile(
+              dense: true,
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.gavel_outlined),
+              title: Text(
+                l10n.acceptancesLine(
+                  sideName(
+                    UiKitLocalizations.of(context),
+                    r.side == 'research' ? AppSide.research : AppSide.water,
+                  ),
+                  r.version,
+                ),
+              ),
+              subtitle: Text(
+                [
+                  when.format(WcTime.local(r.acceptedAt, context)),
+                  l10n.acceptancesHow(r.how),
+                  ?r.device,
+                  ?r.ip,
+                ].join(' · '),
+              ),
+            ),
       ],
     );
   }

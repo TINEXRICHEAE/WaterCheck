@@ -21,7 +21,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncConnection
 
-from app.api.deps import DbDep, UserDep
+from app.api.deps import DbDep, ResearcherDep
 from app.api.installations import InstallationDep
 
 router = APIRouter(prefix="/v1/research", tags=["research"])
@@ -118,7 +118,7 @@ _RECORD_COLUMNS = (
 
 
 @router.get("/projects")
-async def list_projects(user: UserDep, db: DbDep) -> list[ProjectOut]:
+async def list_projects(user: ResearcherDep, db: DbDep) -> list[ProjectOut]:
     """The projects this user manages, newest first."""
     async with db.transaction(user) as conn:
         rows = await conn.execute(
@@ -143,7 +143,7 @@ _FORM_COLUMNS = (
 
 
 @router.get("/projects/{project_id}/forms")
-async def list_forms(project_id: UUID, user: UserDep, db: DbDep) -> list[FormOut]:
+async def list_forms(project_id: UUID, user: ResearcherDep, db: DbDep) -> list[FormOut]:
     async with db.transaction(user) as conn:
         if not (
             await conn.execute(text("SELECT research.can_manage(:p)"), {"p": project_id})
@@ -160,7 +160,7 @@ async def list_forms(project_id: UUID, user: UserDep, db: DbDep) -> list[FormOut
 
 
 @router.get("/forms/{form_id}")
-async def get_form(form_id: UUID, user: UserDep, db: DbDep) -> FormDetail:
+async def get_form(form_id: UUID, user: ResearcherDep, db: DbDep) -> FormDetail:
     """A form with its current definition (also a public or shared one,
     for viewing before cloning)."""
     async with db.transaction(user) as conn:
@@ -194,7 +194,7 @@ async def _form_detail(conn: AsyncConnection, form_id: UUID) -> FormDetail:
 @router.get("/forms/{form_id}/records")
 async def list_records(
     form_id: UUID,
-    user: UserDep,
+    user: ResearcherDep,
     db: DbDep,
     q: str | None = None,
     offset: int = Query(0, ge=0),
@@ -229,7 +229,7 @@ async def list_records(
 
 
 @router.get("/records/{record_id}")
-async def get_record(record_id: UUID, user: UserDep, db: DbDep) -> RecordDetail:
+async def get_record(record_id: UUID, user: ResearcherDep, db: DbDep) -> RecordDetail:
     """One record: its answers with the definition it was filled with, its
     points of interview and its pictures."""
     async with db.transaction(user) as conn:
@@ -273,7 +273,7 @@ class PointOut(BaseModel):
 
 
 @router.get("/projects/{project_id}/points")
-async def project_points(project_id: UUID, user: UserDep, db: DbDep) -> list[PointOut]:
+async def project_points(project_id: UUID, user: ResearcherDep, db: DbDep) -> list[PointOut]:
     """Where each of the project's records was made, by research number."""
     async with db.transaction(user) as conn:
         if not (
@@ -388,7 +388,7 @@ async def _project_detail(conn: AsyncConnection, project_id: UUID) -> ProjectDet
 
 
 @router.post("/projects", status_code=status.HTTP_201_CREATED)
-async def create_project(body: ProjectIn, user: UserDep, db: DbDep) -> ProjectDetail:
+async def create_project(body: ProjectIn, user: ResearcherDep, db: DbDep) -> ProjectDetail:
     """Anyone with a Console account may start a research project and owns
     it (ADR-030). The code starts its research numbers (ENT-HQ-…)."""
     project_id = uuid4()
@@ -414,7 +414,7 @@ async def create_project(body: ProjectIn, user: UserDep, db: DbDep) -> ProjectDe
 
 
 @router.get("/projects/{project_id}")
-async def get_project(project_id: UUID, user: UserDep, db: DbDep) -> ProjectDetail:
+async def get_project(project_id: UUID, user: ResearcherDep, db: DbDep) -> ProjectDetail:
     async with db.transaction(user) as conn:
         return await _project_detail(conn, project_id)
 
@@ -428,7 +428,7 @@ _PROJECT_SETS = {
 
 @router.patch("/projects/{project_id}")
 async def update_project(
-    project_id: UUID, body: ProjectPatch, user: UserDep, db: DbDep
+    project_id: UUID, body: ProjectPatch, user: ResearcherDep, db: DbDep
 ) -> ProjectDetail:
     async with db.transaction(user) as conn:
         await _may_lead(conn, project_id)
@@ -460,7 +460,9 @@ class MemberIn(BaseModel):
 
 
 @router.post("/projects/{project_id}/members")
-async def add_member(project_id: UUID, body: MemberIn, user: UserDep, db: DbDep) -> ProjectDetail:
+async def add_member(
+    project_id: UUID, body: MemberIn, user: ResearcherDep, db: DbDep
+) -> ProjectDetail:
     """Supervisors build forms and manage collectors; analysts read and
     analyse. Both see all the project's records."""
     async with db.transaction(user) as conn:
@@ -483,7 +485,9 @@ async def add_member(project_id: UUID, body: MemberIn, user: UserDep, db: DbDep)
 
 
 @router.delete("/projects/{project_id}/members/{user_id}")
-async def remove_member(project_id: UUID, user_id: UUID, user: UserDep, db: DbDep) -> ProjectDetail:
+async def remove_member(
+    project_id: UUID, user_id: UUID, user: ResearcherDep, db: DbDep
+) -> ProjectDetail:
     async with db.transaction(user) as conn:
         await _may_lead(conn, project_id)
         await conn.execute(
@@ -537,7 +541,7 @@ async def _code_free(conn: AsyncConnection, project_id: UUID, code: str) -> None
 
 
 @router.post("/projects/{project_id}/forms", status_code=status.HTTP_201_CREATED)
-async def create_form(project_id: UUID, body: FormIn, user: UserDep, db: DbDep) -> FormDetail:
+async def create_form(project_id: UUID, body: FormIn, user: ResearcherDep, db: DbDep) -> FormDetail:
     """A new form, as a draft: built in the Console, then published."""
     form_id = uuid4()
     code = body.code.upper()
@@ -587,7 +591,7 @@ class DraftIn(BaseModel):
 
 
 @router.put("/forms/{form_id}/draft")
-async def save_draft(form_id: UUID, body: DraftIn, user: UserDep, db: DbDep) -> FormDetail:
+async def save_draft(form_id: UUID, body: DraftIn, user: ResearcherDep, db: DbDep) -> FormDetail:
     """Saves the form being built. Collectors keep the published version
     until the next publish."""
     async with db.transaction(user) as conn:
@@ -603,7 +607,7 @@ async def save_draft(form_id: UUID, body: DraftIn, user: UserDep, db: DbDep) -> 
 
 
 @router.delete("/forms/{form_id}/draft")
-async def discard_draft(form_id: UUID, user: UserDep, db: DbDep) -> FormDetail:
+async def discard_draft(form_id: UUID, user: ResearcherDep, db: DbDep) -> FormDetail:
     """Drops unpublished changes (a form never published keeps its draft)."""
     async with db.transaction(user) as conn:
         form = await _managed_form(conn, form_id)
@@ -636,7 +640,7 @@ async def _set_code(conn: AsyncConnection, form_id: UUID) -> None:
 
 
 @router.post("/forms/{form_id}/publish")
-async def publish_form(form_id: UUID, user: UserDep, db: DbDep) -> FormDetail:
+async def publish_form(form_id: UUID, user: ResearcherDep, db: DbDep) -> FormDetail:
     """The draft becomes the next version; collectors get it with their next
     sync. Records already made keep the version they were filled with."""
     async with db.transaction(user) as conn:
@@ -683,7 +687,7 @@ class FormPatch(BaseModel):
 
 
 @router.patch("/forms/{form_id}")
-async def update_form(form_id: UUID, body: FormPatch, user: UserDep, db: DbDep) -> FormDetail:
+async def update_form(form_id: UUID, body: FormPatch, user: ResearcherDep, db: DbDep) -> FormDetail:
     """Who may see and clone the form, who may collect with it, whether it
     is listed, and whether it is open for collection."""
     async with db.transaction(user) as conn:
@@ -706,7 +710,7 @@ async def update_form(form_id: UUID, body: FormPatch, user: UserDep, db: DbDep) 
 
 
 @router.post("/forms/{form_id}/code")
-async def new_access_code(form_id: UUID, user: UserDep, db: DbDep) -> FormDetail:
+async def new_access_code(form_id: UUID, user: ResearcherDep, db: DbDep) -> FormDetail:
     """A new access code; the old one stops working. Collectors who joined
     keep the form."""
     async with db.transaction(user) as conn:
@@ -723,7 +727,7 @@ class VersionOut(BaseModel):
 
 
 @router.get("/forms/{form_id}/versions")
-async def form_versions(form_id: UUID, user: UserDep, db: DbDep) -> list[VersionOut]:
+async def form_versions(form_id: UUID, user: ResearcherDep, db: DbDep) -> list[VersionOut]:
     async with db.transaction(user) as conn:
         rows = await conn.execute(
             text(
@@ -744,7 +748,7 @@ class CloneIn(BaseModel):
 
 
 @router.post("/forms/{form_id}/clone", status_code=status.HTTP_201_CREATED)
-async def clone_form(form_id: UUID, body: CloneIn, user: UserDep, db: DbDep) -> FormDetail:
+async def clone_form(form_id: UUID, body: CloneIn, user: ResearcherDep, db: DbDep) -> FormDetail:
     """A copy of a form the caller may see (theirs, public, or shared with
     them) in one of their projects, as a draft noting where it came from."""
     async with db.transaction(user) as conn:
@@ -782,7 +786,7 @@ class LibraryForm(FormOut):
 
 
 @router.get("/library")
-async def form_library(user: UserDep, db: DbDep) -> list[LibraryForm]:
+async def form_library(user: ResearcherDep, db: DbDep) -> list[LibraryForm]:
     """Forms other researchers made public or shared with the caller, to
     view and clone (ADR-030 §2). Hidden forms are not listed."""
     async with db.transaction(user) as conn:
@@ -821,7 +825,7 @@ async def _shares(conn: AsyncConnection, form_id: UUID) -> list[ShareOut]:
 
 
 @router.get("/forms/{form_id}/shares")
-async def form_shares(form_id: UUID, user: UserDep, db: DbDep) -> list[ShareOut]:
+async def form_shares(form_id: UUID, user: ResearcherDep, db: DbDep) -> list[ShareOut]:
     """The people a 'shared' form may be cloned by."""
     async with db.transaction(user) as conn:
         await _managed_form(conn, form_id)
@@ -829,7 +833,9 @@ async def form_shares(form_id: UUID, user: UserDep, db: DbDep) -> list[ShareOut]
 
 
 @router.post("/forms/{form_id}/shares")
-async def share_form(form_id: UUID, body: ShareIn, user: UserDep, db: DbDep) -> list[ShareOut]:
+async def share_form(
+    form_id: UUID, body: ShareIn, user: ResearcherDep, db: DbDep
+) -> list[ShareOut]:
     async with db.transaction(user) as conn:
         await _managed_form(conn, form_id)
         person = (
@@ -848,7 +854,9 @@ async def share_form(form_id: UUID, body: ShareIn, user: UserDep, db: DbDep) -> 
 
 
 @router.delete("/forms/{form_id}/shares/{user_id}")
-async def unshare_form(form_id: UUID, user_id: UUID, user: UserDep, db: DbDep) -> list[ShareOut]:
+async def unshare_form(
+    form_id: UUID, user_id: UUID, user: ResearcherDep, db: DbDep
+) -> list[ShareOut]:
     async with db.transaction(user) as conn:
         await _managed_form(conn, form_id)
         await conn.execute(
@@ -877,7 +885,9 @@ class CollectorOut(BaseModel):
 
 
 @router.get("/projects/{project_id}/collectors")
-async def project_collectors(project_id: UUID, user: UserDep, db: DbDep) -> list[CollectorOut]:
+async def project_collectors(
+    project_id: UUID, user: ResearcherDep, db: DbDep
+) -> list[CollectorOut]:
     """Everyone collecting for the project: given a form, joined with a
     code, or with records in it."""
     async with db.transaction(user) as conn:
@@ -917,6 +927,15 @@ async def project_collectors(project_id: UUID, user: UserDep, db: DbDep) -> list
         return out
 
 
+# A research collector, or a profile made before sides that never tested
+# water (ADR-031); `cp` is collector_profile.
+_RESEARCH_PROFILE = (
+    "(cp.side = 'research' OR (NOT EXISTS (SELECT 1 FROM test_session t "
+    "WHERE t.collector_key = cp.collector_key) AND NOT EXISTS (SELECT 1 FROM water_source w "
+    "WHERE w.collector_key = cp.collector_key)))"
+)
+
+
 class TesterOut(BaseModel):
     collector_key: UUID
     name: str | None
@@ -925,20 +944,111 @@ class TesterOut(BaseModel):
 
 @router.get("/testers")
 async def find_testers(
-    user: UserDep, db: DbDep, q: str = Query(min_length=2, max_length=100)
+    user: ResearcherDep, db: DbDep, q: str = Query(min_length=2, max_length=100)
 ) -> list[TesterOut]:
-    """Testers on Collect, found by name or phone, to give a form to."""
+    """Research collectors on Collect, found by name or phone, to give a
+    form to (water testers are other people, ADR-031)."""
     async with db.transaction(user) as conn:
         rows = await conn.execute(
             text(
-                "SELECT cp.collector_key, cp.snapshot->>'full_name' AS name, "
+                "SELECT cp.collector_key, cp.snapshot->>'full_name' AS name, "  # noqa: S608
                 "cp.snapshot->>'phone' AS phone FROM collector_profile cp "
-                "WHERE cp.snapshot->>'full_name' ILIKE :q OR cp.snapshot->>'phone' ILIKE :q "
-                "ORDER BY cp.last_seen_at DESC LIMIT 20"
+                # Research collectors, and profiles made before sides that
+                # never tested water (ADR-031).
+                f"WHERE {_RESEARCH_PROFILE} AND (cp.snapshot->>'full_name' ILIKE :q "
+                "OR cp.snapshot->>'phone' ILIKE :q) ORDER BY cp.last_seen_at DESC LIMIT 20"
             ),
             {"q": f"%{q.strip()}%"},
         )
         return [TesterOut(**r._mapping) for r in rows]
+
+
+class CollectorDetail(BaseModel):
+    collector_key: UUID
+    name: str | None
+    phone: str | None
+    email: str | None
+    organisation: str | None
+    first_seen_at: datetime | None
+    last_seen_at: datetime | None
+    # Forms in the caller's projects they were given or joined.
+    forms: list[CollectorForm]
+    records: int
+    last_record_at: datetime | None
+    # The caller may issue them a recovery code (the project's team or an
+    # IT admin).
+    can_recover: bool
+
+
+async def may_recover_research(conn: AsyncConnection, collector_key: UUID) -> bool:
+    """A research collector's recovery code comes from an IT admin or the
+    team of a project they collect for."""
+    if (await conn.execute(text("SELECT wc_is_admin()"))).scalar():
+        return True
+    return (
+        await conn.execute(
+            text(
+                "SELECT 1 FROM research.form f WHERE research.can_manage(f.project_id) AND ("
+                "EXISTS (SELECT 1 FROM research.form_collector c WHERE c.form_id = f.id "
+                "AND c.collector_key = :k) OR EXISTS (SELECT 1 FROM research.record r "
+                "WHERE r.form_id = f.id AND r.collector_key = :k)) LIMIT 1"
+            ),
+            {"k": collector_key},
+        )
+    ).first() is not None
+
+
+@router.get("/collectors/{collector_key}")
+async def research_collector(
+    collector_key: UUID, user: ResearcherDep, db: DbDep
+) -> CollectorDetail:
+    """A research collector: details, the forms of the caller's projects
+    they have, and their records there."""
+    async with db.transaction(user) as conn:
+        profile = (
+            await conn.execute(
+                text(
+                    "SELECT snapshot, first_seen_at, last_seen_at "  # noqa: S608 (constant)
+                    "FROM collector_profile cp "
+                    f"WHERE collector_key = :k AND {_RESEARCH_PROFILE}"
+                ),
+                {"k": collector_key},
+            )
+        ).first()
+        allowed = await may_recover_research(conn, collector_key)
+        if profile is None or not allowed:
+            raise HTTPException(status.HTTP_404_NOT_FOUND, "not_found")
+        snap = _json(profile.snapshot) or {}
+        forms = await conn.execute(
+            text(
+                "SELECT f.id AS form_id, f.code, c.via FROM research.form_collector c "
+                "JOIN research.form f ON f.id = c.form_id WHERE c.collector_key = :k "
+                "AND research.can_manage(f.project_id) ORDER BY f.code"
+            ),
+            {"k": collector_key},
+        )
+        made = (
+            await conn.execute(
+                text(
+                    "SELECT count(*) AS n, max(coalesce(r.finished_at, r.created_at_server)) "
+                    "AS last FROM research.record r WHERE r.collector_key = :k"
+                ),
+                {"k": collector_key},
+            )
+        ).one()
+        return CollectorDetail(
+            collector_key=collector_key,
+            name=snap.get("full_name"),
+            phone=snap.get("phone"),
+            email=snap.get("email"),
+            organisation=snap.get("organisation"),
+            first_seen_at=profile.first_seen_at,
+            last_seen_at=profile.last_seen_at,
+            forms=[CollectorForm(**f._mapping) for f in forms],
+            records=made.n,
+            last_record_at=made.last,
+            can_recover=allowed,
+        )
 
 
 class CollectorAssignIn(BaseModel):
@@ -962,7 +1072,7 @@ async def _resend(conn: AsyncConnection, form_id: UUID) -> None:
 
 @router.post("/forms/{form_id}/collectors")
 async def assign_collector(
-    form_id: UUID, body: CollectorAssignIn, user: UserDep, db: DbDep
+    form_id: UUID, body: CollectorAssignIn, user: ResearcherDep, db: DbDep
 ) -> FormDetail:
     """Gives a form to a tester: once published it reaches their phone with
     the next sync, whatever the form's access."""
@@ -982,7 +1092,7 @@ async def assign_collector(
 
 @router.delete("/forms/{form_id}/collectors/{collector_key}")
 async def unassign_collector(
-    form_id: UUID, collector_key: UUID, user: UserDep, db: DbDep
+    form_id: UUID, collector_key: UUID, user: ResearcherDep, db: DbDep
 ) -> FormDetail:
     """Takes the form back (records already made stay)."""
     async with db.transaction(user) as conn:
@@ -1023,7 +1133,7 @@ async def join_with_code(body: JoinIn, device: InstallationDep, db: DbDep) -> Jo
 @router.get("/projects/{project_id}/records")
 async def project_records(
     project_id: UUID,
-    user: UserDep,
+    user: ResearcherDep,
     db: DbDep,
     q: str | None = None,
     form_id: UUID | None = None,
@@ -1087,7 +1197,7 @@ class FormRecords(BaseModel):
 @router.get("/forms/{form_id}/data")
 async def form_data(
     form_id: UUID,
-    user: UserDep,
+    user: ResearcherDep,
     db: DbDep,
     since: datetime | None = None,
     until: datetime | None = None,
@@ -1161,7 +1271,7 @@ async def _messages(conn: AsyncConnection, record_id: UUID) -> list[MessageOut]:
 
 
 @router.get("/records/{record_id}/messages")
-async def record_messages(record_id: UUID, user: UserDep, db: DbDep) -> list[MessageOut]:
+async def record_messages(record_id: UUID, user: ResearcherDep, db: DbDep) -> list[MessageOut]:
     """The conversation about a record, with the collector who made it."""
     async with db.transaction(user) as conn:
         return await _messages(conn, record_id)
@@ -1169,7 +1279,7 @@ async def record_messages(record_id: UUID, user: UserDep, db: DbDep) -> list[Mes
 
 @router.post("/records/{record_id}/messages")
 async def send_record_message(
-    record_id: UUID, body: MessageIn, user: UserDep, db: DbDep
+    record_id: UUID, body: MessageIn, user: ResearcherDep, db: DbDep
 ) -> list[MessageOut]:
     """A message to the collector; it reaches their phone with its next
     sync. The id comes from the Console, so a retry is not sent twice."""
@@ -1207,7 +1317,7 @@ class ThreadOut(BaseModel):
 
 @router.get("/messages")
 async def research_threads(
-    user: UserDep, db: DbDep, project_id: UUID | None = None
+    user: ResearcherDep, db: DbDep, project_id: UUID | None = None
 ) -> list[ThreadOut]:
     """Conversations on records in the caller's projects, newest first; a
     thread whose last message came from a collector awaits an answer."""

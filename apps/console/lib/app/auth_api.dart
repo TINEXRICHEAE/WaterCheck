@@ -1,5 +1,6 @@
 import 'package:api_client/api_client.dart';
 import 'package:dio/dio.dart';
+import 'package:domain/domain.dart' show AppSide, legalVersions;
 
 import 'cookie_reader.dart'
     if (dart.library.js_interop) 'cookie_reader_web.dart';
@@ -13,7 +14,30 @@ import 'cookie_reader.dart'
 /// the body and is kept in secure storage.
 abstract interface class ConsoleAuthApi {
   bool get cookieMode;
-  Future<TokenResponse> login(String username, String password);
+  Future<TokenResponse> login(
+    String username,
+    String password, {
+    AppSide side = AppSide.water,
+  });
+
+  /// Open sign-up on a side, its documents ticked (ADR-031).
+  Future<TokenResponse> signUp({
+    required AppSide side,
+    required String username,
+    required String fullName,
+    required String password,
+    String? organisation,
+    String? phone,
+  });
+
+  /// Opens (or signs in to) this person's linked account on [side].
+  Future<TokenResponse> join(String accessToken, AppSide side, String password);
+
+  /// Signs in to this person's linked account on [side].
+  Future<TokenResponse> switchSide(String accessToken, AppSide side);
+
+  /// Records that the side's current documents were accepted.
+  Future<void> acceptLegal(String accessToken, AppSide side);
 
   /// [refreshToken] is null in cookie mode.
   Future<TokenResponse> refresh(String? refreshToken);
@@ -81,12 +105,79 @@ class HttpConsoleAuthApi implements ConsoleAuthApi {
   }
 
   @override
-  Future<TokenResponse> login(String username, String password) => _call(
+  Future<TokenResponse> login(
+    String username,
+    String password, {
+    AppSide side = AppSide.water,
+  }) => _call(
     () => _client().login(
-      body: LoginRequest(username: username, password: password),
+      body: LoginRequest(
+        username: username,
+        password: password,
+        side: LoginRequestSide.values.byName(side.name),
+      ),
       xTokenTransport: _transport,
     ),
   );
+
+  @override
+  Future<TokenResponse> signUp({
+    required AppSide side,
+    required String username,
+    required String fullName,
+    required String password,
+    String? organisation,
+    String? phone,
+  }) => _call(
+    () => _client().register(
+      body: SignUpRequest(
+        side: SignUpRequestSide.values.byName(side.name),
+        username: username,
+        fullName: fullName,
+        password: password,
+        acceptedLegal: legalVersions[side]!,
+        organisation: organisation,
+        phone: phone,
+      ),
+      xTokenTransport: _transport,
+    ),
+  );
+
+  @override
+  Future<TokenResponse> join(
+    String accessToken,
+    AppSide side,
+    String password,
+  ) => _call(
+    () => _client(accessToken).joinSide(
+      body: JoinRequest(
+        side: JoinRequestSide.values.byName(side.name),
+        password: password,
+        acceptedLegal: legalVersions[side]!,
+      ),
+      xTokenTransport: _transport,
+    ),
+  );
+
+  @override
+  Future<TokenResponse> switchSide(String accessToken, AppSide side) => _call(
+    () => _client(accessToken).switchSide(
+      body: SwitchRequest(side: SwitchRequestSide.values.byName(side.name)),
+      xTokenTransport: _transport,
+    ),
+  );
+
+  @override
+  Future<void> acceptLegal(String accessToken, AppSide side) => _call(() {
+    final dio = _dioFor(baseUrl);
+    dio.options.headers['Authorization'] = 'Bearer $accessToken';
+    return WaterCheckApi(dio).profile.acceptLegal(
+      body: LegalIn(
+        version: legalVersions[side]!,
+        side: LegalInSide.values.byName(side.name),
+      ),
+    );
+  });
 
   @override
   Future<TokenResponse> refresh(String? refreshToken) => _call(

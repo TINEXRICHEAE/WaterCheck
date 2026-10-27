@@ -119,23 +119,33 @@ class ResearchAdminScreen extends ConsumerWidget {
         Card(
           child: Column(
             children: [
+              // Research's own administration (ADR-031): research
+              // accounts, devices and codes only; water has its own.
               for (final (icon, title, path) in [
                 (
-                  Icons.people_outline,
+                  Icons.people_alt_outlined,
                   l10n.researchAdminPeople,
-                  '/admin/people',
+                  '/research/admin/people',
                 ),
                 (
                   Icons.phone_android,
                   l10n.researchAdminPhones,
-                  '/admin/phones',
+                  '/research/admin/phones',
                 ),
-                (Icons.security, l10n.researchAdminSecurity, '/admin/security'),
-                (Icons.dns_outlined, l10n.researchAdminSystem, '/admin/system'),
                 (
-                  Icons.admin_panel_settings_outlined,
-                  l10n.researchAdminAll,
-                  '/admin',
+                  Icons.key_outlined,
+                  l10n.researchAdminLedger,
+                  '/research/admin/credentials',
+                ),
+                (
+                  Icons.lock_outline,
+                  l10n.researchAdminSecurity,
+                  '/research/admin/security',
+                ),
+                (
+                  Icons.monitor_heart_outlined,
+                  l10n.researchAdminSystem,
+                  '/research/admin/system',
                 ),
               ])
                 ListTile(

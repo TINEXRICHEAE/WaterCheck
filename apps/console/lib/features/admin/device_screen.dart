@@ -32,7 +32,7 @@ class DeviceScreen extends ConsumerWidget {
     final text = Theme.of(context).textTheme;
     final when = DateFormat('d MMM y, HH:mm');
     final device = ref
-        .watch(adminInstallationsProvider)
+        .watch(adminInstallationsProvider(adminSide(context)))
         .value
         ?.where((d) => d.id == installationId)
         .firstOrNull;
@@ -112,7 +112,9 @@ class DeviceScreen extends ConsumerWidget {
                   ].join(' · '),
                 ),
                 trailing: const Icon(Icons.chevron_right),
-                onTap: () => context.go('/collectors/${c.collectorKey}'),
+                onTap: () => context.go(
+                  collectorPath(adminSide(context), c.collectorKey),
+                ),
               ),
           ],
         ),

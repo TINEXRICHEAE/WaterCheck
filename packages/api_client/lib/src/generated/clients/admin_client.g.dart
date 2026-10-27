@@ -53,9 +53,10 @@ class _AdminClient implements AdminClient {
   }
 
   @override
-  Future<List<UserOut>> users() async {
+  Future<List<UserOut>> users({Side? side}) async {
     final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{r'side': side?.toJson()};
+    queryParameters.removeWhere((k, v) => v == null);
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
     final _options = _setStreamType<List<UserOut>>(
@@ -168,9 +169,10 @@ class _AdminClient implements AdminClient {
   }
 
   @override
-  Future<List<InstallationOut>> installations() async {
+  Future<List<InstallationOut>> installations({Side? side}) async {
     final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{r'side': side?.toJson()};
+    queryParameters.removeWhere((k, v) => v == null);
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
     final _options = _setStreamType<List<InstallationOut>>(
@@ -232,9 +234,10 @@ class _AdminClient implements AdminClient {
   }
 
   @override
-  Future<Ledger> credentials() async {
+  Future<Ledger> credentials({Side? side}) async {
     final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{r'side': side?.toJson()};
+    queryParameters.removeWhere((k, v) => v == null);
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
     final _options = _setStreamType<Ledger>(
@@ -297,6 +300,42 @@ class _AdminClient implements AdminClient {
     late ChainOut _value;
     try {
       _value = ChainOut.fromJson(_result.data!);
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<List<AcceptanceOut>> legalAcceptances({
+    String? userId,
+    String? collectorKey,
+  }) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{
+      r'user_id': userId,
+      r'collector_key': collectorKey,
+    };
+    queryParameters.removeWhere((k, v) => v == null);
+    final _headers = <String, dynamic>{};
+    const Map<String, dynamic>? _data = null;
+    final _options = _setStreamType<List<AcceptanceOut>>(
+      Options(method: 'GET', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/v1/admin/legal-acceptances',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<List<dynamic>>(_options);
+    late List<AcceptanceOut> _value;
+    try {
+      _value = _result.data!
+          .map((dynamic i) => AcceptanceOut.fromJson(i as Map<String, dynamic>))
+          .toList();
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options, response: _result);
       rethrow;

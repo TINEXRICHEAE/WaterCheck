@@ -7,6 +7,7 @@ import 'package:ui_kit/ui_kit.dart';
 import '../../app/gate.dart';
 import '../../app/providers.dart';
 import '../../l10n/app_localizations.dart';
+import '../research/research.dart';
 import '../activation/installation_service.dart';
 import '../sync/collect_sync.dart';
 
@@ -46,6 +47,10 @@ class _RecoverProfileScreenState extends ConsumerState<RecoverProfileScreen> {
         subcounty: j['subcounty'] as String? ?? '',
         district: j['district'] as String? ?? '',
         organisation: j['organisation'] as String?,
+        email: j['email'] as String?,
+        side: AppSide.parse(j['side'] as String?) ?? AppSide.water,
+        legalVersion: (j['legal_version'] as num?)?.toInt() ?? 0,
+        linkedKey: j['linked_key'] as String?,
       );
 
   Future<void> _recover() async {
@@ -75,12 +80,20 @@ class _RecoverProfileScreenState extends ConsumerState<RecoverProfileScreen> {
               (r.data!['snapshot'] as Map).cast<String, dynamic>(),
             ),
           );
-      await ref.read(appGateProvider.notifier).selectCollector(key);
+      // Back on their own side (ADR-031).
+      if (ref.read(appModeProvider).side != saved.side) {
+        await ref.read(appModeProvider.notifier).set(AppMode.of(saved.side));
+      }
+      final due = saved.legalVersion < legalVersions[saved.side]!;
+      if (!due) {
+        await ref.read(appGateProvider.notifier).selectCollector(key);
+      }
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(l10n.recoverWelcome(saved.fullName))),
       );
-      context.go('/');
+      // Their side's documents first, once, if not accepted yet.
+      due ? context.go('/who/$key/legal') : context.go('/');
       // Their district's sources come with the next sync.
       await ref.read(syncControllerProvider.notifier).run(force: true);
     } on Object catch (e) {

@@ -4354,18 +4354,6 @@ abstract class AppLocalizations {
   /// **'Decline'**
   String get areaRequestDecline;
 
-  /// No description provided for @legalTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Before you continue'**
-  String get legalTitle;
-
-  /// No description provided for @legalSummary.
-  ///
-  /// In en, this message translates to:
-  /// **'FieldQuire holds personal information about testers and officials: names, contacts, where tests were made, pictures with where and when they were taken, places people added, and messages. As a Console user you see this for your areas. Use it only to protect drinking water, keep it to yourself, and follow the Terms of Use. The data is hosted outside Uganda (South Africa).'**
-  String get legalSummary;
-
   /// No description provided for @mapPlaceRename.
   ///
   /// In en, this message translates to:
@@ -6357,6 +6345,336 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Done'**
   String get builderDone;
+
+  /// No description provided for @joinAlready.
+  ///
+  /// In en, this message translates to:
+  /// **'This account is already on that side.'**
+  String get joinAlready;
+
+  /// No description provided for @joinGo.
+  ///
+  /// In en, this message translates to:
+  /// **'Join {side}'**
+  String joinGo(String side);
+
+  /// No description provided for @joinHow.
+  ///
+  /// In en, this message translates to:
+  /// **'A separate {side} account is made for {email}, with the same password. It is linked to this one, so you can switch between them; each keeps its own pages, records and settings.'**
+  String joinHow(String email, String side);
+
+  /// No description provided for @joinMenu.
+  ///
+  /// In en, this message translates to:
+  /// **'Join {side}'**
+  String joinMenu(String side);
+
+  /// No description provided for @joinPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Your password (to confirm it is you)'**
+  String get joinPassword;
+
+  /// No description provided for @joinResearchIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Research is where projects are planned, forms are built and published, and records from collectors are analysed and reported on.'**
+  String get joinResearchIntro;
+
+  /// No description provided for @joinTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Join {side}'**
+  String joinTitle(String side);
+
+  /// No description provided for @joinWaterIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Water testing is where water sources and test results are followed up, alerts are handled and reports are made.'**
+  String get joinWaterIntro;
+
+  /// No description provided for @legalTitleSide.
+  ///
+  /// In en, this message translates to:
+  /// **'{side}: Terms of Use and Privacy Policy'**
+  String legalTitleSide(String side);
+
+  /// No description provided for @profileAdminAllSides.
+  ///
+  /// In en, this message translates to:
+  /// **'As an IT admin you work on every side, and switch between them.'**
+  String get profileAdminAllSides;
+
+  /// No description provided for @profileLinked.
+  ///
+  /// In en, this message translates to:
+  /// **'You have an account there too.'**
+  String get profileLinked;
+
+  /// No description provided for @profileNotJoined.
+  ///
+  /// In en, this message translates to:
+  /// **'Not joined. Joining makes a separate, linked account.'**
+  String get profileNotJoined;
+
+  /// No description provided for @profileSideHint.
+  ///
+  /// In en, this message translates to:
+  /// **'This account belongs to this side only; other sides have their own accounts.'**
+  String get profileSideHint;
+
+  /// No description provided for @profileSides.
+  ///
+  /// In en, this message translates to:
+  /// **'Sides of FieldQuire'**
+  String get profileSides;
+
+  /// No description provided for @profileThisSide.
+  ///
+  /// In en, this message translates to:
+  /// **'This account: {side}'**
+  String profileThisSide(String side);
+
+  /// No description provided for @recoveryGive.
+  ///
+  /// In en, this message translates to:
+  /// **'Give a recovery code'**
+  String get recoveryGive;
+
+  /// No description provided for @researchCollectorAccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Getting back in'**
+  String get researchCollectorAccess;
+
+  /// No description provided for @researchCollectorAccessHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A collector who lost their phone, or uses another one, gets back in as the same person with a one-time recovery code. Pass it on in person or by phone.'**
+  String get researchCollectorAccessHint;
+
+  /// No description provided for @researchCollectorLastSeen.
+  ///
+  /// In en, this message translates to:
+  /// **'Last seen'**
+  String get researchCollectorLastSeen;
+
+  /// No description provided for @researchCollectorNoForms.
+  ///
+  /// In en, this message translates to:
+  /// **'No forms of your projects yet.'**
+  String get researchCollectorNoForms;
+
+  /// No description provided for @researchCollectorRole.
+  ///
+  /// In en, this message translates to:
+  /// **'Research collector'**
+  String get researchCollectorRole;
+
+  /// No description provided for @researchFindCollector.
+  ///
+  /// In en, this message translates to:
+  /// **'Find a collector'**
+  String get researchFindCollector;
+
+  /// No description provided for @roleOnSide.
+  ///
+  /// In en, this message translates to:
+  /// **'{side} account'**
+  String roleOnSide(String side);
+
+  /// No description provided for @signUpEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid email address.'**
+  String get signUpEmail;
+
+  /// No description provided for @signUpEmailHint.
+  ///
+  /// In en, this message translates to:
+  /// **'You sign in with it.'**
+  String get signUpEmailHint;
+
+  /// No description provided for @signUpEmailLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get signUpEmailLabel;
+
+  /// No description provided for @signUpFullName.
+  ///
+  /// In en, this message translates to:
+  /// **'Full name'**
+  String get signUpFullName;
+
+  /// No description provided for @signUpGo.
+  ///
+  /// In en, this message translates to:
+  /// **'Create the account'**
+  String get signUpGo;
+
+  /// No description provided for @signUpHaveAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'I already have an account'**
+  String get signUpHaveAccount;
+
+  /// No description provided for @signUpLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Create an account'**
+  String get signUpLink;
+
+  /// No description provided for @signUpName.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your name.'**
+  String get signUpName;
+
+  /// No description provided for @signUpOrganisation.
+  ///
+  /// In en, this message translates to:
+  /// **'Organisation (optional)'**
+  String get signUpOrganisation;
+
+  /// No description provided for @signUpResearchIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'For researchers and their teams: start projects, build forms, give them to collectors, and analyse the records. The account works at once.'**
+  String get signUpResearchIntro;
+
+  /// No description provided for @signUpTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'An account on this side already uses that email. Sign in instead.'**
+  String get signUpTaken;
+
+  /// No description provided for @signUpTick.
+  ///
+  /// In en, this message translates to:
+  /// **'Tick both boxes to accept the Terms of Use and the Privacy Policy.'**
+  String get signUpTick;
+
+  /// No description provided for @signUpTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a {side} account'**
+  String signUpTitle(String side);
+
+  /// No description provided for @signUpWaterIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'For district officers and other stakeholders: follow water sources and test results, act on alerts and make reports. The account works at once; an IT admin may add the areas you are officially responsible for.'**
+  String get signUpWaterIntro;
+
+  /// No description provided for @switchBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You will use your {side} account, with its own pages, records and settings.'**
+  String switchBody(String side);
+
+  /// No description provided for @switchGo.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch'**
+  String get switchGo;
+
+  /// No description provided for @switchTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch to {side}'**
+  String switchTo(String side);
+
+  /// No description provided for @usersWaterHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Water testing accounts and the IT admins. Research accounts are managed on the research side.'**
+  String get usersWaterHint;
+
+  /// No description provided for @usersResearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Research accounts and the IT admins. Water testing accounts are managed on the water side.'**
+  String get usersResearchHint;
+
+  /// No description provided for @testerAccessTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Devices, sign-ins and codes'**
+  String get testerAccessTitle;
+
+  /// No description provided for @acceptancesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms of Use and Privacy Policy accepted'**
+  String get acceptancesTitle;
+
+  /// No description provided for @acceptancesNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No acceptance recorded yet.'**
+  String get acceptancesNone;
+
+  /// No description provided for @acceptancesLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{side}, version {version}'**
+  String acceptancesLine(String side, int version);
+
+  /// No description provided for @acceptancesHow.
+  ///
+  /// In en, this message translates to:
+  /// **'{how, select, signup{when signing up} join{when joining from the other side} prompt{when asked after a change} profile{on a phone} other{{how}}}'**
+  String acceptancesHow(String how);
+
+  /// No description provided for @researchAdminLedger.
+  ///
+  /// In en, this message translates to:
+  /// **'Accounts, sign-ins and codes'**
+  String get researchAdminLedger;
+
+  /// No description provided for @switchIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'{side} is a separate side of FieldQuire, with its own people, pages and records. Choose how to go there.'**
+  String switchIntro(String side);
+
+  /// No description provided for @switchSignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'I have a {side} account'**
+  String switchSignIn(String side);
+
+  /// No description provided for @switchSignInHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in with its email and password. You leave this account first.'**
+  String switchSignInHint(String side);
+
+  /// No description provided for @switchJoin.
+  ///
+  /// In en, this message translates to:
+  /// **'Use my details here to join {side}'**
+  String switchJoin(String side);
+
+  /// No description provided for @switchJoinHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A separate {side} account with your email and password, linked to this one, after you accept its Terms of Use and Privacy Policy.'**
+  String switchJoinHint(String side);
+
+  /// No description provided for @switchNew.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a new {side} account'**
+  String switchNew(String side);
+
+  /// No description provided for @switchNewHint.
+  ///
+  /// In en, this message translates to:
+  /// **'With other details. You leave this account first.'**
+  String switchNewHint(String side);
 }
 
 class _AppLocalizationsDelegate

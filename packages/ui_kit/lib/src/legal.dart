@@ -1,23 +1,50 @@
+import 'package:domain/domain.dart' show AppSide, legalVersions;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../l10n/ui_kit_localizations.dart';
 import 'theme.dart';
 
-/// The Privacy Policy and Terms of Use (2026-10-24), bundled with both apps
-/// from `assets/legal/`. Raise [legalVersion] whenever either text changes
-/// in substance: everyone is then asked to accept them again.
+/// The documents bundled with both apps from `assets/legal/` (ADR-031): a
+/// short general text about FieldQuire, and each side's own Privacy Policy
+/// and Terms of Use. Raise a side's version in `legalVersions` (package
+/// domain) and on the server whenever its texts change in substance: people
+/// on that side are then asked once to accept them again.
 enum LegalDocument {
-  privacy('assets/legal/privacy-policy.md'),
-  terms('assets/legal/terms.md');
+  about('assets/legal/fieldquire.md', null),
+  waterPrivacy('assets/legal/water-privacy.md', AppSide.water),
+  waterTerms('assets/legal/water-terms.md', AppSide.water),
+  researchPrivacy('assets/legal/research-privacy.md', AppSide.research),
+  researchTerms('assets/legal/research-terms.md', AppSide.research);
 
-  const LegalDocument(this.asset);
+  const LegalDocument(this.asset, this.side);
 
   final String asset;
+
+  /// Null for the general text.
+  final AppSide? side;
+
+  bool get isPrivacy => this == waterPrivacy || this == researchPrivacy;
+
+  static LegalDocument privacyOf(AppSide side) =>
+      side == AppSide.water ? waterPrivacy : researchPrivacy;
+
+  static LegalDocument termsOf(AppSide side) =>
+      side == AppSide.water ? waterTerms : researchTerms;
+
+  String title(UiKitLocalizations l10n) => switch (this) {
+    about => l10n.legalAbout,
+    _ =>
+      '${sideName(l10n, side!)}: '
+          '${isPrivacy ? l10n.legalPrivacy : l10n.legalTerms}',
+  };
 }
 
-/// The version of the two documents together that people accept.
-const legalVersion = 3;
+/// The name of a side, as people see it.
+String sideName(UiKitLocalizations l10n, AppSide side) => switch (side) {
+  AppSide.water => l10n.sideWater,
+  AppSide.research => l10n.sideResearch,
+};
 
 Future<String> loadLegal(LegalDocument doc) =>
     rootBundle.loadString('packages/ui_kit/${doc.asset}');
@@ -36,11 +63,7 @@ class LegalDocumentScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = UiKitLocalizations.of(context);
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          doc == LegalDocument.privacy ? l10n.legalPrivacy : l10n.legalTerms,
-        ),
-      ),
+      appBar: AppBar(title: Text(doc.title(l10n))),
       body: FutureBuilder<String>(
         future: loadLegal(doc),
         builder: (context, snap) => snap.data == null
@@ -150,32 +173,53 @@ class LegalText extends StatelessWidget {
   }
 }
 
-/// "Privacy Policy · Terms of Use" links.
+/// Links to the documents: about FieldQuire, and a side's two documents
+/// (or both sides' when [side] is null).
 class LegalLinks extends StatelessWidget {
-  const LegalLinks({super.key});
+  const LegalLinks({super.key, this.side});
+
+  final AppSide? side;
 
   @override
   Widget build(BuildContext context) {
     final l10n = UiKitLocalizations.of(context);
+    final sides = side == null ? AppSide.values : [side!];
     return Wrap(
       alignment: WrapAlignment.center,
       children: [
         TextButton(
-          onPressed: () => showLegal(context, LegalDocument.privacy),
-          child: Text(l10n.legalPrivacy),
+          onPressed: () => showLegal(context, LegalDocument.about),
+          child: Text(l10n.legalAbout),
         ),
-        TextButton(
-          onPressed: () => showLegal(context, LegalDocument.terms),
-          child: Text(l10n.legalTerms),
-        ),
+        for (final s in sides) ...[
+          TextButton(
+            onPressed: () => showLegal(context, LegalDocument.privacyOf(s)),
+            child: Text(
+              side == null
+                  ? LegalDocument.privacyOf(s).title(l10n)
+                  : l10n.legalPrivacy,
+            ),
+          ),
+          TextButton(
+            onPressed: () => showLegal(context, LegalDocument.termsOf(s)),
+            child: Text(
+              side == null
+                  ? LegalDocument.termsOf(s).title(l10n)
+                  : l10n.legalTerms,
+            ),
+          ),
+        ],
       ],
     );
   }
 }
 
-/// Both documents as list entries (profile pages).
+/// The documents as list entries (profile and settings pages): the side's
+/// two, with their versions, then about FieldQuire.
 class LegalTiles extends StatelessWidget {
-  const LegalTiles({super.key});
+  const LegalTiles({super.key, required this.side});
+
+  final AppSide side;
 
   @override
   Widget build(BuildContext context) {
@@ -183,19 +227,18 @@ class LegalTiles extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        for (final (doc, icon, title) in [
-          (
-            LegalDocument.privacy,
-            Icons.privacy_tip_outlined,
-            l10n.legalPrivacy,
-          ),
-          (LegalDocument.terms, Icons.gavel_outlined, l10n.legalTerms),
+        for (final (doc, icon) in [
+          (LegalDocument.privacyOf(side), Icons.privacy_tip_outlined),
+          (LegalDocument.termsOf(side), Icons.gavel_outlined),
+          (LegalDocument.about, Icons.info_outline),
         ])
           ListTile(
             contentPadding: EdgeInsets.zero,
             leading: Icon(icon),
-            title: Text(title),
-            subtitle: Text(l10n.legalVersionLine(legalVersion)),
+            title: Text(doc.title(l10n)),
+            subtitle: doc.side == null
+                ? null
+                : Text(l10n.legalVersionLine(legalVersions[doc.side]!)),
             trailing: const Icon(Icons.chevron_right),
             onTap: () => showLegal(context, doc),
           ),
@@ -204,21 +247,93 @@ class LegalTiles extends StatelessWidget {
   }
 }
 
-/// Asks to accept the current documents: links to both, then a button.
+/// The usual sign-up ticks (ADR-031): "I accept the Terms of Use" and "I
+/// have read the Privacy Policy" of [side], each with a link to read it.
+/// [onChanged] says whether both are ticked.
+class LegalConsentChecks extends StatefulWidget {
+  const LegalConsentChecks({
+    super.key,
+    required this.side,
+    required this.onChanged,
+  });
+
+  final AppSide side;
+  final ValueChanged<bool> onChanged;
+
+  @override
+  State<LegalConsentChecks> createState() => _LegalConsentChecksState();
+}
+
+class _LegalConsentChecksState extends State<LegalConsentChecks> {
+  var _terms = false;
+  var _privacy = false;
+
+  void _set({bool? terms, bool? privacy}) {
+    setState(() {
+      _terms = terms ?? _terms;
+      _privacy = privacy ?? _privacy;
+    });
+    widget.onChanged(_terms && _privacy);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = UiKitLocalizations.of(context);
+    final side = sideName(l10n, widget.side);
+    Widget tick(
+      bool value,
+      String text,
+      LegalDocument doc,
+      ValueChanged<bool> onChanged,
+    ) => CheckboxListTile(
+      value: value,
+      onChanged: (v) => onChanged(v ?? false),
+      controlAffinity: ListTileControlAffinity.leading,
+      contentPadding: EdgeInsets.zero,
+      title: Text(text),
+      subtitle: Align(
+        alignment: Alignment.centerLeft,
+        child: TextButton(
+          style: TextButton.styleFrom(padding: EdgeInsets.zero),
+          onPressed: () => showLegal(context, doc),
+          child: Text(l10n.legalRead(doc.title(l10n))),
+        ),
+      ),
+    );
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        tick(
+          _terms,
+          l10n.legalAcceptTerms(side),
+          LegalDocument.termsOf(widget.side),
+          (v) => _set(terms: v),
+        ),
+        tick(
+          _privacy,
+          l10n.legalAcceptPrivacy(side),
+          LegalDocument.privacyOf(widget.side),
+          (v) => _set(privacy: v),
+        ),
+      ],
+    );
+  }
+}
+
+/// Asks once to accept a side's current documents (people who signed up
+/// before sides, or after the documents changed): the ticks, then a button.
 class LegalAcceptView extends StatefulWidget {
   const LegalAcceptView({
     super.key,
+    required this.side,
     required this.onAccept,
-    this.summary,
     this.again = false,
   });
 
+  final AppSide side;
   final Future<void> Function() onAccept;
 
-  /// A short plain-language summary shown above the links.
-  final Widget? summary;
-
-  /// They accepted an earlier version.
+  /// They accepted an earlier version of this side's documents.
   final bool again;
 
   @override
@@ -226,29 +341,32 @@ class LegalAcceptView extends StatefulWidget {
 }
 
 class _LegalAcceptViewState extends State<LegalAcceptView> {
+  var _ticked = false;
   var _busy = false;
 
   @override
   Widget build(BuildContext context) {
     final l10n = UiKitLocalizations.of(context);
+    final side = sideName(l10n, widget.side);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (widget.again)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: Text(l10n.legalChanged),
-          ),
-        ?widget.summary,
-        const LegalLinks(),
         Text(
-          l10n.legalVersionLine(legalVersion),
+          widget.again ? l10n.legalChangedSide(side) : l10n.legalNewSide(side),
+        ),
+        const SizedBox(height: 8),
+        LegalConsentChecks(
+          side: widget.side,
+          onChanged: (v) => setState(() => _ticked = v),
+        ),
+        Text(
+          l10n.legalVersionLine(legalVersions[widget.side]!),
           textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.bodySmall,
         ),
         const SizedBox(height: 12),
         FilledButton(
-          onPressed: _busy
+          onPressed: _busy || !_ticked
               ? null
               : () async {
                   setState(() => _busy = true);
@@ -258,11 +376,15 @@ class _LegalAcceptViewState extends State<LegalAcceptView> {
                     if (mounted) setState(() => _busy = false);
                   }
                 },
-          // Long on a phone: room for two centred lines (2026-10-25).
           style: FilledButton.styleFrom(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           ),
-          child: Text(l10n.legalAccept, textAlign: TextAlign.center),
+          child: Text(l10n.legalContinue, textAlign: TextAlign.center),
+        ),
+        const SizedBox(height: 8),
+        TextButton(
+          onPressed: () => showLegal(context, LegalDocument.about),
+          child: Text(l10n.legalAbout),
         ),
       ],
     );

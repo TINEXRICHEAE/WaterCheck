@@ -1,5 +1,8 @@
 import 'package:api_client/api_client.dart';
+import 'package:domain/domain.dart' show AppSide;
+import 'package:flutter/widgets.dart' show BuildContext;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../app/console_sync.dart';
 import '../../app/providers.dart';
@@ -17,14 +20,36 @@ WaterCheckApi _api(Ref ref) {
   return ref.watch(adminApiProvider);
 }
 
-final adminUsersProvider = FutureProvider.autoDispose<List<UserOut>>(
-  (ref) => _api(ref).admin.users(),
-);
-
-final adminInstallationsProvider =
-    FutureProvider.autoDispose<List<InstallationOut>>(
-      (ref) => _api(ref).admin.installations(),
+/// A side's Console accounts and the IT admins (ADR-031).
+final adminUsersProvider = FutureProvider.autoDispose
+    .family<List<UserOut>, AppSide>(
+      (ref, side) => _api(ref).admin.users(side: sideParam(side)),
     );
+
+/// The devices a side's testers use.
+final adminInstallationsProvider = FutureProvider.autoDispose
+    .family<List<InstallationOut>, AppSide>(
+      (ref, side) => _api(ref).admin.installations(side: sideParam(side)),
+    );
+
+/// The side as the API names it.
+Side sideParam(AppSide side) => Side.values.byName(side.name);
+
+/// The side an admin page is shown on (ADR-031): research's own admin
+/// pages live under /research, water's under /admin. They never lead to
+/// the other side's pages.
+AppSide adminSide(BuildContext context) =>
+    GoRouterState.of(context).uri.path.startsWith('/research')
+    ? AppSide.research
+    : AppSide.water;
+
+/// Where this side's admin pages are.
+String adminBase(AppSide side) =>
+    side == AppSide.research ? '/research/admin' : '/admin';
+
+/// A collector's page on this side.
+String collectorPath(AppSide side, String key) =>
+    side == AppSide.research ? '/research/collectors/$key' : '/collectors/$key';
 
 final adminCodesProvider = FutureProvider.autoDispose<List<ActivationCodeOut>>(
   (ref) => _api(ref).admin.activationCodes(),

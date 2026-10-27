@@ -41,9 +41,9 @@ async def test_area_stakeholder_resolves_a_conflict(
     assert (await p.push([edit("functional")]))["results"][0]["status"] == "conflict"
 
     officer = await signed_in(client, owner_db, area_codes=(district["code"],))
-    outsider = await signed_in(
-        client, owner_db, area_codes=((await make_area(owner_db, "district"))["code"],)
-    )
+    # Areas no longer limit water users (ADR-031); someone on the research
+    # side is the outsider now.
+    outsider = await signed_in(client, owner_db, side="research")
     assert (await client.get("/v1/conflicts", headers=outsider)).json() == []
     listed = (await client.get(f"/v1/conflicts?source_id={sid}", headers=officer)).json()
     assert len(listed) == 1

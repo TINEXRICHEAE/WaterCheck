@@ -191,7 +191,6 @@ Future<AppDatabase> seededDb({bool onboarded = true}) async {
   );
   if (onboarded) {
     final settings = DriftLocalSettingsRepository(db);
-    await settings.recordConsent(privacyNoticeVersion);
     final profile = await DriftCollectorProfileRepository(db).save(
       const CollectorProfileInput(
         fullName: 'Example Collector',
@@ -201,6 +200,7 @@ Future<AppDatabase> seededDb({bool onboarded = true}) async {
         parish: 'TODO-verify parish',
         subcounty: 'TODO-verify sub-county',
         district: 'Abim',
+        legalVersion: 4,
       ),
     );
     await settings.write(activeCollectorSetting, profile.collectorKey);
@@ -294,4 +294,18 @@ Future<void> tapAndSettle(WidgetTester tester, Finder finder) async {
   }
   await tester.tap(finder);
   await settle(tester);
+}
+
+/// Ticks the side's Terms and Privacy Policy on the new-person form, then
+/// creates the profile (ADR-031).
+Future<void> createProfile(
+  WidgetTester tester, {
+  String side = 'Water testing',
+}) async {
+  await tapAndSettle(tester, find.text('I accept the $side Terms of Use'));
+  await tapAndSettle(
+    tester,
+    find.textContaining('I have read the $side Privacy Policy'),
+  );
+  await tapAndSettle(tester, find.text('Create my profile'));
 }

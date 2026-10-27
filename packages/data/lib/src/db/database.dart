@@ -54,7 +54,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.executor);
 
   @override
-  int get schemaVersion => 12;
+  int get schemaVersion => 13;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -153,6 +153,21 @@ class AppDatabase extends _$AppDatabase {
         await m.createTable(researchFormVersions);
         await m.createTable(researchRecords);
         await m.createTable(researchDrafts);
+      }
+      if (from < 13) {
+        // Sides (ADR-031): profiles that already collected for research
+        // are research profiles; the rest test water.
+        await m.addColumn(collectorProfiles, collectorProfiles.side);
+        await m.addColumn(collectorProfiles, collectorProfiles.legalVersion);
+        await m.addColumn(collectorProfiles, collectorProfiles.linkedKey);
+        if (from >= 12) {
+          await customStatement(
+            "UPDATE collector_profiles SET side = 'research' WHERE "
+            'collector_key IN (SELECT collector_key FROM research_records '
+            'WHERE collector_key IS NOT NULL UNION SELECT collector_key FROM '
+            'research_drafts WHERE collector_key IS NOT NULL)',
+          );
+        }
       }
     },
     beforeOpen: (details) async {

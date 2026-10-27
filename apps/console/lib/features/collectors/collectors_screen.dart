@@ -86,7 +86,7 @@ class CollectorsScreen extends ConsumerWidget {
                     entity: 'collector',
                     id: c.collectorKey,
                   ),
-                  'code' => showRecoveryCode(context, ref, c),
+                  'code' => showRecoveryCode(context, ref, c.collectorKey),
                   'archive' => archiveRecord(
                     context,
                     ref,

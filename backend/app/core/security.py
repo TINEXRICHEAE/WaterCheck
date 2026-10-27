@@ -64,6 +64,8 @@ class AccessClaims:
     role: str
     scope_units: tuple[UUID, ...]
     must_change_password: bool
+    # The account's side (ADR-031); tokens from before sides were water.
+    side: str = "water"
 
 
 def issue_access_token(settings: Settings, claims: AccessClaims, now: datetime) -> str:
@@ -72,6 +74,7 @@ def issue_access_token(settings: Settings, claims: AccessClaims, now: datetime) 
         "role": claims.role,
         "scope": [str(u) for u in claims.scope_units],
         "mcp": claims.must_change_password,
+        "side": claims.side,
         "typ": "access",
         "iat": int(now.timestamp()),
         "exp": int((now + timedelta(minutes=settings.access_token_minutes)).timestamp()),
@@ -94,6 +97,7 @@ def read_access_token(settings: Settings, token: str) -> AccessClaims:
         role=data["role"],
         scope_units=tuple(UUID(u) for u in data.get("scope", [])),
         must_change_password=bool(data.get("mcp", False)),
+        side=str(data.get("side") or ("all" if data["role"] == "it_admin" else "water")),
     )
 
 

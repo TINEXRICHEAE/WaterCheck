@@ -121,9 +121,9 @@ String _areaLabel(AdminUnit u) => switch (u.level) {
   _ => u.name,
 };
 
-/// Areas the user can pick: theirs and the units one level below; IT
-/// admins and national users get every region and district. Ordered from
-/// the widest level down.
+/// Areas the user can pick: theirs and the units one level below, and every
+/// region and district, since areas no longer limit what water users see
+/// (ADR-031). Ordered from the widest level down.
 final selectableAreasProvider =
     FutureProvider<List<({String id, String name, String level})>>((ref) async {
       final me = ref.watch(sessionProvider).me;
@@ -132,15 +132,11 @@ final selectableAreasProvider =
           .adminUnits();
       if (me == null) return const [];
       final mine = {for (final a in me.areas) a.id};
-      final national =
-          me.role == 'it_admin' ||
-          me.areas.any((a) => const {'country', 'national'}.contains(a.level));
       final picked =
           [
             for (final u in units)
               if (mine.contains(u.id) ||
-                  (national &&
-                      const {'district', 'region'}.contains(u.level)) ||
+                  const {'district', 'region'}.contains(u.level) ||
                   (mine.contains(u.parentId) && u.level != 'village'))
                 u,
           ]..sort((a, b) {

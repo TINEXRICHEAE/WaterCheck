@@ -7,11 +7,14 @@ import 'package:retrofit/retrofit.dart';
 
 import '../models/appearance_in.dart';
 import '../models/change_password_request.dart';
+import '../models/join_request.dart';
 import '../models/login_request.dart';
 import '../models/me_response.dart';
 import '../models/password_help_request.dart';
 import '../models/preferences_in.dart';
 import '../models/refresh_request.dart';
+import '../models/sign_up_request.dart';
+import '../models/switch_request.dart';
 import '../models/token_response.dart';
 
 part 'auth_client.g.dart';
@@ -24,6 +27,34 @@ abstract class AuthClient {
   @POST('/v1/auth/login')
   Future<TokenResponse> login({
     @Body() required LoginRequest body,
+    @Header('X-Token-Transport') String? xTokenTransport,
+  });
+
+  /// Register.
+  ///
+  /// Anyone may make an account on a side; it works at once (ADR-031).
+  @POST('/v1/auth/register')
+  Future<TokenResponse> register({
+    @Body() required SignUpRequest body,
+    @Header('X-Token-Transport') String? xTokenTransport,
+  });
+
+  /// Join Side.
+  ///
+  /// Opens this person's account on another side (or signs in to it if it.
+  /// exists) and returns its tokens: the app switches to that side.
+  @POST('/v1/auth/join')
+  Future<TokenResponse> joinSide({
+    @Body() required JoinRequest body,
+    @Header('X-Token-Transport') String? xTokenTransport,
+  });
+
+  /// Switch Side.
+  ///
+  /// Signs in to this person's linked account on another side.
+  @POST('/v1/auth/switch')
+  Future<TokenResponse> switchSide({
+    @Body() required SwitchRequest body,
     @Header('X-Token-Transport') String? xTokenTransport,
   });
 

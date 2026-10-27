@@ -529,7 +529,7 @@ abstract class UiKitLocalizations {
   /// No description provided for @aboutLegalese.
   ///
   /// In en, this message translates to:
-  /// **'Community drinking water monitoring. Licensed under the project licence; open-source components are listed under View licences.'**
+  /// **'Field data collection, monitoring, analysis and reporting: water testing, research and more. Licensed under the project licence; open-source components are listed under View licences.'**
   String get aboutLegalese;
 
   /// No description provided for @cancel.
@@ -867,18 +867,6 @@ abstract class UiKitLocalizations {
   /// In en, this message translates to:
   /// **'Version {version}'**
   String legalVersionLine(int version);
-
-  /// No description provided for @legalAccept.
-  ///
-  /// In en, this message translates to:
-  /// **'I agree to the Terms of Use and the Privacy Policy'**
-  String get legalAccept;
-
-  /// No description provided for @legalChanged.
-  ///
-  /// In en, this message translates to:
-  /// **'The Privacy Policy or Terms of Use have changed. Please read them and agree again to keep using FieldQuire.'**
-  String get legalChanged;
 
   /// No description provided for @mapPathOpen.
   ///
@@ -1287,6 +1275,60 @@ abstract class UiKitLocalizations {
   /// In en, this message translates to:
   /// **'This kind of question comes in a later version of FieldQuire.'**
   String get formNotYet;
+
+  /// No description provided for @legalAbout.
+  ///
+  /// In en, this message translates to:
+  /// **'About FieldQuire'**
+  String get legalAbout;
+
+  /// No description provided for @sideWater.
+  ///
+  /// In en, this message translates to:
+  /// **'Water testing'**
+  String get sideWater;
+
+  /// No description provided for @sideResearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Research'**
+  String get sideResearch;
+
+  /// No description provided for @legalRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Read: {document}'**
+  String legalRead(String document);
+
+  /// No description provided for @legalAcceptTerms.
+  ///
+  /// In en, this message translates to:
+  /// **'I accept the {side} Terms of Use'**
+  String legalAcceptTerms(String side);
+
+  /// No description provided for @legalAcceptPrivacy.
+  ///
+  /// In en, this message translates to:
+  /// **'I have read the {side} Privacy Policy and agree to how my information is used'**
+  String legalAcceptPrivacy(String side);
+
+  /// No description provided for @legalNewSide.
+  ///
+  /// In en, this message translates to:
+  /// **'FieldQuire now has separate documents for each of its sides. Please read the {side} Terms of Use and Privacy Policy and accept them once to continue.'**
+  String legalNewSide(String side);
+
+  /// No description provided for @legalChangedSide.
+  ///
+  /// In en, this message translates to:
+  /// **'The {side} Terms of Use or Privacy Policy have changed. Please read them and accept them again to continue.'**
+  String legalChangedSide(String side);
+
+  /// No description provided for @legalContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept and continue'**
+  String get legalContinue;
 }
 
 class _UiKitLocalizationsDelegate

@@ -1,12 +1,8 @@
-import 'dart:typed_data';
-
 import 'package:data/data.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ui_kit/ui_kit.dart' show legalVersion;
-import 'package:watercheck_console/app/console_sync.dart'
-    show consoleDioProvider;
+import 'package:domain/domain.dart' show AppSide, legalVersions;
+import 'package:ui_kit/ui_kit.dart' show PasswordField;
 import 'package:watercheck_console/app/router.dart';
 import 'package:watercheck_console/app/session.dart';
 
@@ -202,29 +198,136 @@ void main() {
     await disposeConsole(tester, db);
   });
 
-  testWidgets('the Privacy Policy and Terms are accepted after sign-in, '
-      'and their version recorded (ADR-026)', (tester) async {
+  testWidgets('each side\'s Terms and Privacy Policy are accepted once '
+      'with the usual ticks (ADR-026, ADR-031)', (tester) async {
     final env = ConsoleTestEnv(cookieMode: true);
-    env.api.users['admin@example.org']!.legalVersion = 0;
-    final dio = Dio(BaseOptions(baseUrl: 'http://test'))
-      ..httpClientAdapter = _LegalServer(
-        () => env.api.users['admin@example.org']!.legalVersion = legalVersion,
-      );
-    env.extraOverrides.add(consoleDioProvider.overrideWithValue(dio));
+    // An IT admin from before sides: both sides' documents are due.
+    env.api.users['admin@example.org']!.legal = {};
     final db = await pumpConsole(tester, env: env);
     await signIn(tester, 'admin@example.org', newPassword);
-    expect(find.text('Before you continue'), findsOneWidget);
-    await tester.tap(find.text('Terms of Use'));
+    expect(
+      find.text('Water testing: Terms of Use and Privacy Policy'),
+      findsOneWidget,
+    );
+    await tester.tap(find.text('Read: Water testing: Terms of Use'));
     await settle(tester);
-    expect(find.text('FieldQuire Terms of Use'), findsOneWidget);
+    expect(find.text('FieldQuire Water Testing: Terms of Use'), findsOneWidget);
     await tester.pageBack();
     await settle(tester);
+    // Nothing happens until both are ticked.
+    await tester.tap(find.text('Accept and continue'));
+    await settle(tester);
+    expect(env.api.users['admin@example.org']!.legal, isEmpty);
+    await tester.tap(find.text('I accept the Water testing Terms of Use'));
     await tester.tap(
-      find.text('I agree to the Terms of Use and the Privacy Policy'),
+      find.textContaining('I have read the Water testing Privacy Policy'),
     );
     await settle(tester);
-    expect(find.text('Before you continue'), findsNothing);
+    await tester.tap(find.text('Accept and continue'));
+    await settle(tester);
+    expect(
+      find.text('Research: Terms of Use and Privacy Policy'),
+      findsOneWidget,
+    );
+    await tester.tap(find.text('I accept the Research Terms of Use'));
+    await tester.tap(
+      find.textContaining('I have read the Research Privacy Policy'),
+    );
+    await settle(tester);
+    await tester.tap(find.text('Accept and continue'));
+    await settle(tester);
     expect(find.text('IT admin: all areas'), findsOneWidget);
+    // Never again.
+    expect(env.api.users['admin@example.org']!.legal, {
+      'water': legalVersions[AppSide.water],
+      'research': legalVersions[AppSide.research],
+    });
+    await disposeConsole(tester, db);
+  });
+
+  testWidgets('sign up for research, join water with the same password, and '
+      'switch between the linked accounts (ADR-031)', (tester) async {
+    final env = ConsoleTestEnv(cookieMode: true);
+    final db = await pumpConsole(tester, env: env);
+    await _tapSeen(tester, find.text('Research'));
+    await settle(tester);
+    await _tapSeen(tester, find.text('Create an account'));
+    await settle(tester);
+    expect(find.text('Create a Research account'), findsOneWidget);
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Full name'),
+      'Akello Grace',
+    );
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Email'),
+      'grace@example.org',
+    );
+    final passwords = find.byType(PasswordField);
+    await tester.enterText(
+      find.descendant(of: passwords.at(0), matching: find.byType(TextField)),
+      newPassword,
+    );
+    await tester.enterText(
+      find.descendant(of: passwords.at(1), matching: find.byType(TextField)),
+      newPassword,
+    );
+    await _tapSeen(tester, find.text('Create the account'));
+    await settle(tester);
+    // Not without the ticks.
+    expect(
+      find.text(
+        'Tick both boxes to accept the Terms of Use and the '
+        'Privacy Policy.',
+      ),
+      findsOneWidget,
+    );
+    await _tapSeen(tester, find.text('I accept the Research Terms of Use'));
+    await _tapSeen(
+      tester,
+      find.textContaining('I have read the Research Privacy Policy'),
+    );
+    await settle(tester);
+    await _tapSeen(tester, find.text('Create the account'));
+    await settle(tester);
+    // The full switch is always there; without a water account it asks
+    // how to go there.
+    expect(env.api.users['grace@example.org']!.side, 'research');
+    await _tapSeen(tester, find.byTooltip('Switch to Water testing'));
+    await settle(tester);
+    expect(find.text('I have a Water testing account'), findsOneWidget);
+    expect(find.text('Create a new Water testing account'), findsOneWidget);
+    await _tapSeen(
+      tester,
+      find.text('Use my details here to join Water testing'),
+    );
+    await settle(tester);
+    await _tapSeen(
+      tester,
+      find.text('I accept the Water testing Terms of Use'),
+    );
+    await _tapSeen(
+      tester,
+      find.textContaining('I have read the Water testing Privacy Policy'),
+    );
+    await tester.enterText(
+      find.descendant(
+        of: find.byType(PasswordField),
+        matching: find.byType(TextField),
+      ),
+      newPassword,
+    );
+    await settle(tester);
+    await _tapSeen(tester, find.text('Join Water testing').last);
+    await settle(tester);
+    expect(env.api.users['grace@example.org#water']!.side, 'water');
+    // Now on water, with a switch back to research.
+    expect(find.byTooltip('Switch to Research'), findsOneWidget);
+    await _tapSeen(tester, find.byTooltip('Switch to Research'));
+    await settle(tester);
+    await _tapSeen(tester, find.text('Switch').last);
+    await settle(tester);
+    // The research side's own menu.
+    expect(find.text('Analysis'), findsWidgets);
     await disposeConsole(tester, db);
   });
 
@@ -425,22 +528,9 @@ void main() {
   });
 }
 
-/// Accepting the documents (ADR-026).
-class _LegalServer implements HttpClientAdapter {
-  _LegalServer(this.onAccept);
-
-  final void Function() onAccept;
-
-  @override
-  Future<ResponseBody> fetch(
-    RequestOptions options,
-    Stream<Uint8List>? requestStream,
-    Future<void>? cancelFuture,
-  ) async {
-    if (options.uri.path == '/v1/me/legal') onAccept();
-    return ResponseBody.fromString('', 204);
-  }
-
-  @override
-  void close({bool force = false}) {}
+/// Scrolls [f] into view (long forms), then taps it.
+Future<void> _tapSeen(WidgetTester tester, Finder f) async {
+  await tester.ensureVisible(f);
+  await tester.pumpAndSettle();
+  await tester.tap(f);
 }

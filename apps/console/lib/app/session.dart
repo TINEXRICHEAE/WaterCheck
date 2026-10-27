@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:api_client/api_client.dart';
 import 'package:data/data.dart';
+import 'package:domain/domain.dart' show AppSide;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ui_kit/ui_kit.dart' show ThemeChoice, TimeZoneChoice;
 
@@ -43,6 +44,27 @@ class ConsoleSession {
   final SignedOutReason reason;
 
   bool get isAdmin => me?.role == 'it_admin';
+
+  /// The account's side (ADR-031); null for IT admins, who work on all.
+  AppSide? get side => switch (me?.side) {
+    'research' => AppSide.research,
+    'all' => null,
+    _ => AppSide.water,
+  };
+
+  /// Sides this person can switch to: every side for IT admins, the sides
+  /// of their linked accounts for others.
+  Set<AppSide> get otherSides => isAdmin
+      ? AppSide.values.toSet()
+      : {
+          for (final s in me?.linkedSides ?? const <String>[])
+            ?AppSide.parse(s),
+        };
+
+  /// Sides whose current documents must still be accepted (once).
+  List<AppSide> get legalDue => [
+    for (final s in me?.legalDue ?? const <String>[]) ?AppSide.parse(s),
+  ];
 }
 
 /// A saved session on Windows/Android: the refresh token and the profile,
@@ -180,9 +202,14 @@ class SessionController extends Notifier<ConsoleSession> {
     return _restored.session;
   }
 
+  /// Signs in to the account on [side] (an IT admin's works on all).
   /// Throws [ApiFailure].
-  Future<void> signIn(String username, String password) async {
-    final t = await _api.login(username.trim(), password);
+  Future<void> signIn(
+    String username,
+    String password, {
+    AppSide side = AppSide.water,
+  }) async {
+    final t = await _api.login(username.trim(), password, side: side);
     _tokens.accept(t, clock());
     if (t.mustChangePassword) {
       _tokens.temporaryPassword = password;
@@ -190,6 +217,58 @@ class SessionController extends Notifier<ConsoleSession> {
       return;
     }
     await _finishSignIn();
+  }
+
+  /// Open sign-up on [side], its documents ticked (ADR-031); the account
+  /// works at once. Throws [ApiFailure].
+  Future<void> signUp({
+    required AppSide side,
+    required String username,
+    required String fullName,
+    required String password,
+    String? organisation,
+    String? phone,
+  }) async {
+    final t = await _api.signUp(
+      side: side,
+      username: username.trim(),
+      fullName: fullName.trim(),
+      password: password,
+      organisation: organisation,
+      phone: phone,
+    );
+    _tokens.accept(t, clock());
+    await _finishSignIn();
+  }
+
+  /// Opens this person's account on [side] with their password, after
+  /// they ticked its documents, and goes there. Throws [ApiFailure].
+  Future<void> joinSide(AppSide side, String password) async {
+    final access = await accessToken();
+    if (access == null) throw const ApiFailure(ApiFailure.offline);
+    final t = await _api.join(access, side, password);
+    _tokens.accept(t, clock());
+    await _finishSignIn();
+  }
+
+  /// Goes to this person's linked account on [side]. Throws [ApiFailure].
+  Future<void> switchSide(AppSide side) async {
+    final access = await accessToken();
+    if (access == null) throw const ApiFailure(ApiFailure.offline);
+    final t = await _api.switchSide(access, side);
+    _tokens.accept(t, clock());
+    final me = await _api.me(_tokens.access!);
+    if (_native) await _store.save(_tokens.refresh!, me);
+    state = ConsoleSession(SessionPhase.signedIn, me: me);
+  }
+
+  /// Records that the side's current documents were accepted, then
+  /// reloads the person. Throws [ApiFailure].
+  Future<void> acceptLegal(AppSide side) async {
+    final access = await accessToken();
+    if (access == null) throw const ApiFailure(ApiFailure.offline);
+    await _api.acceptLegal(access, side);
+    await reloadMe();
   }
 
   /// Replaces the temporary password. Throws [ApiFailure].

@@ -1,4 +1,5 @@
 import 'package:data/data.dart' show SyncFailureKind, ThreadKind;
+import 'package:domain/domain.dart' show AppSide;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -11,6 +12,8 @@ import '../features/admin/credentials_screen.dart';
 import '../features/admin/typed_values_screen.dart';
 import '../features/admin/device_screen.dart';
 import '../features/collectors/collector_screen.dart';
+import '../features/auth/sign_up_screen.dart';
+import '../features/auth/switch_side_screen.dart';
 import '../features/admin/system_screen.dart';
 import '../features/admin/security_screen.dart';
 import '../features/admin/routing_screen.dart';
@@ -33,6 +36,7 @@ import '../features/limits/limit_sets_screen.dart';
 import '../features/profile/legal_screen.dart';
 import '../features/research/research_mode.dart';
 import '../features/research/research_analysis.dart';
+import '../features/research/research_collector.dart';
 import '../features/research/research_collectors.dart';
 import '../features/research/research_dashboard.dart';
 import '../features/research/research_forms.dart';
@@ -54,22 +58,34 @@ import '../features/messages/messages.dart';
 /// Shown in "About" (pubspec version).
 const consoleVersion = '0.1.1';
 
-const _authRoutes = {'/sign-in', '/change-password', '/pin', '/unlock'};
+const _authRoutes = {
+  '/sign-in',
+  '/sign-up',
+  '/change-password',
+  '/pin',
+  '/unlock',
+};
 
-/// Where the session sends someone trying to open [location], or null.
-/// Stakeholders never reach the admin console (F-AUTH-5; the API refuses
-/// it too).
+/// Where the session sends someone trying to open [location], or null;
+/// '/dashboard' stands for the home of the side in use.
+/// - Stakeholders never reach the admin pages (F-AUTH-5; the API refuses
+///   them too).
+/// - Each account stays on its own side (ADR-031): water accounts never see
+///   research pages and research accounts never see water pages. IT admins
+///   see both.
 String? sessionRedirect(ConsoleSession s, String location) {
   String? only(String route) => location == route ? null : route;
+  final research = location == '/research' || location.startsWith('/research/');
+  final shared =
+      location.startsWith('/join/') || location.startsWith('/switch/');
   return switch (s.phase) {
-    SessionPhase.signedOut => only('/sign-in'),
+    SessionPhase.signedOut =>
+      location == '/sign-in' || location == '/sign-up' ? null : '/sign-in',
     SessionPhase.mustChangePassword => only('/change-password'),
     SessionPhase.choosePin => only('/pin'),
     SessionPhase.locked => only('/unlock'),
-    // The current Privacy Policy and Terms first (ADR-026).
-    SessionPhase.signedIn
-        when (s.me?.legalVersion ?? legalVersion) < legalVersion =>
-      only('/legal'),
+    // Each side's current documents, accepted once (ADR-026, ADR-031).
+    SessionPhase.signedIn when s.legalDue.isNotEmpty => only('/legal'),
     SessionPhase.signedIn
         when _authRoutes.contains(location) || location == '/legal' =>
       '/dashboard',
@@ -78,6 +94,11 @@ String? sessionRedirect(ConsoleSession s, String location) {
                 location.startsWith('/research/admin')) &&
             !s.isAdmin =>
       '/dashboard',
+    SessionPhase.signedIn when shared => null,
+    SessionPhase.signedIn when s.side == AppSide.water && research =>
+      '/dashboard',
+    SessionPhase.signedIn when s.side == AppSide.research && !research =>
+      '/research',
     SessionPhase.signedIn => null,
   };
 }
@@ -89,7 +110,7 @@ final routerProvider = Provider<GoRouter>((ref) {
     ..listen(sessionProvider, (_, next) => session.value = next)
     ..onDispose(session.dispose);
   // Water testing or research (ADR-030): each starts on its own page.
-  ConsoleMode mode() => ref.read(consoleModeProvider);
+  ConsoleMode mode() => ref.read(activeModeProvider);
   final router = GoRouter(
     initialLocation: '/dashboard',
     refreshListenable: session,
@@ -97,15 +118,62 @@ final routerProvider = Provider<GoRouter>((ref) {
       final to = sessionRedirect(session.value, state.matchedLocation);
       return to == '/dashboard' ? homeFor(mode()) : to;
     },
-    // An unknown address (a stale bookmark, a typo): a safe page, not a crash.
+    // An unknown address (a stale bookmark, a typo): a safe page that
+    // goes back to the home of the side in use, not a crash.
     errorBuilder: (context, state) => Scaffold(
+      appBar: AppBar(
+        leading: BackButton(onPressed: () => context.go(homeFor(mode()))),
+      ),
       body: ErrorView(
         kind: ErrorKind.notFound,
-        onHome: () => context.go('/dashboard'),
+        onHome: () => context.go(homeFor(mode())),
       ),
     ),
     routes: [
       GoRoute(path: '/sign-in', builder: (_, _) => const SignInScreen()),
+      GoRoute(path: '/sign-up', builder: (_, _) => const SignUpScreen()),
+      // The full switch for someone without an account there (ADR-031).
+      GoRoute(
+        path: '/switch/:side',
+        builder: (context, state) => Scaffold(
+          appBar: AppBar(
+            leading: BackButton(onPressed: () => context.go('/dashboard')),
+          ),
+          body: Align(
+            alignment: Alignment.topCenter,
+            child: RelativeWidth(
+              tablet: 0.8,
+              desktop: 0.5,
+              child: SwitchSideScreen(
+                side:
+                    AppSide.parse(state.pathParameters['side']) ??
+                    AppSide.research,
+              ),
+            ),
+          ),
+        ),
+      ),
+      // Joining the other side from a signed-in account (ADR-031).
+      GoRoute(
+        path: '/join/:side',
+        builder: (context, state) {
+          final side =
+              AppSide.parse(state.pathParameters['side']) ?? AppSide.research;
+          return Scaffold(
+            appBar: AppBar(
+              leading: BackButton(onPressed: () => context.go('/dashboard')),
+            ),
+            body: Align(
+              alignment: Alignment.topCenter,
+              child: RelativeWidth(
+                tablet: 0.8,
+                desktop: 0.5,
+                child: JoinSideScreen(side: side),
+              ),
+            ),
+          );
+        },
+      ),
       GoRoute(
         path: '/change-password',
         builder: (_, _) => const ChangePasswordScreen(),
@@ -189,6 +257,14 @@ final routerProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: '/research/collectors',
                 builder: (_, _) => const ResearchCollectorsScreen(),
+                routes: [
+                  GoRoute(
+                    path: ':key',
+                    builder: (_, state) => ResearchCollectorScreen(
+                      collectorKey: state.pathParameters['key']!,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -208,6 +284,38 @@ final routerProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: '/research/admin',
                 builder: (_, _) => const ResearchAdminScreen(),
+                // The water admin pages, for research's own people and
+                // devices (they read their side from the address).
+                routes: [
+                  GoRoute(
+                    path: 'people',
+                    builder: (_, _) => const UsersScreen(),
+                  ),
+                  GoRoute(
+                    path: 'phones',
+                    builder: (_, _) => const PhonesScreen(),
+                    routes: [
+                      GoRoute(
+                        path: ':id',
+                        builder: (_, state) => DeviceScreen(
+                          installationId: state.pathParameters['id']!,
+                        ),
+                      ),
+                    ],
+                  ),
+                  GoRoute(
+                    path: 'credentials',
+                    builder: (_, _) => const CredentialsScreen(),
+                  ),
+                  GoRoute(
+                    path: 'security',
+                    builder: (_, _) => const SecurityScreen(),
+                  ),
+                  GoRoute(
+                    path: 'system',
+                    builder: (_, _) => const SystemScreen(),
+                  ),
+                ],
               ),
             ],
           ),
@@ -559,14 +667,26 @@ class _ConsoleShell extends ConsumerWidget {
   }
 }
 
+/// Research's menu pages: no back button there.
+const _researchMenu = {
+  '/research',
+  '/research/records',
+  '/research/forms',
+  '/research/collectors',
+  '/research/analysis',
+  '/research/admin',
+};
+
 /// The page above [path] in Research ("/research/records/x" →
-/// "/research/records"); null on each menu page.
+/// "/research/records", "/research/team" → "/research"); null on each menu
+/// page. Every page below a menu page has a back button.
 String? researchParentPath(String path) {
+  if (_researchMenu.contains(path)) return null;
   final parts = [
     for (final p in path.split('/'))
       if (p.isNotEmpty) p,
   ];
-  if (parts.length <= 2) return null;
+  if (parts.length < 2) return null;
   return '/${parts.sublist(0, parts.length - 1).join('/')}';
 }
 
@@ -747,8 +867,11 @@ class _AccountButton extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final me = ref.watch(sessionProvider).me;
+    final session = ref.watch(sessionProvider);
+    final me = session.me;
     final home = research ? '/research' : '/dashboard';
+    final here = research ? AppSide.research : AppSide.water;
+    final names = UiKitLocalizations.of(context);
     return PopupMenuButton<void>(
       tooltip: l10n.accountMenu,
       icon: const Icon(Icons.account_circle_outlined),
@@ -760,11 +883,20 @@ class _AccountButton extends ConsumerWidget {
             title: Text(me?.fullName ?? ''),
             subtitle: Text(
               '${me?.username ?? ''}\n'
-              '${me?.role == 'it_admin' ? l10n.roleAdmin : l10n.roleStakeholder}',
+              '${me?.role == 'it_admin' ? l10n.roleAdmin : l10n.roleOnSide(sideName(names, here))}',
             ),
           ),
         ),
         const PopupMenuDivider(),
+        // The full switch, for everyone (ADR-031).
+        PopupMenuItem<void>(
+          onTap: () => switchToSide(context, ref, ConsoleMode.of(here.other)),
+          child: ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.swap_horiz),
+            title: Text(l10n.switchTo(sideName(names, here.other))),
+          ),
+        ),
         if (!research)
           PopupMenuItem<void>(
             onTap: () => context.go('/dashboard/limit-sets'),

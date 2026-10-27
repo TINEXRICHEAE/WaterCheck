@@ -1,26 +1,26 @@
-# FieldQuire Terms of Use
+# FieldQuire Water Testing: Terms of Use
 
-Version 1 · Effective: [date of approval]
+Version 4 · Effective: [date of approval]
 
-> Draft for review. Not legal advice. The project lead confirms these terms
-> and fills in the parts in [square brackets] before real data is collected.
+> Draft for review. Not legal advice. The project lead confirms these terms and fills in the parts in [square brackets] before real data is collected.
 
 ## 1. These terms
 
-By using FieldQuire Collect or the FieldQuire Console, you agree to these terms and to the **Privacy Policy**. FieldQuire is run by [project lead / organisation] ("we").
+By using the water-testing side of FieldQuire Collect or FieldQuire Console, you agree to these terms and to its **Privacy Policy**. FieldQuire is run by [project lead / organisation] ("we").
 
-## 2. Who may use FieldQuire
+## 2. Who may use it
 
-- **Testers:** anyone may test water with FieldQuire Collect. Testers under 18 need the permission of a parent or guardian and of their school or coordinator. An assignment code from an IT admin makes a tester officially responsible for an area.
-- **Console users:** stakeholders and IT admins get their accounts from an IT admin.
+- **Testers:** anyone may sign up in FieldQuire Collect and test water at once. Testers under 18 need the permission of a parent or guardian and of their school or coordinator. An IT admin, or an assignment code, may make a tester officially responsible for an area; testers can still test anywhere.
+- **Console users:** anyone may sign up for a water-testing Console account and use it at once. An IT admin may give them areas and responsibilities, which decide the alerts and notices they receive.
+- Your water-testing account or profile is separate from any account or profile you have on another side of FieldQuire.
 
 ## 3. Your account and devices
 
-- Keep your sign-in codes, password and PIN to yourself. Anyone with a sign-in code can sign in as you once.
-- Tell your IT admin straight away if a device is lost or someone used your account. You can also sign other devices out yourself under **My profile**.
+- Keep your password, PIN, sign-in codes and recovery codes to yourself. Anyone with a sign-in or recovery code can sign in as you once.
+- Tell an IT admin straight away if a device is lost or someone used your account. You can also sign other devices out yourself under **My profile**.
 - Keep your details correct. Your phone and email are confirmed with a code.
 
-## 4. Using FieldQuire properly
+## 4. Using it properly
 
 You agree to:
 
@@ -35,7 +35,7 @@ We may hide records or messages that break these rules, and suspend or close the
 
 ## 5. Results are a warning, not a guarantee
 
-FieldQuire readings are field screening tests. A "safe" result does not prove that water is safe. An "unsafe" result is a warning to act on, not a laboratory finding.
+Water-testing readings are field screening tests. A "safe" result does not prove that water is safe. An "unsafe" result is a warning to act on, not a laboratory finding.
 
 Always follow the advice on the response cards and of your health officials. In an emergency, contact your local health authorities directly; do not rely on FieldQuire messages alone.
 
@@ -61,7 +61,7 @@ You can stop using FieldQuire at any time. You can close your account, or delete
 
 ## 10. Changes to these terms
 
-If these terms change, their version number changes, and the apps ask you to accept them again.
+If these terms change, their version number changes, and the apps ask you once to accept them again.
 
 ## 11. Law
 

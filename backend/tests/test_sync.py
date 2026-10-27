@@ -59,6 +59,8 @@ class Phone:
         self.village = village
         self.village_code = village_code
         self.collector = str(uuid.uuid4())
+        # The tester profile's side (ADR-031).
+        self.side = "water"
 
     async def push(self, changes: list[dict[str, Any]], *, compress: bool = False) -> Any:
         body = json.dumps({"batch_id": str(uuid.uuid4()), "changes": changes}).encode()
@@ -108,7 +110,10 @@ class Phone:
         return {
             "installation_id": self.id,
             "collector_key": self.collector,
-            "collector_snapshot": json.dumps({"full_name": "Example Collector"}),
+            "collector_snapshot": json.dumps(
+                {"full_name": "Example Collector"}
+                | ({"side": self.side} if self.side != "water" else {})
+            ),
         }
 
 
@@ -714,8 +719,12 @@ async def test_a_collector_gets_back_in_on_another_phone_with_a_code(
     assert again.status_code == 404
     assert await count(owner_db, "audit_log", action="collector.recovered") == 1
 
-    # A stakeholder outside the collector's areas cannot issue one.
-    other = await signed_in(client, owner_db)
+    # Any water user may (areas no longer limit, ADR-031); a research
+    # account may not, for a water tester.
+    water = await signed_in(client, owner_db)
+    r = await client.post(f"/v1/collectors/{a.collector}/recovery-code", headers=water)
+    assert r.status_code == 201, r.text
+    other = await signed_in(client, owner_db, side="research")
     r = await client.post(f"/v1/collectors/{a.collector}/recovery-code", headers=other)
     assert r.status_code == 403
 
@@ -1295,8 +1304,12 @@ async def test_research_records_sync_with_their_point_and_stay_with_the_team(
     form = (await client.get(f"/v1/research/forms/{hq['id']}", headers=admin)).json()
     assert form["definition"]["fields"][1]["type"] == "consent"
 
-    # A stakeholder who is not in the project sees none of it.
-    other = await signed_in(client, owner_db, role="stakeholder")
+    # A water account has no research pages; a research account outside
+    # the project sees none of it.
+    water = await signed_in(client, owner_db, role="stakeholder")
+    r = await client.get("/v1/research/projects", headers=water)
+    assert (r.status_code, r.json()["detail"]) == (403, "research_accounts_only")
+    other = await signed_in(client, owner_db, role="stakeholder", side="research")
     assert not [
         p
         for p in (await client.get("/v1/research/projects", headers=other)).json()

@@ -1,3 +1,4 @@
+import 'package:domain/domain.dart' show legalVersions;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ui_kit/ui_kit.dart';
@@ -8,15 +9,18 @@ import '../../app/providers.dart';
 import '../../l10n/app_localizations.dart';
 import '../research/research.dart';
 
-/// "Who is testing?" (SPEC §2.1): several people may share one phone.
+/// "Who is collecting?" (SPEC §2.1): several people may share one phone.
+/// The side chosen at the top lists its own people and signs new ones up
+/// (ADR-031); a person on both sides has a profile on each.
 class WhoIsTestingScreen extends ConsumerWidget {
   const WhoIsTestingScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final profiles = ref.watch(collectorProfilesProvider);
+    final profiles = ref.watch(sideProfilesProvider);
     final activeKey = ref.watch(appGateProvider).activeCollectorKey;
+    final side = ref.watch(appModeProvider).side;
     return Scaffold(
       appBar: AppBar(title: Text(l10n.whoTitle)),
       body: profiles.when(
@@ -39,7 +43,13 @@ class WhoIsTestingScreen extends ConsumerWidget {
             ),
             Padding(
               padding: const EdgeInsets.all(16),
-              child: Text(list.isEmpty ? l10n.whoEmpty : l10n.whoIntro),
+              child: Text(
+                list.isEmpty
+                    ? l10n.whoEmptySide(
+                        sideName(UiKitLocalizations.of(context), side),
+                      )
+                    : l10n.whoIntro,
+              ),
             ),
             for (final p in list)
               ListTile(
@@ -55,6 +65,11 @@ class WhoIsTestingScreen extends ConsumerWidget {
                   onPressed: () => context.push('/who/${p.collectorKey}/edit'),
                 ),
                 onTap: () async {
+                  // Older profiles accept their side's documents once.
+                  if (p.legalVersion < legalVersions[p.side]!) {
+                    context.push('/who/${p.collectorKey}/legal');
+                    return;
+                  }
                   await ref
                       .read(appGateProvider.notifier)
                       .selectCollector(p.collectorKey);

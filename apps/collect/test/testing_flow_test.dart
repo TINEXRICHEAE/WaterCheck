@@ -436,7 +436,7 @@ void main() {
     );
     await tapAndSettle(tester, find.text('I am a…'));
     await tapAndSettle(tester, find.text('Student').last);
-    await tapAndSettle(tester, find.text('Save'));
+    await createProfile(tester);
     expect(find.text('Testing now: Second Collector'), findsOneWidget);
 
     await _openSetup(tester);

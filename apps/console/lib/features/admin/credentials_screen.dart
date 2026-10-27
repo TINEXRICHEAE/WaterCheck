@@ -1,4 +1,5 @@
 import 'package:api_client/api_client.dart';
+import 'package:domain/domain.dart' show AppSide;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -9,9 +10,12 @@ import '../../l10n/app_localizations.dart';
 import '../dashboard/dashboard_state.dart';
 import 'admin_api.dart';
 
-final _ledgerProvider = FutureProvider.autoDispose<Ledger>((ref) {
+final _ledgerProvider = FutureProvider.autoDispose.family<Ledger, AppSide>((
+  ref,
+  side,
+) {
   ref.watch(dataVersionProvider);
-  return ref.watch(adminApiProvider).admin.credentials();
+  return ref.watch(adminApiProvider).admin.credentials(side: sideParam(side));
 });
 
 /// Codes and accounts (ADR-022): every activation code and Console account
@@ -27,11 +31,14 @@ class CredentialsScreen extends ConsumerWidget {
     final text = Theme.of(context).textTheme;
     final when = DateFormat('d MMM y, HH:mm');
     String at(DateTime t) => when.format(WcTime.local(t, context));
-    final ledger = ref.watch(_ledgerProvider);
+    final side = adminSide(context);
+    final ledger = ref.watch(_ledgerProvider(side));
     return ledger.when(
       loading: () => const PageLoading(),
-      error: (e, _) =>
-          ErrorView(error: e, onRetry: () => ref.invalidate(_ledgerProvider)),
+      error: (e, _) => ErrorView(
+        error: e,
+        onRetry: () => ref.invalidate(_ledgerProvider(side)),
+      ),
       data: (d) => ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -73,7 +80,8 @@ class CredentialsScreen extends ConsumerWidget {
                       title: Text(t.fullName ?? t.collectorKey),
                       subtitle: Text(l10n.ledgerAssigned(at(t.assignedAt))),
                       trailing: const Icon(Icons.chevron_right),
-                      onTap: () => context.go('/collectors/${t.collectorKey}'),
+                      onTap: () =>
+                          context.go(collectorPath(side, t.collectorKey)),
                     ),
                   if (c.devices.isEmpty && c.testers.isEmpty)
                     ListTile(title: Text(l10n.ledgerNoDevices)),
@@ -99,7 +107,8 @@ class CredentialsScreen extends ConsumerWidget {
                         ].join(' · '),
                       ),
                       trailing: const Icon(Icons.chevron_right),
-                      onTap: () => context.go('/admin/phones/${dev.id}'),
+                      onTap: () =>
+                          context.go('${adminBase(side)}/phones/${dev.id}'),
                     ),
                   if (c.revokedAt == null &&
                       c.expiresAt.isAfter(DateTime.now()) &&
@@ -118,7 +127,7 @@ class CredentialsScreen extends ConsumerWidget {
                                   .read(adminApiProvider)
                                   .admin
                                   .revokeCode(codeId: c.id);
-                              ref.invalidate(_ledgerProvider);
+                              ref.invalidate(_ledgerProvider(side));
                             } on Object {
                               messenger.showSnackBar(
                                 SnackBar(
@@ -155,7 +164,7 @@ class CredentialsScreen extends ConsumerWidget {
                     if (a.areas.isNotEmpty) a.areas.join(', '),
                   ].join(' · '),
                 ),
-                onTap: () => context.go('/admin/people'),
+                onTap: () => context.go('${adminBase(side)}/people'),
               ),
             ),
         ],

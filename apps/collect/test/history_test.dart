@@ -163,7 +163,7 @@ void main() {
     );
     await tapAndSettle(tester, find.text('I am a…'));
     await tapAndSettle(tester, find.text('Student').last);
-    await tapAndSettle(tester, find.text('Save'));
+    await createProfile(tester);
     await tapAndSettle(tester, find.text('Church borehole'));
     await tapAndSettle(tester, find.text('Sep 15, 2026'));
     expect(find.text('Correct a mistake'), findsNothing);

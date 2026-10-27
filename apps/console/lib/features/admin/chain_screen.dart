@@ -1,5 +1,6 @@
 import 'package:api_client/api_client.dart';
 import 'package:data/data.dart';
+import 'package:domain/domain.dart' show AppSide;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ui_kit/ui_kit.dart';
@@ -52,7 +53,7 @@ class _ChainScreenState extends ConsumerState<ChainScreen> {
   Future<void> _addExisting(AdminUnit area) async {
     final l10n = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);
-    final users = await ref.read(adminUsersProvider.future);
+    final users = await ref.read(adminUsersProvider(AppSide.water).future);
     if (!mounted) return;
     final candidates = [
       for (final u in users)

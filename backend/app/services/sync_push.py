@@ -306,17 +306,30 @@ class PushService:
                 {"k": key},
             )
         ).first()
+        side = "research" if snap.get("side") == "research" else "water"
+        accepted = int(snap.get("legal_version") or 0)
         if cur is None:
+            if accepted > 0:
+                await self._accepted(key, side, accepted, o["inst"])
             await self.conn.execute(
                 text(
                     "INSERT INTO collector_profile (collector_key, installation_id, snapshot, "
-                    "profile_version) VALUES (:k, :i, CAST(:s AS jsonb), :v) "
+                    "profile_version, side) VALUES (:k, :i, CAST(:s AS jsonb), :v, :side) "
                     "ON CONFLICT (collector_key) DO NOTHING"
                 ),
-                {"k": key, "i": o["inst"], "s": o["cs"], "v": version},
+                {
+                    "k": key,
+                    "i": o["inst"],
+                    "s": o["cs"],
+                    "v": version,
+                    # A profile's side never changes (ADR-031).
+                    "side": "research" if snap.get("side") == "research" else "water",
+                },
             )
             return
         old = cur.snapshot if isinstance(cur.snapshot, dict) else json.loads(cur.snapshot)
+        if version > cur.profile_version and accepted > int(old.get("legal_version") or 0):
+            await self._accepted(key, side, accepted, o["inst"])
         if version <= cur.profile_version:
             await self.conn.execute(
                 text("UPDATE collector_profile SET last_seen_at = now() WHERE collector_key = :k"),
@@ -341,6 +354,13 @@ class PushService:
             if f != "profile_version" and old.get(f) != snap.get(f)
         ]
         await self._trail("collector", key, area, o, changed)
+
+    async def _accepted(self, key: Any, side: str, version: int, inst: Any) -> None:
+        """A tester accepted their side's documents on a phone (ADR-031)."""
+        await self.conn.execute(
+            text("SELECT record_collector_acceptance(:k, :s, :v, :i)"),
+            {"k": key, "s": side, "v": version, "i": inst},
+        )
 
     # Who sent it ------------------------------------------------------
     def _origin(self, d: dict[str, Any]) -> dict[str, Any]:

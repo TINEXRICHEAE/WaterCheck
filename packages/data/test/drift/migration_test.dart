@@ -125,4 +125,30 @@ void main() {
     expect(await db.select(db.researchForms).get(), isEmpty);
     await db.close();
   });
+
+  test('v12 → v13: profiles that collected for research become research '
+      'profiles; the rest test water (ADR-031)', () async {
+    final schema = await verifier.schemaAt(12);
+    for (final key in ['w', 'r']) {
+      schema.rawDatabase.execute(
+        "INSERT INTO collector_profiles (collector_key, profile_version, "
+        "full_name, phone, collector_type, village, parish, subcounty, "
+        "district, updated_at) VALUES ('$key', 1, 'P', '', 'vht', 'V', 'P', "
+        "'S', 'D', '2026-10-27T09:00:00Z')",
+      );
+    }
+    schema.rawDatabase.execute(
+      "INSERT INTO research_drafts (id, form_id, form_version, collector_key, "
+      "answers, started_at, updated_at) VALUES ('d', 'f', 1, 'r', '{}', "
+      "'2026-10-27T09:00:00Z', '2026-10-27T09:00:00Z')",
+    );
+    final db = AppDatabase(schema.newConnection());
+    await verifier.migrateAndValidate(db, localSchemaVersion);
+    final sides = {
+      for (final p in await db.select(db.collectorProfiles).get())
+        p.collectorKey: (p.side, p.legalVersion),
+    };
+    expect(sides, {'w': ('water', 0), 'r': ('research', 0)});
+    await db.close();
+  });
 }

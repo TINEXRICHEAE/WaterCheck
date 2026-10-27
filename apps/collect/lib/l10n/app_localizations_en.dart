@@ -56,7 +56,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String settingsAboutBody(String version) {
-    return 'FieldQuire Collect $version. Water quality screening for communities across Uganda. Results are screening only, not laboratory confirmation.';
+    return 'FieldQuire Collect $version. Collect field data, also without a connection: water tests at shared sources, research forms and more, each record with where and when it was made. Water test results are screening only, not laboratory confirmation.';
   }
 
   @override
@@ -67,14 +67,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get startupRetry => 'Try again';
 
   @override
-  String get welcomeTitle => 'Welcome to FieldQuire';
-
-  @override
   String get privacyHeading => 'In short';
-
-  @override
-  String get privacyBody =>
-      'FieldQuire records water tests at shared water sources so that communities and districts can act when water may be unsafe.\n\nWith each test it saves your name, the area you give, where you tested (GPS) and any pictures of the test or the source, with where and when each was taken. Places you add to the map show your name. Trips you follow with Go stay on this device. Your phone and email are optional. Stakeholders for the area see your records and can contact you; other testers see results and your name, not your contacts.\n\nFieldQuire does not ask for national ID numbers or information about households. Please do not photograph people.\n\nYour work is kept on this device (encrypted in the Android and Windows apps) and sent to the FieldQuire server, hosted outside Uganda (South Africa), when there is internet. You can edit your details, or delete your profile, any time under My profile.\n\nA test result is a warning, not a guarantee that water is safe: always follow the advice of your health officials.';
 
   @override
   String privacyVersion(int version) {
@@ -226,7 +219,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get locationDenied =>
-      'FieldQuire may not use your location. Allow it to record where the source is.';
+      'FieldQuire may not use your location. Allow it to record where your records are made.';
 
   @override
   String get locationDeniedForever =>
@@ -2192,4 +2185,123 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get researchOpenRecord => 'Open the record';
+
+  @override
+  String legalForProfile(String name) {
+    return 'Before $name continues';
+  }
+
+  @override
+  String get legalTickBoth =>
+      'Tick both boxes to accept the Terms of Use and the Privacy Policy.';
+
+  @override
+  String profileJoinTitle(String side) {
+    return 'Join $side';
+  }
+
+  @override
+  String profileNewTitleSide(String side) {
+    return 'New $side profile';
+  }
+
+  @override
+  String profileJoinIntro(String side) {
+    return 'A separate $side profile is made with your details below, linked to the one you use now. Each keeps its own records, forms and sign-in codes, and you can switch between them.';
+  }
+
+  @override
+  String get profileNewWaterIntro =>
+      'For people who test shared water sources. You can test anywhere at once; an IT admin may also make you officially responsible for an area.';
+
+  @override
+  String get profileNewResearchIntro =>
+      'For people who collect data for research projects: you fill the forms you are given, join with a code, or that are open to all.';
+
+  @override
+  String get profileCreate => 'Create my profile';
+
+  @override
+  String get profileTitleWater => 'My water-testing profile';
+
+  @override
+  String get profileTitleResearch => 'My research profile';
+
+  @override
+  String get accountFormsHint =>
+      'The research forms on this phone that you may fill.';
+
+  @override
+  String get researchNoFormsShort =>
+      'No forms yet. Join one with a code from the research team.';
+
+  @override
+  String whoEmptySide(String side) {
+    return 'Nobody on this phone collects for $side yet. Add yourself, or come back with a recovery code.';
+  }
+
+  @override
+  String sideJoin(String side) {
+    return 'Also collect for $side';
+  }
+
+  @override
+  String sideJoinHint(String side) {
+    return 'Make a separate $side profile with your details and its own Terms of Use.';
+  }
+
+  @override
+  String sideSwitch(String side) {
+    return 'Switch to $side';
+  }
+
+  @override
+  String sideSwitchHint(String name) {
+    return 'As $name';
+  }
+
+  @override
+  String sideSwitchBody(String side) {
+    return 'You will collect with your $side profile, with its own records, forms and settings.';
+  }
+
+  @override
+  String get sideSwitchGo => 'Switch';
+
+  @override
+  String sideSwitchNotYet(String side) {
+    return 'Not on $side yet: choose how to start there.';
+  }
+
+  @override
+  String switchSideIntro(String side) {
+    return '$side is a separate side of FieldQuire, with its own people, forms or sources, and records. Choose how to collect there.';
+  }
+
+  @override
+  String switchSideOnPhone(String side) {
+    return 'Already on this phone for $side';
+  }
+
+  @override
+  String switchSideJoin(String side) {
+    return 'Use my details to join $side';
+  }
+
+  @override
+  String switchSideCode(String side) {
+    return 'I have a $side profile on another phone';
+  }
+
+  @override
+  String get switchSideCodeHint => 'Come back with a sign-in or recovery code.';
+
+  @override
+  String switchSideNew(String side) {
+    return 'Add a new person for $side';
+  }
+
+  @override
+  String get switchSideNewHint =>
+      'With other details, and the side\'s own Terms of Use.';
 }

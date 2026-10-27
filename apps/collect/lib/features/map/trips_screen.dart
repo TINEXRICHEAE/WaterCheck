@@ -13,6 +13,7 @@ import 'package:ui_kit/ui_kit.dart';
 
 import '../../app/providers.dart';
 import '../../l10n/app_localizations.dart';
+import '../research/research.dart';
 import 'map_tiles.dart';
 
 final _tripsProvider = StreamProvider.autoDispose<List<TripSummary>>(
@@ -85,7 +86,9 @@ class TripsScreen extends ConsumerWidget {
                   ].join(' · '),
                 ),
                 trailing: const Icon(Icons.chevron_right),
-                onTap: () => context.push('/profile/trips/${t.id}'),
+                onTap: () => context.push(
+                  sidePath(ref.read(appModeProvider), '/profile/trips/${t.id}'),
+                ),
               ),
           ],
         ),

@@ -1,6 +1,7 @@
 import 'alert_status.dart';
 import 'overall_status.dart';
 import 'reading.dart';
+import 'sides.dart';
 
 /// The collector's self-declared identification, copied onto every
 /// submission (SPEC §2.1). No national ID is ever collected.
@@ -17,6 +18,9 @@ class CollectorSnapshot {
     required this.district,
     this.organisation,
     this.email,
+    this.side = AppSide.water,
+    this.legalVersion = 0,
+    this.linkedKey,
   });
 
   factory CollectorSnapshot.fromJson(Map<String, Object?> json) =>
@@ -32,6 +36,9 @@ class CollectorSnapshot {
         district: json['district']! as String,
         organisation: json['organisation'] as String?,
         email: json['email'] as String?,
+        side: AppSide.parse(json['side'] as String?) ?? AppSide.water,
+        legalVersion: (json['legal_version'] as num?)?.toInt() ?? 0,
+        linkedKey: json['linked_key'] as String?,
       );
 
   Map<String, Object?> toJson() => {
@@ -46,6 +53,10 @@ class CollectorSnapshot {
     'district': district,
     'organisation': organisation,
     'email': ?email,
+    // Water stays implied, as before sides (ADR-031).
+    if (side != AppSide.water) 'side': side.wire,
+    if (legalVersion > 0) 'legal_version': legalVersion,
+    'linked_key': ?linkedKey,
   };
 
   /// Random UUID created with the profile; stable across edits.
@@ -62,6 +73,17 @@ class CollectorSnapshot {
 
   /// Optional, added after onboarding (ADR-024); the phone may be empty too.
   final String? email;
+
+  /// The side this profile collects for (ADR-031); never changes. A person
+  /// on both sides has two profiles, linked by [linkedKey].
+  final AppSide side;
+
+  /// The version of the side's Privacy Policy and Terms accepted (0: not
+  /// yet, for profiles made before sides).
+  final int legalVersion;
+
+  /// The same person's profile on the other side, if they joined it.
+  final String? linkedKey;
 }
 
 /// A GPS fix with its accuracy.

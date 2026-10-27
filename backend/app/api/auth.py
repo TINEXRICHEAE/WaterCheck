@@ -9,8 +9,9 @@ it needs the double-submit CSRF token (``wc_csrf`` cookie echoed in
 
 from __future__ import annotations
 
+import json
 import secrets
-from typing import Annotated
+from typing import Annotated, Literal
 from uuid import UUID
 
 from fastapi import APIRouter, Cookie, Header, HTTPException, Request, Response, status
@@ -19,7 +20,8 @@ from sqlalchemy import text
 
 from app.api.deps import AnyUserDep, DbDep, SettingsDep, UserDep
 from app.core.config import Settings
-from app.services.auth import AuthError, AuthService, TokenPair
+from app.core.sides import LEGAL_VERSIONS, sides_of
+from app.services.auth import AuthError, AuthService, Registration, TokenPair
 from app.services.policy import security_policy
 
 router = APIRouter(prefix="/v1", tags=["auth"])
@@ -30,7 +32,13 @@ _STATUS = {
     "locked": status.HTTP_423_LOCKED,
     "weak_password": status.HTTP_422_UNPROCESSABLE_CONTENT,
     "same_password": status.HTTP_422_UNPROCESSABLE_CONTENT,
+    "legal_not_accepted": status.HTTP_422_UNPROCESSABLE_CONTENT,
+    "username_taken": status.HTTP_409_CONFLICT,
+    "already_on_side": status.HTTP_409_CONFLICT,
+    "not_on_side": status.HTTP_404_NOT_FOUND,
 }
+
+SideIn = Literal["water", "research"]
 
 REFRESH_COOKIE = "wc_refresh"
 CSRF_COOKIE = "wc_csrf"
@@ -40,6 +48,33 @@ TransportHeader = Annotated[str | None, Header(alias="X-Token-Transport")]
 class LoginRequest(BaseModel):
     username: str = Field(min_length=1, max_length=200)
     password: str = Field(min_length=1, max_length=200)
+    # The side signed in to (ADR-031); IT admins' accounts work on all.
+    side: SideIn = "water"
+
+
+class SignUpRequest(BaseModel):
+    """Open sign-up on one side, with its documents accepted (ADR-031)."""
+
+    side: SideIn
+    # The email, also the sign-in name.
+    username: str = Field(pattern=r"^[^@\s]+@[^@\s]+\.[^@\s]+$", max_length=200)
+    full_name: str = Field(min_length=1, max_length=200)
+    password: str = Field(min_length=1, max_length=200)
+    # The version of the side's Privacy Policy and Terms ticked.
+    accepted_legal: int = Field(ge=0)
+    organisation: str | None = Field(default=None, max_length=200)
+    phone: str | None = Field(default=None, max_length=40)
+
+
+class JoinRequest(BaseModel):
+    side: SideIn
+    # The person's current password, confirmed again.
+    password: str = Field(min_length=1, max_length=200)
+    accepted_legal: int = Field(ge=0)
+
+
+class SwitchRequest(BaseModel):
+    side: SideIn
 
 
 class RefreshRequest(BaseModel):
@@ -102,8 +137,17 @@ class MeResponse(BaseModel):
     # Confirmed with a code (ADR-025); alerts go only to confirmed contacts.
     phone_confirmed: bool = False
     email_confirmed: bool = False
-    # Privacy Policy and Terms of Use version accepted (0: never).
+    # Privacy Policy and Terms of Use version accepted (0: never), before
+    # sides; kept for older apps.
     legal_version: int = 0
+    # The account's side: 'water', 'research' or 'all' (IT admins).
+    side: str = "water"
+    # Each side's documents accepted, e.g. {"water": 4} (ADR-031).
+    legal: dict[str, int] = Field(default_factory=dict)
+    # Sides whose current documents this account must still accept (once).
+    legal_due: list[str] = Field(default_factory=list)
+    # Sides this person also has an account on, to switch to.
+    linked_sides: list[str] = Field(default_factory=list)
     notify_email: bool = True
     notify_push: bool = True
     notify_sms: bool = True
@@ -202,7 +246,83 @@ async def login(
 ) -> TokenResponse:
     ip = request.client.host if request.client else None
     try:
-        pair = await AuthService(db, settings).login(body.username, body.password, ip=ip)
+        pair = await AuthService(db, settings).login(
+            body.username, body.password, side=body.side, ip=ip
+        )
+    except AuthError as e:
+        raise _fail(e) from e
+    return _respond(pair, response, settings, cookie=_wants_cookie(transport))
+
+
+@router.post("/auth/register", status_code=status.HTTP_201_CREATED)
+async def register(
+    body: SignUpRequest,
+    request: Request,
+    response: Response,
+    db: DbDep,
+    settings: SettingsDep,
+    transport: TransportHeader = None,
+) -> TokenResponse:
+    """Anyone may make an account on a side; it works at once (ADR-031)."""
+    ip = request.client.host if request.client else None
+    try:
+        pair = await AuthService(db, settings).register(
+            Registration(
+                side=body.side,
+                username=str(body.username),
+                full_name=body.full_name,
+                password=body.password,
+                accepted_legal=body.accepted_legal,
+                organisation=body.organisation,
+                phone=body.phone,
+            ),
+            ip=ip,
+        )
+    except AuthError as e:
+        raise _fail(e) from e
+    return _respond(pair, response, settings, cookie=_wants_cookie(transport))
+
+
+@router.post("/auth/join")
+async def join_side(
+    body: JoinRequest,
+    request: Request,
+    response: Response,
+    user: UserDep,
+    db: DbDep,
+    settings: SettingsDep,
+    transport: TransportHeader = None,
+) -> TokenResponse:
+    """Opens this person's account on another side (or signs in to it if it
+    exists) and returns its tokens: the app switches to that side."""
+    ip = request.client.host if request.client else None
+    if user.user_id is None:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "not_signed_in")
+    try:
+        pair = await AuthService(db, settings).join(
+            user.user_id, body.side, body.password, body.accepted_legal, ip=ip
+        )
+    except AuthError as e:
+        raise _fail(e) from e
+    return _respond(pair, response, settings, cookie=_wants_cookie(transport))
+
+
+@router.post("/auth/switch")
+async def switch_side(
+    body: SwitchRequest,
+    request: Request,
+    response: Response,
+    user: UserDep,
+    db: DbDep,
+    settings: SettingsDep,
+    transport: TransportHeader = None,
+) -> TokenResponse:
+    """Signs in to this person's linked account on another side."""
+    ip = request.client.host if request.client else None
+    if user.user_id is None:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "not_signed_in")
+    try:
+        pair = await AuthService(db, settings).switch(user.user_id, body.side, ip=ip)
     except AuthError as e:
         raise _fail(e) from e
     return _respond(pair, response, settings, cookie=_wants_cookie(transport))
@@ -290,12 +410,13 @@ async def me(user: AnyUserDep, db: DbDep, settings: SettingsDep) -> MeResponse:
                     "SELECT id, username, full_name, organisation, position, role, "
                     "must_change_password, phone, email, notify_email, notify_push, notify_sms, "
                     "theme, time_zone, phone_confirmed_at IS NOT NULL AS phone_confirmed, "
-                    "email_confirmed_at IS NOT NULL AS email_confirmed, legal_version "
-                    "FROM app_user WHERE id = :id"
+                    "email_confirmed_at IS NOT NULL AS email_confirmed, legal_version, side, "
+                    "legal, wc_linked_sides(id) AS linked FROM app_user WHERE id = :id"
                 ),
                 {"id": user.user_id},
             )
         ).one()
+        accepted = row.legal if isinstance(row.legal, dict) else json.loads(row.legal or "{}")
         responsibilities = [
             r[0]
             for r in await conn.execute(
@@ -333,6 +454,10 @@ async def me(user: AnyUserDep, db: DbDep, settings: SettingsDep) -> MeResponse:
         phone_confirmed=row.phone_confirmed,
         email_confirmed=row.email_confirmed,
         legal_version=row.legal_version,
+        side=row.side,
+        legal={k: int(v) for k, v in accepted.items()},
+        legal_due=[s for s in sides_of(row.side) if int(accepted.get(s, 0)) < LEGAL_VERSIONS[s]],
+        linked_sides=list(row.linked),
         notify_email=row.notify_email,
         notify_push=row.notify_push,
         notify_sms=row.notify_sms,

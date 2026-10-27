@@ -1,4 +1,5 @@
 import 'package:data/data.dart' show ThreadKind;
+import 'package:domain/domain.dart' show AppSide;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ui_kit/ui_kit.dart';
@@ -8,7 +9,9 @@ import '../features/activation/activation_screen.dart';
 import '../features/activation/scan_screen.dart';
 import '../features/alerts/response_card_screen.dart';
 import '../features/collectors/tester_account_screen.dart';
+import '../features/collectors/accept_legal_screen.dart';
 import '../features/collectors/collector_form_screen.dart';
+import '../features/collectors/switch_side_screen.dart';
 import '../features/collectors/who_is_testing_screen.dart';
 import '../features/home/home_screen.dart';
 import '../features/research/fill_screen.dart';
@@ -20,7 +23,6 @@ import '../features/collectors/recover_profile_screen.dart';
 import '../features/map/map_screen.dart';
 import '../features/settings/reference_detail_screens.dart';
 import '../features/lock/lock_screens.dart';
-import '../features/onboarding/welcome_screen.dart';
 import '../features/reset/reset_screen.dart';
 import '../features/settings/reference_data_screen.dart';
 import '../features/sources/inspection_screen.dart';
@@ -40,19 +42,19 @@ import '../l10n/app_localizations.dart';
 import 'gate.dart';
 
 /// Routes a user must be able to reach before choosing a collector.
-bool _isOnboarding(String location) =>
-    location == '/welcome' || location.startsWith('/who');
+bool _isOnboarding(String location) => location.startsWith('/who');
 
 /// Screens that only make sense before the app is ready.
 bool _isSetup(String location) =>
-    location == '/welcome' || location == '/lock' || location == '/lock/setup';
+    location == '/lock' || location == '/lock/setup';
 
 /// Where the gate sends someone trying to open [location], or null to allow.
-/// Order: privacy notice, revoked, lock, PIN choice, collector. There is no
-/// activation step (ADR-024): the device registers itself, and a tester is
-/// assigned to an area later with a code (Settings).
+/// Order: revoked, lock, PIN choice, collector. There is no activation step
+/// (ADR-024): the device registers itself, and a tester is assigned to an
+/// area later with a code (Settings). There is no device-wide consent page
+/// either (ADR-031): each person accepts their side's documents when they
+/// sign up, and older profiles once when they are next chosen.
 String? gateRedirect(AppGate gate, String location) {
-  if (!gate.consented) return location == '/welcome' ? null : '/welcome';
   if (gate.revoked) return location == '/reset' ? null : '/reset';
   // Reset erases everything and exports only what the server can read, so
   // it is reachable from the lock screen ("Forgot PIN?").
@@ -77,15 +79,27 @@ final routerProvider = Provider<GoRouter>((ref) {
   final router = GoRouter(
     initialLocation: '/',
     refreshListenable: gate,
-    redirect: (context, state) =>
-        gateRedirect(gate.value, state.matchedLocation),
+    redirect: (context, state) {
+      final location = state.matchedLocation;
+      final to = gateRedirect(gate.value, location);
+      if (to != null) return to;
+      // The sides run apart (ADR-031): research's pages live under
+      // /research, water's elsewhere; who is collecting and the lock are
+      // the device's.
+      if (isDevicePage(location)) return null;
+      final research = ref.read(appModeProvider) == AppMode.research;
+      final onResearch =
+          location == '/research' || location.startsWith('/research/');
+      if (research && !onResearch) return '/research';
+      if (!research && onResearch) return '/';
+      return null;
+    },
     // An unknown address: a safe page, not a crash.
     errorBuilder: (context, state) => Scaffold(
       appBar: AppBar(),
       body: ErrorView(kind: ErrorKind.notFound, onHome: () => context.go('/')),
     ),
     routes: [
-      GoRoute(path: '/welcome', builder: (_, _) => const WelcomeScreen()),
       GoRoute(
         path: '/activate',
         builder: (_, _) => const ActivationScreen(),
@@ -117,6 +131,27 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: ':key/edit',
             builder: (_, state) =>
                 CollectorFormScreen(collectorKey: state.pathParameters['key']),
+          ),
+          // The same person on the other side (ADR-031).
+          GoRoute(
+            path: ':key/join',
+            builder: (_, state) =>
+                CollectorFormScreen(fromKey: state.pathParameters['key']),
+          ),
+          // The full switch to the other side (ADR-031).
+          GoRoute(
+            path: 'switch/:side',
+            builder: (_, state) => SwitchSideScreen(
+              side:
+                  AppSide.parse(state.pathParameters['side']) ??
+                  AppSide.research,
+            ),
+          ),
+          // A side's documents, accepted once by older profiles.
+          GoRoute(
+            path: ':key/legal',
+            builder: (_, state) =>
+                AcceptLegalScreen(collectorKey: state.pathParameters['key']!),
           ),
         ],
       ),
@@ -166,6 +201,34 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
         ],
       ),
+      // Research's own profile and messages (ADR-031).
+      GoRoute(
+        path: '/research/profile',
+        builder: (_, _) => const TesterAccountScreen(),
+        routes: [
+          GoRoute(path: 'trips', builder: (_, _) => const TripsScreen()),
+          GoRoute(
+            path: 'trips/:id',
+            builder: (_, state) =>
+                TripScreen(tripId: state.pathParameters['id']!),
+          ),
+        ],
+      ),
+      GoRoute(
+        path: '/research/messages',
+        builder: (_, _) => const InboxScreen(),
+        routes: [
+          GoRoute(
+            path: ':kind/:id',
+            builder: (_, state) => ThreadScreen(
+              kind:
+                  ThreadKind.parse(state.pathParameters['kind']!) ??
+                  ThreadKind.research,
+              subjectId: state.pathParameters['id']!,
+            ),
+          ),
+        ],
+      ),
       // Research (ADR-030): filling a record, and one finished record.
       GoRoute(
         path: '/research/fill/:id',
@@ -202,22 +265,21 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
         ],
       ),
+      _researchShell(),
       StatefulShellRoute.indexedStack(
         builder: (context, state, shell) => _CollectShell(shell: shell),
         branches: [
           StatefulShellBranch(
-            routes: [GoRoute(path: '/', builder: (_, _) => const _ModeHome())],
+            routes: [GoRoute(path: '/', builder: (_, _) => const HomeScreen())],
           ),
           StatefulShellBranch(
             routes: [
               GoRoute(
                 path: '/map',
-                builder: (_, state) => _ModeMap(
-                  water: MapScreen(
-                    areaId: state.uri.queryParameters['area'],
-                    sourceId: state.uri.queryParameters['source'],
-                    placeId: state.uri.queryParameters['place'],
-                  ),
+                builder: (_, state) => MapScreen(
+                  areaId: state.uri.queryParameters['area'],
+                  sourceId: state.uri.queryParameters['source'],
+                  placeId: state.uri.queryParameters['place'],
                 ),
               ),
             ],
@@ -271,29 +333,45 @@ final routerProvider = Provider<GoRouter>((ref) {
   return router;
 });
 
-/// Home: water sources, or the research forms (ADR-030).
-class _ModeHome extends ConsumerWidget {
-  const _ModeHome();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) =>
-      ref.watch(appModeProvider) == AppMode.research
-      ? const ResearchHome()
-      : const HomeScreen();
-}
-
-/// The map: water sources, or this tester's research points.
-class _ModeMap extends ConsumerWidget {
-  const _ModeMap({required this.water});
-
-  final Widget water;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) =>
-      ref.watch(appModeProvider) == AppMode.research
-      ? const ResearchMapScreen()
-      : water;
-}
+/// Research's own menu (ADR-031), beside water's: the same frame, its own
+/// pages.
+StatefulShellRoute _researchShell() => StatefulShellRoute.indexedStack(
+  builder: (context, state, shell) => _CollectShell(shell: shell),
+  branches: [
+    StatefulShellBranch(
+      routes: [
+        GoRoute(path: '/research', builder: (_, _) => const ResearchHome()),
+      ],
+    ),
+    StatefulShellBranch(
+      routes: [
+        GoRoute(
+          path: '/research/map',
+          builder: (_, _) => const ResearchMapScreen(),
+        ),
+      ],
+    ),
+    StatefulShellBranch(
+      routes: [
+        GoRoute(path: '/research/sync', builder: (_, _) => const SyncScreen()),
+      ],
+    ),
+    StatefulShellBranch(
+      routes: [
+        GoRoute(
+          path: '/research/settings',
+          builder: (_, _) => const SettingsScreen(),
+          routes: [
+            GoRoute(
+              path: 'account',
+              builder: (_, _) => const TesterAccountScreen(),
+            ),
+          ],
+        ),
+      ],
+    ),
+  ],
+);
 
 class _CollectShell extends ConsumerWidget {
   const _CollectShell({required this.shell});

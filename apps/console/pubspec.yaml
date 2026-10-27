@@ -1,5 +1,5 @@
 name: watercheck_console
-description: "WaterCheck Console: stakeholder and IT admin app (Web, Windows, Android)."
+description: "FieldQuire Console: plan, monitor, analyse and report on field data (water testing, research and more)."
 publish_to: none
 version: 0.1.1+2
 resolution: workspace

@@ -1,28 +1,26 @@
-# FieldQuire Privacy Policy
+# FieldQuire Water Testing: Privacy Policy
 
-Version 3 · Effective: [date of approval]
+Version 4 · Effective: [date of approval]
 
-> Draft for review. This text describes what the FieldQuire apps do. It is
-> not legal advice. Before real data is collected, the project lead confirms
-> it with the Personal Data Protection Office (PDPO) and fills in the parts
-> in [square brackets].
+> Draft for review. This text describes what the water-testing side of FieldQuire does. It is not legal advice. Before real data is collected, the project lead confirms it with the Personal Data Protection Office (PDPO) and fills in the parts in [square brackets].
 
 ## 1. Who is responsible
 
-FieldQuire is run by [project lead / organisation], the data controller. For anything about your information, contact [privacy contact: email and phone].
+The water-testing side of FieldQuire is run by [project lead / organisation], the data controller. For anything about your information, contact [privacy contact: email and phone].
 
-## 2. What FieldQuire is for
+## 2. What this side is for
 
-FieldQuire helps communities and districts in Uganda check that shared drinking-water sources are safe. Testers record water tests at sources such as boreholes, springs and taps. District officers and other stakeholders see the results for their areas and act on problems.
+It helps communities and districts in Uganda check that shared drinking-water sources are safe. Testers record water tests at sources such as boreholes, springs and taps. District officers and other stakeholders see the results and act on problems.
 
 ## 3. What we collect
 
 ### If you test water (FieldQuire Collect)
 
-- **Your profile:**
+- **Your water-testing profile:**
   - your name and collector type (for example VHT member or student), and your village, parish, sub-county and district;
   - your phone number, email and organisation, which are all optional;
-  - whether your phone and email have been confirmed.
+  - whether your phone and email have been confirmed;
+  - when you accepted these documents.
 - **What you record:**
   - water sources, with their name, type and location;
   - test readings and results;
@@ -38,15 +36,16 @@ FieldQuire helps communities and districts in Uganda check that shared drinking-
   - an ID the device creates when FieldQuire first runs;
   - its type (Android, Windows or web) and, if you give one, its name;
   - when it was last used;
-  - which devices you use, and every sign-in with a sign-in code.
-- **Your area assignment:** the areas an IT admin, or an assignment code, made you responsible for.
+  - which devices you use, and every sign-in with a sign-in or recovery code.
+- **Your area assignment, if any:** the areas an IT admin, or an assignment code, made you officially responsible for. You can test anywhere with or without one.
 
-### If you use the FieldQuire Console
+### If you use the Console for water testing
 
 - **Your account:**
-  - your name, username, organisation and position;
-  - your phone and email, and whether they are confirmed;
-  - your role, areas and responsibilities.
+  - your name, email (your sign-in name), organisation and position;
+  - your phone, and whether your phone and email are confirmed;
+  - your role, and any areas and responsibilities an IT admin gives you;
+  - when you accepted these documents.
 - **How you use it:** sign-in times, your appearance and alert settings, and what you do in the Console (for example acknowledging an alert or approving a change). These actions are kept in an audit log.
 
 ### What we do not collect
@@ -72,9 +71,10 @@ We rely on your consent, and on the public-health purpose of monitoring drinking
 
 ## 5. Who can see it
 
-- **Stakeholders and IT admins** see the records for their areas: results, locations, pictures and messages, with the tester's name. They can see a tester's phone and email so they can follow up.
-- **Other testers** on their own devices see the sources and results for the districts they work in. They see testers' names on messages and on records, but not anyone else's phone or email.
+- **Water-testing Console users and IT admins** see all water records: results, locations, pictures and messages, with the tester's name. They can see a tester's phone and email so they can follow up. Areas decide who receives alerts and notices, not who may look.
+- **Other testers** on their devices see sources and results, with testers' names on messages and on records, but not anyone else's phone or email.
 - **IT admins** manage accounts, devices and codes, and can see the audit log.
+- **People on other sides of FieldQuire** (for example research) do not see water records through their accounts.
 - We do not sell your information or use it for advertising. We share it outside FieldQuire only where the law requires, or with your district health authorities for public health.
 
 ## 6. Where it is kept
@@ -103,8 +103,7 @@ We rely on your consent, and on the public-health purpose of monitoring drinking
 
 - Connections are encrypted (HTTPS).
 - Devices sign every request with their own secret.
-- Each person sees only their areas.
-- Sign-in codes work once.
+- Sign-in and recovery codes work once.
 - Confirmation codes expire after a day.
 - Every change is recorded.
 - Backups are encrypted.
@@ -128,7 +127,7 @@ Testers under 18 may take part only with the permission of a parent or guardian,
 
 ## 11. Changes
 
-If this policy changes, its version number changes, and the apps ask you to read and accept it again.
+If this policy changes, its version number changes, and the apps ask you once to read and accept it again.
 
 ## 12. Complaints
 

@@ -1,6 +1,7 @@
 import 'package:api_client/api_client.dart';
 import 'package:data/data.dart' show SeedBundle, SeedImporter;
 import 'package:dio/dio.dart';
+import 'package:domain/domain.dart' show AppSide;
 import 'package:drift/drift.dart' as drift show Table, TableInfo;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +15,7 @@ import '../../app/providers.dart';
 import '../../app/session.dart';
 import '../../l10n/app_localizations.dart';
 import '../admin/area_picker.dart';
+import '../research/research_mode.dart';
 
 ProfileClient _profile(WidgetRef ref) =>
     WaterCheckApi(ref.read(consoleDioProvider)).profile;
@@ -269,8 +271,13 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final text = Theme.of(context).textTheme;
-    final me = ref.watch(sessionProvider).me;
+    final session = ref.watch(sessionProvider);
+    final me = session.me;
     if (me == null) return const SizedBox.shrink();
+    // The side this page is shown on (ADR-031); areas are water's.
+    final side = ref.watch(activeModeProvider).side;
+    final water = side == AppSide.water;
+    final names = UiKitLocalizations.of(context);
     final when = DateFormat('d MMM y');
     final requests = ref.watch(_areaRequestsProvider).value ?? const [];
     final open = requests.where((r) => r.decidedAt == null).firstOrNull;
@@ -319,7 +326,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           subtitle: Text(
             [
               me.username,
-              me.role == 'it_admin' ? l10n.roleAdmin : l10n.roleStakeholder,
+              me.role == 'it_admin'
+                  ? l10n.roleAdmin
+                  : l10n.roleOnSide(sideName(names, side)),
             ].join(' · '),
           ),
         ),
@@ -360,41 +369,77 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           me.phone,
           me.phoneConfirmed,
         ),
-        const Divider(height: 24),
-        Text(l10n.profileAreas, style: text.titleMedium),
-        Text(
-          me.areas.isEmpty
-              ? l10n.profileAllAreas
-              : me.areas.map((a) => a.name).join(', '),
-        ),
-        Text(
-          me.responsibilities.isEmpty
-              ? l10n.profileAllResponsibilities
-              : me.responsibilities.map(l10n.responsibility).join(', '),
-          style: text.bodySmall,
-        ),
-        if (open != null)
-          Card(
-            child: ListTile(
-              leading: const Icon(Icons.hourglass_top),
-              title: Text(l10n.profileAreasPending(open.areas.join(', '))),
-              subtitle: Text(
-                l10n.profileAreasPendingSince(
-                  when.format(WcTime.local(open.createdAt, context)),
+        if (water) ...[
+          const Divider(height: 24),
+          Text(l10n.profileAreas, style: text.titleMedium),
+          Text(
+            me.areas.isEmpty
+                ? l10n.profileAllAreas
+                : me.areas.map((a) => a.name).join(', '),
+          ),
+          Text(
+            me.responsibilities.isEmpty
+                ? l10n.profileAllResponsibilities
+                : me.responsibilities.map(l10n.responsibility).join(', '),
+            style: text.bodySmall,
+          ),
+          if (open != null)
+            Card(
+              child: ListTile(
+                leading: const Icon(Icons.hourglass_top),
+                title: Text(l10n.profileAreasPending(open.areas.join(', '))),
+                subtitle: Text(
+                  l10n.profileAreasPendingSince(
+                    when.format(WcTime.local(open.createdAt, context)),
+                  ),
                 ),
               ),
+            )
+          else if (last != null && last.approved == false)
+            Text(l10n.profileAreasDeclined(last.areas.join(', '))),
+          if (me.role != 'it_admin')
+            Align(
+              alignment: Alignment.centerLeft,
+              child: OutlinedButton.icon(
+                onPressed: _busy ? null : () => _askAreas(me),
+                icon: const Icon(Icons.edit_location_alt_outlined),
+                label: Text(l10n.profileAskAreas),
+              ),
             ),
-          )
-        else if (last != null && last.approved == false)
-          Text(l10n.profileAreasDeclined(last.areas.join(', '))),
-        if (me.role != 'it_admin')
-          Align(
-            alignment: Alignment.centerLeft,
-            child: OutlinedButton.icon(
-              onPressed: _busy ? null : () => _askAreas(me),
-              icon: const Icon(Icons.edit_location_alt_outlined),
-              label: Text(l10n.profileAskAreas),
+        ],
+        const Divider(height: 24),
+        // Sides of FieldQuire (ADR-031): separate, linked accounts.
+        Text(l10n.profileSides, style: text.titleMedium),
+        ListTile(
+          contentPadding: EdgeInsets.zero,
+          leading: Icon(
+            water ? Icons.water_drop_outlined : Icons.assignment_outlined,
+          ),
+          title: Text(l10n.profileThisSide(sideName(names, side))),
+          subtitle: Text(
+            session.isAdmin ? l10n.profileAdminAllSides : l10n.profileSideHint,
+          ),
+        ),
+        if (!session.isAdmin)
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.swap_horiz),
+            title: Text(sideName(names, side.other)),
+            subtitle: Text(
+              session.otherSides.contains(side.other)
+                  ? l10n.profileLinked
+                  : l10n.profileNotJoined,
             ),
+            trailing: session.otherSides.contains(side.other)
+                ? TextButton(
+                    onPressed: () =>
+                        switchToSide(context, ref, ConsoleMode.of(side.other)),
+                    child: Text(l10n.switchGo),
+                  )
+                : TextButton(
+                    onPressed: () => context.go('/join/${side.other.wire}'),
+                    child: Text(l10n.joinMenu(sideName(names, side.other))),
+                  ),
           ),
         const Divider(height: 24),
         Text(l10n.profileAccount, style: text.titleMedium),
@@ -404,7 +449,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           title: Text(l10n.settingsTitle),
           subtitle: Text(l10n.profileSettingsHint),
           trailing: const Icon(Icons.chevron_right),
-          onTap: () => context.go('/dashboard/settings'),
+          onTap: () =>
+              context.go(water ? '/dashboard/settings' : '/research/settings'),
         ),
         ListTile(
           contentPadding: EdgeInsets.zero,
@@ -440,7 +486,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           onTap: _busy ? null : _close,
         ),
         const Divider(height: 24),
-        const LegalTiles(),
+        LegalTiles(side: side),
       ],
     );
   }

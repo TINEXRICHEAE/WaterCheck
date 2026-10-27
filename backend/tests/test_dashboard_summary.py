@@ -18,14 +18,18 @@ async def test_summary_matches_the_area_and_is_scoped(
     district = await make_area(owner_db, "district")
     p = await phone(client, owner_db, district)
     _, officer, _ = await person(client, owner_db, areas=(district["code"],))
-    _, outsider, _ = await person(
-        client, owner_db, areas=((await make_area(owner_db, "district"))["code"],)
-    )
+    # Areas no longer limit water users (ADR-031): the outsider is on the
+    # research side.
+    _, outsider, _ = await person(client, owner_db, side="research")
     changes = unsafe_visit(p)
     await p.push(changes)
     source = changes[0]["id"]
 
-    s = (await client.get("/v1/dashboard/summary", headers=officer)).json()
+    # Every water user sees all sources (ADR-031); the officer's area is
+    # the official allocation the app selects.
+    s = (
+        await client.get(f"/v1/dashboard/summary?area_id={district['id']}", headers=officer)
+    ).json()
     assert s["sources"] == 1
     assert (s["tested_in_period"], s["unsafe_in_period"]) == (1, 1)
     assert s["open_alerts"] == 1
@@ -42,6 +46,8 @@ async def test_summary_matches_the_area_and_is_scoped(
     # One area of several: the same filter as the app's area selector.
     only = await client.get(f"/v1/dashboard/summary?area_id={p.village}", headers=officer)
     assert only.json()["sources"] == 1
-    # Nothing outside the user's areas.
+    everything = (await client.get("/v1/dashboard/summary", headers=officer)).json()
+    assert everything["sources"] >= 1
+    # Nothing for someone on the research side.
     other = (await client.get("/v1/dashboard/summary", headers=outsider)).json()
     assert other["sources"] == 0 and other["latest_issue"] is None

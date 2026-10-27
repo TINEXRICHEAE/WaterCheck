@@ -1020,3 +1020,82 @@ Decisions are also recorded in [PLAN.md](PLAN.md) (decisions log and §3a), the 
   - date and collector filters in Analysis;
   - R3 media (audio, video, barcode scan);
   - the legal research section (R5).
+
+### 50. Sides of FieldQuire: separate accounts, open sign-up, Terms per side, research recovery codes (ADR-031) (2026-10-27)
+- **Request (lead):**
+  - general descriptions for both apps (field data collection, monitoring, analysis and reporting), with side-specific wording kept on each side;
+  - Terms and Privacy for each side, a general preamble, and the usual sign-up ticks accepted once, with no consent page every time;
+  - recovery codes and profile, account, security and settings pages for research collectors, mirroring water's but on their own pages;
+  - back buttons everywhere, and a safe "not found" page;
+  - water and research users kept apart: only IT admins manage both, others join the other side using the first side's credentials, and switch buttons appear only after joining.
+- **Decisions (lead):**
+  - open sign-up on both sides, working at once;
+  - areas are an official allocation, not a limit: water users see all sources, and research users see only their projects (or public forms);
+  - separate profiles (Collect) and separate accounts (Console) per side;
+  - older users are asked once at next sign-in.
+- **Outcome (on dev, not yet committed):**
+  - **Server (migration 0020):**
+    - Accounts: `app_user` has a side, a `person_id` linking a person's accounts, accepted documents per side, and `created_via`; the email is unique per side.
+    - `wc_in_scope` lets water accounts see every area.
+    - Tester profiles: `collector_profile` has a side, set from the profile the phone sends.
+    - Sign-up, join and switch endpoints; sign-in by side; `/me` lists the side, documents due and linked sides; accepting documents takes a side.
+    - Research endpoints accept research accounts and IT admins only.
+    - Research collectors:
+      - a detail endpoint;
+      - a search that also finds profiles from before sides that never tested water;
+      - recovery codes from their project team or an IT admin. A code given from the research pages claims such a profile for research. The side comes back with the code.
+    - Joining a form by code requires a research profile.
+  - **Documents:** `fieldquire.md` (about FieldQuire and its sides), plus water (version 4) and research (version 1) Privacy Policies and Terms; the old combined documents are removed. The UI kit has the documents per side, the sign-up ticks and the one-time acceptance view.
+  - **Console:**
+    - sign-in to the chosen side, and "Create an account" (sign-up with ticks);
+    - each account sees only its side (IT admins both);
+    - "Join …" or "Switch to …" in the account menu and profile; the app bar switch only for linked accounts or IT admins;
+    - documents asked once per side;
+    - the profile page is per side (areas are water's);
+    - Research › Collectors has "Find a collector" and a collector page with a recovery code;
+    - water users can filter by every region and district;
+    - back buttons on every research page below the menu, and "not found" returns to the side's home.
+  - **Collect:**
+    - no device-wide consent page;
+    - "Who is collecting?" lists the chosen side's people, and new people tick that side's documents;
+    - older profiles accept once when chosen; recovered profiles return to their side and accept once if needed;
+    - "Also collect for …" makes a linked profile from the same details; the switch (app bar and Settings) appears only for linked profiles;
+    - the profile page is per side (water: areas; research: forms);
+    - device schema 13 (side, accepted documents, linked profile).
+  - **Descriptions:** general app descriptions (About, web manifests, pubspecs, README); water-only wording stays with water.
+- **Tests:**
+  - backend: all passing, with new side tests (sign-up, join, switch, documents due, visibility) and older "outsider" tests now using research accounts;
+  - Console 51, including sign-up/join/switch and per-side documents;
+  - Collect 73; data 89 (migration 12 → 13); UI kit 39; forms 18; domain 162.
+- **Dev:** rebuilt (migration 0020; one existing tester profile became research) and both previews rebuilt; 23 GB free.
+
+### 51. Sides kept apart: research admin, own Collect pages, always-visible switch, acceptances kept (ADR-031) (2026-10-27)
+- **Request (lead):**
+  - store the Terms and Privacy ticks for accountability;
+  - signing out another research device needs a code, but the research admin led to water's;
+  - replicate every water admin, stakeholder and collector feature on research, so each side manages only its own people and actions and no page leads to the other side;
+  - a full switch, visible to everyone, that offers signing in with an account on the other side, a recovery code, joining with the current credentials, or a new account.
+- **Outcome (on dev, not yet committed):**
+  - **Accountability (migration 0021):**
+    - `legal_acceptance` rows are written at sign-up, join, the one-time prompt, and when a phone's profile arrives with a higher accepted version;
+    - each row is permanent and holds who, side, version, both documents, how, device or IP, and when;
+    - existing accounts' acceptances were copied in;
+    - IT admins see them on people's and collectors' pages (`/v1/admin/legal-acceptances`).
+  - **Research admin:**
+    - People, Collectors' devices, Accounts and codes, Security and System under `/research/admin`, using the water pages that read their side from the address;
+    - `/v1/admin/users`, `installations` and `credentials` take `?side=`, and the water admin now lists water only;
+    - on the research side, new accounts are research accounts, and the area and responsibility fields are hidden;
+    - research accounts can no longer open `/admin`.
+  - **Research collector page:** IT admins see confirmation codes (for signing devices out and confirming contacts), devices, sign-ins and acceptances.
+  - **Collect:**
+    - research has its own shell and pages (`/research`, `/research/map`, `/research/sync`, `/research/settings`, `/research/profile`, `/research/messages`);
+    - a guard keeps each side on its own pages;
+    - the inbox shows the current side's threads;
+    - reference data shows on water only.
+  - **The full switch** is always visible in both apps:
+    - **Console:** sign in there, join with these details, or create a new account (or switch at once if linked);
+    - **Collect:** someone already on this phone for that side, join with my details, a recovery or sign-in code, or a new person.
+- **Tests:**
+  - backend all passing, with new acceptance and per-side admin tests;
+  - Console 51; Collect 73.
+- **Dev:** rebuilt (migration 0021) and previews rebuilt.

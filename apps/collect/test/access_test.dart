@@ -34,17 +34,13 @@ Future<void> addUnsentRecord(AppDatabase db) => db
 
 void main() {
   group('gate order', () {
-    const ready = AppGate(consented: true, activeCollectorKey: 'k');
+    const ready = AppGate(activeCollectorKey: 'k');
 
-    test('no activation step: after consent the app opens (ADR-024)', () {
-      const g = AppGate(
-        consented: true,
-        activeCollectorKey: 'k',
-        activated: false,
-      );
+    test('no activation step and no device-wide consent: the app opens '
+        '(ADR-024, ADR-031)', () {
+      const g = AppGate(activeCollectorKey: 'k', activated: false);
       expect(gateRedirect(g, '/'), isNull);
       expect(gateRedirect(g, '/settings/account'), isNull);
-      expect(gateRedirect(ready.copyWith(consented: false), '/'), '/welcome');
     });
 
     test('a revoked phone can only export and wipe', () {

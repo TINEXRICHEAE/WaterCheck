@@ -5,6 +5,7 @@
 import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
 
+import '../models/acceptance_out.dart';
 import '../models/activation_code_out.dart';
 import '../models/archive_in.dart';
 import '../models/archive_out.dart';
@@ -31,6 +32,7 @@ import '../models/review_in.dart';
 import '../models/routing.dart';
 import '../models/routing_in.dart';
 import '../models/security_in.dart';
+import '../models/side.dart';
 import '../models/typed_value.dart';
 import '../models/typed_value_in.dart';
 import '../models/user_changes_in.dart';
@@ -48,9 +50,12 @@ abstract class AdminClient {
   @GET('/v1/admin/activation-codes')
   Future<List<ActivationCodeOut>> activationCodes();
 
-  /// Users
+  /// Users.
+  ///
+  /// Console accounts; with `side`, that side's accounts and the IT admins,.
+  /// who work on every side (ADR-031).
   @GET('/v1/admin/users')
-  Future<List<UserOut>> users();
+  Future<List<UserOut>> users({@Query('side') Side? side});
 
   /// New User
   @POST('/v1/admin/users')
@@ -69,9 +74,12 @@ abstract class AdminClient {
     @Path('user_id') required String userId,
   });
 
-  /// Installations
+  /// Installations.
+  ///
+  /// Devices; with `side`, those its testers use. `tests` counts that.
+  /// side's records (water tests or research records).
   @GET('/v1/admin/installations')
-  Future<List<InstallationOut>> installations();
+  Future<List<InstallationOut>> installations({@Query('side') Side? side});
 
   /// Installation Collectors.
   ///
@@ -88,7 +96,7 @@ abstract class AdminClient {
   /// area, and their use: devices activated, first and last sign-in.
   /// (ADR-022). The codes and passwords themselves are never stored.
   @GET('/v1/admin/credentials')
-  Future<Ledger> credentials();
+  Future<Ledger> credentials({@Query('side') Side? side});
 
   /// Revoke Code.
   ///
@@ -100,6 +108,16 @@ abstract class AdminClient {
   /// Chain
   @GET('/v1/admin/areas/{area_id}/chain')
   Future<ChainOut> chain({@Path('area_id') required String areaId});
+
+  /// Legal Acceptances.
+  ///
+  /// Each time an account or a tester accepted a side's Terms of Use and.
+  /// Privacy Policy (ADR-031): kept for accountability, newest first.
+  @GET('/v1/admin/legal-acceptances')
+  Future<List<AcceptanceOut>> legalAcceptances({
+    @Query('user_id') String? userId,
+    @Query('collector_key') String? collectorKey,
+  });
 
   /// Audit
   @GET('/v1/admin/audit')

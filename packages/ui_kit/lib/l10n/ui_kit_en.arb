@@ -186,7 +186,7 @@
   "zoneNairobi": "East Africa Time, Nairobi (UTC+3)",
   "zoneUtc": "UTC",
   "filtersReset": "Reset filters",
-  "aboutLegalese": "Community drinking water monitoring. Licensed under the project licence; open-source components are listed under View licences.",
+  "aboutLegalese": "Field data collection, monitoring, analysis and reporting: water testing, research and more. Licensed under the project licence; open-source components are listed under View licences.",
   "cancel": "Cancel",
   "searchClear": "Clear search",
   "filterAll": "All",
@@ -311,8 +311,6 @@
       }
     }
   },
-  "legalAccept": "I agree to the Terms of Use and the Privacy Policy",
-  "legalChanged": "The Privacy Policy or Terms of Use have changed. Please read them and agree again to keep using FieldQuire.",
   "mapPathOpen": "Show the whole path",
   "mapPathFold": "Fold the path",
   "mapPathMore": "+{count}",
@@ -494,5 +492,49 @@
   },
   "formPick": "Choose",
   "formTypeCode": "Type the code",
-  "formNotYet": "This kind of question comes in a later version of FieldQuire."
+  "formNotYet": "This kind of question comes in a later version of FieldQuire.",
+  "legalAbout": "About FieldQuire",
+  "sideWater": "Water testing",
+  "sideResearch": "Research",
+  "legalRead": "Read: {document}",
+  "@legalRead": {
+    "placeholders": {
+      "document": {
+        "type": "String"
+      }
+    }
+  },
+  "legalAcceptTerms": "I accept the {side} Terms of Use",
+  "@legalAcceptTerms": {
+    "placeholders": {
+      "side": {
+        "type": "String"
+      }
+    }
+  },
+  "legalAcceptPrivacy": "I have read the {side} Privacy Policy and agree to how my information is used",
+  "@legalAcceptPrivacy": {
+    "placeholders": {
+      "side": {
+        "type": "String"
+      }
+    }
+  },
+  "legalNewSide": "FieldQuire now has separate documents for each of its sides. Please read the {side} Terms of Use and Privacy Policy and accept them once to continue.",
+  "@legalNewSide": {
+    "placeholders": {
+      "side": {
+        "type": "String"
+      }
+    }
+  },
+  "legalChangedSide": "The {side} Terms of Use or Privacy Policy have changed. Please read them and accept them again to continue.",
+  "@legalChangedSide": {
+    "placeholders": {
+      "side": {
+        "type": "String"
+      }
+    }
+  },
+  "legalContinue": "Accept and continue"
 }

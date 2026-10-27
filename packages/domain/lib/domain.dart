@@ -18,5 +18,6 @@ export 'src/reading.dart';
 export 'src/reference_profile.dart';
 export 'src/rules.dart';
 export 'src/schedule.dart';
+export 'src/sides.dart';
 export 'src/tester_profile.dart';
 export 'src/units.dart';

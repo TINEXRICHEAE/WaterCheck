@@ -27,6 +27,8 @@ class Principal:
     installation_id: UUID | None = None
     role: str | None = None
     scope_units: tuple[UUID, ...] = field(default_factory=tuple)
+    # The Console account's side (ADR-031): 'water', 'research' or 'all'.
+    side: str | None = None
 
     @property
     def is_admin(self) -> bool:
@@ -64,6 +66,7 @@ async def apply_context(conn: AsyncConnection, principal: Principal) -> None:
         "app.scope_units": _uuid_array(principal.scope_units),
         "app.is_admin": "true" if principal.is_admin else "false",
         "app.auth_context": "true" if principal.kind == "auth" else "false",
+        "app.side": principal.side or "",
     }
     for name, value in values.items():
         await conn.execute(

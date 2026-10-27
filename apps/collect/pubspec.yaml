@@ -1,5 +1,5 @@
 name: watercheck_collect
-description: "WaterCheck Collect: offline field app for collectors (Android, Windows)."
+description: "FieldQuire Collect: collect field data offline (water testing, research and more)."
 publish_to: none
 version: 0.1.1+2
 resolution: workspace

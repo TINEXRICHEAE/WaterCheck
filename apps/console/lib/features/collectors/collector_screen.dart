@@ -191,7 +191,8 @@ class CollectorScreen extends ConsumerWidget {
               runSpacing: 8,
               children: [
                 FilledButton.tonalIcon(
-                  onPressed: () => showRecoveryCode(context, ref, activity),
+                  onPressed: () =>
+                      showRecoveryCode(context, ref, activity.collectorKey),
                   icon: const Icon(Icons.key_outlined),
                   label: Text(l10n.recoveryAction),
                 ),
@@ -233,6 +234,8 @@ class CollectorScreen extends ConsumerWidget {
             if (admin) ...[
               const Divider(height: 32),
               TesterAccessSection(collectorKey: collectorKey),
+              const SizedBox(height: 12),
+              LegalAcceptancesSection(collectorKey: collectorKey),
             ],
             const Divider(height: 32),
             Text(l10n.messagesSectionTitle, style: text.titleMedium),

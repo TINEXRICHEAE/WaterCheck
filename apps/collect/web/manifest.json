@@ -5,7 +5,7 @@
     "display": "standalone",
     "background_color": "#0F172A",
     "theme_color": "#0F172A",
-    "description": "Record water tests and research forms in the field, offline.",
+    "description": "Collect field data offline: water tests, research forms and more.",
     "orientation": "any",
     "prefer_related_applications": false,
     "icons": [

@@ -2786,13 +2786,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get areaRequestDecline => 'Decline';
 
   @override
-  String get legalTitle => 'Before you continue';
-
-  @override
-  String get legalSummary =>
-      'FieldQuire holds personal information about testers and officials: names, contacts, where tests were made, pictures with where and when they were taken, places people added, and messages. As a Console user you see this for your areas. Use it only to protect drinking water, keep it to yourself, and follow the Terms of Use. The data is hosted outside Uganda (South Africa).';
-
-  @override
   String get mapPlaceRename => 'Rename';
 
   @override
@@ -4039,4 +4032,226 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get builderDone => 'Done';
+
+  @override
+  String get joinAlready => 'This account is already on that side.';
+
+  @override
+  String joinGo(String side) {
+    return 'Join $side';
+  }
+
+  @override
+  String joinHow(String email, String side) {
+    return 'A separate $side account is made for $email, with the same password. It is linked to this one, so you can switch between them; each keeps its own pages, records and settings.';
+  }
+
+  @override
+  String joinMenu(String side) {
+    return 'Join $side';
+  }
+
+  @override
+  String get joinPassword => 'Your password (to confirm it is you)';
+
+  @override
+  String get joinResearchIntro =>
+      'Research is where projects are planned, forms are built and published, and records from collectors are analysed and reported on.';
+
+  @override
+  String joinTitle(String side) {
+    return 'Join $side';
+  }
+
+  @override
+  String get joinWaterIntro =>
+      'Water testing is where water sources and test results are followed up, alerts are handled and reports are made.';
+
+  @override
+  String legalTitleSide(String side) {
+    return '$side: Terms of Use and Privacy Policy';
+  }
+
+  @override
+  String get profileAdminAllSides =>
+      'As an IT admin you work on every side, and switch between them.';
+
+  @override
+  String get profileLinked => 'You have an account there too.';
+
+  @override
+  String get profileNotJoined =>
+      'Not joined. Joining makes a separate, linked account.';
+
+  @override
+  String get profileSideHint =>
+      'This account belongs to this side only; other sides have their own accounts.';
+
+  @override
+  String get profileSides => 'Sides of FieldQuire';
+
+  @override
+  String profileThisSide(String side) {
+    return 'This account: $side';
+  }
+
+  @override
+  String get recoveryGive => 'Give a recovery code';
+
+  @override
+  String get researchCollectorAccess => 'Getting back in';
+
+  @override
+  String get researchCollectorAccessHint =>
+      'A collector who lost their phone, or uses another one, gets back in as the same person with a one-time recovery code. Pass it on in person or by phone.';
+
+  @override
+  String get researchCollectorLastSeen => 'Last seen';
+
+  @override
+  String get researchCollectorNoForms => 'No forms of your projects yet.';
+
+  @override
+  String get researchCollectorRole => 'Research collector';
+
+  @override
+  String get researchFindCollector => 'Find a collector';
+
+  @override
+  String roleOnSide(String side) {
+    return '$side account';
+  }
+
+  @override
+  String get signUpEmail => 'Enter a valid email address.';
+
+  @override
+  String get signUpEmailHint => 'You sign in with it.';
+
+  @override
+  String get signUpEmailLabel => 'Email';
+
+  @override
+  String get signUpFullName => 'Full name';
+
+  @override
+  String get signUpGo => 'Create the account';
+
+  @override
+  String get signUpHaveAccount => 'I already have an account';
+
+  @override
+  String get signUpLink => 'Create an account';
+
+  @override
+  String get signUpName => 'Enter your name.';
+
+  @override
+  String get signUpOrganisation => 'Organisation (optional)';
+
+  @override
+  String get signUpResearchIntro =>
+      'For researchers and their teams: start projects, build forms, give them to collectors, and analyse the records. The account works at once.';
+
+  @override
+  String get signUpTaken =>
+      'An account on this side already uses that email. Sign in instead.';
+
+  @override
+  String get signUpTick =>
+      'Tick both boxes to accept the Terms of Use and the Privacy Policy.';
+
+  @override
+  String signUpTitle(String side) {
+    return 'Create a $side account';
+  }
+
+  @override
+  String get signUpWaterIntro =>
+      'For district officers and other stakeholders: follow water sources and test results, act on alerts and make reports. The account works at once; an IT admin may add the areas you are officially responsible for.';
+
+  @override
+  String switchBody(String side) {
+    return 'You will use your $side account, with its own pages, records and settings.';
+  }
+
+  @override
+  String get switchGo => 'Switch';
+
+  @override
+  String switchTo(String side) {
+    return 'Switch to $side';
+  }
+
+  @override
+  String get usersWaterHint =>
+      'Water testing accounts and the IT admins. Research accounts are managed on the research side.';
+
+  @override
+  String get usersResearchHint =>
+      'Research accounts and the IT admins. Water testing accounts are managed on the water side.';
+
+  @override
+  String get testerAccessTitle => 'Devices, sign-ins and codes';
+
+  @override
+  String get acceptancesTitle => 'Terms of Use and Privacy Policy accepted';
+
+  @override
+  String get acceptancesNone => 'No acceptance recorded yet.';
+
+  @override
+  String acceptancesLine(String side, int version) {
+    return '$side, version $version';
+  }
+
+  @override
+  String acceptancesHow(String how) {
+    String _temp0 = intl.Intl.selectLogic(how, {
+      'signup': 'when signing up',
+      'join': 'when joining from the other side',
+      'prompt': 'when asked after a change',
+      'profile': 'on a phone',
+      'other': '$how',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get researchAdminLedger => 'Accounts, sign-ins and codes';
+
+  @override
+  String switchIntro(String side) {
+    return '$side is a separate side of FieldQuire, with its own people, pages and records. Choose how to go there.';
+  }
+
+  @override
+  String switchSignIn(String side) {
+    return 'I have a $side account';
+  }
+
+  @override
+  String switchSignInHint(String side) {
+    return 'Sign in with its email and password. You leave this account first.';
+  }
+
+  @override
+  String switchJoin(String side) {
+    return 'Use my details here to join $side';
+  }
+
+  @override
+  String switchJoinHint(String side) {
+    return 'A separate $side account with your email and password, linked to this one, after you accept its Terms of Use and Privacy Policy.';
+  }
+
+  @override
+  String switchNew(String side) {
+    return 'Create a new $side account';
+  }
+
+  @override
+  String switchNewHint(String side) {
+    return 'With other details. You leave this account first.';
+  }
 }

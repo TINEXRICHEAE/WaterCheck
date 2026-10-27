@@ -9,7 +9,7 @@ class PdfKit {
 
   final pw.ThemeData theme;
 
-  /// The WaterCheck icon (design/watercheck-icons), from ui_kit's assets.
+  /// The FieldQuire icon (design/fieldquire-icons), from ui_kit's assets.
   final pw.ImageProvider logo;
 
   static PdfKit? _cached;

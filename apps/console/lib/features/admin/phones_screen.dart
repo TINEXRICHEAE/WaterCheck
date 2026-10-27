@@ -22,7 +22,8 @@ class PhonesScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final text = Theme.of(context).textTheme;
-    final phones = ref.watch(adminInstallationsProvider);
+    final side = adminSide(context);
+    final phones = ref.watch(adminInstallationsProvider(side));
     final codes = ref.watch(adminCodesProvider);
     final when = DateFormat('d MMM y, HH:mm');
     return Scaffold(
@@ -88,7 +89,8 @@ class PhonesScreen extends ConsumerWidget {
                     ),
                     isThreeLine: true,
                     // The device's page: who used it (ADR-022).
-                    onTap: () => context.go('/admin/phones/${p.id}'),
+                    onTap: () =>
+                        context.go('${adminBase(side)}/phones/${p.id}'),
                     trailing: PopupMenuButton<String>(
                       tooltip: l10n.moreActions,
                       onSelected: (a) => switch (a) {

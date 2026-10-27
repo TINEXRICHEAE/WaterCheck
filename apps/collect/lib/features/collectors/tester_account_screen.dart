@@ -1,5 +1,7 @@
 import 'package:api_client/api_client.dart' show ApiFailure;
+import 'package:data/data.dart' show ResearchFormItem;
 import 'package:dio/dio.dart';
+import 'package:domain/domain.dart' show AppSide;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -11,6 +13,7 @@ import '../../app/gate.dart';
 import '../../app/providers.dart';
 import '../../l10n/app_localizations.dart';
 import '../activation/installation_service.dart';
+import '../research/research.dart';
 import '../sync/collect_sync.dart';
 
 typedef _Assignment = ({String id, String area, String level, bool byCode});
@@ -364,8 +367,16 @@ class _TesterAccountScreenState extends ConsumerState<TesterAccountScreen> {
     final assignments = ref.watch(_assignmentsProvider(key));
     final confirmed = ref.watch(_confirmedProvider(key)).value;
     final devices = ref.watch(_devicesProvider(key));
+    // Each side has its own profile page (ADR-031): water testing shows
+    // official areas, research the forms this person may fill.
+    final water = me.side == AppSide.water;
+    final forms = water
+        ? const <ResearchFormItem>[]
+        : ref.watch(researchFormsProvider).value ?? const [];
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.profileTitle)),
+      appBar: AppBar(
+        title: Text(water ? l10n.profileTitleWater : l10n.profileTitleResearch),
+      ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -418,42 +429,60 @@ class _TesterAccountScreenState extends ConsumerState<TesterAccountScreen> {
                       child: Text(l10n.profileConfirmButton),
                     ),
             ),
-          const Divider(height: 32),
-          Text(l10n.accountAreaTitle, style: text.titleMedium),
-          Text(l10n.accountAreaHint),
-          ...switch (assignments) {
-            AsyncData(value: final list?) when list.isEmpty => [
+          if (water) ...[
+            const Divider(height: 32),
+            Text(l10n.accountAreaTitle, style: text.titleMedium),
+            Text(l10n.accountAreaHint),
+            ...switch (assignments) {
+              AsyncData(value: final list?) when list.isEmpty => [
+                ListTile(
+                  leading: const Icon(Icons.info_outline),
+                  title: Text(l10n.accountNotAssigned),
+                ),
+              ],
+              AsyncData(value: final list?) => [
+                for (final a in list)
+                  ListTile(
+                    leading: const Icon(Icons.verified_outlined),
+                    title: Text(a.area),
+                    subtitle: Text(
+                      a.byCode ? l10n.accountByCode : l10n.accountByAdmin,
+                    ),
+                  ),
+              ],
+              AsyncLoading() => [const LinearProgressIndicator()],
+              _ => [
+                ListTile(
+                  leading: const Icon(Icons.cloud_off),
+                  title: Text(l10n.accountOffline),
+                ),
+              ],
+            },
+            Align(
+              alignment: Alignment.centerLeft,
+              child: OutlinedButton.icon(
+                onPressed: _busy ? null : () => _assign(key),
+                icon: const Icon(Icons.qr_code_2),
+                label: Text(l10n.accountAssignButton),
+              ),
+            ),
+          ] else ...[
+            const Divider(height: 32),
+            Text(l10n.researchForms, style: text.titleMedium),
+            Text(l10n.accountFormsHint),
+            if (forms.isEmpty)
               ListTile(
                 leading: const Icon(Icons.info_outline),
-                title: Text(l10n.accountNotAssigned),
+                title: Text(l10n.researchNoFormsShort),
               ),
-            ],
-            AsyncData(value: final list?) => [
-              for (final a in list)
-                ListTile(
-                  leading: const Icon(Icons.verified_outlined),
-                  title: Text(a.area),
-                  subtitle: Text(
-                    a.byCode ? l10n.accountByCode : l10n.accountByAdmin,
-                  ),
-                ),
-            ],
-            AsyncLoading() => [const LinearProgressIndicator()],
-            _ => [
+            for (final f in forms)
               ListTile(
-                leading: const Icon(Icons.cloud_off),
-                title: Text(l10n.accountOffline),
+                contentPadding: EdgeInsets.zero,
+                leading: CircleAvatar(child: Text(f.code)),
+                title: Text(f.title),
+                subtitle: Text(f.projectTitle),
               ),
-            ],
-          },
-          Align(
-            alignment: Alignment.centerLeft,
-            child: OutlinedButton.icon(
-              onPressed: _busy ? null : () => _assign(key),
-              icon: const Icon(Icons.qr_code_2),
-              label: Text(l10n.accountAssignButton),
-            ),
-          ),
+          ],
           const Divider(height: 32),
           Text(l10n.accountOwnCodeSection, style: text.titleMedium),
           Text(l10n.accountOwnCodeIntro),
@@ -525,10 +554,14 @@ class _TesterAccountScreenState extends ConsumerState<TesterAccountScreen> {
             leading: const Icon(Icons.route),
             title: Text(l10n.tripsTitle),
             subtitle: Text(l10n.tripsTileHint),
-            onTap: () => context.push('/profile/trips'),
+            onTap: () => context.push(
+              sidePath(ref.read(appModeProvider), '/profile/trips'),
+            ),
           ),
           const Divider(height: 32),
           Text(l10n.profileAccountTitle, style: text.titleMedium),
+          // The same person on the other side (ADR-031).
+          const SideSwitchTile(),
           ListTile(
             contentPadding: EdgeInsets.zero,
             leading: const Icon(Icons.switch_account_outlined),
@@ -557,7 +590,7 @@ class _TesterAccountScreenState extends ConsumerState<TesterAccountScreen> {
             onTap: _busy ? null : () => _delete(key, me.fullName),
           ),
           const Divider(height: 32),
-          const LegalTiles(),
+          LegalTiles(side: me.side),
         ],
       ),
     );

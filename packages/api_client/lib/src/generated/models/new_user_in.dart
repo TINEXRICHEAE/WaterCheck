@@ -5,6 +5,7 @@
 import 'package:json_annotation/json_annotation.dart';
 
 import 'new_user_in_role.dart';
+import 'new_user_in_side.dart';
 
 part 'new_user_in.g.dart';
 
@@ -20,6 +21,7 @@ class NewUserIn {
     this.areaIds,
     this.responsibilities,
     this.role = NewUserInRole.stakeholder,
+    this.side = NewUserInSide.water,
   });
 
   factory NewUserIn.fromJson(Map<String, Object?> json) =>
@@ -29,6 +31,7 @@ class NewUserIn {
   @JsonKey(name: 'full_name')
   final String fullName;
   final NewUserInRole role;
+  final NewUserInSide side;
   final String? organisation;
   final String? position;
   final String? phone;

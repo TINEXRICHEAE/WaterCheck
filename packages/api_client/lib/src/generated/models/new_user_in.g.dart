@@ -22,12 +22,16 @@ NewUserIn _$NewUserInFromJson(Map<String, dynamic> json) => NewUserIn(
   role:
       $enumDecodeNullable(_$NewUserInRoleEnumMap, json['role']) ??
       NewUserInRole.stakeholder,
+  side:
+      $enumDecodeNullable(_$NewUserInSideEnumMap, json['side']) ??
+      NewUserInSide.water,
 );
 
 Map<String, dynamic> _$NewUserInToJson(NewUserIn instance) => <String, dynamic>{
   'username': instance.username,
   'full_name': instance.fullName,
   'role': instance.role,
+  'side': instance.side,
   'organisation': instance.organisation,
   'position': instance.position,
   'phone': instance.phone,
@@ -39,4 +43,9 @@ Map<String, dynamic> _$NewUserInToJson(NewUserIn instance) => <String, dynamic>{
 const _$NewUserInRoleEnumMap = {
   NewUserInRole.stakeholder: 'stakeholder',
   NewUserInRole.itAdmin: 'it_admin',
+};
+
+const _$NewUserInSideEnumMap = {
+  NewUserInSide.water: 'water',
+  NewUserInSide.research: 'research',
 };

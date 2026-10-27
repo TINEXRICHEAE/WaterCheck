@@ -69,8 +69,12 @@ void main() {
       accuracyM: 6,
     );
     final db = await pumpCollect(tester, services: svc, prepare: _publish);
+    // The water tester joins Research with a linked profile (ADR-031).
     await tapAndSettle(tester, find.text('Settings'));
-    await tapAndSettle(tester, find.text('Research').first);
+    await tapAndSettle(tester, find.text('Switch to Research'));
+    await tapAndSettle(tester, find.text('Use my details to join Research'));
+    expect(find.text('Join Research'), findsOneWidget);
+    await createProfile(tester, side: 'Research');
     await tapAndSettle(tester, find.text('Forms'));
     expect(find.text('Household Questionnaire'), findsOneWidget);
     await tapAndSettle(tester, find.text('Start'));

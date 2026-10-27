@@ -49,6 +49,7 @@ async def person(
     responsibilities: tuple[str, ...] = ("water",),
     role: str = "stakeholder",
     phone_number: str | None = None,
+    side: str = "water",
 ) -> tuple[uuid.UUID, dict[str, str], str]:
     username = f"p-{uuid.uuid4().hex[:8]}@example.org"
     async with owner_db.transaction(Principal.system()) as conn:
@@ -61,10 +62,16 @@ async def person(
                 area_codes=areas,
                 responsibilities=responsibilities,
                 phone=phone_number,
+                side=side,
             ),
         )
     first = await client.post(
-        "/v1/auth/login", json={"username": username, "password": made.temporary_password}
+        "/v1/auth/login",
+        json={
+            "username": username,
+            "password": made.temporary_password,
+            "side": "water" if side == "all" else side,
+        },
     )
     changed = await client.post(
         "/v1/auth/change-password",

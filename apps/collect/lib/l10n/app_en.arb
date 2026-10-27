@@ -14,7 +14,7 @@
   "settingsReferenceData": "Reference data",
   "settingsReferenceDataHint": "Parameters, limits, tester profiles and areas on this device",
   "settingsAbout": "About",
-  "settingsAboutBody": "FieldQuire Collect {version}. Water quality screening for communities across Uganda. Results are screening only, not laboratory confirmation.",
+  "settingsAboutBody": "FieldQuire Collect {version}. Collect field data, also without a connection: water tests at shared sources, research forms and more, each record with where and when it was made. Water test results are screening only, not laboratory confirmation.",
   "@settingsAboutBody": {
     "placeholders": {
       "version": {
@@ -24,9 +24,7 @@
   },
   "startupFailed": "FieldQuire could not open its data on this device.",
   "startupRetry": "Try again",
-  "welcomeTitle": "Welcome to FieldQuire",
   "privacyHeading": "In short",
-  "privacyBody": "FieldQuire records water tests at shared water sources so that communities and districts can act when water may be unsafe.\n\nWith each test it saves your name, the area you give, where you tested (GPS) and any pictures of the test or the source, with where and when each was taken. Places you add to the map show your name. Trips you follow with Go stay on this device. Your phone and email are optional. Stakeholders for the area see your records and can contact you; other testers see results and your name, not your contacts.\n\nFieldQuire does not ask for national ID numbers or information about households. Please do not photograph people.\n\nYour work is kept on this device (encrypted in the Android and Windows apps) and sent to the FieldQuire server, hosted outside Uganda (South Africa), when there is internet. You can edit your details, or delete your profile, any time under My profile.\n\nA test result is a warning, not a guarantee that water is safe: always follow the advice of your health officials.",
   "privacyVersion": "Privacy notice version {version}",
   "@privacyVersion": {
     "placeholders": {
@@ -93,7 +91,7 @@
   "sourceLocationInvalid": "Enter a number between -90 and 90 (latitude) or -180 and 180 (longitude)",
   "sourceLocationPoorAccuracy": "Accuracy is poor. Stand in the open near the source and try again if you can.",
   "locationServiceOff": "Location is switched off on this device. Switch it on in the device settings.",
-  "locationDenied": "FieldQuire may not use your location. Allow it to record where the source is.",
+  "locationDenied": "FieldQuire may not use your location. Allow it to record where your records are made.",
   "locationDeniedForever": "Location access is blocked for FieldQuire. Allow it in the device settings.",
   "locationTimeout": "No GPS signal yet. Move into the open and try again.",
   "locationUnavailable": "The location could not be found on this device. You can type the coordinates.",
@@ -1160,5 +1158,144 @@
   "researchNoLocation": "No location",
   "researchAnswers": "Answers",
   "researchMessagesTitle": "Messages with the research team",
-  "researchOpenRecord": "Open the record"
+  "researchOpenRecord": "Open the record",
+  "legalForProfile": "Before {name} continues",
+  "@legalForProfile": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "legalTickBoth": "Tick both boxes to accept the Terms of Use and the Privacy Policy.",
+  "profileJoinTitle": "Join {side}",
+  "@profileJoinTitle": {
+    "placeholders": {
+      "side": {
+        "type": "String"
+      }
+    }
+  },
+  "profileNewTitleSide": "New {side} profile",
+  "@profileNewTitleSide": {
+    "placeholders": {
+      "side": {
+        "type": "String"
+      }
+    }
+  },
+  "profileJoinIntro": "A separate {side} profile is made with your details below, linked to the one you use now. Each keeps its own records, forms and sign-in codes, and you can switch between them.",
+  "@profileJoinIntro": {
+    "placeholders": {
+      "side": {
+        "type": "String"
+      }
+    }
+  },
+  "profileNewWaterIntro": "For people who test shared water sources. You can test anywhere at once; an IT admin may also make you officially responsible for an area.",
+  "profileNewResearchIntro": "For people who collect data for research projects: you fill the forms you are given, join with a code, or that are open to all.",
+  "profileCreate": "Create my profile",
+  "profileTitleWater": "My water-testing profile",
+  "profileTitleResearch": "My research profile",
+  "accountFormsHint": "The research forms on this phone that you may fill.",
+  "researchNoFormsShort": "No forms yet. Join one with a code from the research team.",
+  "whoEmptySide": "Nobody on this phone collects for {side} yet. Add yourself, or come back with a recovery code.",
+  "@whoEmptySide": {
+    "placeholders": {
+      "side": {
+        "type": "String"
+      }
+    }
+  },
+  "sideJoin": "Also collect for {side}",
+  "@sideJoin": {
+    "placeholders": {
+      "side": {
+        "type": "String"
+      }
+    }
+  },
+  "sideJoinHint": "Make a separate {side} profile with your details and its own Terms of Use.",
+  "@sideJoinHint": {
+    "placeholders": {
+      "side": {
+        "type": "String"
+      }
+    }
+  },
+  "sideSwitch": "Switch to {side}",
+  "@sideSwitch": {
+    "placeholders": {
+      "side": {
+        "type": "String"
+      }
+    }
+  },
+  "sideSwitchHint": "As {name}",
+  "@sideSwitchHint": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "sideSwitchBody": "You will collect with your {side} profile, with its own records, forms and settings.",
+  "@sideSwitchBody": {
+    "placeholders": {
+      "side": {
+        "type": "String"
+      }
+    }
+  },
+  "sideSwitchGo": "Switch",
+  "sideSwitchNotYet": "Not on {side} yet: choose how to start there.",
+  "@sideSwitchNotYet": {
+    "placeholders": {
+      "side": {
+        "type": "String"
+      }
+    }
+  },
+  "switchSideIntro": "{side} is a separate side of FieldQuire, with its own people, forms or sources, and records. Choose how to collect there.",
+  "@switchSideIntro": {
+    "placeholders": {
+      "side": {
+        "type": "String"
+      }
+    }
+  },
+  "switchSideOnPhone": "Already on this phone for {side}",
+  "@switchSideOnPhone": {
+    "placeholders": {
+      "side": {
+        "type": "String"
+      }
+    }
+  },
+  "switchSideJoin": "Use my details to join {side}",
+  "@switchSideJoin": {
+    "placeholders": {
+      "side": {
+        "type": "String"
+      }
+    }
+  },
+  "switchSideCode": "I have a {side} profile on another phone",
+  "@switchSideCode": {
+    "placeholders": {
+      "side": {
+        "type": "String"
+      }
+    }
+  },
+  "switchSideCodeHint": "Come back with a sign-in or recovery code.",
+  "switchSideNew": "Add a new person for {side}",
+  "@switchSideNew": {
+    "placeholders": {
+      "side": {
+        "type": "String"
+      }
+    }
+  },
+  "switchSideNewHint": "With other details, and the side's own Terms of Use."
 }

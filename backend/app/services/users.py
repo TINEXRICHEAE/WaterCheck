@@ -17,6 +17,8 @@ class NewUser:
     full_name: str
     role: str  # 'stakeholder' | 'it_admin'
     area_codes: tuple[str, ...] = ()
+    # 'water', 'research' or 'all' (ADR-031); IT admins are always 'all'.
+    side: str = "water"
     responsibilities: tuple[str, ...] = ()
     organisation: str | None = None
     position: str | None = None
@@ -46,12 +48,13 @@ async def create_user(
     await conn.execute(
         text(
             "INSERT INTO app_user (id, username, full_name, organisation, position, phone, "
-            "email, password_hash, must_change_password, role, created_by) VALUES "
-            "(:id, :username, :full_name, :organisation, :position, :phone, :email, :hash, "
-            "true, :role, :created_by)"
+            "email, password_hash, must_change_password, role, created_by, side, person_id) "
+            "VALUES (:id, :username, :full_name, :organisation, :position, :phone, :email, "
+            ":hash, true, :role, :created_by, :side, :id)"
         ),
         {
             "id": user_id,
+            "side": "all" if user.role == "it_admin" else user.side,
             "username": user.username.strip(),
             "full_name": user.full_name.strip(),
             "organisation": user.organisation,

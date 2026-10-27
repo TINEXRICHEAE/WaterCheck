@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:ui_kit/ui_kit.dart';
 
 import '../../l10n/app_localizations.dart';
+import 'research_collector.dart';
 import 'research_dashboard.dart';
 import 'research_forms.dart';
 import 'research_mode.dart';
@@ -32,6 +33,15 @@ class ResearchCollectorsScreen extends ConsumerWidget {
         const SizedBox(height: 12),
         const ProjectPicker(),
         const SizedBox(height: 12),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: OutlinedButton.icon(
+            onPressed: () => showFindCollector(context, ref),
+            icon: const Icon(Icons.person_search_outlined),
+            label: Text(l10n.researchFindCollector),
+          ),
+        ),
+        const SizedBox(height: 8),
         if (project != null && project.canEdit && forms.isNotEmpty)
           Align(
             alignment: Alignment.centerLeft,
@@ -120,9 +130,8 @@ class ResearchCollectorsScreen extends ConsumerWidget {
                     ].join(' · '),
                   ),
                   trailing: const Icon(Icons.chevron_right),
-                  onTap: () => context.go(
-                    '/research/records?collector=${c.collectorKey}',
-                  ),
+                  onTap: () =>
+                      context.go('/research/collectors/${c.collectorKey}'),
                 ),
               ),
           ],

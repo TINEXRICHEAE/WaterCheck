@@ -190,15 +190,16 @@ class _ResearchHomeState extends ConsumerState<ResearchHome> {
           IconButton(
             tooltip: l10n.profileTitle,
             icon: const Icon(Icons.account_circle_outlined),
-            onPressed: () => context.push('/profile'),
+            onPressed: () => context.push('/research/profile'),
           ),
+          const SideSwitchButton(),
           const MessagesButton(),
           const SyncRefreshButton(),
           SyncIndicator(
             compact: true,
             pending: sync?.pending ?? 0,
             rejected: sync?.rejected ?? 0,
-            onTap: () => context.go('/sync'),
+            onTap: () => context.go('/research/sync'),
           ),
         ],
         bottom: const PreferredSize(

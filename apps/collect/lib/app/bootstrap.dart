@@ -45,7 +45,6 @@ Future<BootState> loadBootState(
   required AppLock lock,
 }) async {
   final settings = DriftLocalSettingsRepository(db);
-  final consent = await settings.consentVersion();
   final credentials = await installation.read();
   if (credentials != null &&
       await settings.read(DriftLocalSettingsRepository.installationKey) !=
@@ -62,7 +61,6 @@ Future<BootState> loadBootState(
     credentials: credentials,
     clockOffset: await installation.clockOffset(),
     gate: AppGate(
-      consented: consent != null && consent >= privacyNoticeVersion,
       activated: credentials != null,
       revoked: await installation.isRevoked(),
       lockDecided: lockOn || await settings.read(lockDeclinedSetting) != null,

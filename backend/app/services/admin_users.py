@@ -48,6 +48,9 @@ class UserSummary:
     locked: bool
     last_sign_in_at: datetime | None
     created_at: datetime
+    # 'water', 'research' or 'all' (ADR-031), and how the account was made.
+    side: str = "water"
+    created_via: str = "admin"
     areas: list[UserArea] = field(default_factory=list)
     responsibilities: list[str] = field(default_factory=list)
 
@@ -75,7 +78,7 @@ async def list_users(conn: AsyncConnection, user_id: UUID | None = None) -> list
             text(
                 "SELECT id, username, full_name, organisation, position, phone, email, role, "
                 "is_active, must_change_password, coalesce(locked_until > now(), false) "
-                "AS locked, last_sign_in_at, created_at FROM app_user "
+                "AS locked, last_sign_in_at, created_at, side, created_via FROM app_user "
                 "WHERE CAST(:id AS uuid) IS NULL OR id = :id ORDER BY full_name"
             ),
             {"id": user_id},
@@ -158,6 +161,16 @@ async def update_user(
         await conn.execute(
             text(f"UPDATE app_user SET {sets} WHERE id = :id"),  # noqa: S608 - keys from a fixed list
             {**simple, "id": user_id},
+        )
+    if "role" in simple:
+        # IT admins work on every side (ADR-031); a former admin goes back
+        # to water testing, where the Console began.
+        await conn.execute(
+            text(
+                "UPDATE app_user SET side = CASE WHEN role = 'it_admin' THEN 'all' "
+                "WHEN side = 'all' THEN 'water' ELSE side END WHERE id = :id"
+            ),
+            {"id": user_id},
         )
     if "area_ids" in changes:
         await _set_areas(conn, user_id, list(changes["area_ids"]))

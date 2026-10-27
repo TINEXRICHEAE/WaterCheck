@@ -51,4 +51,4 @@ export 'src/sync/sync_transport.dart';
 export 'src/seed/seed_importer.dart';
 
 /// Local database schema version (see `drift_schemas/`).
-const int localSchemaVersion = 12;
+const int localSchemaVersion = 13;

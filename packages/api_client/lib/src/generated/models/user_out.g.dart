@@ -28,6 +28,8 @@ UserOut _$UserOutFromJson(Map<String, dynamic> json) => UserOut(
   responsibilities: (json['responsibilities'] as List<dynamic>)
       .map((e) => e as String)
       .toList(),
+  side: json['side'] as String? ?? 'water',
+  createdVia: json['created_via'] as String? ?? 'admin',
 );
 
 Map<String, dynamic> _$UserOutToJson(UserOut instance) => <String, dynamic>{
@@ -46,4 +48,6 @@ Map<String, dynamic> _$UserOutToJson(UserOut instance) => <String, dynamic>{
   'created_at': instance.createdAt.toIso8601String(),
   'areas': instance.areas,
   'responsibilities': instance.responsibilities,
+  'side': instance.side,
+  'created_via': instance.createdVia,
 };

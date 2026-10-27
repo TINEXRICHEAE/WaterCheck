@@ -8,52 +8,38 @@ import 'support/harness.dart';
 
 void main() {
   group('gate redirects', () {
-    const fresh = AppGate(consented: false, activeCollectorKey: null);
-    const consented = AppGate(consented: true, activeCollectorKey: null);
-    const ready = AppGate(consented: true, activeCollectorKey: 'k');
+    const nobody = AppGate(activeCollectorKey: null);
+    const ready = AppGate(activeCollectorKey: 'k');
 
-    test('nothing opens before the privacy notice is accepted', () {
-      expect(gateRedirect(fresh, '/'), '/welcome');
-      expect(gateRedirect(fresh, '/who/new'), '/welcome');
-      expect(gateRedirect(fresh, '/welcome'), isNull);
-    });
-
-    test('a collector must be chosen before field work', () {
-      expect(gateRedirect(consented, '/'), '/who');
-      expect(gateRedirect(consented, '/settings'), '/who');
-      expect(gateRedirect(consented, '/who/new'), isNull);
-      expect(gateRedirect(consented, '/welcome'), '/');
+    test('a collector must be chosen before field work; each accepts '
+        'their side\'s documents when they sign up (ADR-031)', () {
+      expect(gateRedirect(nobody, '/'), '/who');
+      expect(gateRedirect(nobody, '/settings'), '/who');
+      expect(gateRedirect(nobody, '/who/new'), isNull);
     });
 
     test('everything opens once ready', () {
       expect(gateRedirect(ready, '/'), isNull);
       expect(gateRedirect(ready, '/who'), isNull);
-      expect(gateRedirect(ready, '/welcome'), '/');
     });
   });
 
-  testWidgets('first launch: consent, add a person, then home', (tester) async {
+  testWidgets('first launch: add a person with the side\'s ticks, then home '
+      '(ADR-031)', (tester) async {
     final db = await pumpCollect(tester, onboarded: false);
-    expect(find.text('Welcome to FieldQuire'), findsOneWidget);
-    expect(find.textContaining('does not ask for national ID'), findsOneWidget);
-
-    await tapAndSettle(
-      tester,
-      find.text('I agree to the Terms of Use and the Privacy Policy'),
-    );
     expect(find.text('Who is testing?'), findsOneWidget);
     expect(
-      find.text('No one has been added on this device yet.'),
+      find.textContaining('Nobody on this phone collects for Water testing'),
       findsOneWidget,
     );
 
     await tapAndSettle(tester, find.text('Add a person'));
-    expect(find.text('Your details'), findsOneWidget);
+    expect(find.text('New Water testing profile'), findsOneWidget);
     // The single seeded village fills in the area fields.
     expect(find.text('Entebbe'), findsOneWidget);
     expect(find.text('Abim'), findsOneWidget);
 
-    await tapAndSettle(tester, find.text('Save'));
+    await tapAndSettle(tester, find.text('Create my profile'));
     expect(find.text('Please fill this in'), findsWidgets);
 
     await tester.enterText(
@@ -64,7 +50,7 @@ void main() {
       find.widgetWithText(TextFormField, 'Phone number (optional)'),
       '12345',
     );
-    await tapAndSettle(tester, find.text('Save'));
+    await tapAndSettle(tester, find.text('Create my profile'));
     expect(find.textContaining('Enter a Ugandan phone number'), findsOneWidget);
 
     await tester.enterText(
@@ -73,7 +59,18 @@ void main() {
     );
     await tapAndSettle(tester, find.text('I am a…'));
     await tapAndSettle(tester, find.text('VHT member').last);
-    await tapAndSettle(tester, find.text('Save'));
+    await tapAndSettle(tester, find.text('Create my profile'));
+    // Not without the ticks.
+    expect(find.text('Water sources'), findsNothing);
+    await tapAndSettle(
+      tester,
+      find.text('I accept the Water testing Terms of Use'),
+    );
+    await tapAndSettle(
+      tester,
+      find.textContaining('I have read the Water testing Privacy Policy'),
+    );
+    await tapAndSettle(tester, find.text('Create my profile'));
 
     expect(find.text('Water sources'), findsOneWidget);
     expect(find.text('Testing now: Example Collector'), findsOneWidget);
@@ -104,10 +101,6 @@ void main() {
   testWidgets('area fields: search a sub-county, the district fills in; '
       'Other takes a new one', (tester) async {
     final db = await pumpCollect(tester, onboarded: false);
-    await tapAndSettle(
-      tester,
-      find.text('I agree to the Terms of Use and the Privacy Policy'),
-    );
     await tapAndSettle(tester, find.text('Add a person'));
     final subcounty = find.widgetWithText(TextFormField, 'Sub-county');
     final district = find.widgetWithText(TextFormField, 'District');
@@ -132,10 +125,6 @@ void main() {
   testWidgets('a lost phone: an existing person comes back with a code '
       '(ADR-020)', (tester) async {
     final db = await pumpCollect(tester, onboarded: false);
-    await tapAndSettle(
-      tester,
-      find.text('I agree to the Terms of Use and the Privacy Policy'),
-    );
     await tapAndSettle(tester, find.text('I already have a profile'));
     await tester.enterText(find.byType(TextField), 'zzzzz-zzzzz');
     await tester.pump();
@@ -145,13 +134,25 @@ void main() {
     await tester.enterText(find.byType(TextField), 'abcde-23456');
     await tester.pump();
     await tapAndSettle(tester, find.text('Get my profile'));
+    // Not accepted on their side yet: asked once (ADR-031).
+    expect(find.text('Before Baluku Joseph continues'), findsOneWidget);
+    await tapAndSettle(
+      tester,
+      find.text('I accept the Water testing Terms of Use'),
+    );
+    await tapAndSettle(
+      tester,
+      find.textContaining('I have read the Water testing Privacy Policy'),
+    );
+    await tapAndSettle(tester, find.text('Accept and continue'));
     expect(find.text('Water sources'), findsOneWidget);
     expect(find.text('Testing now: Baluku Joseph'), findsOneWidget);
     final saved = await tester.runAsync(
       () => DriftCollectorProfileRepository(db).watchActive().first,
     );
     expect(saved!.single.collectorKey, '0b9e1f4a-6c2d-4e8f-a1b3-c5d7e9f0c0de');
-    expect(saved.single.profileVersion, 2);
+    // The server's version, plus the acceptance.
+    expect(saved.single.profileVersion, 3);
     await disposeApp(tester, db);
   });
 

@@ -37,15 +37,28 @@ async def signed_in(
     *,
     role: str = "stakeholder",
     area_codes: tuple[str, ...] = (),
+    side: str = "water",
 ) -> dict[str, str]:
     """Creates a user, changes the temporary password, returns auth headers."""
     username = f"u-{uuid.uuid4().hex[:8]}@example.org"
     async with owner_db.transaction(Principal.system()) as conn:
         created = await create_user(
-            conn, NewUser(username=username, full_name="Officer", role=role, area_codes=area_codes)
+            conn,
+            NewUser(
+                username=username,
+                full_name="Officer",
+                role=role,
+                area_codes=area_codes,
+                side=side,
+            ),
         )
     first = await client.post(
-        "/v1/auth/login", json={"username": username, "password": created.temporary_password}
+        "/v1/auth/login",
+        json={
+            "username": username,
+            "password": created.temporary_password,
+            "side": "water" if side == "all" else side,
+        },
     )
     changed = await client.post(
         "/v1/auth/change-password",

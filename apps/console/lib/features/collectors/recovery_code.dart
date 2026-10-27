@@ -1,5 +1,4 @@
 import 'package:api_client/api_client.dart';
-import 'package:data/data.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -12,11 +11,15 @@ import '../admin/admin_api.dart';
 /// A one-time code that brings a collector back on another phone (a lost
 /// phone, or a second device) as the same person (ADR-020). Shown once; the
 /// IT admin or stakeholder passes it on by phone for now.
+///
+/// From the research pages ([research]), a profile made before sides that
+/// never tested water becomes a research profile (ADR-031).
 Future<void> showRecoveryCode(
   BuildContext context,
   WidgetRef ref,
-  CollectorActivity c,
-) async {
+  String collectorKey, {
+  bool research = false,
+}) async {
   final l10n = AppLocalizations.of(context);
   final messenger = ScaffoldMessenger.of(context);
   final RecoveryCodeOut out;
@@ -24,7 +27,10 @@ Future<void> showRecoveryCode(
     out = await ref
         .read(adminApiProvider)
         .collectors
-        .issueCode(collectorKey: c.collectorKey);
+        .issueCode(
+          collectorKey: collectorKey,
+          side: research ? Side.research : null,
+        );
   } on Object catch (e) {
     messenger.showSnackBar(
       SnackBar(
