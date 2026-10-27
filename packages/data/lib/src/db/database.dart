@@ -42,6 +42,11 @@ part 'database.g.dart';
     PlaceNames,
     Trips,
     TripPoints,
+    ResearchProjects,
+    ResearchForms,
+    ResearchFormVersions,
+    ResearchRecords,
+    ResearchDrafts,
   ],
   include: {'immutability.drift'},
 )
@@ -49,7 +54,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.executor);
 
   @override
-  int get schemaVersion => 11;
+  int get schemaVersion => 12;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -139,6 +144,15 @@ class AppDatabase extends _$AppDatabase {
         }
         await m.createTable(trips);
         await m.createTable(tripPoints);
+      }
+      if (from < 12) {
+        // FieldQuire research (ADR-030); the form field a picture answers.
+        await m.addColumn(attachments, attachments.fieldName);
+        await m.createTable(researchProjects);
+        await m.createTable(researchForms);
+        await m.createTable(researchFormVersions);
+        await m.createTable(researchRecords);
+        await m.createTable(researchDrafts);
       }
     },
     beforeOpen: (details) async {

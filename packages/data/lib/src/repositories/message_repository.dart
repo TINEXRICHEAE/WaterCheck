@@ -6,15 +6,24 @@ import '../db/database.dart';
 import 'support.dart';
 
 /// What a thread is about (ADR-022): a test (session id), a source, a
-/// collector (collector key) or an area.
+/// collector (collector key), an area, or a research record (ADR-030).
 enum ThreadKind {
   test,
   source,
   collector,
-  area;
+  area,
+  research('research_record');
 
+  const ThreadKind([this._wire]);
+
+  final String? _wire;
+
+  /// The subject type the server keeps (`research_record` for research).
+  String get wire => _wire ?? name;
+
+  /// By its name (in app addresses) or its subject type.
   static ThreadKind? parse(String v) =>
-      values.where((k) => k.name == v).firstOrNull;
+      values.where((k) => k.name == v || k.wire == v).firstOrNull;
 }
 
 typedef ThreadMessage = ({
@@ -65,7 +74,7 @@ class MessageRepository {
   ) =>
       (_db.select(_db.messages)..where(
             (m) =>
-                m.subjectType.equals(kind.name) & m.subjectId.equals(subjectId),
+                m.subjectType.equals(kind.wire) & m.subjectId.equals(subjectId),
           ))
           .watch()
           .map(
@@ -107,7 +116,7 @@ class MessageRepository {
           .insert(
             MessagesCompanion.insert(
               id: id,
-              subjectType: kind.name,
+              subjectType: kind.wire,
               subjectId: subjectId,
               body: text,
               authorUserId: Value(origin.userId),
@@ -124,7 +133,7 @@ class MessageRepository {
         entityId: id,
         op: OutboxOp.insert,
         payload: {
-          'subject_type': kind.name,
+          'subject_type': kind.wire,
           'subject_id': subjectId,
           'body': text,
           'written_at_device': now.toUtc().toIso8601String(),
@@ -142,7 +151,7 @@ class MessageRepository {
   Future<void> markRead(ThreadKind kind, String subjectId) =>
       (_db.update(_db.messages)..where(
             (m) =>
-                m.subjectType.equals(kind.name) &
+                m.subjectType.equals(kind.wire) &
                 m.subjectId.equals(subjectId) &
                 m.readAt.isNull(),
           ))
@@ -198,6 +207,11 @@ class MessageRepository {
         final t = row.readTable(_db.testSessions);
         final day = t.testedAtDevice.toIso8601String().substring(0, 10);
         return '${s.name ?? s.code}, $day';
+      case ThreadKind.research:
+        final r = await (_db.select(
+          _db.researchRecords,
+        )..where((x) => x.id.equals(id))).getSingleOrNull();
+        return r?.number;
       case ThreadKind.area:
         final a = await (_db.select(
           _db.adminUnits,

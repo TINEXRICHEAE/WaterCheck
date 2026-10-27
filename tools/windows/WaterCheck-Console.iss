@@ -1,6 +1,6 @@
-#define AppName "WaterCheck Console"
+#define AppName "FieldQuire Console"
 #define AppVersion "0.1.1"
-#define AppPublisher "WaterCheck"
+#define AppPublisher "FieldQuire"
 #define AppExeName "watercheck_console.exe"
 
 #ifndef ReleaseDir
@@ -16,10 +16,10 @@ AppId={{C5F4C8A3-3C1F-4B4B-98EF-47EE9B4E42A2}
 AppName={#AppName}
 AppVersion={#AppVersion}
 AppPublisher={#AppPublisher}
-DefaultDirName={autopf}\WaterCheck Console
+DefaultDirName={autopf}\FieldQuire Console
 DefaultGroupName={#AppName}
 OutputDir=..\..\dist\windows
-OutputBaseFilename=WaterCheck-Console-Setup
+OutputBaseFilename=FieldQuire-Console-Setup
 Compression=lzma2
 SolidCompression=yes
 ArchitecturesAllowed=x64compatible

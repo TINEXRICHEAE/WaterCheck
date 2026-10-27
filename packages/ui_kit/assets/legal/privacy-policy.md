@@ -1,23 +1,23 @@
-# WaterCheck Privacy Policy
+# FieldQuire Privacy Policy
 
 Version 3 · Effective: [date of approval]
 
-> Draft for review. This text describes what the WaterCheck apps do. It is
+> Draft for review. This text describes what the FieldQuire apps do. It is
 > not legal advice. Before real data is collected, the project lead confirms
 > it with the Personal Data Protection Office (PDPO) and fills in the parts
 > in [square brackets].
 
 ## 1. Who is responsible
 
-WaterCheck is run by [project lead / organisation], the data controller. For anything about your information, contact [privacy contact: email and phone].
+FieldQuire is run by [project lead / organisation], the data controller. For anything about your information, contact [privacy contact: email and phone].
 
-## 2. What WaterCheck is for
+## 2. What FieldQuire is for
 
-WaterCheck helps communities and districts in Uganda check that shared drinking-water sources are safe. Testers record water tests at sources such as boreholes, springs and taps. District officers and other stakeholders see the results for their areas and act on problems.
+FieldQuire helps communities and districts in Uganda check that shared drinking-water sources are safe. Testers record water tests at sources such as boreholes, springs and taps. District officers and other stakeholders see the results for their areas and act on problems.
 
 ## 3. What we collect
 
-### If you test water (WaterCheck Collect)
+### If you test water (FieldQuire Collect)
 
 - **Your profile:**
   - your name and collector type (for example VHT member or student), and your village, parish, sub-county and district;
@@ -31,17 +31,17 @@ WaterCheck helps communities and districts in Uganda check that shared drinking-
   - why a test has no picture;
   - messages you write;
   - names you type under "Other";
-  - places you add to the map, with your name, which everyone using WaterCheck can see.
+  - places you add to the map, with your name, which everyone using FieldQuire can see.
 - **Where you tested:** the position of your device at each test (from GPS), how accurate it was, its distance from the source, and the reason if you tested away from it.
 - **Trips you follow with "Go":** your positions, speed, height and times along the way. They stay on your device: they are never sent to our server, and you can delete them under My trips. Deleting your profile from a device deletes its trips.
 - **Your devices:**
-  - an ID the device creates when WaterCheck first runs;
+  - an ID the device creates when FieldQuire first runs;
   - its type (Android, Windows or web) and, if you give one, its name;
   - when it was last used;
   - which devices you use, and every sign-in with a sign-in code.
 - **Your area assignment:** the areas an IT admin, or an assignment code, made you responsible for.
 
-### If you use the WaterCheck Console
+### If you use the FieldQuire Console
 
 - **Your account:**
   - your name, username, organisation and position;
@@ -75,12 +75,12 @@ We rely on your consent, and on the public-health purpose of monitoring drinking
 - **Stakeholders and IT admins** see the records for their areas: results, locations, pictures and messages, with the tester's name. They can see a tester's phone and email so they can follow up.
 - **Other testers** on their own devices see the sources and results for the districts they work in. They see testers' names on messages and on records, but not anyone else's phone or email.
 - **IT admins** manage accounts, devices and codes, and can see the audit log.
-- We do not sell your information or use it for advertising. We share it outside WaterCheck only where the law requires, or with your district health authorities for public health.
+- We do not sell your information or use it for advertising. We share it outside FieldQuire only where the law requires, or with your district health authorities for public health.
 
 ## 6. Where it is kept
 
 - **On your device:**
-  - In the Android and Windows apps, WaterCheck keeps its data encrypted.
+  - In the Android and Windows apps, FieldQuire keeps its data encrypted.
   - On the web, your browser keeps it unencrypted, so use your own device and a private window only when you must.
   - Your PIN never leaves the device, and neither do the trips you follow with "Go".
 - **On our server:** in Microsoft Azure, in the South Africa North region, outside Uganda. Transfers there follow the Data Protection and Privacy Act, 2019, and [the safeguards confirmed with PDPO].

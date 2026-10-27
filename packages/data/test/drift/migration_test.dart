@@ -111,4 +111,18 @@ void main() {
     expect(await db.select(db.trips).get(), isEmpty);
     await db.close();
   });
+
+  test('v11 → v12 keeps pictures and adds research', () async {
+    final schema = await verifier.schemaAt(11);
+    schema.rawDatabase.execute(
+      "INSERT INTO attachments (id, owner_type, owner_id, sha256, bytes, mime) "
+      "VALUES ('a-1', 'water_source', 'src-1', 'x', 10, 'image/jpeg')",
+    );
+    final db = AppDatabase(schema.newConnection());
+    await verifier.migrateAndValidate(db, localSchemaVersion);
+    final picture = await db.select(db.attachments).getSingle();
+    expect((picture.id, picture.fieldName), ('a-1', null));
+    expect(await db.select(db.researchForms).get(), isEmpty);
+    await db.close();
+  });
 }

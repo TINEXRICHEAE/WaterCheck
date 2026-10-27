@@ -5,6 +5,7 @@ import 'package:ui_kit/ui_kit.dart';
 
 import '../../app/session.dart';
 import '../../l10n/app_localizations.dart';
+import '../research/research_mode.dart';
 
 String signInError(AppLocalizations l10n, ApiFailure f) => switch (f.code) {
   'invalid_credentials' => l10n.signInWrong,
@@ -48,6 +49,9 @@ class AuthCard extends StatelessWidget {
                           style: Theme.of(context).textTheme.titleLarge,
                           textAlign: TextAlign.center,
                         ),
+                        const SizedBox(height: 12),
+                        // Water testing or research (ADR-030).
+                        const Center(child: ConsoleModeSwitch()),
                         const SizedBox(height: 16),
                         ...children,
                       ],

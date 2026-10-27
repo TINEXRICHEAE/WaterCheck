@@ -15,7 +15,7 @@ class AppLogo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final logo = Image.asset(
-      'assets/watercheck.png',
+      'assets/fieldquire.png',
       package: 'ui_kit',
       width: size,
       height: size,

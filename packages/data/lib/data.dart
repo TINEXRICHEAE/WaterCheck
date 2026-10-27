@@ -14,6 +14,8 @@ export 'src/db/database.dart'
         AppDatabase,
         CollectorMarkRow,
         OutboxRow,
+        ResearchDraftRow,
+        ResearchRecordRow,
         SubmissionFlagRow,
         SyncStateRow;
 export 'src/db/key_store.dart';
@@ -29,6 +31,7 @@ export 'src/repositories/local_settings_repository.dart';
 export 'src/repositories/outbox_repository.dart';
 export 'src/repositories/place_repository.dart';
 export 'src/repositories/reference_data_repository.dart';
+export 'src/repositories/research_repository.dart';
 export 'src/repositories/source_repository.dart';
 export 'src/repositories/stakeholder_repository.dart';
 export 'src/repositories/trail_queries.dart';
@@ -48,4 +51,4 @@ export 'src/sync/sync_transport.dart';
 export 'src/seed/seed_importer.dart';
 
 /// Local database schema version (see `drift_schemas/`).
-const int localSchemaVersion = 11;
+const int localSchemaVersion = 12;

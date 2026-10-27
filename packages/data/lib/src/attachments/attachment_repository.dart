@@ -9,7 +9,10 @@ import 'photo_files.dart';
 /// What a photo is attached to (F-TST-6, F-SRC-1).
 enum PhotoOwner {
   source('water_source'),
-  test('test_session');
+  test('test_session'),
+
+  /// A FieldQuire research record (ADR-030).
+  research('research_record');
 
   const PhotoOwner(this.wire);
 
@@ -50,6 +53,8 @@ abstract interface class AttachmentRepository {
     required Uint8List jpeg,
     required SubmissionOrigin origin,
     GeoFix? taken,
+    String? id,
+    String? fieldName,
   });
 
   Stream<List<LocalPhoto>> watchPhotos(PhotoOwner owner, String ownerId);
@@ -85,22 +90,25 @@ class DriftAttachmentRepository implements AttachmentRepository {
     required Uint8List jpeg,
     required SubmissionOrigin origin,
     GeoFix? taken,
+    String? id,
+    String? fieldName,
   }) async {
-    final id = ids.next();
-    final path = await _files.save(id, jpeg);
+    final aid = id ?? ids.next();
+    final path = await _files.save(aid, jpeg);
     try {
       await _db.transaction(() async {
         final row = await _db
             .into(_db.attachments)
             .insertReturning(
               AttachmentsCompanion.insert(
-                id: id,
+                id: aid,
                 ownerType: owner.wire,
                 ownerId: ownerId,
                 sha256: sha256.convert(jpeg).toString(),
                 bytes: jpeg.length,
                 mime: 'image/jpeg',
                 collectorKey: Value(origin.collectorKey),
+                fieldName: Value(fieldName),
                 takenLat: Value(taken?.lat),
                 takenLon: Value(taken?.lon),
                 takenAccuracyM: Value(taken?.accuracyM),
@@ -114,14 +122,14 @@ class DriftAttachmentRepository implements AttachmentRepository {
             .into(_db.attachmentQueue)
             .insert(
               AttachmentQueueCompanion.insert(
-                attachmentId: id,
+                attachmentId: aid,
                 localPath: path,
               ),
             );
         await enqueueOutbox(
           _db,
           entity: 'attachment',
-          entityId: id,
+          entityId: aid,
           op: OutboxOp.insert,
           payload: {
             ...row.toJson(serializer: syncSerializer),
@@ -136,7 +144,7 @@ class DriftAttachmentRepository implements AttachmentRepository {
       await _files.delete(path);
       rethrow;
     }
-    return id;
+    return aid;
   }
 
   @override

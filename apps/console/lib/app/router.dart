@@ -31,6 +31,14 @@ import '../features/dashboard/dashboard_screen.dart';
 import '../features/dashboard/dashboard_state.dart';
 import '../features/limits/limit_sets_screen.dart';
 import '../features/profile/legal_screen.dart';
+import '../features/research/research_mode.dart';
+import '../features/research/research_analysis.dart';
+import '../features/research/research_collectors.dart';
+import '../features/research/research_dashboard.dart';
+import '../features/research/research_forms.dart';
+import '../features/research/research_more.dart';
+import '../features/research/research_records.dart';
+import '../features/research/research_state.dart';
 import '../features/profile/profile_screen.dart';
 import '../features/profile/settings_screen.dart';
 import '../features/reports/reports_screen.dart';
@@ -65,7 +73,10 @@ String? sessionRedirect(ConsoleSession s, String location) {
     SessionPhase.signedIn
         when _authRoutes.contains(location) || location == '/legal' =>
       '/dashboard',
-    SessionPhase.signedIn when location.startsWith('/admin') && !s.isAdmin =>
+    SessionPhase.signedIn
+        when (location.startsWith('/admin') ||
+                location.startsWith('/research/admin')) &&
+            !s.isAdmin =>
       '/dashboard',
     SessionPhase.signedIn => null,
   };
@@ -77,11 +88,15 @@ final routerProvider = Provider<GoRouter>((ref) {
   ref
     ..listen(sessionProvider, (_, next) => session.value = next)
     ..onDispose(session.dispose);
+  // Water testing or research (ADR-030): each starts on its own page.
+  ConsoleMode mode() => ref.read(consoleModeProvider);
   final router = GoRouter(
     initialLocation: '/dashboard',
     refreshListenable: session,
-    redirect: (context, state) =>
-        sessionRedirect(session.value, state.matchedLocation),
+    redirect: (context, state) {
+      final to = sessionRedirect(session.value, state.matchedLocation);
+      return to == '/dashboard' ? homeFor(mode()) : to;
+    },
     // An unknown address (a stale bookmark, a typo): a safe page, not a crash.
     errorBuilder: (context, state) => Scaffold(
       body: ErrorView(
@@ -98,6 +113,106 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/pin', builder: (_, _) => const ChoosePinScreen()),
       GoRoute(path: '/unlock', builder: (_, _) => const UnlockScreen()),
       GoRoute(path: '/legal', builder: (_, _) => const LegalScreen()),
+      // Research (ADR-030): its own menu, laid out like water testing's.
+      StatefulShellRoute.indexedStack(
+        builder: (context, state, shell) =>
+            _ResearchShell(shell: shell, path: state.uri.path),
+        branches: [
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/research',
+                builder: (_, _) => const ResearchDashboardScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'team',
+                    builder: (_, _) => const ResearchTeamScreen(),
+                  ),
+                  GoRoute(
+                    path: 'messages',
+                    builder: (_, _) => const ResearchMessagesScreen(),
+                  ),
+                  GoRoute(
+                    path: 'profile',
+                    builder: (_, _) => const ProfileScreen(),
+                  ),
+                  GoRoute(
+                    path: 'settings',
+                    builder: (_, _) => const SettingsScreen(),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/research/records',
+                builder: (_, state) => ResearchRecordsScreen(
+                  key: ValueKey(state.uri.query),
+                  formId: state.uri.queryParameters['form'],
+                  collectorKey: state.uri.queryParameters['collector'],
+                  map: state.uri.queryParameters['map'] == '1',
+                ),
+                routes: [
+                  GoRoute(
+                    path: ':id',
+                    builder: (_, state) => ResearchRecordScreen(
+                      recordId: state.pathParameters['id']!,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/research/forms',
+                builder: (_, _) => const ResearchFormsScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'library',
+                    builder: (_, _) => const ResearchLibraryScreen(),
+                  ),
+                  GoRoute(
+                    path: ':id',
+                    builder: (_, state) =>
+                        ResearchFormScreen(formId: state.pathParameters['id']!),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/research/collectors',
+                builder: (_, _) => const ResearchCollectorsScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/research/analysis',
+                builder: (_, state) => ResearchAnalysisScreen(
+                  formId: state.uri.queryParameters['form'],
+                ),
+              ),
+            ],
+          ),
+          // Must stay last: only IT admins get it.
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/research/admin',
+                builder: (_, _) => const ResearchAdminScreen(),
+              ),
+            ],
+          ),
+        ],
+      ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, shell) =>
             _ConsoleShell(shell: shell, path: state.uri.path),
@@ -378,6 +493,7 @@ class _ConsoleShell extends ConsumerWidget {
           pending: sync?.pending ?? 0,
           rejected: sync?.rejected ?? 0,
         ),
+        const SwitchModeButton(to: ConsoleMode.research),
         const _RefreshButton(),
         const MessagesButton(),
         const InboxButton(),
@@ -430,6 +546,115 @@ class _ConsoleShell extends ConsumerWidget {
                 : Align(
                     alignment: Alignment.topCenter,
                     // Most of a large screen, never a fixed width.
+                    child: RelativeWidth(
+                      tablet: 1,
+                      desktop: 0.94,
+                      child: shell,
+                    ),
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// The page above [path] in Research ("/research/records/x" →
+/// "/research/records"); null on each menu page.
+String? researchParentPath(String path) {
+  final parts = [
+    for (final p in path.split('/'))
+      if (p.isNotEmpty) p,
+  ];
+  if (parts.length <= 2) return null;
+  return '/${parts.sublist(0, parts.length - 1).join('/')}';
+}
+
+/// Research: the same frame as water testing (rail or bottom bar, the same
+/// actions), with its own menu (ADR-030; 2026-10-27).
+class _ResearchShell extends ConsumerWidget {
+  const _ResearchShell({required this.shell, required this.path});
+
+  final StatefulNavigationShell shell;
+  final String path;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final session = ref.watch(sessionProvider);
+    final parent = researchParentPath(path);
+    final wide = MediaQuery.sizeOf(context).width >= 520;
+    final project = ref.watch(projectDetailProvider).value;
+    return AdaptiveScaffold(
+      title: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          AppLogo(size: 28, decorative: wide),
+          if (wide) ...[
+            const SizedBox(width: 10),
+            Flexible(
+              child: Text(
+                project == null
+                    ? l10n.researchAppTitle
+                    : '${l10n.researchAppTitle} · ${project.code}',
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ],
+      ),
+      onBack: parent == null ? null : () => context.go(parent),
+      selectedIndex: shell.currentIndex,
+      onDestinationSelected: (i) =>
+          shell.goBranch(i, initialLocation: i == shell.currentIndex),
+      actions: const [
+        SwitchModeButton(to: ConsoleMode.water),
+        _RefreshButton(),
+        ResearchMessagesButton(),
+        _AccountButton(research: true),
+      ],
+      destinations: [
+        AdaptiveDestination(
+          icon: Icons.space_dashboard_outlined,
+          selectedIcon: Icons.space_dashboard,
+          label: l10n.navDashboard,
+        ),
+        AdaptiveDestination(
+          icon: Icons.assignment_outlined,
+          selectedIcon: Icons.assignment,
+          label: l10n.researchRecords,
+        ),
+        AdaptiveDestination(
+          icon: Icons.dynamic_form_outlined,
+          selectedIcon: Icons.dynamic_form,
+          label: l10n.researchFormsTitle,
+        ),
+        AdaptiveDestination(
+          icon: Icons.groups_outlined,
+          selectedIcon: Icons.groups,
+          label: l10n.navCollectors,
+        ),
+        AdaptiveDestination(
+          icon: Icons.insights_outlined,
+          selectedIcon: Icons.insights,
+          label: l10n.researchAnalysis,
+        ),
+        if (session.isAdmin)
+          AdaptiveDestination(
+            icon: Icons.admin_panel_settings_outlined,
+            selectedIcon: Icons.admin_panel_settings,
+            label: l10n.navAdmin,
+          ),
+      ],
+      body: Column(
+        children: [
+          if (session.offline) const _OfflineBanner(),
+          Expanded(
+            // The records map uses the whole screen, as Sources does.
+            child: path == '/research/records'
+                ? shell
+                : Align(
+                    alignment: Alignment.topCenter,
                     child: RelativeWidth(
                       tablet: 1,
                       desktop: 0.94,
@@ -514,12 +739,16 @@ class _ConnectionLostBanner extends ConsumerWidget {
 }
 
 class _AccountButton extends ConsumerWidget {
-  const _AccountButton();
+  const _AccountButton({this.research = false});
+
+  /// In Research: its own profile and settings pages, no limit sets.
+  final bool research;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final me = ref.watch(sessionProvider).me;
+    final home = research ? '/research' : '/dashboard';
     return PopupMenuButton<void>(
       tooltip: l10n.accountMenu,
       icon: const Icon(Icons.account_circle_outlined),
@@ -536,16 +765,17 @@ class _AccountButton extends ConsumerWidget {
           ),
         ),
         const PopupMenuDivider(),
-        PopupMenuItem<void>(
-          onTap: () => context.go('/dashboard/limit-sets'),
-          child: ListTile(
-            contentPadding: EdgeInsets.zero,
-            leading: const Icon(Icons.tune),
-            title: Text(l10n.navLimitSets),
+        if (!research)
+          PopupMenuItem<void>(
+            onTap: () => context.go('/dashboard/limit-sets'),
+            child: ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.tune),
+              title: Text(l10n.navLimitSets),
+            ),
           ),
-        ),
         PopupMenuItem<void>(
-          onTap: () => context.go('/dashboard/profile'),
+          onTap: () => context.go('$home/profile'),
           child: ListTile(
             contentPadding: EdgeInsets.zero,
             leading: const Icon(Icons.manage_accounts_outlined),
@@ -553,7 +783,7 @@ class _AccountButton extends ConsumerWidget {
           ),
         ),
         PopupMenuItem<void>(
-          onTap: () => context.go('/dashboard/settings'),
+          onTap: () => context.go('$home/settings'),
           child: ListTile(
             contentPadding: EdgeInsets.zero,
             leading: const Icon(Icons.settings_outlined),

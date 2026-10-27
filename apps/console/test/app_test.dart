@@ -105,7 +105,7 @@ void main() {
   ) async {
     final env = ConsoleTestEnv();
     final db = await pumpConsole(tester, env: env);
-    expect(find.text('Sign in to WaterCheck Console'), findsOneWidget);
+    expect(find.text('Sign in to FieldQuire Console'), findsOneWidget);
 
     await signIn(tester, 'officer@example.org', 'wrong-password');
     expect(find.text('Wrong username or password.'), findsOneWidget);
@@ -145,7 +145,7 @@ void main() {
     await settle(tester);
     await tester.tap(find.text('Sign out'));
     await settle(tester);
-    expect(find.text('Sign in to WaterCheck Console'), findsOneWidget);
+    expect(find.text('Sign in to FieldQuire Console'), findsOneWidget);
     expect((await tester.runAsync(env.store.read)), isNull);
     expect(env.api.logouts, 1);
     await disposeConsole(tester, db);
@@ -216,7 +216,7 @@ void main() {
     expect(find.text('Before you continue'), findsOneWidget);
     await tester.tap(find.text('Terms of Use'));
     await settle(tester);
-    expect(find.text('WaterCheck Terms of Use'), findsOneWidget);
+    expect(find.text('FieldQuire Terms of Use'), findsOneWidget);
     await tester.pageBack();
     await settle(tester);
     await tester.tap(

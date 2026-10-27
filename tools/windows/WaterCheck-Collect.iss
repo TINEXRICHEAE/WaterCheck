@@ -1,6 +1,6 @@
-#define AppName "WaterCheck Collect"
+#define AppName "FieldQuire Collect"
 #define AppVersion "0.1.1"
-#define AppPublisher "WaterCheck"
+#define AppPublisher "FieldQuire"
 #define AppExeName "watercheck_collect.exe"
 
 #ifndef ReleaseDir
@@ -16,10 +16,10 @@ AppId={{A7A20AE9-7B7B-4E3A-8B8A-9B8B3D6A0C01}
 AppName={#AppName}
 AppVersion={#AppVersion}
 AppPublisher={#AppPublisher}
-DefaultDirName={autopf}\WaterCheck Collect
+DefaultDirName={autopf}\FieldQuire Collect
 DefaultGroupName={#AppName}
 OutputDir=..\..\dist\windows
-OutputBaseFilename=WaterCheck-Collect-Setup
+OutputBaseFilename=FieldQuire-Collect-Setup
 Compression=lzma2
 SolidCompression=yes
 ArchitecturesAllowed=x64compatible

@@ -107,7 +107,7 @@ void main() {
           DriftLocalSettingsRepository(db).write(lockDeclinedSetting, null),
     );
     expect(find.text('Activate this device'), findsNothing);
-    expect(find.text('Choose a PIN to protect WaterCheck'), findsOneWidget);
+    expect(find.text('Choose a PIN to protect FieldQuire'), findsOneWidget);
     await enterPin(tester, '1357');
     await enterPin(tester, '1357');
     expect(find.byType(NavigationBar), findsOneWidget);
@@ -142,7 +142,7 @@ void main() {
       prepare: (db) =>
           DriftLocalSettingsRepository(db).write(lockDeclinedSetting, null),
     );
-    expect(find.text('Choose a PIN to protect WaterCheck'), findsOneWidget);
+    expect(find.text('Choose a PIN to protect FieldQuire'), findsOneWidget);
     await tapAndSettle(tester, find.text('Turn off app lock'));
     await tapAndSettle(tester, find.text('Turn off app lock').last);
     expect(find.byType(NavigationBar), findsOneWidget);
@@ -154,7 +154,7 @@ void main() {
   ) async {
     final svc = TestServices()..server.offline = true;
     final db = await pumpCollect(tester, services: svc, pin: '2468');
-    expect(find.text('WaterCheck is locked.'), findsOneWidget);
+    expect(find.text('FieldQuire is locked.'), findsOneWidget);
     await enterPin(tester, '1111');
     expect(find.textContaining('Wrong PIN'), findsOneWidget);
     await enterPin(tester, '2468');
@@ -209,7 +209,7 @@ void main() {
     await tapAndSettle(tester, find.text('Erase this device'));
     expect(
       find.text(
-        'All WaterCheck data on this device will be erased. This cannot be undone.',
+        'All FieldQuire data on this device will be erased. This cannot be undone.',
       ),
       findsOneWidget,
     );
@@ -248,7 +248,7 @@ void main() {
     await tapAndSettle(tester, find.text('Cancel').last);
     // Cancel goes back to the lock: reset does not bypass it.
     await tapAndSettle(tester, find.text('Cancel'));
-    expect(find.text('WaterCheck is locked.'), findsOneWidget);
+    expect(find.text('FieldQuire is locked.'), findsOneWidget);
     await disposeApp(tester, db);
   });
 

@@ -141,6 +141,6 @@ void main() {
 
   testWidgets('the logo is labelled for screen readers', (tester) async {
     await tester.pumpWidget(_host(const AppLogo()));
-    expect(find.bySemanticsLabel('WaterCheck logo'), findsOneWidget);
+    expect(find.bySemanticsLabel('FieldQuire logo'), findsOneWidget);
   });
 }

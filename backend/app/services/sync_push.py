@@ -49,6 +49,8 @@ ORDER = [
     "alert",
     "alert_event",
     "sanitary_inspection",
+    # Research records (ADR-030) before their pictures.
+    "research_record",
     "attachment",
     "collector_mark",
     "submission_flag",
@@ -523,6 +525,106 @@ class PushService:
         )
         return Outcome(c.id, c.entity, "applied")
 
+    async def research_record_insert(self, c: Change) -> Outcome:
+        """A record made in the field with a research form (ADR-030 §3): kept
+        as made, with where and when the interview took place. A research
+        number already used in the project is kept and flagged for the
+        supervisor, not refused."""
+        if self.p.kind != "installation":
+            raise Rejected("not_allowed")
+        d, o = c.data, self._origin(c.data)
+        rid = _uuid(c.id, "id")
+        form_id = _uuid(_req(d, "form_id"), "form_id")
+        version = int(_req(d, "form_version"))
+        number = " ".join(str(_req(d, "number")).split())
+        if not number or len(number) > 60:
+            raise Rejected("invalid:number")
+        answers = d.get("answers")
+        if isinstance(answers, str):
+            try:
+                answers = json.loads(answers)
+            except ValueError as e:
+                raise Rejected("invalid:answers") from e
+        if not isinstance(answers, dict):
+            raise Rejected("invalid:answers")
+
+        def point(lat_key: str, lon_key: str) -> tuple[float | None, float | None]:
+            lat, lon = _num(d.get(lat_key), lat_key), _num(d.get(lon_key), lon_key)
+            if (lat is None) != (lon is None) or (
+                lat is not None
+                and lon is not None
+                and not (-90 <= lat <= 90 and -180 <= lon <= 180)
+            ):
+                raise Rejected(f"invalid:{lat_key}")
+            return (None, None) if lat is None or lon is None else (float(lat), float(lon))
+
+        lat, lon = point("lat", "lon")
+        end_lat, end_lon = point("end_lat", "end_lon")
+        if (
+            await self.conn.execute(
+                text("SELECT 1 FROM research.record WHERE id = :id"), {"id": rid}
+            )
+        ).first():
+            return Outcome(c.id, c.entity, "duplicate")
+        form = (
+            await self.conn.execute(
+                text(
+                    "SELECT f.project_id, research.can_collect(f.id) AS ok, EXISTS ("
+                    " SELECT 1 FROM research.form_version v WHERE v.form_id = f.id "
+                    " AND v.version = :v) AS known FROM research.form f WHERE f.id = :f"
+                ),
+                {"f": form_id, "v": version},
+            )
+        ).first()
+        if form is None:
+            raise Rejected("not_found")
+        if not form.ok:
+            raise Rejected("not_allowed")
+        if not form.known:
+            raise Rejected("unknown_version")
+        clash = (
+            await self.conn.execute(
+                text("SELECT research.number_used(:p, :n, :id)"),
+                {"p": form.project_id, "n": number, "id": rid},
+            )
+        ).scalar()
+
+        def num(field: str) -> float | None:
+            v = _num(d.get(field), field)
+            return None if v is None else float(v)
+
+        await self.conn.execute(
+            text(
+                "INSERT INTO research.record (id, form_id, form_version, number, number_clash, "
+                "collector_key, installation_id, collector_snapshot, started_at, finished_at, "
+                "lat, lon, accuracy_m, altitude_m, end_lat, end_lon, end_accuracy_m, answers, "
+                "server_seq) VALUES (:id, :f, :v, :n, :clash, :ck, :inst, CAST(:cs AS jsonb), "
+                ":started, :finished, :lat, :lon, :acc, :alt, :elat, :elon, :eacc, "
+                "CAST(:answers AS jsonb), 0)"
+            ),
+            {
+                "id": rid,
+                "f": form_id,
+                "v": version,
+                "n": number,
+                "clash": bool(clash),
+                "ck": o["ck"],
+                "inst": o["inst"],
+                "cs": o["cs"],
+                "started": _ts(d.get("started_at"), "started_at"),
+                "finished": _ts(d.get("finished_at"), "finished_at"),
+                "lat": lat,
+                "lon": lon,
+                "acc": num("accuracy_m"),
+                "alt": num("altitude_m"),
+                "elat": end_lat,
+                "elon": end_lon,
+                "eacc": num("end_accuracy_m"),
+                "answers": json.dumps(answers),
+            },
+        )
+        return Outcome(c.id, c.entity, "applied", reason="number_clash" if clash else None)
+
     async def water_source_insert(self, c: Change) -> Outcome:
         d, o = c.data, self._origin(c.data)
         params = {
@@ -938,7 +1040,7 @@ class PushService:
         if mime not in ATTACHMENT_MIME:
             raise Rejected("unsupported_type")
         owner_type = str(_req(d, "owner_type"))
-        if owner_type not in ("water_source", "test_session"):
+        if owner_type not in ("water_source", "test_session", "research_record"):
             raise Rejected("invalid:owner_type")
         aid = _uuid(c.id, "id")
         lat, lon = _num(d.get("taken_lat"), "taken_lat"), _num(d.get("taken_lon"), "taken_lon")
@@ -953,13 +1055,16 @@ class PushService:
 
         return await self._insert(
             c,
-            "INSERT INTO attachment (id, owner_type, owner_id, object_key, sha256, bytes, mime, "
-            "installation_id, created_by, collector_key, taken_lat, taken_lon, "
+            "INSERT INTO attachment (id, owner_type, owner_id, field_name, object_key, sha256, "
+            "bytes, mime, installation_id, created_by, collector_key, taken_lat, taken_lon, "
             "taken_accuracy_m, taken_altitude_m, taken_speed_mps, taken_heading_deg, taken_at, "
-            "server_seq) VALUES (:id, :ot, :oid, :key, :sha, :bytes, :mime, :inst, :by, :ck, "
+            "server_seq) VALUES (:id, :ot, :oid, :field, :key, :sha, :bytes, :mime, :inst, :by, "
+            ":ck, "
             ":tlat, :tlon, :tacc, :talt, :tspd, :thead, :tat, 0) "
             "ON CONFLICT (id) DO NOTHING RETURNING 1",
             {
+                # The form field a research record's picture answers.
+                "field": (str(d["field_name"])[:60] if d.get("field_name") else None),
                 "tlat": num("taken_lat"),
                 "tlon": num("taken_lon"),
                 "tacc": num("taken_accuracy_m"),
@@ -1061,15 +1166,26 @@ class PushService:
         (ADR-022), from a collector or a Console user."""
         d, o = c.data, self._origin(c.data)
         kind = str(_req(d, "subject_type"))
-        if kind not in _THREAD_AREA:
+        if kind not in _THREAD_AREA and kind != "research_record":
             raise Rejected("unknown_subject")
         subject = _uuid(_req(d, "subject_id"), "subject_id")
         body = str(_req(d, "body")).strip()
         if not body or len(body) > 2000:
             raise Rejected("invalid_body")
-        area = (
-            await self.conn.execute(text(_THREAD_AREA[kind]), {"s": subject})
-        ).scalar_one_or_none()
+        area = None
+        if kind == "research_record":
+            # Research (ADR-030): no area; whoever may see the record.
+            seen = (
+                await self.conn.execute(
+                    text("SELECT 1 FROM research.record WHERE id = :s"), {"s": subject}
+                )
+            ).scalar_one_or_none()
+            if seen is None:
+                raise Rejected("not_found")
+        else:
+            area = (
+                await self.conn.execute(text(_THREAD_AREA[kind]), {"s": subject})
+            ).scalar_one_or_none()
         if area is None and kind == "collector" and self.p.kind == "installation":
             # A collector writing about themselves before any record: the
             # device's own area.
@@ -1079,7 +1195,7 @@ class PushService:
                     {"i": self.p.installation_id},
                 )
             ).scalar_one_or_none()
-        if area is None:
+        if area is None and kind != "research_record":
             raise Rejected("not_found")
         snapshot = o["cs"]
         name = None
@@ -1237,6 +1353,7 @@ _Handler = Callable[[PushService, Change], Awaitable[Outcome]]
 _HANDLERS: dict[tuple[str, str], _Handler] = {
     ("admin_unit", "insert"): PushService.admin_unit_insert,
     ("place_name", "insert"): PushService.place_name_insert,
+    ("research_record", "insert"): PushService.research_record_insert,
     ("water_source", "insert"): PushService.water_source_insert,
     ("water_source", "update"): PushService.water_source_update,
     ("calibration", "insert"): PushService.calibration_insert,

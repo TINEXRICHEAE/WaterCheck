@@ -97,7 +97,7 @@ abstract class AppLocalizations {
   /// No description provided for @appTitle.
   ///
   /// In en, this message translates to:
-  /// **'WaterCheck Collect'**
+  /// **'FieldQuire Collect'**
   String get appTitle;
 
   /// No description provided for @navHome.
@@ -181,13 +181,13 @@ abstract class AppLocalizations {
   /// No description provided for @settingsAboutBody.
   ///
   /// In en, this message translates to:
-  /// **'WaterCheck Collect {version}. Water quality screening for communities across Uganda. Results are screening only, not laboratory confirmation.'**
+  /// **'FieldQuire Collect {version}. Water quality screening for communities across Uganda. Results are screening only, not laboratory confirmation.'**
   String settingsAboutBody(String version);
 
   /// No description provided for @startupFailed.
   ///
   /// In en, this message translates to:
-  /// **'WaterCheck could not open its data on this device.'**
+  /// **'FieldQuire could not open its data on this device.'**
   String get startupFailed;
 
   /// No description provided for @startupRetry.
@@ -199,7 +199,7 @@ abstract class AppLocalizations {
   /// No description provided for @welcomeTitle.
   ///
   /// In en, this message translates to:
-  /// **'Welcome to WaterCheck'**
+  /// **'Welcome to FieldQuire'**
   String get welcomeTitle;
 
   /// No description provided for @privacyHeading.
@@ -211,7 +211,7 @@ abstract class AppLocalizations {
   /// No description provided for @privacyBody.
   ///
   /// In en, this message translates to:
-  /// **'WaterCheck records water tests at shared water sources so that communities and districts can act when water may be unsafe.\n\nWith each test it saves your name, the area you give, where you tested (GPS) and any pictures of the test or the source, with where and when each was taken. Places you add to the map show your name. Trips you follow with Go stay on this device. Your phone and email are optional. Stakeholders for the area see your records and can contact you; other testers see results and your name, not your contacts.\n\nWaterCheck does not ask for national ID numbers or information about households. Please do not photograph people.\n\nYour work is kept on this device (encrypted in the Android and Windows apps) and sent to the WaterCheck server, hosted outside Uganda (South Africa), when there is internet. You can edit your details, or delete your profile, any time under My profile.\n\nA test result is a warning, not a guarantee that water is safe: always follow the advice of your health officials.'**
+  /// **'FieldQuire records water tests at shared water sources so that communities and districts can act when water may be unsafe.\n\nWith each test it saves your name, the area you give, where you tested (GPS) and any pictures of the test or the source, with where and when each was taken. Places you add to the map show your name. Trips you follow with Go stay on this device. Your phone and email are optional. Stakeholders for the area see your records and can contact you; other testers see results and your name, not your contacts.\n\nFieldQuire does not ask for national ID numbers or information about households. Please do not photograph people.\n\nYour work is kept on this device (encrypted in the Android and Windows apps) and sent to the FieldQuire server, hosted outside Uganda (South Africa), when there is internet. You can edit your details, or delete your profile, any time under My profile.\n\nA test result is a warning, not a guarantee that water is safe: always follow the advice of your health officials.'**
   String get privacyBody;
 
   /// No description provided for @privacyVersion.
@@ -343,7 +343,7 @@ abstract class AppLocalizations {
   /// No description provided for @profileNoId.
   ///
   /// In en, this message translates to:
-  /// **'Do not enter a national ID number. WaterCheck does not need it.'**
+  /// **'Do not enter a national ID number. FieldQuire does not need it.'**
   String get profileNoId;
 
   /// No description provided for @profileSave.
@@ -493,13 +493,13 @@ abstract class AppLocalizations {
   /// No description provided for @locationDenied.
   ///
   /// In en, this message translates to:
-  /// **'WaterCheck may not use your location. Allow it to record where the source is.'**
+  /// **'FieldQuire may not use your location. Allow it to record where the source is.'**
   String get locationDenied;
 
   /// No description provided for @locationDeniedForever.
   ///
   /// In en, this message translates to:
-  /// **'Location access is blocked for WaterCheck. Allow it in the device settings.'**
+  /// **'Location access is blocked for FieldQuire. Allow it in the device settings.'**
   String get locationDeniedForever;
 
   /// No description provided for @locationTimeout.
@@ -1393,7 +1393,7 @@ abstract class AppLocalizations {
   /// No description provided for @activationIntro.
   ///
   /// In en, this message translates to:
-  /// **'Enter the activation code from your IT admin. This needs the internet once. After that, WaterCheck works without internet and nobody needs to log in.'**
+  /// **'Enter the activation code from your IT admin. This needs the internet once. After that, FieldQuire works without internet and nobody needs to log in.'**
   String get activationIntro;
 
   /// No description provided for @activationCodeLabel.
@@ -1453,7 +1453,7 @@ abstract class AppLocalizations {
   /// No description provided for @activationBadQr.
   ///
   /// In en, this message translates to:
-  /// **'That QR code is not a WaterCheck activation code.'**
+  /// **'That QR code is not a FieldQuire activation code.'**
   String get activationBadQr;
 
   /// No description provided for @activationInvalidCode.
@@ -1501,13 +1501,13 @@ abstract class AppLocalizations {
   /// No description provided for @lockMessage.
   ///
   /// In en, this message translates to:
-  /// **'WaterCheck is locked.'**
+  /// **'FieldQuire is locked.'**
   String get lockMessage;
 
   /// No description provided for @lockBiometricReason.
   ///
   /// In en, this message translates to:
-  /// **'Unlock WaterCheck'**
+  /// **'Unlock FieldQuire'**
   String get lockBiometricReason;
 
   /// No description provided for @lockForgot.
@@ -1525,7 +1525,7 @@ abstract class AppLocalizations {
   /// No description provided for @lockForgotBody.
   ///
   /// In en, this message translates to:
-  /// **'The PIN cannot be recovered. Resetting the app saves unsent records to an encrypted file for the IT admin, then erases WaterCheck from this device so it can be activated again.'**
+  /// **'The PIN cannot be recovered. Resetting the app saves unsent records to an encrypted file for the IT admin, then erases FieldQuire from this device so it can be activated again.'**
   String get lockForgotBody;
 
   /// No description provided for @lockForgotReset.
@@ -1537,7 +1537,7 @@ abstract class AppLocalizations {
   /// No description provided for @lockSetupTitle.
   ///
   /// In en, this message translates to:
-  /// **'Choose a PIN to protect WaterCheck'**
+  /// **'Choose a PIN to protect FieldQuire'**
   String get lockSetupTitle;
 
   /// No description provided for @lockTurnOff.
@@ -1555,7 +1555,7 @@ abstract class AppLocalizations {
   /// No description provided for @lockOffBody.
   ///
   /// In en, this message translates to:
-  /// **'Anyone who picks up this device can then open WaterCheck and see the records on it.'**
+  /// **'Anyone who picks up this device can then open FieldQuire and see the records on it.'**
   String get lockOffBody;
 
   /// No description provided for @lockBiometricOfferTitle.
@@ -1597,7 +1597,7 @@ abstract class AppLocalizations {
   /// No description provided for @revokedBody.
   ///
   /// In en, this message translates to:
-  /// **'The IT admin has stopped this device from sending data. Save any unsent records to a file and give it to the IT admin. Then erase WaterCheck from this device.'**
+  /// **'The IT admin has stopped this device from sending data. Save any unsent records to a file and give it to the IT admin. Then erase FieldQuire from this device.'**
   String get revokedBody;
 
   /// No description provided for @resetTitle.
@@ -1609,7 +1609,7 @@ abstract class AppLocalizations {
   /// No description provided for @resetBody.
   ///
   /// In en, this message translates to:
-  /// **'This erases all WaterCheck data from this device and returns it to activation. Save unsent records to a file first and give it to the IT admin.'**
+  /// **'This erases all FieldQuire data from this device and returns it to activation. Save unsent records to a file first and give it to the IT admin.'**
   String get resetBody;
 
   /// No description provided for @resetCounting.
@@ -1633,7 +1633,7 @@ abstract class AppLocalizations {
   /// No description provided for @resetFileHint.
   ///
   /// In en, this message translates to:
-  /// **'The file is encrypted. Only the WaterCheck server can open it.'**
+  /// **'The file is encrypted. Only the FieldQuire server can open it.'**
   String get resetFileHint;
 
   /// No description provided for @resetSave.
@@ -1675,13 +1675,13 @@ abstract class AppLocalizations {
   /// No description provided for @resetConfirmTitle.
   ///
   /// In en, this message translates to:
-  /// **'Erase WaterCheck from this device?'**
+  /// **'Erase FieldQuire from this device?'**
   String get resetConfirmTitle;
 
   /// No description provided for @resetConfirmBody.
   ///
   /// In en, this message translates to:
-  /// **'All WaterCheck data on this device will be erased. This cannot be undone.'**
+  /// **'All FieldQuire data on this device will be erased. This cannot be undone.'**
   String get resetConfirmBody;
 
   /// No description provided for @resetConfirmLoses.
@@ -1711,7 +1711,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsAppLockHint.
   ///
   /// In en, this message translates to:
-  /// **'Ask for a PIN when WaterCheck opens'**
+  /// **'Ask for a PIN when FieldQuire opens'**
   String get settingsAppLockHint;
 
   /// No description provided for @settingsChangePin.
@@ -1735,7 +1735,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsResetHint.
   ///
   /// In en, this message translates to:
-  /// **'Save unsent records, then erase WaterCheck'**
+  /// **'Save unsent records, then erase FieldQuire'**
   String get settingsResetHint;
 
   /// No description provided for @syncNow.
@@ -1753,13 +1753,13 @@ abstract class AppLocalizations {
   /// No description provided for @syncOffline.
   ///
   /// In en, this message translates to:
-  /// **'No connection. WaterCheck will try again by itself (next try about {when}).'**
+  /// **'No connection. FieldQuire will try again by itself (next try about {when}).'**
   String syncOffline(String when);
 
   /// No description provided for @syncServerProblem.
   ///
   /// In en, this message translates to:
-  /// **'The server did not answer ({code}). WaterCheck will try again by itself (next try about {when}).'**
+  /// **'The server did not answer ({code}). FieldQuire will try again by itself (next try about {when}).'**
   String syncServerProblem(String code, String when);
 
   /// No description provided for @syncRejectedTitle.
@@ -1915,7 +1915,7 @@ abstract class AppLocalizations {
   /// No description provided for @photoNotImage.
   ///
   /// In en, this message translates to:
-  /// **'That file is not a photo WaterCheck can use.'**
+  /// **'That file is not a photo FieldQuire can use.'**
   String get photoNotImage;
 
   /// No description provided for @photoWaiting.
@@ -1993,7 +1993,7 @@ abstract class AppLocalizations {
   /// No description provided for @limitsStakeholderHint.
   ///
   /// In en, this message translates to:
-  /// **'Only a stakeholder can change limits. Sign in with your WaterCheck Console account: the change is recorded under your name with your reason. Needs a connection; you are signed out right after.'**
+  /// **'Only a stakeholder can change limits. Sign in with your FieldQuire Console account: the change is recorded under your name with your reason. Needs a connection; you are signed out right after.'**
   String get limitsStakeholderHint;
 
   /// No description provided for @limitsStakeholderUsername.
@@ -2833,7 +2833,7 @@ abstract class AppLocalizations {
   /// No description provided for @messagesAbout.
   ///
   /// In en, this message translates to:
-  /// **'{kind, select, test{Test} source{Source} collector{Collector} area{Area} other{Thread}}'**
+  /// **'{kind, select, test{Test} source{Source} collector{Collector} area{Area} research{Research record} other{Thread}}'**
   String messagesAbout(String kind);
 
   /// No description provided for @messagesOpenSource.
@@ -3355,7 +3355,7 @@ abstract class AppLocalizations {
   /// No description provided for @locationBlockedWeb.
   ///
   /// In en, this message translates to:
-  /// **'This browser is not letting WaterCheck see your location. Allow location for this site (the icon in the address bar, or the site settings), then try again. On iPhone: Settings › Privacy & Security › Location Services › Safari Websites › While Using the App, then choose Allow in Safari.'**
+  /// **'This browser is not letting FieldQuire see your location. Allow location for this site (the icon in the address bar, or the site settings), then try again. On iPhone: Settings › Privacy & Security › Location Services › Safari Websites › While Using the App, then choose Allow in Safari.'**
   String get locationBlockedWeb;
 
   /// No description provided for @locationOffWeb.
@@ -3363,6 +3363,330 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Location is switched off for this browser or device. On iPhone: Settings › Privacy & Security › Location Services, switch it on, and set Safari Websites to While Using the App. On Android: switch Location on, and allow it for the browser.'**
   String get locationOffWeb;
+
+  /// No description provided for @modeChoose.
+  ///
+  /// In en, this message translates to:
+  /// **'What are you here for?'**
+  String get modeChoose;
+
+  /// No description provided for @modeWater.
+  ///
+  /// In en, this message translates to:
+  /// **'Water testing'**
+  String get modeWater;
+
+  /// No description provided for @modeResearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Research'**
+  String get modeResearch;
+
+  /// No description provided for @navForms.
+  ///
+  /// In en, this message translates to:
+  /// **'Forms'**
+  String get navForms;
+
+  /// No description provided for @researchTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Research'**
+  String get researchTitle;
+
+  /// No description provided for @researchForms.
+  ///
+  /// In en, this message translates to:
+  /// **'Forms to fill'**
+  String get researchForms;
+
+  /// No description provided for @researchNoForms.
+  ///
+  /// In en, this message translates to:
+  /// **'No research forms yet. They appear here once a researcher publishes one you may use. Sync to check.'**
+  String get researchNoForms;
+
+  /// No description provided for @researchStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get researchStart;
+
+  /// No description provided for @researchDrafts.
+  ///
+  /// In en, this message translates to:
+  /// **'Not finished'**
+  String get researchDrafts;
+
+  /// No description provided for @researchNoNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'No number yet'**
+  String get researchNoNumber;
+
+  /// No description provided for @researchMine.
+  ///
+  /// In en, this message translates to:
+  /// **'My records'**
+  String get researchMine;
+
+  /// No description provided for @researchNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No records yet.'**
+  String get researchNone;
+
+  /// No description provided for @researchSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent'**
+  String get researchSent;
+
+  /// No description provided for @researchWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting to send'**
+  String get researchWaiting;
+
+  /// No description provided for @researchClash.
+  ///
+  /// In en, this message translates to:
+  /// **'Number used twice: your supervisor will check'**
+  String get researchClash;
+
+  /// No description provided for @researchNumberLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Research number'**
+  String get researchNumberLabel;
+
+  /// No description provided for @researchNumberTyped.
+  ///
+  /// In en, this message translates to:
+  /// **'Type the number from your list. Never a name.'**
+  String get researchNumberTyped;
+
+  /// No description provided for @researchNumberGenerated.
+  ///
+  /// In en, this message translates to:
+  /// **'Given by the app; it shows on the map instead of a name.'**
+  String get researchNumberGenerated;
+
+  /// No description provided for @researchNumberMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Give the research number'**
+  String get researchNumberMissing;
+
+  /// No description provided for @researchNumberUsed.
+  ///
+  /// In en, this message translates to:
+  /// **'{number} is already used in this project. Keep it anyway? Your supervisor will see both.'**
+  String researchNumberUsed(String number);
+
+  /// No description provided for @researchKeepNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep it'**
+  String get researchKeepNumber;
+
+  /// No description provided for @researchChangeNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Change it'**
+  String get researchChangeNumber;
+
+  /// No description provided for @researchIssues.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 answer needs attention} other{{count} answers need attention}}'**
+  String researchIssues(int count);
+
+  /// No description provided for @researchSaveClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Save and close'**
+  String get researchSaveClose;
+
+  /// No description provided for @researchFinish.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish'**
+  String get researchFinish;
+
+  /// No description provided for @researchFinished.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved {number}. It is sent when there is internet.'**
+  String researchFinished(String number);
+
+  /// No description provided for @researchDiscard.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard this record'**
+  String get researchDiscard;
+
+  /// No description provided for @researchDiscardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard this unfinished record and its pictures?'**
+  String get researchDiscardTitle;
+
+  /// No description provided for @researchNoPoint.
+  ///
+  /// In en, this message translates to:
+  /// **'Finding where you are… The record keeps the first location found.'**
+  String get researchNoPoint;
+
+  /// No description provided for @researchPointAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Location: {point} (±{metres} m)'**
+  String researchPointAt(String point, String metres);
+
+  /// No description provided for @researchMap.
+  ///
+  /// In en, this message translates to:
+  /// **'My research points'**
+  String get researchMap;
+
+  /// No description provided for @researchMapNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Your records with a location show here, by research number.'**
+  String get researchMapNone;
+
+  /// No description provided for @researchRecordTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Record {number}'**
+  String researchRecordTitle(String number);
+
+  /// No description provided for @researchStartedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Started {when}'**
+  String researchStartedAt(String when);
+
+  /// No description provided for @researchDeclined.
+  ///
+  /// In en, this message translates to:
+  /// **'Declined: no consent, so no questions were asked.'**
+  String get researchDeclined;
+
+  /// No description provided for @researchWhichForm.
+  ///
+  /// In en, this message translates to:
+  /// **'Which form?'**
+  String get researchWhichForm;
+
+  /// No description provided for @researchJoinTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Join with a code'**
+  String get researchJoinTitle;
+
+  /// No description provided for @researchJoinHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Type the access code the research team gave you. This needs the internet once.'**
+  String get researchJoinHint;
+
+  /// No description provided for @researchJoinCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Access code'**
+  String get researchJoinCode;
+
+  /// No description provided for @researchJoin.
+  ///
+  /// In en, this message translates to:
+  /// **'Join'**
+  String get researchJoin;
+
+  /// No description provided for @researchJoinWrong.
+  ///
+  /// In en, this message translates to:
+  /// **'That code does not open any form. Check it with the research team.'**
+  String get researchJoinWrong;
+
+  /// No description provided for @researchJoinOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'No connection. Join when you have internet.'**
+  String get researchJoinOffline;
+
+  /// No description provided for @researchJoinFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not join ({code}). Try again.'**
+  String researchJoinFailed(String code);
+
+  /// No description provided for @researchJoined.
+  ///
+  /// In en, this message translates to:
+  /// **'Joined. The form is on this phone now.'**
+  String get researchJoined;
+
+  /// No description provided for @researchSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by research number or form'**
+  String get researchSearch;
+
+  /// No description provided for @researchFilterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get researchFilterAll;
+
+  /// No description provided for @researchFilterFlagged.
+  ///
+  /// In en, this message translates to:
+  /// **'To check'**
+  String get researchFilterFlagged;
+
+  /// No description provided for @researchMineCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{My records} =1{My records (1)} other{My records ({count})}}'**
+  String researchMineCount(int count);
+
+  /// No description provided for @researchFill.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill a form'**
+  String get researchFill;
+
+  /// No description provided for @researchTookMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'Took {minutes} min'**
+  String researchTookMinutes(int minutes);
+
+  /// No description provided for @researchNoLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'No location'**
+  String get researchNoLocation;
+
+  /// No description provided for @researchAnswers.
+  ///
+  /// In en, this message translates to:
+  /// **'Answers'**
+  String get researchAnswers;
+
+  /// No description provided for @researchMessagesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Messages with the research team'**
+  String get researchMessagesTitle;
+
+  /// No description provided for @researchOpenRecord.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the record'**
+  String get researchOpenRecord;
 }
 
 class _AppLocalizationsDelegate

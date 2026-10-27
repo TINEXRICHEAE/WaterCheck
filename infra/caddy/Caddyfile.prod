@@ -1,9 +1,12 @@
 # Production Caddyfile (Azure VM): selected with WC_CADDYFILE=Caddyfile.prod
 # in infra/.env. Caddy obtains and renews certificates automatically for both
 # hostnames once DNS points to the VM and ports 80/443 are reachable.
-# Hostnames come from WC_WEB_HOST / WC_API_HOST (defaults: the live names),
-# so a future staging stack can reuse this file with its own names.
-{$WC_WEB_HOST:watercheck.cooptconnect.app} {
+# FieldQuire (2026-10-27): fieldquire.cooptconnect.app is the main address;
+# watercheck.fieldquire… opens the apps in Water testing and research.fieldquire…
+# in Research (ADR-030), all one site. The old WaterCheck names stay during the
+# move (installed apps call the old API name until their next release).
+# Each name needs a DNS A record to this VM.
+fieldquire.cooptconnect.app, watercheck.fieldquire.cooptconnect.app, research.fieldquire.cooptconnect.app, watercheck.cooptconnect.app {
 	encode zstd gzip
 
 	header {
@@ -56,7 +59,7 @@
 	}
 }
 
-{$WC_API_HOST:api.watercheck.cooptconnect.app} {
+api.watercheck.fieldquire.cooptconnect.app, api.watercheck.cooptconnect.app {
 	encode zstd gzip
 
 	header {

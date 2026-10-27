@@ -53,7 +53,8 @@ services:
         alembic upgrade head &&
         python -m app.cli create-api-role --password "$${API_DB_PASSWORD}" &&
         python -m app.seed --seed-dir /seed &&
-        python -m app.places_load --dir /places
+        python -m app.places_load --dir /places &&
+        python -m app.research.seed
     environment:
       WC_MIGRATION_DATABASE_URL: postgresql+psycopg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
       API_DB_PASSWORD: ${API_DB_PASSWORD}
@@ -120,8 +121,8 @@ services:
     # Dev routing by default (localhost: /console/, /collect/); the VM sets
     # WC_CADDYFILE=Caddyfile.prod in .env for the HTTPS domains.
     environment:
-      WC_WEB_HOST: ${WC_WEB_HOST:-watercheck.cooptconnect.app}
-      WC_API_HOST: ${WC_API_HOST:-api.watercheck.cooptconnect.app}
+      WC_WEB_HOST: ${WC_WEB_HOST:-watercheck.fieldquire.cooptconnect.app}
+      WC_API_HOST: ${WC_API_HOST:-api.watercheck.fieldquire.cooptconnect.app}
     volumes:
       - ./caddy/${WC_CADDYFILE:-Caddyfile.dev}:/etc/caddy/Caddyfile:ro
       - ../apps/console/build/web:/srv/console:ro

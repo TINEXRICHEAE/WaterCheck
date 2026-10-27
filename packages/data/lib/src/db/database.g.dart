@@ -13030,6 +13030,17 @@ class $AttachmentsTable extends Attachments
     type: DriftSqlType.dateTime,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _fieldNameMeta = const VerificationMeta(
+    'fieldName',
+  );
+  @override
+  late final GeneratedColumn<String> fieldName = GeneratedColumn<String>(
+    'field_name',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _uploadStatusMeta = const VerificationMeta(
     'uploadStatus',
   );
@@ -13060,6 +13071,7 @@ class $AttachmentsTable extends Attachments
     takenSpeedMps,
     takenHeadingDeg,
     takenAt,
+    fieldName,
     uploadStatus,
   ];
   @override
@@ -13194,6 +13206,12 @@ class $AttachmentsTable extends Attachments
         takenAt.isAcceptableOrUnknown(data['taken_at']!, _takenAtMeta),
       );
     }
+    if (data.containsKey('field_name')) {
+      context.handle(
+        _fieldNameMeta,
+        fieldName.isAcceptableOrUnknown(data['field_name']!, _fieldNameMeta),
+      );
+    }
     if (data.containsKey('upload_status')) {
       context.handle(
         _uploadStatusMeta,
@@ -13276,6 +13294,10 @@ class $AttachmentsTable extends Attachments
         DriftSqlType.dateTime,
         data['${effectivePrefix}taken_at'],
       ),
+      fieldName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}field_name'],
+      ),
       uploadStatus: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}upload_status'],
@@ -13311,6 +13333,9 @@ class AttachmentRow extends DataClass implements Insertable<AttachmentRow> {
   final double? takenSpeedMps;
   final double? takenHeadingDeg;
   final DateTime? takenAt;
+
+  /// The form field a research record's picture answers (ADR-030). v12.
+  final String? fieldName;
   final String uploadStatus;
   const AttachmentRow({
     this.serverSeq,
@@ -13329,6 +13354,7 @@ class AttachmentRow extends DataClass implements Insertable<AttachmentRow> {
     this.takenSpeedMps,
     this.takenHeadingDeg,
     this.takenAt,
+    this.fieldName,
     required this.uploadStatus,
   });
   @override
@@ -13369,6 +13395,9 @@ class AttachmentRow extends DataClass implements Insertable<AttachmentRow> {
     }
     if (!nullToAbsent || takenAt != null) {
       map['taken_at'] = Variable<DateTime>(takenAt);
+    }
+    if (!nullToAbsent || fieldName != null) {
+      map['field_name'] = Variable<String>(fieldName);
     }
     map['upload_status'] = Variable<String>(uploadStatus);
     return map;
@@ -13412,6 +13441,9 @@ class AttachmentRow extends DataClass implements Insertable<AttachmentRow> {
       takenAt: takenAt == null && nullToAbsent
           ? const Value.absent()
           : Value(takenAt),
+      fieldName: fieldName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(fieldName),
       uploadStatus: Value(uploadStatus),
     );
   }
@@ -13438,6 +13470,7 @@ class AttachmentRow extends DataClass implements Insertable<AttachmentRow> {
       takenSpeedMps: serializer.fromJson<double?>(json['taken_speed_mps']),
       takenHeadingDeg: serializer.fromJson<double?>(json['taken_heading_deg']),
       takenAt: serializer.fromJson<DateTime?>(json['taken_at']),
+      fieldName: serializer.fromJson<String?>(json['field_name']),
       uploadStatus: serializer.fromJson<String>(json['upload_status']),
     );
   }
@@ -13461,6 +13494,7 @@ class AttachmentRow extends DataClass implements Insertable<AttachmentRow> {
       'taken_speed_mps': serializer.toJson<double?>(takenSpeedMps),
       'taken_heading_deg': serializer.toJson<double?>(takenHeadingDeg),
       'taken_at': serializer.toJson<DateTime?>(takenAt),
+      'field_name': serializer.toJson<String?>(fieldName),
       'upload_status': serializer.toJson<String>(uploadStatus),
     };
   }
@@ -13482,6 +13516,7 @@ class AttachmentRow extends DataClass implements Insertable<AttachmentRow> {
     Value<double?> takenSpeedMps = const Value.absent(),
     Value<double?> takenHeadingDeg = const Value.absent(),
     Value<DateTime?> takenAt = const Value.absent(),
+    Value<String?> fieldName = const Value.absent(),
     String? uploadStatus,
   }) => AttachmentRow(
     serverSeq: serverSeq.present ? serverSeq.value : this.serverSeq,
@@ -13508,6 +13543,7 @@ class AttachmentRow extends DataClass implements Insertable<AttachmentRow> {
         ? takenHeadingDeg.value
         : this.takenHeadingDeg,
     takenAt: takenAt.present ? takenAt.value : this.takenAt,
+    fieldName: fieldName.present ? fieldName.value : this.fieldName,
     uploadStatus: uploadStatus ?? this.uploadStatus,
   );
   AttachmentRow copyWithCompanion(AttachmentsCompanion data) {
@@ -13538,6 +13574,7 @@ class AttachmentRow extends DataClass implements Insertable<AttachmentRow> {
           ? data.takenHeadingDeg.value
           : this.takenHeadingDeg,
       takenAt: data.takenAt.present ? data.takenAt.value : this.takenAt,
+      fieldName: data.fieldName.present ? data.fieldName.value : this.fieldName,
       uploadStatus: data.uploadStatus.present
           ? data.uploadStatus.value
           : this.uploadStatus,
@@ -13563,6 +13600,7 @@ class AttachmentRow extends DataClass implements Insertable<AttachmentRow> {
           ..write('takenSpeedMps: $takenSpeedMps, ')
           ..write('takenHeadingDeg: $takenHeadingDeg, ')
           ..write('takenAt: $takenAt, ')
+          ..write('fieldName: $fieldName, ')
           ..write('uploadStatus: $uploadStatus')
           ..write(')'))
         .toString();
@@ -13586,6 +13624,7 @@ class AttachmentRow extends DataClass implements Insertable<AttachmentRow> {
     takenSpeedMps,
     takenHeadingDeg,
     takenAt,
+    fieldName,
     uploadStatus,
   );
   @override
@@ -13608,6 +13647,7 @@ class AttachmentRow extends DataClass implements Insertable<AttachmentRow> {
           other.takenSpeedMps == this.takenSpeedMps &&
           other.takenHeadingDeg == this.takenHeadingDeg &&
           other.takenAt == this.takenAt &&
+          other.fieldName == this.fieldName &&
           other.uploadStatus == this.uploadStatus);
 }
 
@@ -13628,6 +13668,7 @@ class AttachmentsCompanion extends UpdateCompanion<AttachmentRow> {
   final Value<double?> takenSpeedMps;
   final Value<double?> takenHeadingDeg;
   final Value<DateTime?> takenAt;
+  final Value<String?> fieldName;
   final Value<String> uploadStatus;
   final Value<int> rowid;
   const AttachmentsCompanion({
@@ -13647,6 +13688,7 @@ class AttachmentsCompanion extends UpdateCompanion<AttachmentRow> {
     this.takenSpeedMps = const Value.absent(),
     this.takenHeadingDeg = const Value.absent(),
     this.takenAt = const Value.absent(),
+    this.fieldName = const Value.absent(),
     this.uploadStatus = const Value.absent(),
     this.rowid = const Value.absent(),
   });
@@ -13667,6 +13709,7 @@ class AttachmentsCompanion extends UpdateCompanion<AttachmentRow> {
     this.takenSpeedMps = const Value.absent(),
     this.takenHeadingDeg = const Value.absent(),
     this.takenAt = const Value.absent(),
+    this.fieldName = const Value.absent(),
     this.uploadStatus = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
@@ -13692,6 +13735,7 @@ class AttachmentsCompanion extends UpdateCompanion<AttachmentRow> {
     Expression<double>? takenSpeedMps,
     Expression<double>? takenHeadingDeg,
     Expression<DateTime>? takenAt,
+    Expression<String>? fieldName,
     Expression<String>? uploadStatus,
     Expression<int>? rowid,
   }) {
@@ -13712,6 +13756,7 @@ class AttachmentsCompanion extends UpdateCompanion<AttachmentRow> {
       if (takenSpeedMps != null) 'taken_speed_mps': takenSpeedMps,
       if (takenHeadingDeg != null) 'taken_heading_deg': takenHeadingDeg,
       if (takenAt != null) 'taken_at': takenAt,
+      if (fieldName != null) 'field_name': fieldName,
       if (uploadStatus != null) 'upload_status': uploadStatus,
       if (rowid != null) 'rowid': rowid,
     });
@@ -13734,6 +13779,7 @@ class AttachmentsCompanion extends UpdateCompanion<AttachmentRow> {
     Value<double?>? takenSpeedMps,
     Value<double?>? takenHeadingDeg,
     Value<DateTime?>? takenAt,
+    Value<String?>? fieldName,
     Value<String>? uploadStatus,
     Value<int>? rowid,
   }) {
@@ -13754,6 +13800,7 @@ class AttachmentsCompanion extends UpdateCompanion<AttachmentRow> {
       takenSpeedMps: takenSpeedMps ?? this.takenSpeedMps,
       takenHeadingDeg: takenHeadingDeg ?? this.takenHeadingDeg,
       takenAt: takenAt ?? this.takenAt,
+      fieldName: fieldName ?? this.fieldName,
       uploadStatus: uploadStatus ?? this.uploadStatus,
       rowid: rowid ?? this.rowid,
     );
@@ -13810,6 +13857,9 @@ class AttachmentsCompanion extends UpdateCompanion<AttachmentRow> {
     if (takenAt.present) {
       map['taken_at'] = Variable<DateTime>(takenAt.value);
     }
+    if (fieldName.present) {
+      map['field_name'] = Variable<String>(fieldName.value);
+    }
     if (uploadStatus.present) {
       map['upload_status'] = Variable<String>(uploadStatus.value);
     }
@@ -13838,6 +13888,7 @@ class AttachmentsCompanion extends UpdateCompanion<AttachmentRow> {
           ..write('takenSpeedMps: $takenSpeedMps, ')
           ..write('takenHeadingDeg: $takenHeadingDeg, ')
           ..write('takenAt: $takenAt, ')
+          ..write('fieldName: $fieldName, ')
           ..write('uploadStatus: $uploadStatus, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -19500,6 +19551,3318 @@ class TripPointsCompanion extends UpdateCompanion<TripPointRow> {
   }
 }
 
+class $ResearchProjectsTable extends ResearchProjects
+    with TableInfo<$ResearchProjectsTable, ResearchProjectRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ResearchProjectsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _codeMeta = const VerificationMeta('code');
+  @override
+  late final GeneratedColumn<String> code = GeneratedColumn<String>(
+    'code',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+    'title',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _descriptionMeta = const VerificationMeta(
+    'description',
+  );
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+    'description',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _serverSeqMeta = const VerificationMeta(
+    'serverSeq',
+  );
+  @override
+  late final GeneratedColumn<int> serverSeq = GeneratedColumn<int>(
+    'server_seq',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    code,
+    title,
+    description,
+    serverSeq,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'research_projects';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ResearchProjectRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('code')) {
+      context.handle(
+        _codeMeta,
+        code.isAcceptableOrUnknown(data['code']!, _codeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_codeMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+        _titleMeta,
+        title.isAcceptableOrUnknown(data['title']!, _titleMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('description')) {
+      context.handle(
+        _descriptionMeta,
+        description.isAcceptableOrUnknown(
+          data['description']!,
+          _descriptionMeta,
+        ),
+      );
+    }
+    if (data.containsKey('server_seq')) {
+      context.handle(
+        _serverSeqMeta,
+        serverSeq.isAcceptableOrUnknown(data['server_seq']!, _serverSeqMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ResearchProjectRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ResearchProjectRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      code: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}code'],
+      )!,
+      title: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}title'],
+      )!,
+      description: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}description'],
+      ),
+      serverSeq: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}server_seq'],
+      ),
+    );
+  }
+
+  @override
+  $ResearchProjectsTable createAlias(String alias) {
+    return $ResearchProjectsTable(attachedDatabase, alias);
+  }
+}
+
+class ResearchProjectRow extends DataClass
+    implements Insertable<ResearchProjectRow> {
+  final String id;
+  final String code;
+  final String title;
+  final String? description;
+  final int? serverSeq;
+  const ResearchProjectRow({
+    required this.id,
+    required this.code,
+    required this.title,
+    this.description,
+    this.serverSeq,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['code'] = Variable<String>(code);
+    map['title'] = Variable<String>(title);
+    if (!nullToAbsent || description != null) {
+      map['description'] = Variable<String>(description);
+    }
+    if (!nullToAbsent || serverSeq != null) {
+      map['server_seq'] = Variable<int>(serverSeq);
+    }
+    return map;
+  }
+
+  ResearchProjectsCompanion toCompanion(bool nullToAbsent) {
+    return ResearchProjectsCompanion(
+      id: Value(id),
+      code: Value(code),
+      title: Value(title),
+      description: description == null && nullToAbsent
+          ? const Value.absent()
+          : Value(description),
+      serverSeq: serverSeq == null && nullToAbsent
+          ? const Value.absent()
+          : Value(serverSeq),
+    );
+  }
+
+  factory ResearchProjectRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ResearchProjectRow(
+      id: serializer.fromJson<String>(json['id']),
+      code: serializer.fromJson<String>(json['code']),
+      title: serializer.fromJson<String>(json['title']),
+      description: serializer.fromJson<String?>(json['description']),
+      serverSeq: serializer.fromJson<int?>(json['server_seq']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'code': serializer.toJson<String>(code),
+      'title': serializer.toJson<String>(title),
+      'description': serializer.toJson<String?>(description),
+      'server_seq': serializer.toJson<int?>(serverSeq),
+    };
+  }
+
+  ResearchProjectRow copyWith({
+    String? id,
+    String? code,
+    String? title,
+    Value<String?> description = const Value.absent(),
+    Value<int?> serverSeq = const Value.absent(),
+  }) => ResearchProjectRow(
+    id: id ?? this.id,
+    code: code ?? this.code,
+    title: title ?? this.title,
+    description: description.present ? description.value : this.description,
+    serverSeq: serverSeq.present ? serverSeq.value : this.serverSeq,
+  );
+  ResearchProjectRow copyWithCompanion(ResearchProjectsCompanion data) {
+    return ResearchProjectRow(
+      id: data.id.present ? data.id.value : this.id,
+      code: data.code.present ? data.code.value : this.code,
+      title: data.title.present ? data.title.value : this.title,
+      description: data.description.present
+          ? data.description.value
+          : this.description,
+      serverSeq: data.serverSeq.present ? data.serverSeq.value : this.serverSeq,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ResearchProjectRow(')
+          ..write('id: $id, ')
+          ..write('code: $code, ')
+          ..write('title: $title, ')
+          ..write('description: $description, ')
+          ..write('serverSeq: $serverSeq')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, code, title, description, serverSeq);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ResearchProjectRow &&
+          other.id == this.id &&
+          other.code == this.code &&
+          other.title == this.title &&
+          other.description == this.description &&
+          other.serverSeq == this.serverSeq);
+}
+
+class ResearchProjectsCompanion extends UpdateCompanion<ResearchProjectRow> {
+  final Value<String> id;
+  final Value<String> code;
+  final Value<String> title;
+  final Value<String?> description;
+  final Value<int?> serverSeq;
+  final Value<int> rowid;
+  const ResearchProjectsCompanion({
+    this.id = const Value.absent(),
+    this.code = const Value.absent(),
+    this.title = const Value.absent(),
+    this.description = const Value.absent(),
+    this.serverSeq = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ResearchProjectsCompanion.insert({
+    required String id,
+    required String code,
+    required String title,
+    this.description = const Value.absent(),
+    this.serverSeq = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       code = Value(code),
+       title = Value(title);
+  static Insertable<ResearchProjectRow> custom({
+    Expression<String>? id,
+    Expression<String>? code,
+    Expression<String>? title,
+    Expression<String>? description,
+    Expression<int>? serverSeq,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (code != null) 'code': code,
+      if (title != null) 'title': title,
+      if (description != null) 'description': description,
+      if (serverSeq != null) 'server_seq': serverSeq,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ResearchProjectsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? code,
+    Value<String>? title,
+    Value<String?>? description,
+    Value<int?>? serverSeq,
+    Value<int>? rowid,
+  }) {
+    return ResearchProjectsCompanion(
+      id: id ?? this.id,
+      code: code ?? this.code,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      serverSeq: serverSeq ?? this.serverSeq,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (code.present) {
+      map['code'] = Variable<String>(code.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (serverSeq.present) {
+      map['server_seq'] = Variable<int>(serverSeq.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ResearchProjectsCompanion(')
+          ..write('id: $id, ')
+          ..write('code: $code, ')
+          ..write('title: $title, ')
+          ..write('description: $description, ')
+          ..write('serverSeq: $serverSeq, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $ResearchFormsTable extends ResearchForms
+    with TableInfo<$ResearchFormsTable, ResearchFormRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ResearchFormsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _projectIdMeta = const VerificationMeta(
+    'projectId',
+  );
+  @override
+  late final GeneratedColumn<String> projectId = GeneratedColumn<String>(
+    'project_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _codeMeta = const VerificationMeta('code');
+  @override
+  late final GeneratedColumn<String> code = GeneratedColumn<String>(
+    'code',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+    'title',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _descriptionMeta = const VerificationMeta(
+    'description',
+  );
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+    'description',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+    'status',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _collectAccessMeta = const VerificationMeta(
+    'collectAccess',
+  );
+  @override
+  late final GeneratedColumn<String> collectAccess = GeneratedColumn<String>(
+    'collect_access',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _hiddenMeta = const VerificationMeta('hidden');
+  @override
+  late final GeneratedColumn<bool> hidden = GeneratedColumn<bool>(
+    'hidden',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("hidden" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _numberingMeta = const VerificationMeta(
+    'numbering',
+  );
+  @override
+  late final GeneratedColumn<String> numbering = GeneratedColumn<String>(
+    'numbering',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _currentVersionMeta = const VerificationMeta(
+    'currentVersion',
+  );
+  @override
+  late final GeneratedColumn<int> currentVersion = GeneratedColumn<int>(
+    'current_version',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _serverSeqMeta = const VerificationMeta(
+    'serverSeq',
+  );
+  @override
+  late final GeneratedColumn<int> serverSeq = GeneratedColumn<int>(
+    'server_seq',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    projectId,
+    code,
+    title,
+    description,
+    status,
+    collectAccess,
+    hidden,
+    numbering,
+    currentVersion,
+    serverSeq,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'research_forms';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ResearchFormRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('project_id')) {
+      context.handle(
+        _projectIdMeta,
+        projectId.isAcceptableOrUnknown(data['project_id']!, _projectIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_projectIdMeta);
+    }
+    if (data.containsKey('code')) {
+      context.handle(
+        _codeMeta,
+        code.isAcceptableOrUnknown(data['code']!, _codeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_codeMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+        _titleMeta,
+        title.isAcceptableOrUnknown(data['title']!, _titleMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('description')) {
+      context.handle(
+        _descriptionMeta,
+        description.isAcceptableOrUnknown(
+          data['description']!,
+          _descriptionMeta,
+        ),
+      );
+    }
+    if (data.containsKey('status')) {
+      context.handle(
+        _statusMeta,
+        status.isAcceptableOrUnknown(data['status']!, _statusMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_statusMeta);
+    }
+    if (data.containsKey('collect_access')) {
+      context.handle(
+        _collectAccessMeta,
+        collectAccess.isAcceptableOrUnknown(
+          data['collect_access']!,
+          _collectAccessMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_collectAccessMeta);
+    }
+    if (data.containsKey('hidden')) {
+      context.handle(
+        _hiddenMeta,
+        hidden.isAcceptableOrUnknown(data['hidden']!, _hiddenMeta),
+      );
+    }
+    if (data.containsKey('numbering')) {
+      context.handle(
+        _numberingMeta,
+        numbering.isAcceptableOrUnknown(data['numbering']!, _numberingMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_numberingMeta);
+    }
+    if (data.containsKey('current_version')) {
+      context.handle(
+        _currentVersionMeta,
+        currentVersion.isAcceptableOrUnknown(
+          data['current_version']!,
+          _currentVersionMeta,
+        ),
+      );
+    }
+    if (data.containsKey('server_seq')) {
+      context.handle(
+        _serverSeqMeta,
+        serverSeq.isAcceptableOrUnknown(data['server_seq']!, _serverSeqMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ResearchFormRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ResearchFormRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      projectId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}project_id'],
+      )!,
+      code: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}code'],
+      )!,
+      title: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}title'],
+      )!,
+      description: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}description'],
+      ),
+      status: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}status'],
+      )!,
+      collectAccess: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}collect_access'],
+      )!,
+      hidden: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}hidden'],
+      )!,
+      numbering: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}numbering'],
+      )!,
+      currentVersion: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}current_version'],
+      ),
+      serverSeq: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}server_seq'],
+      ),
+    );
+  }
+
+  @override
+  $ResearchFormsTable createAlias(String alias) {
+    return $ResearchFormsTable(attachedDatabase, alias);
+  }
+}
+
+class ResearchFormRow extends DataClass implements Insertable<ResearchFormRow> {
+  final String id;
+  final String projectId;
+  final String code;
+  final String title;
+  final String? description;
+  final String status;
+  final String collectAccess;
+  final bool hidden;
+  final String numbering;
+  final int? currentVersion;
+  final int? serverSeq;
+  const ResearchFormRow({
+    required this.id,
+    required this.projectId,
+    required this.code,
+    required this.title,
+    this.description,
+    required this.status,
+    required this.collectAccess,
+    required this.hidden,
+    required this.numbering,
+    this.currentVersion,
+    this.serverSeq,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['project_id'] = Variable<String>(projectId);
+    map['code'] = Variable<String>(code);
+    map['title'] = Variable<String>(title);
+    if (!nullToAbsent || description != null) {
+      map['description'] = Variable<String>(description);
+    }
+    map['status'] = Variable<String>(status);
+    map['collect_access'] = Variable<String>(collectAccess);
+    map['hidden'] = Variable<bool>(hidden);
+    map['numbering'] = Variable<String>(numbering);
+    if (!nullToAbsent || currentVersion != null) {
+      map['current_version'] = Variable<int>(currentVersion);
+    }
+    if (!nullToAbsent || serverSeq != null) {
+      map['server_seq'] = Variable<int>(serverSeq);
+    }
+    return map;
+  }
+
+  ResearchFormsCompanion toCompanion(bool nullToAbsent) {
+    return ResearchFormsCompanion(
+      id: Value(id),
+      projectId: Value(projectId),
+      code: Value(code),
+      title: Value(title),
+      description: description == null && nullToAbsent
+          ? const Value.absent()
+          : Value(description),
+      status: Value(status),
+      collectAccess: Value(collectAccess),
+      hidden: Value(hidden),
+      numbering: Value(numbering),
+      currentVersion: currentVersion == null && nullToAbsent
+          ? const Value.absent()
+          : Value(currentVersion),
+      serverSeq: serverSeq == null && nullToAbsent
+          ? const Value.absent()
+          : Value(serverSeq),
+    );
+  }
+
+  factory ResearchFormRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ResearchFormRow(
+      id: serializer.fromJson<String>(json['id']),
+      projectId: serializer.fromJson<String>(json['project_id']),
+      code: serializer.fromJson<String>(json['code']),
+      title: serializer.fromJson<String>(json['title']),
+      description: serializer.fromJson<String?>(json['description']),
+      status: serializer.fromJson<String>(json['status']),
+      collectAccess: serializer.fromJson<String>(json['collect_access']),
+      hidden: serializer.fromJson<bool>(json['hidden']),
+      numbering: serializer.fromJson<String>(json['numbering']),
+      currentVersion: serializer.fromJson<int?>(json['current_version']),
+      serverSeq: serializer.fromJson<int?>(json['server_seq']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'project_id': serializer.toJson<String>(projectId),
+      'code': serializer.toJson<String>(code),
+      'title': serializer.toJson<String>(title),
+      'description': serializer.toJson<String?>(description),
+      'status': serializer.toJson<String>(status),
+      'collect_access': serializer.toJson<String>(collectAccess),
+      'hidden': serializer.toJson<bool>(hidden),
+      'numbering': serializer.toJson<String>(numbering),
+      'current_version': serializer.toJson<int?>(currentVersion),
+      'server_seq': serializer.toJson<int?>(serverSeq),
+    };
+  }
+
+  ResearchFormRow copyWith({
+    String? id,
+    String? projectId,
+    String? code,
+    String? title,
+    Value<String?> description = const Value.absent(),
+    String? status,
+    String? collectAccess,
+    bool? hidden,
+    String? numbering,
+    Value<int?> currentVersion = const Value.absent(),
+    Value<int?> serverSeq = const Value.absent(),
+  }) => ResearchFormRow(
+    id: id ?? this.id,
+    projectId: projectId ?? this.projectId,
+    code: code ?? this.code,
+    title: title ?? this.title,
+    description: description.present ? description.value : this.description,
+    status: status ?? this.status,
+    collectAccess: collectAccess ?? this.collectAccess,
+    hidden: hidden ?? this.hidden,
+    numbering: numbering ?? this.numbering,
+    currentVersion: currentVersion.present
+        ? currentVersion.value
+        : this.currentVersion,
+    serverSeq: serverSeq.present ? serverSeq.value : this.serverSeq,
+  );
+  ResearchFormRow copyWithCompanion(ResearchFormsCompanion data) {
+    return ResearchFormRow(
+      id: data.id.present ? data.id.value : this.id,
+      projectId: data.projectId.present ? data.projectId.value : this.projectId,
+      code: data.code.present ? data.code.value : this.code,
+      title: data.title.present ? data.title.value : this.title,
+      description: data.description.present
+          ? data.description.value
+          : this.description,
+      status: data.status.present ? data.status.value : this.status,
+      collectAccess: data.collectAccess.present
+          ? data.collectAccess.value
+          : this.collectAccess,
+      hidden: data.hidden.present ? data.hidden.value : this.hidden,
+      numbering: data.numbering.present ? data.numbering.value : this.numbering,
+      currentVersion: data.currentVersion.present
+          ? data.currentVersion.value
+          : this.currentVersion,
+      serverSeq: data.serverSeq.present ? data.serverSeq.value : this.serverSeq,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ResearchFormRow(')
+          ..write('id: $id, ')
+          ..write('projectId: $projectId, ')
+          ..write('code: $code, ')
+          ..write('title: $title, ')
+          ..write('description: $description, ')
+          ..write('status: $status, ')
+          ..write('collectAccess: $collectAccess, ')
+          ..write('hidden: $hidden, ')
+          ..write('numbering: $numbering, ')
+          ..write('currentVersion: $currentVersion, ')
+          ..write('serverSeq: $serverSeq')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    projectId,
+    code,
+    title,
+    description,
+    status,
+    collectAccess,
+    hidden,
+    numbering,
+    currentVersion,
+    serverSeq,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ResearchFormRow &&
+          other.id == this.id &&
+          other.projectId == this.projectId &&
+          other.code == this.code &&
+          other.title == this.title &&
+          other.description == this.description &&
+          other.status == this.status &&
+          other.collectAccess == this.collectAccess &&
+          other.hidden == this.hidden &&
+          other.numbering == this.numbering &&
+          other.currentVersion == this.currentVersion &&
+          other.serverSeq == this.serverSeq);
+}
+
+class ResearchFormsCompanion extends UpdateCompanion<ResearchFormRow> {
+  final Value<String> id;
+  final Value<String> projectId;
+  final Value<String> code;
+  final Value<String> title;
+  final Value<String?> description;
+  final Value<String> status;
+  final Value<String> collectAccess;
+  final Value<bool> hidden;
+  final Value<String> numbering;
+  final Value<int?> currentVersion;
+  final Value<int?> serverSeq;
+  final Value<int> rowid;
+  const ResearchFormsCompanion({
+    this.id = const Value.absent(),
+    this.projectId = const Value.absent(),
+    this.code = const Value.absent(),
+    this.title = const Value.absent(),
+    this.description = const Value.absent(),
+    this.status = const Value.absent(),
+    this.collectAccess = const Value.absent(),
+    this.hidden = const Value.absent(),
+    this.numbering = const Value.absent(),
+    this.currentVersion = const Value.absent(),
+    this.serverSeq = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ResearchFormsCompanion.insert({
+    required String id,
+    required String projectId,
+    required String code,
+    required String title,
+    this.description = const Value.absent(),
+    required String status,
+    required String collectAccess,
+    this.hidden = const Value.absent(),
+    required String numbering,
+    this.currentVersion = const Value.absent(),
+    this.serverSeq = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       projectId = Value(projectId),
+       code = Value(code),
+       title = Value(title),
+       status = Value(status),
+       collectAccess = Value(collectAccess),
+       numbering = Value(numbering);
+  static Insertable<ResearchFormRow> custom({
+    Expression<String>? id,
+    Expression<String>? projectId,
+    Expression<String>? code,
+    Expression<String>? title,
+    Expression<String>? description,
+    Expression<String>? status,
+    Expression<String>? collectAccess,
+    Expression<bool>? hidden,
+    Expression<String>? numbering,
+    Expression<int>? currentVersion,
+    Expression<int>? serverSeq,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (projectId != null) 'project_id': projectId,
+      if (code != null) 'code': code,
+      if (title != null) 'title': title,
+      if (description != null) 'description': description,
+      if (status != null) 'status': status,
+      if (collectAccess != null) 'collect_access': collectAccess,
+      if (hidden != null) 'hidden': hidden,
+      if (numbering != null) 'numbering': numbering,
+      if (currentVersion != null) 'current_version': currentVersion,
+      if (serverSeq != null) 'server_seq': serverSeq,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ResearchFormsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? projectId,
+    Value<String>? code,
+    Value<String>? title,
+    Value<String?>? description,
+    Value<String>? status,
+    Value<String>? collectAccess,
+    Value<bool>? hidden,
+    Value<String>? numbering,
+    Value<int?>? currentVersion,
+    Value<int?>? serverSeq,
+    Value<int>? rowid,
+  }) {
+    return ResearchFormsCompanion(
+      id: id ?? this.id,
+      projectId: projectId ?? this.projectId,
+      code: code ?? this.code,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      status: status ?? this.status,
+      collectAccess: collectAccess ?? this.collectAccess,
+      hidden: hidden ?? this.hidden,
+      numbering: numbering ?? this.numbering,
+      currentVersion: currentVersion ?? this.currentVersion,
+      serverSeq: serverSeq ?? this.serverSeq,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (projectId.present) {
+      map['project_id'] = Variable<String>(projectId.value);
+    }
+    if (code.present) {
+      map['code'] = Variable<String>(code.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
+    if (collectAccess.present) {
+      map['collect_access'] = Variable<String>(collectAccess.value);
+    }
+    if (hidden.present) {
+      map['hidden'] = Variable<bool>(hidden.value);
+    }
+    if (numbering.present) {
+      map['numbering'] = Variable<String>(numbering.value);
+    }
+    if (currentVersion.present) {
+      map['current_version'] = Variable<int>(currentVersion.value);
+    }
+    if (serverSeq.present) {
+      map['server_seq'] = Variable<int>(serverSeq.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ResearchFormsCompanion(')
+          ..write('id: $id, ')
+          ..write('projectId: $projectId, ')
+          ..write('code: $code, ')
+          ..write('title: $title, ')
+          ..write('description: $description, ')
+          ..write('status: $status, ')
+          ..write('collectAccess: $collectAccess, ')
+          ..write('hidden: $hidden, ')
+          ..write('numbering: $numbering, ')
+          ..write('currentVersion: $currentVersion, ')
+          ..write('serverSeq: $serverSeq, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $ResearchFormVersionsTable extends ResearchFormVersions
+    with TableInfo<$ResearchFormVersionsTable, ResearchFormVersionRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ResearchFormVersionsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _formIdMeta = const VerificationMeta('formId');
+  @override
+  late final GeneratedColumn<String> formId = GeneratedColumn<String>(
+    'form_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _versionMeta = const VerificationMeta(
+    'version',
+  );
+  @override
+  late final GeneratedColumn<int> version = GeneratedColumn<int>(
+    'version',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _definitionMeta = const VerificationMeta(
+    'definition',
+  );
+  @override
+  late final GeneratedColumn<String> definition = GeneratedColumn<String>(
+    'definition',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _publishedAtMeta = const VerificationMeta(
+    'publishedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> publishedAt = GeneratedColumn<DateTime>(
+    'published_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _serverSeqMeta = const VerificationMeta(
+    'serverSeq',
+  );
+  @override
+  late final GeneratedColumn<int> serverSeq = GeneratedColumn<int>(
+    'server_seq',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    formId,
+    version,
+    definition,
+    publishedAt,
+    serverSeq,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'research_form_versions';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ResearchFormVersionRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('form_id')) {
+      context.handle(
+        _formIdMeta,
+        formId.isAcceptableOrUnknown(data['form_id']!, _formIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_formIdMeta);
+    }
+    if (data.containsKey('version')) {
+      context.handle(
+        _versionMeta,
+        version.isAcceptableOrUnknown(data['version']!, _versionMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_versionMeta);
+    }
+    if (data.containsKey('definition')) {
+      context.handle(
+        _definitionMeta,
+        definition.isAcceptableOrUnknown(data['definition']!, _definitionMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_definitionMeta);
+    }
+    if (data.containsKey('published_at')) {
+      context.handle(
+        _publishedAtMeta,
+        publishedAt.isAcceptableOrUnknown(
+          data['published_at']!,
+          _publishedAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('server_seq')) {
+      context.handle(
+        _serverSeqMeta,
+        serverSeq.isAcceptableOrUnknown(data['server_seq']!, _serverSeqMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {formId, version};
+  @override
+  ResearchFormVersionRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ResearchFormVersionRow(
+      formId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}form_id'],
+      )!,
+      version: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}version'],
+      )!,
+      definition: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}definition'],
+      )!,
+      publishedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}published_at'],
+      ),
+      serverSeq: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}server_seq'],
+      ),
+    );
+  }
+
+  @override
+  $ResearchFormVersionsTable createAlias(String alias) {
+    return $ResearchFormVersionsTable(attachedDatabase, alias);
+  }
+}
+
+class ResearchFormVersionRow extends DataClass
+    implements Insertable<ResearchFormVersionRow> {
+  final String formId;
+  final int version;
+
+  /// The form's definition (JSON, package:forms).
+  final String definition;
+  final DateTime? publishedAt;
+  final int? serverSeq;
+  const ResearchFormVersionRow({
+    required this.formId,
+    required this.version,
+    required this.definition,
+    this.publishedAt,
+    this.serverSeq,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['form_id'] = Variable<String>(formId);
+    map['version'] = Variable<int>(version);
+    map['definition'] = Variable<String>(definition);
+    if (!nullToAbsent || publishedAt != null) {
+      map['published_at'] = Variable<DateTime>(publishedAt);
+    }
+    if (!nullToAbsent || serverSeq != null) {
+      map['server_seq'] = Variable<int>(serverSeq);
+    }
+    return map;
+  }
+
+  ResearchFormVersionsCompanion toCompanion(bool nullToAbsent) {
+    return ResearchFormVersionsCompanion(
+      formId: Value(formId),
+      version: Value(version),
+      definition: Value(definition),
+      publishedAt: publishedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(publishedAt),
+      serverSeq: serverSeq == null && nullToAbsent
+          ? const Value.absent()
+          : Value(serverSeq),
+    );
+  }
+
+  factory ResearchFormVersionRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ResearchFormVersionRow(
+      formId: serializer.fromJson<String>(json['form_id']),
+      version: serializer.fromJson<int>(json['version']),
+      definition: serializer.fromJson<String>(json['definition']),
+      publishedAt: serializer.fromJson<DateTime?>(json['published_at']),
+      serverSeq: serializer.fromJson<int?>(json['server_seq']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'form_id': serializer.toJson<String>(formId),
+      'version': serializer.toJson<int>(version),
+      'definition': serializer.toJson<String>(definition),
+      'published_at': serializer.toJson<DateTime?>(publishedAt),
+      'server_seq': serializer.toJson<int?>(serverSeq),
+    };
+  }
+
+  ResearchFormVersionRow copyWith({
+    String? formId,
+    int? version,
+    String? definition,
+    Value<DateTime?> publishedAt = const Value.absent(),
+    Value<int?> serverSeq = const Value.absent(),
+  }) => ResearchFormVersionRow(
+    formId: formId ?? this.formId,
+    version: version ?? this.version,
+    definition: definition ?? this.definition,
+    publishedAt: publishedAt.present ? publishedAt.value : this.publishedAt,
+    serverSeq: serverSeq.present ? serverSeq.value : this.serverSeq,
+  );
+  ResearchFormVersionRow copyWithCompanion(ResearchFormVersionsCompanion data) {
+    return ResearchFormVersionRow(
+      formId: data.formId.present ? data.formId.value : this.formId,
+      version: data.version.present ? data.version.value : this.version,
+      definition: data.definition.present
+          ? data.definition.value
+          : this.definition,
+      publishedAt: data.publishedAt.present
+          ? data.publishedAt.value
+          : this.publishedAt,
+      serverSeq: data.serverSeq.present ? data.serverSeq.value : this.serverSeq,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ResearchFormVersionRow(')
+          ..write('formId: $formId, ')
+          ..write('version: $version, ')
+          ..write('definition: $definition, ')
+          ..write('publishedAt: $publishedAt, ')
+          ..write('serverSeq: $serverSeq')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(formId, version, definition, publishedAt, serverSeq);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ResearchFormVersionRow &&
+          other.formId == this.formId &&
+          other.version == this.version &&
+          other.definition == this.definition &&
+          other.publishedAt == this.publishedAt &&
+          other.serverSeq == this.serverSeq);
+}
+
+class ResearchFormVersionsCompanion
+    extends UpdateCompanion<ResearchFormVersionRow> {
+  final Value<String> formId;
+  final Value<int> version;
+  final Value<String> definition;
+  final Value<DateTime?> publishedAt;
+  final Value<int?> serverSeq;
+  final Value<int> rowid;
+  const ResearchFormVersionsCompanion({
+    this.formId = const Value.absent(),
+    this.version = const Value.absent(),
+    this.definition = const Value.absent(),
+    this.publishedAt = const Value.absent(),
+    this.serverSeq = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ResearchFormVersionsCompanion.insert({
+    required String formId,
+    required int version,
+    required String definition,
+    this.publishedAt = const Value.absent(),
+    this.serverSeq = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : formId = Value(formId),
+       version = Value(version),
+       definition = Value(definition);
+  static Insertable<ResearchFormVersionRow> custom({
+    Expression<String>? formId,
+    Expression<int>? version,
+    Expression<String>? definition,
+    Expression<DateTime>? publishedAt,
+    Expression<int>? serverSeq,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (formId != null) 'form_id': formId,
+      if (version != null) 'version': version,
+      if (definition != null) 'definition': definition,
+      if (publishedAt != null) 'published_at': publishedAt,
+      if (serverSeq != null) 'server_seq': serverSeq,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ResearchFormVersionsCompanion copyWith({
+    Value<String>? formId,
+    Value<int>? version,
+    Value<String>? definition,
+    Value<DateTime?>? publishedAt,
+    Value<int?>? serverSeq,
+    Value<int>? rowid,
+  }) {
+    return ResearchFormVersionsCompanion(
+      formId: formId ?? this.formId,
+      version: version ?? this.version,
+      definition: definition ?? this.definition,
+      publishedAt: publishedAt ?? this.publishedAt,
+      serverSeq: serverSeq ?? this.serverSeq,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (formId.present) {
+      map['form_id'] = Variable<String>(formId.value);
+    }
+    if (version.present) {
+      map['version'] = Variable<int>(version.value);
+    }
+    if (definition.present) {
+      map['definition'] = Variable<String>(definition.value);
+    }
+    if (publishedAt.present) {
+      map['published_at'] = Variable<DateTime>(publishedAt.value);
+    }
+    if (serverSeq.present) {
+      map['server_seq'] = Variable<int>(serverSeq.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ResearchFormVersionsCompanion(')
+          ..write('formId: $formId, ')
+          ..write('version: $version, ')
+          ..write('definition: $definition, ')
+          ..write('publishedAt: $publishedAt, ')
+          ..write('serverSeq: $serverSeq, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $ResearchRecordsTable extends ResearchRecords
+    with TableInfo<$ResearchRecordsTable, ResearchRecordRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ResearchRecordsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _formIdMeta = const VerificationMeta('formId');
+  @override
+  late final GeneratedColumn<String> formId = GeneratedColumn<String>(
+    'form_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _formVersionMeta = const VerificationMeta(
+    'formVersion',
+  );
+  @override
+  late final GeneratedColumn<int> formVersion = GeneratedColumn<int>(
+    'form_version',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _numberMeta = const VerificationMeta('number');
+  @override
+  late final GeneratedColumn<String> number = GeneratedColumn<String>(
+    'number',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _numberClashMeta = const VerificationMeta(
+    'numberClash',
+  );
+  @override
+  late final GeneratedColumn<bool> numberClash = GeneratedColumn<bool>(
+    'number_clash',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("number_clash" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _collectorKeyMeta = const VerificationMeta(
+    'collectorKey',
+  );
+  @override
+  late final GeneratedColumn<String> collectorKey = GeneratedColumn<String>(
+    'collector_key',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _installationIdMeta = const VerificationMeta(
+    'installationId',
+  );
+  @override
+  late final GeneratedColumn<String> installationId = GeneratedColumn<String>(
+    'installation_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _collectorSnapshotMeta = const VerificationMeta(
+    'collectorSnapshot',
+  );
+  @override
+  late final GeneratedColumn<String> collectorSnapshot =
+      GeneratedColumn<String>(
+        'collector_snapshot',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _startedAtMeta = const VerificationMeta(
+    'startedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> startedAt = GeneratedColumn<DateTime>(
+    'started_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _finishedAtMeta = const VerificationMeta(
+    'finishedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> finishedAt = GeneratedColumn<DateTime>(
+    'finished_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _latMeta = const VerificationMeta('lat');
+  @override
+  late final GeneratedColumn<double> lat = GeneratedColumn<double>(
+    'lat',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _lonMeta = const VerificationMeta('lon');
+  @override
+  late final GeneratedColumn<double> lon = GeneratedColumn<double>(
+    'lon',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _accuracyMMeta = const VerificationMeta(
+    'accuracyM',
+  );
+  @override
+  late final GeneratedColumn<double> accuracyM = GeneratedColumn<double>(
+    'accuracy_m',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _altitudeMMeta = const VerificationMeta(
+    'altitudeM',
+  );
+  @override
+  late final GeneratedColumn<double> altitudeM = GeneratedColumn<double>(
+    'altitude_m',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _endLatMeta = const VerificationMeta('endLat');
+  @override
+  late final GeneratedColumn<double> endLat = GeneratedColumn<double>(
+    'end_lat',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _endLonMeta = const VerificationMeta('endLon');
+  @override
+  late final GeneratedColumn<double> endLon = GeneratedColumn<double>(
+    'end_lon',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _endAccuracyMMeta = const VerificationMeta(
+    'endAccuracyM',
+  );
+  @override
+  late final GeneratedColumn<double> endAccuracyM = GeneratedColumn<double>(
+    'end_accuracy_m',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _answersMeta = const VerificationMeta(
+    'answers',
+  );
+  @override
+  late final GeneratedColumn<String> answers = GeneratedColumn<String>(
+    'answers',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtServerMeta = const VerificationMeta(
+    'createdAtServer',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAtServer =
+      GeneratedColumn<DateTime>(
+        'created_at_server',
+        aliasedName,
+        true,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _serverSeqMeta = const VerificationMeta(
+    'serverSeq',
+  );
+  @override
+  late final GeneratedColumn<int> serverSeq = GeneratedColumn<int>(
+    'server_seq',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    formId,
+    formVersion,
+    number,
+    numberClash,
+    collectorKey,
+    installationId,
+    collectorSnapshot,
+    startedAt,
+    finishedAt,
+    lat,
+    lon,
+    accuracyM,
+    altitudeM,
+    endLat,
+    endLon,
+    endAccuracyM,
+    answers,
+    createdAtServer,
+    serverSeq,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'research_records';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ResearchRecordRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('form_id')) {
+      context.handle(
+        _formIdMeta,
+        formId.isAcceptableOrUnknown(data['form_id']!, _formIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_formIdMeta);
+    }
+    if (data.containsKey('form_version')) {
+      context.handle(
+        _formVersionMeta,
+        formVersion.isAcceptableOrUnknown(
+          data['form_version']!,
+          _formVersionMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_formVersionMeta);
+    }
+    if (data.containsKey('number')) {
+      context.handle(
+        _numberMeta,
+        number.isAcceptableOrUnknown(data['number']!, _numberMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_numberMeta);
+    }
+    if (data.containsKey('number_clash')) {
+      context.handle(
+        _numberClashMeta,
+        numberClash.isAcceptableOrUnknown(
+          data['number_clash']!,
+          _numberClashMeta,
+        ),
+      );
+    }
+    if (data.containsKey('collector_key')) {
+      context.handle(
+        _collectorKeyMeta,
+        collectorKey.isAcceptableOrUnknown(
+          data['collector_key']!,
+          _collectorKeyMeta,
+        ),
+      );
+    }
+    if (data.containsKey('installation_id')) {
+      context.handle(
+        _installationIdMeta,
+        installationId.isAcceptableOrUnknown(
+          data['installation_id']!,
+          _installationIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('collector_snapshot')) {
+      context.handle(
+        _collectorSnapshotMeta,
+        collectorSnapshot.isAcceptableOrUnknown(
+          data['collector_snapshot']!,
+          _collectorSnapshotMeta,
+        ),
+      );
+    }
+    if (data.containsKey('started_at')) {
+      context.handle(
+        _startedAtMeta,
+        startedAt.isAcceptableOrUnknown(data['started_at']!, _startedAtMeta),
+      );
+    }
+    if (data.containsKey('finished_at')) {
+      context.handle(
+        _finishedAtMeta,
+        finishedAt.isAcceptableOrUnknown(data['finished_at']!, _finishedAtMeta),
+      );
+    }
+    if (data.containsKey('lat')) {
+      context.handle(
+        _latMeta,
+        lat.isAcceptableOrUnknown(data['lat']!, _latMeta),
+      );
+    }
+    if (data.containsKey('lon')) {
+      context.handle(
+        _lonMeta,
+        lon.isAcceptableOrUnknown(data['lon']!, _lonMeta),
+      );
+    }
+    if (data.containsKey('accuracy_m')) {
+      context.handle(
+        _accuracyMMeta,
+        accuracyM.isAcceptableOrUnknown(data['accuracy_m']!, _accuracyMMeta),
+      );
+    }
+    if (data.containsKey('altitude_m')) {
+      context.handle(
+        _altitudeMMeta,
+        altitudeM.isAcceptableOrUnknown(data['altitude_m']!, _altitudeMMeta),
+      );
+    }
+    if (data.containsKey('end_lat')) {
+      context.handle(
+        _endLatMeta,
+        endLat.isAcceptableOrUnknown(data['end_lat']!, _endLatMeta),
+      );
+    }
+    if (data.containsKey('end_lon')) {
+      context.handle(
+        _endLonMeta,
+        endLon.isAcceptableOrUnknown(data['end_lon']!, _endLonMeta),
+      );
+    }
+    if (data.containsKey('end_accuracy_m')) {
+      context.handle(
+        _endAccuracyMMeta,
+        endAccuracyM.isAcceptableOrUnknown(
+          data['end_accuracy_m']!,
+          _endAccuracyMMeta,
+        ),
+      );
+    }
+    if (data.containsKey('answers')) {
+      context.handle(
+        _answersMeta,
+        answers.isAcceptableOrUnknown(data['answers']!, _answersMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_answersMeta);
+    }
+    if (data.containsKey('created_at_server')) {
+      context.handle(
+        _createdAtServerMeta,
+        createdAtServer.isAcceptableOrUnknown(
+          data['created_at_server']!,
+          _createdAtServerMeta,
+        ),
+      );
+    }
+    if (data.containsKey('server_seq')) {
+      context.handle(
+        _serverSeqMeta,
+        serverSeq.isAcceptableOrUnknown(data['server_seq']!, _serverSeqMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ResearchRecordRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ResearchRecordRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      formId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}form_id'],
+      )!,
+      formVersion: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}form_version'],
+      )!,
+      number: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}number'],
+      )!,
+      numberClash: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}number_clash'],
+      )!,
+      collectorKey: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}collector_key'],
+      ),
+      installationId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}installation_id'],
+      ),
+      collectorSnapshot: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}collector_snapshot'],
+      ),
+      startedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}started_at'],
+      ),
+      finishedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}finished_at'],
+      ),
+      lat: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}lat'],
+      ),
+      lon: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}lon'],
+      ),
+      accuracyM: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}accuracy_m'],
+      ),
+      altitudeM: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}altitude_m'],
+      ),
+      endLat: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}end_lat'],
+      ),
+      endLon: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}end_lon'],
+      ),
+      endAccuracyM: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}end_accuracy_m'],
+      ),
+      answers: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}answers'],
+      )!,
+      createdAtServer: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at_server'],
+      ),
+      serverSeq: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}server_seq'],
+      ),
+    );
+  }
+
+  @override
+  $ResearchRecordsTable createAlias(String alias) {
+    return $ResearchRecordsTable(attachedDatabase, alias);
+  }
+}
+
+class ResearchRecordRow extends DataClass
+    implements Insertable<ResearchRecordRow> {
+  final String id;
+  final String formId;
+  final int formVersion;
+
+  /// The research number, never a participant's name.
+  final String number;
+  final bool numberClash;
+  final String? collectorKey;
+  final String? installationId;
+  final String? collectorSnapshot;
+  final DateTime? startedAt;
+  final DateTime? finishedAt;
+
+  /// Where the interview took place (when started), and where it ended.
+  final double? lat;
+  final double? lon;
+  final double? accuracyM;
+  final double? altitudeM;
+  final double? endLat;
+  final double? endLon;
+  final double? endAccuracyM;
+
+  /// The answers (JSON).
+  final String answers;
+  final DateTime? createdAtServer;
+  final int? serverSeq;
+  const ResearchRecordRow({
+    required this.id,
+    required this.formId,
+    required this.formVersion,
+    required this.number,
+    required this.numberClash,
+    this.collectorKey,
+    this.installationId,
+    this.collectorSnapshot,
+    this.startedAt,
+    this.finishedAt,
+    this.lat,
+    this.lon,
+    this.accuracyM,
+    this.altitudeM,
+    this.endLat,
+    this.endLon,
+    this.endAccuracyM,
+    required this.answers,
+    this.createdAtServer,
+    this.serverSeq,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['form_id'] = Variable<String>(formId);
+    map['form_version'] = Variable<int>(formVersion);
+    map['number'] = Variable<String>(number);
+    map['number_clash'] = Variable<bool>(numberClash);
+    if (!nullToAbsent || collectorKey != null) {
+      map['collector_key'] = Variable<String>(collectorKey);
+    }
+    if (!nullToAbsent || installationId != null) {
+      map['installation_id'] = Variable<String>(installationId);
+    }
+    if (!nullToAbsent || collectorSnapshot != null) {
+      map['collector_snapshot'] = Variable<String>(collectorSnapshot);
+    }
+    if (!nullToAbsent || startedAt != null) {
+      map['started_at'] = Variable<DateTime>(startedAt);
+    }
+    if (!nullToAbsent || finishedAt != null) {
+      map['finished_at'] = Variable<DateTime>(finishedAt);
+    }
+    if (!nullToAbsent || lat != null) {
+      map['lat'] = Variable<double>(lat);
+    }
+    if (!nullToAbsent || lon != null) {
+      map['lon'] = Variable<double>(lon);
+    }
+    if (!nullToAbsent || accuracyM != null) {
+      map['accuracy_m'] = Variable<double>(accuracyM);
+    }
+    if (!nullToAbsent || altitudeM != null) {
+      map['altitude_m'] = Variable<double>(altitudeM);
+    }
+    if (!nullToAbsent || endLat != null) {
+      map['end_lat'] = Variable<double>(endLat);
+    }
+    if (!nullToAbsent || endLon != null) {
+      map['end_lon'] = Variable<double>(endLon);
+    }
+    if (!nullToAbsent || endAccuracyM != null) {
+      map['end_accuracy_m'] = Variable<double>(endAccuracyM);
+    }
+    map['answers'] = Variable<String>(answers);
+    if (!nullToAbsent || createdAtServer != null) {
+      map['created_at_server'] = Variable<DateTime>(createdAtServer);
+    }
+    if (!nullToAbsent || serverSeq != null) {
+      map['server_seq'] = Variable<int>(serverSeq);
+    }
+    return map;
+  }
+
+  ResearchRecordsCompanion toCompanion(bool nullToAbsent) {
+    return ResearchRecordsCompanion(
+      id: Value(id),
+      formId: Value(formId),
+      formVersion: Value(formVersion),
+      number: Value(number),
+      numberClash: Value(numberClash),
+      collectorKey: collectorKey == null && nullToAbsent
+          ? const Value.absent()
+          : Value(collectorKey),
+      installationId: installationId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(installationId),
+      collectorSnapshot: collectorSnapshot == null && nullToAbsent
+          ? const Value.absent()
+          : Value(collectorSnapshot),
+      startedAt: startedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(startedAt),
+      finishedAt: finishedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(finishedAt),
+      lat: lat == null && nullToAbsent ? const Value.absent() : Value(lat),
+      lon: lon == null && nullToAbsent ? const Value.absent() : Value(lon),
+      accuracyM: accuracyM == null && nullToAbsent
+          ? const Value.absent()
+          : Value(accuracyM),
+      altitudeM: altitudeM == null && nullToAbsent
+          ? const Value.absent()
+          : Value(altitudeM),
+      endLat: endLat == null && nullToAbsent
+          ? const Value.absent()
+          : Value(endLat),
+      endLon: endLon == null && nullToAbsent
+          ? const Value.absent()
+          : Value(endLon),
+      endAccuracyM: endAccuracyM == null && nullToAbsent
+          ? const Value.absent()
+          : Value(endAccuracyM),
+      answers: Value(answers),
+      createdAtServer: createdAtServer == null && nullToAbsent
+          ? const Value.absent()
+          : Value(createdAtServer),
+      serverSeq: serverSeq == null && nullToAbsent
+          ? const Value.absent()
+          : Value(serverSeq),
+    );
+  }
+
+  factory ResearchRecordRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ResearchRecordRow(
+      id: serializer.fromJson<String>(json['id']),
+      formId: serializer.fromJson<String>(json['form_id']),
+      formVersion: serializer.fromJson<int>(json['form_version']),
+      number: serializer.fromJson<String>(json['number']),
+      numberClash: serializer.fromJson<bool>(json['number_clash']),
+      collectorKey: serializer.fromJson<String?>(json['collector_key']),
+      installationId: serializer.fromJson<String?>(json['installation_id']),
+      collectorSnapshot: serializer.fromJson<String?>(
+        json['collector_snapshot'],
+      ),
+      startedAt: serializer.fromJson<DateTime?>(json['started_at']),
+      finishedAt: serializer.fromJson<DateTime?>(json['finished_at']),
+      lat: serializer.fromJson<double?>(json['lat']),
+      lon: serializer.fromJson<double?>(json['lon']),
+      accuracyM: serializer.fromJson<double?>(json['accuracy_m']),
+      altitudeM: serializer.fromJson<double?>(json['altitude_m']),
+      endLat: serializer.fromJson<double?>(json['end_lat']),
+      endLon: serializer.fromJson<double?>(json['end_lon']),
+      endAccuracyM: serializer.fromJson<double?>(json['end_accuracy_m']),
+      answers: serializer.fromJson<String>(json['answers']),
+      createdAtServer: serializer.fromJson<DateTime?>(
+        json['created_at_server'],
+      ),
+      serverSeq: serializer.fromJson<int?>(json['server_seq']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'form_id': serializer.toJson<String>(formId),
+      'form_version': serializer.toJson<int>(formVersion),
+      'number': serializer.toJson<String>(number),
+      'number_clash': serializer.toJson<bool>(numberClash),
+      'collector_key': serializer.toJson<String?>(collectorKey),
+      'installation_id': serializer.toJson<String?>(installationId),
+      'collector_snapshot': serializer.toJson<String?>(collectorSnapshot),
+      'started_at': serializer.toJson<DateTime?>(startedAt),
+      'finished_at': serializer.toJson<DateTime?>(finishedAt),
+      'lat': serializer.toJson<double?>(lat),
+      'lon': serializer.toJson<double?>(lon),
+      'accuracy_m': serializer.toJson<double?>(accuracyM),
+      'altitude_m': serializer.toJson<double?>(altitudeM),
+      'end_lat': serializer.toJson<double?>(endLat),
+      'end_lon': serializer.toJson<double?>(endLon),
+      'end_accuracy_m': serializer.toJson<double?>(endAccuracyM),
+      'answers': serializer.toJson<String>(answers),
+      'created_at_server': serializer.toJson<DateTime?>(createdAtServer),
+      'server_seq': serializer.toJson<int?>(serverSeq),
+    };
+  }
+
+  ResearchRecordRow copyWith({
+    String? id,
+    String? formId,
+    int? formVersion,
+    String? number,
+    bool? numberClash,
+    Value<String?> collectorKey = const Value.absent(),
+    Value<String?> installationId = const Value.absent(),
+    Value<String?> collectorSnapshot = const Value.absent(),
+    Value<DateTime?> startedAt = const Value.absent(),
+    Value<DateTime?> finishedAt = const Value.absent(),
+    Value<double?> lat = const Value.absent(),
+    Value<double?> lon = const Value.absent(),
+    Value<double?> accuracyM = const Value.absent(),
+    Value<double?> altitudeM = const Value.absent(),
+    Value<double?> endLat = const Value.absent(),
+    Value<double?> endLon = const Value.absent(),
+    Value<double?> endAccuracyM = const Value.absent(),
+    String? answers,
+    Value<DateTime?> createdAtServer = const Value.absent(),
+    Value<int?> serverSeq = const Value.absent(),
+  }) => ResearchRecordRow(
+    id: id ?? this.id,
+    formId: formId ?? this.formId,
+    formVersion: formVersion ?? this.formVersion,
+    number: number ?? this.number,
+    numberClash: numberClash ?? this.numberClash,
+    collectorKey: collectorKey.present ? collectorKey.value : this.collectorKey,
+    installationId: installationId.present
+        ? installationId.value
+        : this.installationId,
+    collectorSnapshot: collectorSnapshot.present
+        ? collectorSnapshot.value
+        : this.collectorSnapshot,
+    startedAt: startedAt.present ? startedAt.value : this.startedAt,
+    finishedAt: finishedAt.present ? finishedAt.value : this.finishedAt,
+    lat: lat.present ? lat.value : this.lat,
+    lon: lon.present ? lon.value : this.lon,
+    accuracyM: accuracyM.present ? accuracyM.value : this.accuracyM,
+    altitudeM: altitudeM.present ? altitudeM.value : this.altitudeM,
+    endLat: endLat.present ? endLat.value : this.endLat,
+    endLon: endLon.present ? endLon.value : this.endLon,
+    endAccuracyM: endAccuracyM.present ? endAccuracyM.value : this.endAccuracyM,
+    answers: answers ?? this.answers,
+    createdAtServer: createdAtServer.present
+        ? createdAtServer.value
+        : this.createdAtServer,
+    serverSeq: serverSeq.present ? serverSeq.value : this.serverSeq,
+  );
+  ResearchRecordRow copyWithCompanion(ResearchRecordsCompanion data) {
+    return ResearchRecordRow(
+      id: data.id.present ? data.id.value : this.id,
+      formId: data.formId.present ? data.formId.value : this.formId,
+      formVersion: data.formVersion.present
+          ? data.formVersion.value
+          : this.formVersion,
+      number: data.number.present ? data.number.value : this.number,
+      numberClash: data.numberClash.present
+          ? data.numberClash.value
+          : this.numberClash,
+      collectorKey: data.collectorKey.present
+          ? data.collectorKey.value
+          : this.collectorKey,
+      installationId: data.installationId.present
+          ? data.installationId.value
+          : this.installationId,
+      collectorSnapshot: data.collectorSnapshot.present
+          ? data.collectorSnapshot.value
+          : this.collectorSnapshot,
+      startedAt: data.startedAt.present ? data.startedAt.value : this.startedAt,
+      finishedAt: data.finishedAt.present
+          ? data.finishedAt.value
+          : this.finishedAt,
+      lat: data.lat.present ? data.lat.value : this.lat,
+      lon: data.lon.present ? data.lon.value : this.lon,
+      accuracyM: data.accuracyM.present ? data.accuracyM.value : this.accuracyM,
+      altitudeM: data.altitudeM.present ? data.altitudeM.value : this.altitudeM,
+      endLat: data.endLat.present ? data.endLat.value : this.endLat,
+      endLon: data.endLon.present ? data.endLon.value : this.endLon,
+      endAccuracyM: data.endAccuracyM.present
+          ? data.endAccuracyM.value
+          : this.endAccuracyM,
+      answers: data.answers.present ? data.answers.value : this.answers,
+      createdAtServer: data.createdAtServer.present
+          ? data.createdAtServer.value
+          : this.createdAtServer,
+      serverSeq: data.serverSeq.present ? data.serverSeq.value : this.serverSeq,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ResearchRecordRow(')
+          ..write('id: $id, ')
+          ..write('formId: $formId, ')
+          ..write('formVersion: $formVersion, ')
+          ..write('number: $number, ')
+          ..write('numberClash: $numberClash, ')
+          ..write('collectorKey: $collectorKey, ')
+          ..write('installationId: $installationId, ')
+          ..write('collectorSnapshot: $collectorSnapshot, ')
+          ..write('startedAt: $startedAt, ')
+          ..write('finishedAt: $finishedAt, ')
+          ..write('lat: $lat, ')
+          ..write('lon: $lon, ')
+          ..write('accuracyM: $accuracyM, ')
+          ..write('altitudeM: $altitudeM, ')
+          ..write('endLat: $endLat, ')
+          ..write('endLon: $endLon, ')
+          ..write('endAccuracyM: $endAccuracyM, ')
+          ..write('answers: $answers, ')
+          ..write('createdAtServer: $createdAtServer, ')
+          ..write('serverSeq: $serverSeq')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    formId,
+    formVersion,
+    number,
+    numberClash,
+    collectorKey,
+    installationId,
+    collectorSnapshot,
+    startedAt,
+    finishedAt,
+    lat,
+    lon,
+    accuracyM,
+    altitudeM,
+    endLat,
+    endLon,
+    endAccuracyM,
+    answers,
+    createdAtServer,
+    serverSeq,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ResearchRecordRow &&
+          other.id == this.id &&
+          other.formId == this.formId &&
+          other.formVersion == this.formVersion &&
+          other.number == this.number &&
+          other.numberClash == this.numberClash &&
+          other.collectorKey == this.collectorKey &&
+          other.installationId == this.installationId &&
+          other.collectorSnapshot == this.collectorSnapshot &&
+          other.startedAt == this.startedAt &&
+          other.finishedAt == this.finishedAt &&
+          other.lat == this.lat &&
+          other.lon == this.lon &&
+          other.accuracyM == this.accuracyM &&
+          other.altitudeM == this.altitudeM &&
+          other.endLat == this.endLat &&
+          other.endLon == this.endLon &&
+          other.endAccuracyM == this.endAccuracyM &&
+          other.answers == this.answers &&
+          other.createdAtServer == this.createdAtServer &&
+          other.serverSeq == this.serverSeq);
+}
+
+class ResearchRecordsCompanion extends UpdateCompanion<ResearchRecordRow> {
+  final Value<String> id;
+  final Value<String> formId;
+  final Value<int> formVersion;
+  final Value<String> number;
+  final Value<bool> numberClash;
+  final Value<String?> collectorKey;
+  final Value<String?> installationId;
+  final Value<String?> collectorSnapshot;
+  final Value<DateTime?> startedAt;
+  final Value<DateTime?> finishedAt;
+  final Value<double?> lat;
+  final Value<double?> lon;
+  final Value<double?> accuracyM;
+  final Value<double?> altitudeM;
+  final Value<double?> endLat;
+  final Value<double?> endLon;
+  final Value<double?> endAccuracyM;
+  final Value<String> answers;
+  final Value<DateTime?> createdAtServer;
+  final Value<int?> serverSeq;
+  final Value<int> rowid;
+  const ResearchRecordsCompanion({
+    this.id = const Value.absent(),
+    this.formId = const Value.absent(),
+    this.formVersion = const Value.absent(),
+    this.number = const Value.absent(),
+    this.numberClash = const Value.absent(),
+    this.collectorKey = const Value.absent(),
+    this.installationId = const Value.absent(),
+    this.collectorSnapshot = const Value.absent(),
+    this.startedAt = const Value.absent(),
+    this.finishedAt = const Value.absent(),
+    this.lat = const Value.absent(),
+    this.lon = const Value.absent(),
+    this.accuracyM = const Value.absent(),
+    this.altitudeM = const Value.absent(),
+    this.endLat = const Value.absent(),
+    this.endLon = const Value.absent(),
+    this.endAccuracyM = const Value.absent(),
+    this.answers = const Value.absent(),
+    this.createdAtServer = const Value.absent(),
+    this.serverSeq = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ResearchRecordsCompanion.insert({
+    required String id,
+    required String formId,
+    required int formVersion,
+    required String number,
+    this.numberClash = const Value.absent(),
+    this.collectorKey = const Value.absent(),
+    this.installationId = const Value.absent(),
+    this.collectorSnapshot = const Value.absent(),
+    this.startedAt = const Value.absent(),
+    this.finishedAt = const Value.absent(),
+    this.lat = const Value.absent(),
+    this.lon = const Value.absent(),
+    this.accuracyM = const Value.absent(),
+    this.altitudeM = const Value.absent(),
+    this.endLat = const Value.absent(),
+    this.endLon = const Value.absent(),
+    this.endAccuracyM = const Value.absent(),
+    required String answers,
+    this.createdAtServer = const Value.absent(),
+    this.serverSeq = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       formId = Value(formId),
+       formVersion = Value(formVersion),
+       number = Value(number),
+       answers = Value(answers);
+  static Insertable<ResearchRecordRow> custom({
+    Expression<String>? id,
+    Expression<String>? formId,
+    Expression<int>? formVersion,
+    Expression<String>? number,
+    Expression<bool>? numberClash,
+    Expression<String>? collectorKey,
+    Expression<String>? installationId,
+    Expression<String>? collectorSnapshot,
+    Expression<DateTime>? startedAt,
+    Expression<DateTime>? finishedAt,
+    Expression<double>? lat,
+    Expression<double>? lon,
+    Expression<double>? accuracyM,
+    Expression<double>? altitudeM,
+    Expression<double>? endLat,
+    Expression<double>? endLon,
+    Expression<double>? endAccuracyM,
+    Expression<String>? answers,
+    Expression<DateTime>? createdAtServer,
+    Expression<int>? serverSeq,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (formId != null) 'form_id': formId,
+      if (formVersion != null) 'form_version': formVersion,
+      if (number != null) 'number': number,
+      if (numberClash != null) 'number_clash': numberClash,
+      if (collectorKey != null) 'collector_key': collectorKey,
+      if (installationId != null) 'installation_id': installationId,
+      if (collectorSnapshot != null) 'collector_snapshot': collectorSnapshot,
+      if (startedAt != null) 'started_at': startedAt,
+      if (finishedAt != null) 'finished_at': finishedAt,
+      if (lat != null) 'lat': lat,
+      if (lon != null) 'lon': lon,
+      if (accuracyM != null) 'accuracy_m': accuracyM,
+      if (altitudeM != null) 'altitude_m': altitudeM,
+      if (endLat != null) 'end_lat': endLat,
+      if (endLon != null) 'end_lon': endLon,
+      if (endAccuracyM != null) 'end_accuracy_m': endAccuracyM,
+      if (answers != null) 'answers': answers,
+      if (createdAtServer != null) 'created_at_server': createdAtServer,
+      if (serverSeq != null) 'server_seq': serverSeq,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ResearchRecordsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? formId,
+    Value<int>? formVersion,
+    Value<String>? number,
+    Value<bool>? numberClash,
+    Value<String?>? collectorKey,
+    Value<String?>? installationId,
+    Value<String?>? collectorSnapshot,
+    Value<DateTime?>? startedAt,
+    Value<DateTime?>? finishedAt,
+    Value<double?>? lat,
+    Value<double?>? lon,
+    Value<double?>? accuracyM,
+    Value<double?>? altitudeM,
+    Value<double?>? endLat,
+    Value<double?>? endLon,
+    Value<double?>? endAccuracyM,
+    Value<String>? answers,
+    Value<DateTime?>? createdAtServer,
+    Value<int?>? serverSeq,
+    Value<int>? rowid,
+  }) {
+    return ResearchRecordsCompanion(
+      id: id ?? this.id,
+      formId: formId ?? this.formId,
+      formVersion: formVersion ?? this.formVersion,
+      number: number ?? this.number,
+      numberClash: numberClash ?? this.numberClash,
+      collectorKey: collectorKey ?? this.collectorKey,
+      installationId: installationId ?? this.installationId,
+      collectorSnapshot: collectorSnapshot ?? this.collectorSnapshot,
+      startedAt: startedAt ?? this.startedAt,
+      finishedAt: finishedAt ?? this.finishedAt,
+      lat: lat ?? this.lat,
+      lon: lon ?? this.lon,
+      accuracyM: accuracyM ?? this.accuracyM,
+      altitudeM: altitudeM ?? this.altitudeM,
+      endLat: endLat ?? this.endLat,
+      endLon: endLon ?? this.endLon,
+      endAccuracyM: endAccuracyM ?? this.endAccuracyM,
+      answers: answers ?? this.answers,
+      createdAtServer: createdAtServer ?? this.createdAtServer,
+      serverSeq: serverSeq ?? this.serverSeq,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (formId.present) {
+      map['form_id'] = Variable<String>(formId.value);
+    }
+    if (formVersion.present) {
+      map['form_version'] = Variable<int>(formVersion.value);
+    }
+    if (number.present) {
+      map['number'] = Variable<String>(number.value);
+    }
+    if (numberClash.present) {
+      map['number_clash'] = Variable<bool>(numberClash.value);
+    }
+    if (collectorKey.present) {
+      map['collector_key'] = Variable<String>(collectorKey.value);
+    }
+    if (installationId.present) {
+      map['installation_id'] = Variable<String>(installationId.value);
+    }
+    if (collectorSnapshot.present) {
+      map['collector_snapshot'] = Variable<String>(collectorSnapshot.value);
+    }
+    if (startedAt.present) {
+      map['started_at'] = Variable<DateTime>(startedAt.value);
+    }
+    if (finishedAt.present) {
+      map['finished_at'] = Variable<DateTime>(finishedAt.value);
+    }
+    if (lat.present) {
+      map['lat'] = Variable<double>(lat.value);
+    }
+    if (lon.present) {
+      map['lon'] = Variable<double>(lon.value);
+    }
+    if (accuracyM.present) {
+      map['accuracy_m'] = Variable<double>(accuracyM.value);
+    }
+    if (altitudeM.present) {
+      map['altitude_m'] = Variable<double>(altitudeM.value);
+    }
+    if (endLat.present) {
+      map['end_lat'] = Variable<double>(endLat.value);
+    }
+    if (endLon.present) {
+      map['end_lon'] = Variable<double>(endLon.value);
+    }
+    if (endAccuracyM.present) {
+      map['end_accuracy_m'] = Variable<double>(endAccuracyM.value);
+    }
+    if (answers.present) {
+      map['answers'] = Variable<String>(answers.value);
+    }
+    if (createdAtServer.present) {
+      map['created_at_server'] = Variable<DateTime>(createdAtServer.value);
+    }
+    if (serverSeq.present) {
+      map['server_seq'] = Variable<int>(serverSeq.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ResearchRecordsCompanion(')
+          ..write('id: $id, ')
+          ..write('formId: $formId, ')
+          ..write('formVersion: $formVersion, ')
+          ..write('number: $number, ')
+          ..write('numberClash: $numberClash, ')
+          ..write('collectorKey: $collectorKey, ')
+          ..write('installationId: $installationId, ')
+          ..write('collectorSnapshot: $collectorSnapshot, ')
+          ..write('startedAt: $startedAt, ')
+          ..write('finishedAt: $finishedAt, ')
+          ..write('lat: $lat, ')
+          ..write('lon: $lon, ')
+          ..write('accuracyM: $accuracyM, ')
+          ..write('altitudeM: $altitudeM, ')
+          ..write('endLat: $endLat, ')
+          ..write('endLon: $endLon, ')
+          ..write('endAccuracyM: $endAccuracyM, ')
+          ..write('answers: $answers, ')
+          ..write('createdAtServer: $createdAtServer, ')
+          ..write('serverSeq: $serverSeq, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $ResearchDraftsTable extends ResearchDrafts
+    with TableInfo<$ResearchDraftsTable, ResearchDraftRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ResearchDraftsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _formIdMeta = const VerificationMeta('formId');
+  @override
+  late final GeneratedColumn<String> formId = GeneratedColumn<String>(
+    'form_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _formVersionMeta = const VerificationMeta(
+    'formVersion',
+  );
+  @override
+  late final GeneratedColumn<int> formVersion = GeneratedColumn<int>(
+    'form_version',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _numberMeta = const VerificationMeta('number');
+  @override
+  late final GeneratedColumn<String> number = GeneratedColumn<String>(
+    'number',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _collectorKeyMeta = const VerificationMeta(
+    'collectorKey',
+  );
+  @override
+  late final GeneratedColumn<String> collectorKey = GeneratedColumn<String>(
+    'collector_key',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _answersMeta = const VerificationMeta(
+    'answers',
+  );
+  @override
+  late final GeneratedColumn<String> answers = GeneratedColumn<String>(
+    'answers',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _mediaMeta = const VerificationMeta('media');
+  @override
+  late final GeneratedColumn<String> media = GeneratedColumn<String>(
+    'media',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('{}'),
+  );
+  static const VerificationMeta _startedAtMeta = const VerificationMeta(
+    'startedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> startedAt = GeneratedColumn<DateTime>(
+    'started_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _latMeta = const VerificationMeta('lat');
+  @override
+  late final GeneratedColumn<double> lat = GeneratedColumn<double>(
+    'lat',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _lonMeta = const VerificationMeta('lon');
+  @override
+  late final GeneratedColumn<double> lon = GeneratedColumn<double>(
+    'lon',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _accuracyMMeta = const VerificationMeta(
+    'accuracyM',
+  );
+  @override
+  late final GeneratedColumn<double> accuracyM = GeneratedColumn<double>(
+    'accuracy_m',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _altitudeMMeta = const VerificationMeta(
+    'altitudeM',
+  );
+  @override
+  late final GeneratedColumn<double> altitudeM = GeneratedColumn<double>(
+    'altitude_m',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    formId,
+    formVersion,
+    number,
+    collectorKey,
+    answers,
+    media,
+    startedAt,
+    updatedAt,
+    lat,
+    lon,
+    accuracyM,
+    altitudeM,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'research_drafts';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ResearchDraftRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('form_id')) {
+      context.handle(
+        _formIdMeta,
+        formId.isAcceptableOrUnknown(data['form_id']!, _formIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_formIdMeta);
+    }
+    if (data.containsKey('form_version')) {
+      context.handle(
+        _formVersionMeta,
+        formVersion.isAcceptableOrUnknown(
+          data['form_version']!,
+          _formVersionMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_formVersionMeta);
+    }
+    if (data.containsKey('number')) {
+      context.handle(
+        _numberMeta,
+        number.isAcceptableOrUnknown(data['number']!, _numberMeta),
+      );
+    }
+    if (data.containsKey('collector_key')) {
+      context.handle(
+        _collectorKeyMeta,
+        collectorKey.isAcceptableOrUnknown(
+          data['collector_key']!,
+          _collectorKeyMeta,
+        ),
+      );
+    }
+    if (data.containsKey('answers')) {
+      context.handle(
+        _answersMeta,
+        answers.isAcceptableOrUnknown(data['answers']!, _answersMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_answersMeta);
+    }
+    if (data.containsKey('media')) {
+      context.handle(
+        _mediaMeta,
+        media.isAcceptableOrUnknown(data['media']!, _mediaMeta),
+      );
+    }
+    if (data.containsKey('started_at')) {
+      context.handle(
+        _startedAtMeta,
+        startedAt.isAcceptableOrUnknown(data['started_at']!, _startedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_startedAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('lat')) {
+      context.handle(
+        _latMeta,
+        lat.isAcceptableOrUnknown(data['lat']!, _latMeta),
+      );
+    }
+    if (data.containsKey('lon')) {
+      context.handle(
+        _lonMeta,
+        lon.isAcceptableOrUnknown(data['lon']!, _lonMeta),
+      );
+    }
+    if (data.containsKey('accuracy_m')) {
+      context.handle(
+        _accuracyMMeta,
+        accuracyM.isAcceptableOrUnknown(data['accuracy_m']!, _accuracyMMeta),
+      );
+    }
+    if (data.containsKey('altitude_m')) {
+      context.handle(
+        _altitudeMMeta,
+        altitudeM.isAcceptableOrUnknown(data['altitude_m']!, _altitudeMMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ResearchDraftRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ResearchDraftRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      formId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}form_id'],
+      )!,
+      formVersion: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}form_version'],
+      )!,
+      number: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}number'],
+      ),
+      collectorKey: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}collector_key'],
+      ),
+      answers: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}answers'],
+      )!,
+      media: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}media'],
+      )!,
+      startedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}started_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+      lat: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}lat'],
+      ),
+      lon: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}lon'],
+      ),
+      accuracyM: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}accuracy_m'],
+      ),
+      altitudeM: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}altitude_m'],
+      ),
+    );
+  }
+
+  @override
+  $ResearchDraftsTable createAlias(String alias) {
+    return $ResearchDraftsTable(attachedDatabase, alias);
+  }
+}
+
+class ResearchDraftRow extends DataClass
+    implements Insertable<ResearchDraftRow> {
+  final String id;
+  final String formId;
+  final int formVersion;
+  final String? number;
+  final String? collectorKey;
+  final String answers;
+
+  /// Pictures taken so far (JSON): attachment id → local file and fix.
+  final String media;
+  final DateTime startedAt;
+  final DateTime updatedAt;
+  final double? lat;
+  final double? lon;
+  final double? accuracyM;
+  final double? altitudeM;
+  const ResearchDraftRow({
+    required this.id,
+    required this.formId,
+    required this.formVersion,
+    this.number,
+    this.collectorKey,
+    required this.answers,
+    required this.media,
+    required this.startedAt,
+    required this.updatedAt,
+    this.lat,
+    this.lon,
+    this.accuracyM,
+    this.altitudeM,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['form_id'] = Variable<String>(formId);
+    map['form_version'] = Variable<int>(formVersion);
+    if (!nullToAbsent || number != null) {
+      map['number'] = Variable<String>(number);
+    }
+    if (!nullToAbsent || collectorKey != null) {
+      map['collector_key'] = Variable<String>(collectorKey);
+    }
+    map['answers'] = Variable<String>(answers);
+    map['media'] = Variable<String>(media);
+    map['started_at'] = Variable<DateTime>(startedAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || lat != null) {
+      map['lat'] = Variable<double>(lat);
+    }
+    if (!nullToAbsent || lon != null) {
+      map['lon'] = Variable<double>(lon);
+    }
+    if (!nullToAbsent || accuracyM != null) {
+      map['accuracy_m'] = Variable<double>(accuracyM);
+    }
+    if (!nullToAbsent || altitudeM != null) {
+      map['altitude_m'] = Variable<double>(altitudeM);
+    }
+    return map;
+  }
+
+  ResearchDraftsCompanion toCompanion(bool nullToAbsent) {
+    return ResearchDraftsCompanion(
+      id: Value(id),
+      formId: Value(formId),
+      formVersion: Value(formVersion),
+      number: number == null && nullToAbsent
+          ? const Value.absent()
+          : Value(number),
+      collectorKey: collectorKey == null && nullToAbsent
+          ? const Value.absent()
+          : Value(collectorKey),
+      answers: Value(answers),
+      media: Value(media),
+      startedAt: Value(startedAt),
+      updatedAt: Value(updatedAt),
+      lat: lat == null && nullToAbsent ? const Value.absent() : Value(lat),
+      lon: lon == null && nullToAbsent ? const Value.absent() : Value(lon),
+      accuracyM: accuracyM == null && nullToAbsent
+          ? const Value.absent()
+          : Value(accuracyM),
+      altitudeM: altitudeM == null && nullToAbsent
+          ? const Value.absent()
+          : Value(altitudeM),
+    );
+  }
+
+  factory ResearchDraftRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ResearchDraftRow(
+      id: serializer.fromJson<String>(json['id']),
+      formId: serializer.fromJson<String>(json['form_id']),
+      formVersion: serializer.fromJson<int>(json['form_version']),
+      number: serializer.fromJson<String?>(json['number']),
+      collectorKey: serializer.fromJson<String?>(json['collector_key']),
+      answers: serializer.fromJson<String>(json['answers']),
+      media: serializer.fromJson<String>(json['media']),
+      startedAt: serializer.fromJson<DateTime>(json['started_at']),
+      updatedAt: serializer.fromJson<DateTime>(json['updated_at']),
+      lat: serializer.fromJson<double?>(json['lat']),
+      lon: serializer.fromJson<double?>(json['lon']),
+      accuracyM: serializer.fromJson<double?>(json['accuracy_m']),
+      altitudeM: serializer.fromJson<double?>(json['altitude_m']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'form_id': serializer.toJson<String>(formId),
+      'form_version': serializer.toJson<int>(formVersion),
+      'number': serializer.toJson<String?>(number),
+      'collector_key': serializer.toJson<String?>(collectorKey),
+      'answers': serializer.toJson<String>(answers),
+      'media': serializer.toJson<String>(media),
+      'started_at': serializer.toJson<DateTime>(startedAt),
+      'updated_at': serializer.toJson<DateTime>(updatedAt),
+      'lat': serializer.toJson<double?>(lat),
+      'lon': serializer.toJson<double?>(lon),
+      'accuracy_m': serializer.toJson<double?>(accuracyM),
+      'altitude_m': serializer.toJson<double?>(altitudeM),
+    };
+  }
+
+  ResearchDraftRow copyWith({
+    String? id,
+    String? formId,
+    int? formVersion,
+    Value<String?> number = const Value.absent(),
+    Value<String?> collectorKey = const Value.absent(),
+    String? answers,
+    String? media,
+    DateTime? startedAt,
+    DateTime? updatedAt,
+    Value<double?> lat = const Value.absent(),
+    Value<double?> lon = const Value.absent(),
+    Value<double?> accuracyM = const Value.absent(),
+    Value<double?> altitudeM = const Value.absent(),
+  }) => ResearchDraftRow(
+    id: id ?? this.id,
+    formId: formId ?? this.formId,
+    formVersion: formVersion ?? this.formVersion,
+    number: number.present ? number.value : this.number,
+    collectorKey: collectorKey.present ? collectorKey.value : this.collectorKey,
+    answers: answers ?? this.answers,
+    media: media ?? this.media,
+    startedAt: startedAt ?? this.startedAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    lat: lat.present ? lat.value : this.lat,
+    lon: lon.present ? lon.value : this.lon,
+    accuracyM: accuracyM.present ? accuracyM.value : this.accuracyM,
+    altitudeM: altitudeM.present ? altitudeM.value : this.altitudeM,
+  );
+  ResearchDraftRow copyWithCompanion(ResearchDraftsCompanion data) {
+    return ResearchDraftRow(
+      id: data.id.present ? data.id.value : this.id,
+      formId: data.formId.present ? data.formId.value : this.formId,
+      formVersion: data.formVersion.present
+          ? data.formVersion.value
+          : this.formVersion,
+      number: data.number.present ? data.number.value : this.number,
+      collectorKey: data.collectorKey.present
+          ? data.collectorKey.value
+          : this.collectorKey,
+      answers: data.answers.present ? data.answers.value : this.answers,
+      media: data.media.present ? data.media.value : this.media,
+      startedAt: data.startedAt.present ? data.startedAt.value : this.startedAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      lat: data.lat.present ? data.lat.value : this.lat,
+      lon: data.lon.present ? data.lon.value : this.lon,
+      accuracyM: data.accuracyM.present ? data.accuracyM.value : this.accuracyM,
+      altitudeM: data.altitudeM.present ? data.altitudeM.value : this.altitudeM,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ResearchDraftRow(')
+          ..write('id: $id, ')
+          ..write('formId: $formId, ')
+          ..write('formVersion: $formVersion, ')
+          ..write('number: $number, ')
+          ..write('collectorKey: $collectorKey, ')
+          ..write('answers: $answers, ')
+          ..write('media: $media, ')
+          ..write('startedAt: $startedAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('lat: $lat, ')
+          ..write('lon: $lon, ')
+          ..write('accuracyM: $accuracyM, ')
+          ..write('altitudeM: $altitudeM')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    formId,
+    formVersion,
+    number,
+    collectorKey,
+    answers,
+    media,
+    startedAt,
+    updatedAt,
+    lat,
+    lon,
+    accuracyM,
+    altitudeM,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ResearchDraftRow &&
+          other.id == this.id &&
+          other.formId == this.formId &&
+          other.formVersion == this.formVersion &&
+          other.number == this.number &&
+          other.collectorKey == this.collectorKey &&
+          other.answers == this.answers &&
+          other.media == this.media &&
+          other.startedAt == this.startedAt &&
+          other.updatedAt == this.updatedAt &&
+          other.lat == this.lat &&
+          other.lon == this.lon &&
+          other.accuracyM == this.accuracyM &&
+          other.altitudeM == this.altitudeM);
+}
+
+class ResearchDraftsCompanion extends UpdateCompanion<ResearchDraftRow> {
+  final Value<String> id;
+  final Value<String> formId;
+  final Value<int> formVersion;
+  final Value<String?> number;
+  final Value<String?> collectorKey;
+  final Value<String> answers;
+  final Value<String> media;
+  final Value<DateTime> startedAt;
+  final Value<DateTime> updatedAt;
+  final Value<double?> lat;
+  final Value<double?> lon;
+  final Value<double?> accuracyM;
+  final Value<double?> altitudeM;
+  final Value<int> rowid;
+  const ResearchDraftsCompanion({
+    this.id = const Value.absent(),
+    this.formId = const Value.absent(),
+    this.formVersion = const Value.absent(),
+    this.number = const Value.absent(),
+    this.collectorKey = const Value.absent(),
+    this.answers = const Value.absent(),
+    this.media = const Value.absent(),
+    this.startedAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.lat = const Value.absent(),
+    this.lon = const Value.absent(),
+    this.accuracyM = const Value.absent(),
+    this.altitudeM = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ResearchDraftsCompanion.insert({
+    required String id,
+    required String formId,
+    required int formVersion,
+    this.number = const Value.absent(),
+    this.collectorKey = const Value.absent(),
+    required String answers,
+    this.media = const Value.absent(),
+    required DateTime startedAt,
+    required DateTime updatedAt,
+    this.lat = const Value.absent(),
+    this.lon = const Value.absent(),
+    this.accuracyM = const Value.absent(),
+    this.altitudeM = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       formId = Value(formId),
+       formVersion = Value(formVersion),
+       answers = Value(answers),
+       startedAt = Value(startedAt),
+       updatedAt = Value(updatedAt);
+  static Insertable<ResearchDraftRow> custom({
+    Expression<String>? id,
+    Expression<String>? formId,
+    Expression<int>? formVersion,
+    Expression<String>? number,
+    Expression<String>? collectorKey,
+    Expression<String>? answers,
+    Expression<String>? media,
+    Expression<DateTime>? startedAt,
+    Expression<DateTime>? updatedAt,
+    Expression<double>? lat,
+    Expression<double>? lon,
+    Expression<double>? accuracyM,
+    Expression<double>? altitudeM,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (formId != null) 'form_id': formId,
+      if (formVersion != null) 'form_version': formVersion,
+      if (number != null) 'number': number,
+      if (collectorKey != null) 'collector_key': collectorKey,
+      if (answers != null) 'answers': answers,
+      if (media != null) 'media': media,
+      if (startedAt != null) 'started_at': startedAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (lat != null) 'lat': lat,
+      if (lon != null) 'lon': lon,
+      if (accuracyM != null) 'accuracy_m': accuracyM,
+      if (altitudeM != null) 'altitude_m': altitudeM,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ResearchDraftsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? formId,
+    Value<int>? formVersion,
+    Value<String?>? number,
+    Value<String?>? collectorKey,
+    Value<String>? answers,
+    Value<String>? media,
+    Value<DateTime>? startedAt,
+    Value<DateTime>? updatedAt,
+    Value<double?>? lat,
+    Value<double?>? lon,
+    Value<double?>? accuracyM,
+    Value<double?>? altitudeM,
+    Value<int>? rowid,
+  }) {
+    return ResearchDraftsCompanion(
+      id: id ?? this.id,
+      formId: formId ?? this.formId,
+      formVersion: formVersion ?? this.formVersion,
+      number: number ?? this.number,
+      collectorKey: collectorKey ?? this.collectorKey,
+      answers: answers ?? this.answers,
+      media: media ?? this.media,
+      startedAt: startedAt ?? this.startedAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      lat: lat ?? this.lat,
+      lon: lon ?? this.lon,
+      accuracyM: accuracyM ?? this.accuracyM,
+      altitudeM: altitudeM ?? this.altitudeM,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (formId.present) {
+      map['form_id'] = Variable<String>(formId.value);
+    }
+    if (formVersion.present) {
+      map['form_version'] = Variable<int>(formVersion.value);
+    }
+    if (number.present) {
+      map['number'] = Variable<String>(number.value);
+    }
+    if (collectorKey.present) {
+      map['collector_key'] = Variable<String>(collectorKey.value);
+    }
+    if (answers.present) {
+      map['answers'] = Variable<String>(answers.value);
+    }
+    if (media.present) {
+      map['media'] = Variable<String>(media.value);
+    }
+    if (startedAt.present) {
+      map['started_at'] = Variable<DateTime>(startedAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (lat.present) {
+      map['lat'] = Variable<double>(lat.value);
+    }
+    if (lon.present) {
+      map['lon'] = Variable<double>(lon.value);
+    }
+    if (accuracyM.present) {
+      map['accuracy_m'] = Variable<double>(accuracyM.value);
+    }
+    if (altitudeM.present) {
+      map['altitude_m'] = Variable<double>(altitudeM.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ResearchDraftsCompanion(')
+          ..write('id: $id, ')
+          ..write('formId: $formId, ')
+          ..write('formVersion: $formVersion, ')
+          ..write('number: $number, ')
+          ..write('collectorKey: $collectorKey, ')
+          ..write('answers: $answers, ')
+          ..write('media: $media, ')
+          ..write('startedAt: $startedAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('lat: $lat, ')
+          ..write('lon: $lon, ')
+          ..write('accuracyM: $accuracyM, ')
+          ..write('altitudeM: $altitudeM, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -19602,6 +22965,16 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $PlaceNamesTable placeNames = $PlaceNamesTable(this);
   late final $TripsTable trips = $TripsTable(this);
   late final $TripPointsTable tripPoints = $TripPointsTable(this);
+  late final $ResearchProjectsTable researchProjects = $ResearchProjectsTable(
+    this,
+  );
+  late final $ResearchFormsTable researchForms = $ResearchFormsTable(this);
+  late final $ResearchFormVersionsTable researchFormVersions =
+      $ResearchFormVersionsTable(this);
+  late final $ResearchRecordsTable researchRecords = $ResearchRecordsTable(
+    this,
+  );
+  late final $ResearchDraftsTable researchDrafts = $ResearchDraftsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -19652,6 +23025,11 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     placeNames,
     trips,
     tripPoints,
+    researchProjects,
+    researchForms,
+    researchFormVersions,
+    researchRecords,
+    researchDrafts,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -27869,6 +31247,7 @@ typedef $$AttachmentsTableCreateCompanionBuilder =
       Value<double?> takenSpeedMps,
       Value<double?> takenHeadingDeg,
       Value<DateTime?> takenAt,
+      Value<String?> fieldName,
       Value<String> uploadStatus,
       Value<int> rowid,
     });
@@ -27890,6 +31269,7 @@ typedef $$AttachmentsTableUpdateCompanionBuilder =
       Value<double?> takenSpeedMps,
       Value<double?> takenHeadingDeg,
       Value<DateTime?> takenAt,
+      Value<String?> fieldName,
       Value<String> uploadStatus,
       Value<int> rowid,
     });
@@ -27980,6 +31360,11 @@ class $$AttachmentsTableFilterComposer
 
   ColumnFilters<DateTime> get takenAt => $composableBuilder(
     column: $table.takenAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get fieldName => $composableBuilder(
+    column: $table.fieldName,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -28078,6 +31463,11 @@ class $$AttachmentsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get fieldName => $composableBuilder(
+    column: $table.fieldName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get uploadStatus => $composableBuilder(
     column: $table.uploadStatus,
     builder: (column) => ColumnOrderings(column),
@@ -28151,6 +31541,9 @@ class $$AttachmentsTableAnnotationComposer
   GeneratedColumn<DateTime> get takenAt =>
       $composableBuilder(column: $table.takenAt, builder: (column) => column);
 
+  GeneratedColumn<String> get fieldName =>
+      $composableBuilder(column: $table.fieldName, builder: (column) => column);
+
   GeneratedColumn<String> get uploadStatus => $composableBuilder(
     column: $table.uploadStatus,
     builder: (column) => column,
@@ -28204,6 +31597,7 @@ class $$AttachmentsTableTableManager
                 Value<double?> takenSpeedMps = const Value.absent(),
                 Value<double?> takenHeadingDeg = const Value.absent(),
                 Value<DateTime?> takenAt = const Value.absent(),
+                Value<String?> fieldName = const Value.absent(),
                 Value<String> uploadStatus = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => AttachmentsCompanion(
@@ -28223,6 +31617,7 @@ class $$AttachmentsTableTableManager
                 takenSpeedMps: takenSpeedMps,
                 takenHeadingDeg: takenHeadingDeg,
                 takenAt: takenAt,
+                fieldName: fieldName,
                 uploadStatus: uploadStatus,
                 rowid: rowid,
               ),
@@ -28244,6 +31639,7 @@ class $$AttachmentsTableTableManager
                 Value<double?> takenSpeedMps = const Value.absent(),
                 Value<double?> takenHeadingDeg = const Value.absent(),
                 Value<DateTime?> takenAt = const Value.absent(),
+                Value<String?> fieldName = const Value.absent(),
                 Value<String> uploadStatus = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => AttachmentsCompanion.insert(
@@ -28263,6 +31659,7 @@ class $$AttachmentsTableTableManager
                 takenSpeedMps: takenSpeedMps,
                 takenHeadingDeg: takenHeadingDeg,
                 takenAt: takenAt,
+                fieldName: fieldName,
                 uploadStatus: uploadStatus,
                 rowid: rowid,
               ),
@@ -31425,6 +34822,1677 @@ typedef $$TripPointsTableProcessedTableManager =
       TripPointRow,
       PrefetchHooks Function({bool tripId})
     >;
+typedef $$ResearchProjectsTableCreateCompanionBuilder =
+    ResearchProjectsCompanion Function({
+      required String id,
+      required String code,
+      required String title,
+      Value<String?> description,
+      Value<int?> serverSeq,
+      Value<int> rowid,
+    });
+typedef $$ResearchProjectsTableUpdateCompanionBuilder =
+    ResearchProjectsCompanion Function({
+      Value<String> id,
+      Value<String> code,
+      Value<String> title,
+      Value<String?> description,
+      Value<int?> serverSeq,
+      Value<int> rowid,
+    });
+
+class $$ResearchProjectsTableFilterComposer
+    extends Composer<_$AppDatabase, $ResearchProjectsTable> {
+  $$ResearchProjectsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get code => $composableBuilder(
+    column: $table.code,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get serverSeq => $composableBuilder(
+    column: $table.serverSeq,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$ResearchProjectsTableOrderingComposer
+    extends Composer<_$AppDatabase, $ResearchProjectsTable> {
+  $$ResearchProjectsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get code => $composableBuilder(
+    column: $table.code,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get serverSeq => $composableBuilder(
+    column: $table.serverSeq,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$ResearchProjectsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ResearchProjectsTable> {
+  $$ResearchProjectsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get code =>
+      $composableBuilder(column: $table.code, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get serverSeq =>
+      $composableBuilder(column: $table.serverSeq, builder: (column) => column);
+}
+
+class $$ResearchProjectsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $ResearchProjectsTable,
+          ResearchProjectRow,
+          $$ResearchProjectsTableFilterComposer,
+          $$ResearchProjectsTableOrderingComposer,
+          $$ResearchProjectsTableAnnotationComposer,
+          $$ResearchProjectsTableCreateCompanionBuilder,
+          $$ResearchProjectsTableUpdateCompanionBuilder,
+          (
+            ResearchProjectRow,
+            BaseReferences<
+              _$AppDatabase,
+              $ResearchProjectsTable,
+              ResearchProjectRow
+            >,
+          ),
+          ResearchProjectRow,
+          PrefetchHooks Function()
+        > {
+  $$ResearchProjectsTableTableManager(
+    _$AppDatabase db,
+    $ResearchProjectsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ResearchProjectsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ResearchProjectsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ResearchProjectsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> code = const Value.absent(),
+                Value<String> title = const Value.absent(),
+                Value<String?> description = const Value.absent(),
+                Value<int?> serverSeq = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ResearchProjectsCompanion(
+                id: id,
+                code: code,
+                title: title,
+                description: description,
+                serverSeq: serverSeq,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String code,
+                required String title,
+                Value<String?> description = const Value.absent(),
+                Value<int?> serverSeq = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ResearchProjectsCompanion.insert(
+                id: id,
+                code: code,
+                title: title,
+                description: description,
+                serverSeq: serverSeq,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$ResearchProjectsTable, ResearchProjectRow>(
+                    table,
+                  ),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $ResearchProjectsTable,
+                    ResearchProjectRow
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$ResearchProjectsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $ResearchProjectsTable,
+      ResearchProjectRow,
+      $$ResearchProjectsTableFilterComposer,
+      $$ResearchProjectsTableOrderingComposer,
+      $$ResearchProjectsTableAnnotationComposer,
+      $$ResearchProjectsTableCreateCompanionBuilder,
+      $$ResearchProjectsTableUpdateCompanionBuilder,
+      (
+        ResearchProjectRow,
+        BaseReferences<
+          _$AppDatabase,
+          $ResearchProjectsTable,
+          ResearchProjectRow
+        >,
+      ),
+      ResearchProjectRow,
+      PrefetchHooks Function()
+    >;
+typedef $$ResearchFormsTableCreateCompanionBuilder =
+    ResearchFormsCompanion Function({
+      required String id,
+      required String projectId,
+      required String code,
+      required String title,
+      Value<String?> description,
+      required String status,
+      required String collectAccess,
+      Value<bool> hidden,
+      required String numbering,
+      Value<int?> currentVersion,
+      Value<int?> serverSeq,
+      Value<int> rowid,
+    });
+typedef $$ResearchFormsTableUpdateCompanionBuilder =
+    ResearchFormsCompanion Function({
+      Value<String> id,
+      Value<String> projectId,
+      Value<String> code,
+      Value<String> title,
+      Value<String?> description,
+      Value<String> status,
+      Value<String> collectAccess,
+      Value<bool> hidden,
+      Value<String> numbering,
+      Value<int?> currentVersion,
+      Value<int?> serverSeq,
+      Value<int> rowid,
+    });
+
+class $$ResearchFormsTableFilterComposer
+    extends Composer<_$AppDatabase, $ResearchFormsTable> {
+  $$ResearchFormsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get projectId => $composableBuilder(
+    column: $table.projectId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get code => $composableBuilder(
+    column: $table.code,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get collectAccess => $composableBuilder(
+    column: $table.collectAccess,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get hidden => $composableBuilder(
+    column: $table.hidden,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get numbering => $composableBuilder(
+    column: $table.numbering,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get currentVersion => $composableBuilder(
+    column: $table.currentVersion,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get serverSeq => $composableBuilder(
+    column: $table.serverSeq,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$ResearchFormsTableOrderingComposer
+    extends Composer<_$AppDatabase, $ResearchFormsTable> {
+  $$ResearchFormsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get projectId => $composableBuilder(
+    column: $table.projectId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get code => $composableBuilder(
+    column: $table.code,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get collectAccess => $composableBuilder(
+    column: $table.collectAccess,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get hidden => $composableBuilder(
+    column: $table.hidden,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get numbering => $composableBuilder(
+    column: $table.numbering,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get currentVersion => $composableBuilder(
+    column: $table.currentVersion,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get serverSeq => $composableBuilder(
+    column: $table.serverSeq,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$ResearchFormsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ResearchFormsTable> {
+  $$ResearchFormsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get projectId =>
+      $composableBuilder(column: $table.projectId, builder: (column) => column);
+
+  GeneratedColumn<String> get code =>
+      $composableBuilder(column: $table.code, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<String> get collectAccess => $composableBuilder(
+    column: $table.collectAccess,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get hidden =>
+      $composableBuilder(column: $table.hidden, builder: (column) => column);
+
+  GeneratedColumn<String> get numbering =>
+      $composableBuilder(column: $table.numbering, builder: (column) => column);
+
+  GeneratedColumn<int> get currentVersion => $composableBuilder(
+    column: $table.currentVersion,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get serverSeq =>
+      $composableBuilder(column: $table.serverSeq, builder: (column) => column);
+}
+
+class $$ResearchFormsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $ResearchFormsTable,
+          ResearchFormRow,
+          $$ResearchFormsTableFilterComposer,
+          $$ResearchFormsTableOrderingComposer,
+          $$ResearchFormsTableAnnotationComposer,
+          $$ResearchFormsTableCreateCompanionBuilder,
+          $$ResearchFormsTableUpdateCompanionBuilder,
+          (
+            ResearchFormRow,
+            BaseReferences<_$AppDatabase, $ResearchFormsTable, ResearchFormRow>,
+          ),
+          ResearchFormRow,
+          PrefetchHooks Function()
+        > {
+  $$ResearchFormsTableTableManager(_$AppDatabase db, $ResearchFormsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ResearchFormsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ResearchFormsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ResearchFormsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> projectId = const Value.absent(),
+                Value<String> code = const Value.absent(),
+                Value<String> title = const Value.absent(),
+                Value<String?> description = const Value.absent(),
+                Value<String> status = const Value.absent(),
+                Value<String> collectAccess = const Value.absent(),
+                Value<bool> hidden = const Value.absent(),
+                Value<String> numbering = const Value.absent(),
+                Value<int?> currentVersion = const Value.absent(),
+                Value<int?> serverSeq = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ResearchFormsCompanion(
+                id: id,
+                projectId: projectId,
+                code: code,
+                title: title,
+                description: description,
+                status: status,
+                collectAccess: collectAccess,
+                hidden: hidden,
+                numbering: numbering,
+                currentVersion: currentVersion,
+                serverSeq: serverSeq,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String projectId,
+                required String code,
+                required String title,
+                Value<String?> description = const Value.absent(),
+                required String status,
+                required String collectAccess,
+                Value<bool> hidden = const Value.absent(),
+                required String numbering,
+                Value<int?> currentVersion = const Value.absent(),
+                Value<int?> serverSeq = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ResearchFormsCompanion.insert(
+                id: id,
+                projectId: projectId,
+                code: code,
+                title: title,
+                description: description,
+                status: status,
+                collectAccess: collectAccess,
+                hidden: hidden,
+                numbering: numbering,
+                currentVersion: currentVersion,
+                serverSeq: serverSeq,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$ResearchFormsTable, ResearchFormRow>(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $ResearchFormsTable,
+                    ResearchFormRow
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$ResearchFormsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $ResearchFormsTable,
+      ResearchFormRow,
+      $$ResearchFormsTableFilterComposer,
+      $$ResearchFormsTableOrderingComposer,
+      $$ResearchFormsTableAnnotationComposer,
+      $$ResearchFormsTableCreateCompanionBuilder,
+      $$ResearchFormsTableUpdateCompanionBuilder,
+      (
+        ResearchFormRow,
+        BaseReferences<_$AppDatabase, $ResearchFormsTable, ResearchFormRow>,
+      ),
+      ResearchFormRow,
+      PrefetchHooks Function()
+    >;
+typedef $$ResearchFormVersionsTableCreateCompanionBuilder =
+    ResearchFormVersionsCompanion Function({
+      required String formId,
+      required int version,
+      required String definition,
+      Value<DateTime?> publishedAt,
+      Value<int?> serverSeq,
+      Value<int> rowid,
+    });
+typedef $$ResearchFormVersionsTableUpdateCompanionBuilder =
+    ResearchFormVersionsCompanion Function({
+      Value<String> formId,
+      Value<int> version,
+      Value<String> definition,
+      Value<DateTime?> publishedAt,
+      Value<int?> serverSeq,
+      Value<int> rowid,
+    });
+
+class $$ResearchFormVersionsTableFilterComposer
+    extends Composer<_$AppDatabase, $ResearchFormVersionsTable> {
+  $$ResearchFormVersionsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get formId => $composableBuilder(
+    column: $table.formId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get version => $composableBuilder(
+    column: $table.version,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get definition => $composableBuilder(
+    column: $table.definition,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get publishedAt => $composableBuilder(
+    column: $table.publishedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get serverSeq => $composableBuilder(
+    column: $table.serverSeq,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$ResearchFormVersionsTableOrderingComposer
+    extends Composer<_$AppDatabase, $ResearchFormVersionsTable> {
+  $$ResearchFormVersionsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get formId => $composableBuilder(
+    column: $table.formId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get version => $composableBuilder(
+    column: $table.version,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get definition => $composableBuilder(
+    column: $table.definition,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get publishedAt => $composableBuilder(
+    column: $table.publishedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get serverSeq => $composableBuilder(
+    column: $table.serverSeq,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$ResearchFormVersionsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ResearchFormVersionsTable> {
+  $$ResearchFormVersionsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get formId =>
+      $composableBuilder(column: $table.formId, builder: (column) => column);
+
+  GeneratedColumn<int> get version =>
+      $composableBuilder(column: $table.version, builder: (column) => column);
+
+  GeneratedColumn<String> get definition => $composableBuilder(
+    column: $table.definition,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get publishedAt => $composableBuilder(
+    column: $table.publishedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get serverSeq =>
+      $composableBuilder(column: $table.serverSeq, builder: (column) => column);
+}
+
+class $$ResearchFormVersionsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $ResearchFormVersionsTable,
+          ResearchFormVersionRow,
+          $$ResearchFormVersionsTableFilterComposer,
+          $$ResearchFormVersionsTableOrderingComposer,
+          $$ResearchFormVersionsTableAnnotationComposer,
+          $$ResearchFormVersionsTableCreateCompanionBuilder,
+          $$ResearchFormVersionsTableUpdateCompanionBuilder,
+          (
+            ResearchFormVersionRow,
+            BaseReferences<
+              _$AppDatabase,
+              $ResearchFormVersionsTable,
+              ResearchFormVersionRow
+            >,
+          ),
+          ResearchFormVersionRow,
+          PrefetchHooks Function()
+        > {
+  $$ResearchFormVersionsTableTableManager(
+    _$AppDatabase db,
+    $ResearchFormVersionsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ResearchFormVersionsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ResearchFormVersionsTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$ResearchFormVersionsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> formId = const Value.absent(),
+                Value<int> version = const Value.absent(),
+                Value<String> definition = const Value.absent(),
+                Value<DateTime?> publishedAt = const Value.absent(),
+                Value<int?> serverSeq = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ResearchFormVersionsCompanion(
+                formId: formId,
+                version: version,
+                definition: definition,
+                publishedAt: publishedAt,
+                serverSeq: serverSeq,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String formId,
+                required int version,
+                required String definition,
+                Value<DateTime?> publishedAt = const Value.absent(),
+                Value<int?> serverSeq = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ResearchFormVersionsCompanion.insert(
+                formId: formId,
+                version: version,
+                definition: definition,
+                publishedAt: publishedAt,
+                serverSeq: serverSeq,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<
+                    $ResearchFormVersionsTable,
+                    ResearchFormVersionRow
+                  >(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $ResearchFormVersionsTable,
+                    ResearchFormVersionRow
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$ResearchFormVersionsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $ResearchFormVersionsTable,
+      ResearchFormVersionRow,
+      $$ResearchFormVersionsTableFilterComposer,
+      $$ResearchFormVersionsTableOrderingComposer,
+      $$ResearchFormVersionsTableAnnotationComposer,
+      $$ResearchFormVersionsTableCreateCompanionBuilder,
+      $$ResearchFormVersionsTableUpdateCompanionBuilder,
+      (
+        ResearchFormVersionRow,
+        BaseReferences<
+          _$AppDatabase,
+          $ResearchFormVersionsTable,
+          ResearchFormVersionRow
+        >,
+      ),
+      ResearchFormVersionRow,
+      PrefetchHooks Function()
+    >;
+typedef $$ResearchRecordsTableCreateCompanionBuilder =
+    ResearchRecordsCompanion Function({
+      required String id,
+      required String formId,
+      required int formVersion,
+      required String number,
+      Value<bool> numberClash,
+      Value<String?> collectorKey,
+      Value<String?> installationId,
+      Value<String?> collectorSnapshot,
+      Value<DateTime?> startedAt,
+      Value<DateTime?> finishedAt,
+      Value<double?> lat,
+      Value<double?> lon,
+      Value<double?> accuracyM,
+      Value<double?> altitudeM,
+      Value<double?> endLat,
+      Value<double?> endLon,
+      Value<double?> endAccuracyM,
+      required String answers,
+      Value<DateTime?> createdAtServer,
+      Value<int?> serverSeq,
+      Value<int> rowid,
+    });
+typedef $$ResearchRecordsTableUpdateCompanionBuilder =
+    ResearchRecordsCompanion Function({
+      Value<String> id,
+      Value<String> formId,
+      Value<int> formVersion,
+      Value<String> number,
+      Value<bool> numberClash,
+      Value<String?> collectorKey,
+      Value<String?> installationId,
+      Value<String?> collectorSnapshot,
+      Value<DateTime?> startedAt,
+      Value<DateTime?> finishedAt,
+      Value<double?> lat,
+      Value<double?> lon,
+      Value<double?> accuracyM,
+      Value<double?> altitudeM,
+      Value<double?> endLat,
+      Value<double?> endLon,
+      Value<double?> endAccuracyM,
+      Value<String> answers,
+      Value<DateTime?> createdAtServer,
+      Value<int?> serverSeq,
+      Value<int> rowid,
+    });
+
+class $$ResearchRecordsTableFilterComposer
+    extends Composer<_$AppDatabase, $ResearchRecordsTable> {
+  $$ResearchRecordsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get formId => $composableBuilder(
+    column: $table.formId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get formVersion => $composableBuilder(
+    column: $table.formVersion,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get number => $composableBuilder(
+    column: $table.number,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get numberClash => $composableBuilder(
+    column: $table.numberClash,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get collectorKey => $composableBuilder(
+    column: $table.collectorKey,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get installationId => $composableBuilder(
+    column: $table.installationId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get collectorSnapshot => $composableBuilder(
+    column: $table.collectorSnapshot,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get startedAt => $composableBuilder(
+    column: $table.startedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get finishedAt => $composableBuilder(
+    column: $table.finishedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get lat => $composableBuilder(
+    column: $table.lat,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get lon => $composableBuilder(
+    column: $table.lon,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get accuracyM => $composableBuilder(
+    column: $table.accuracyM,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get altitudeM => $composableBuilder(
+    column: $table.altitudeM,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get endLat => $composableBuilder(
+    column: $table.endLat,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get endLon => $composableBuilder(
+    column: $table.endLon,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get endAccuracyM => $composableBuilder(
+    column: $table.endAccuracyM,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get answers => $composableBuilder(
+    column: $table.answers,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAtServer => $composableBuilder(
+    column: $table.createdAtServer,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get serverSeq => $composableBuilder(
+    column: $table.serverSeq,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$ResearchRecordsTableOrderingComposer
+    extends Composer<_$AppDatabase, $ResearchRecordsTable> {
+  $$ResearchRecordsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get formId => $composableBuilder(
+    column: $table.formId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get formVersion => $composableBuilder(
+    column: $table.formVersion,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get number => $composableBuilder(
+    column: $table.number,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get numberClash => $composableBuilder(
+    column: $table.numberClash,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get collectorKey => $composableBuilder(
+    column: $table.collectorKey,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get installationId => $composableBuilder(
+    column: $table.installationId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get collectorSnapshot => $composableBuilder(
+    column: $table.collectorSnapshot,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get startedAt => $composableBuilder(
+    column: $table.startedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get finishedAt => $composableBuilder(
+    column: $table.finishedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get lat => $composableBuilder(
+    column: $table.lat,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get lon => $composableBuilder(
+    column: $table.lon,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get accuracyM => $composableBuilder(
+    column: $table.accuracyM,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get altitudeM => $composableBuilder(
+    column: $table.altitudeM,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get endLat => $composableBuilder(
+    column: $table.endLat,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get endLon => $composableBuilder(
+    column: $table.endLon,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get endAccuracyM => $composableBuilder(
+    column: $table.endAccuracyM,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get answers => $composableBuilder(
+    column: $table.answers,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAtServer => $composableBuilder(
+    column: $table.createdAtServer,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get serverSeq => $composableBuilder(
+    column: $table.serverSeq,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$ResearchRecordsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ResearchRecordsTable> {
+  $$ResearchRecordsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get formId =>
+      $composableBuilder(column: $table.formId, builder: (column) => column);
+
+  GeneratedColumn<int> get formVersion => $composableBuilder(
+    column: $table.formVersion,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get number =>
+      $composableBuilder(column: $table.number, builder: (column) => column);
+
+  GeneratedColumn<bool> get numberClash => $composableBuilder(
+    column: $table.numberClash,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get collectorKey => $composableBuilder(
+    column: $table.collectorKey,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get installationId => $composableBuilder(
+    column: $table.installationId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get collectorSnapshot => $composableBuilder(
+    column: $table.collectorSnapshot,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get startedAt =>
+      $composableBuilder(column: $table.startedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get finishedAt => $composableBuilder(
+    column: $table.finishedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get lat =>
+      $composableBuilder(column: $table.lat, builder: (column) => column);
+
+  GeneratedColumn<double> get lon =>
+      $composableBuilder(column: $table.lon, builder: (column) => column);
+
+  GeneratedColumn<double> get accuracyM =>
+      $composableBuilder(column: $table.accuracyM, builder: (column) => column);
+
+  GeneratedColumn<double> get altitudeM =>
+      $composableBuilder(column: $table.altitudeM, builder: (column) => column);
+
+  GeneratedColumn<double> get endLat =>
+      $composableBuilder(column: $table.endLat, builder: (column) => column);
+
+  GeneratedColumn<double> get endLon =>
+      $composableBuilder(column: $table.endLon, builder: (column) => column);
+
+  GeneratedColumn<double> get endAccuracyM => $composableBuilder(
+    column: $table.endAccuracyM,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get answers =>
+      $composableBuilder(column: $table.answers, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAtServer => $composableBuilder(
+    column: $table.createdAtServer,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get serverSeq =>
+      $composableBuilder(column: $table.serverSeq, builder: (column) => column);
+}
+
+class $$ResearchRecordsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $ResearchRecordsTable,
+          ResearchRecordRow,
+          $$ResearchRecordsTableFilterComposer,
+          $$ResearchRecordsTableOrderingComposer,
+          $$ResearchRecordsTableAnnotationComposer,
+          $$ResearchRecordsTableCreateCompanionBuilder,
+          $$ResearchRecordsTableUpdateCompanionBuilder,
+          (
+            ResearchRecordRow,
+            BaseReferences<
+              _$AppDatabase,
+              $ResearchRecordsTable,
+              ResearchRecordRow
+            >,
+          ),
+          ResearchRecordRow,
+          PrefetchHooks Function()
+        > {
+  $$ResearchRecordsTableTableManager(
+    _$AppDatabase db,
+    $ResearchRecordsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ResearchRecordsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ResearchRecordsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ResearchRecordsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> formId = const Value.absent(),
+                Value<int> formVersion = const Value.absent(),
+                Value<String> number = const Value.absent(),
+                Value<bool> numberClash = const Value.absent(),
+                Value<String?> collectorKey = const Value.absent(),
+                Value<String?> installationId = const Value.absent(),
+                Value<String?> collectorSnapshot = const Value.absent(),
+                Value<DateTime?> startedAt = const Value.absent(),
+                Value<DateTime?> finishedAt = const Value.absent(),
+                Value<double?> lat = const Value.absent(),
+                Value<double?> lon = const Value.absent(),
+                Value<double?> accuracyM = const Value.absent(),
+                Value<double?> altitudeM = const Value.absent(),
+                Value<double?> endLat = const Value.absent(),
+                Value<double?> endLon = const Value.absent(),
+                Value<double?> endAccuracyM = const Value.absent(),
+                Value<String> answers = const Value.absent(),
+                Value<DateTime?> createdAtServer = const Value.absent(),
+                Value<int?> serverSeq = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ResearchRecordsCompanion(
+                id: id,
+                formId: formId,
+                formVersion: formVersion,
+                number: number,
+                numberClash: numberClash,
+                collectorKey: collectorKey,
+                installationId: installationId,
+                collectorSnapshot: collectorSnapshot,
+                startedAt: startedAt,
+                finishedAt: finishedAt,
+                lat: lat,
+                lon: lon,
+                accuracyM: accuracyM,
+                altitudeM: altitudeM,
+                endLat: endLat,
+                endLon: endLon,
+                endAccuracyM: endAccuracyM,
+                answers: answers,
+                createdAtServer: createdAtServer,
+                serverSeq: serverSeq,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String formId,
+                required int formVersion,
+                required String number,
+                Value<bool> numberClash = const Value.absent(),
+                Value<String?> collectorKey = const Value.absent(),
+                Value<String?> installationId = const Value.absent(),
+                Value<String?> collectorSnapshot = const Value.absent(),
+                Value<DateTime?> startedAt = const Value.absent(),
+                Value<DateTime?> finishedAt = const Value.absent(),
+                Value<double?> lat = const Value.absent(),
+                Value<double?> lon = const Value.absent(),
+                Value<double?> accuracyM = const Value.absent(),
+                Value<double?> altitudeM = const Value.absent(),
+                Value<double?> endLat = const Value.absent(),
+                Value<double?> endLon = const Value.absent(),
+                Value<double?> endAccuracyM = const Value.absent(),
+                required String answers,
+                Value<DateTime?> createdAtServer = const Value.absent(),
+                Value<int?> serverSeq = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ResearchRecordsCompanion.insert(
+                id: id,
+                formId: formId,
+                formVersion: formVersion,
+                number: number,
+                numberClash: numberClash,
+                collectorKey: collectorKey,
+                installationId: installationId,
+                collectorSnapshot: collectorSnapshot,
+                startedAt: startedAt,
+                finishedAt: finishedAt,
+                lat: lat,
+                lon: lon,
+                accuracyM: accuracyM,
+                altitudeM: altitudeM,
+                endLat: endLat,
+                endLon: endLon,
+                endAccuracyM: endAccuracyM,
+                answers: answers,
+                createdAtServer: createdAtServer,
+                serverSeq: serverSeq,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$ResearchRecordsTable, ResearchRecordRow>(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $ResearchRecordsTable,
+                    ResearchRecordRow
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$ResearchRecordsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $ResearchRecordsTable,
+      ResearchRecordRow,
+      $$ResearchRecordsTableFilterComposer,
+      $$ResearchRecordsTableOrderingComposer,
+      $$ResearchRecordsTableAnnotationComposer,
+      $$ResearchRecordsTableCreateCompanionBuilder,
+      $$ResearchRecordsTableUpdateCompanionBuilder,
+      (
+        ResearchRecordRow,
+        BaseReferences<_$AppDatabase, $ResearchRecordsTable, ResearchRecordRow>,
+      ),
+      ResearchRecordRow,
+      PrefetchHooks Function()
+    >;
+typedef $$ResearchDraftsTableCreateCompanionBuilder =
+    ResearchDraftsCompanion Function({
+      required String id,
+      required String formId,
+      required int formVersion,
+      Value<String?> number,
+      Value<String?> collectorKey,
+      required String answers,
+      Value<String> media,
+      required DateTime startedAt,
+      required DateTime updatedAt,
+      Value<double?> lat,
+      Value<double?> lon,
+      Value<double?> accuracyM,
+      Value<double?> altitudeM,
+      Value<int> rowid,
+    });
+typedef $$ResearchDraftsTableUpdateCompanionBuilder =
+    ResearchDraftsCompanion Function({
+      Value<String> id,
+      Value<String> formId,
+      Value<int> formVersion,
+      Value<String?> number,
+      Value<String?> collectorKey,
+      Value<String> answers,
+      Value<String> media,
+      Value<DateTime> startedAt,
+      Value<DateTime> updatedAt,
+      Value<double?> lat,
+      Value<double?> lon,
+      Value<double?> accuracyM,
+      Value<double?> altitudeM,
+      Value<int> rowid,
+    });
+
+class $$ResearchDraftsTableFilterComposer
+    extends Composer<_$AppDatabase, $ResearchDraftsTable> {
+  $$ResearchDraftsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get formId => $composableBuilder(
+    column: $table.formId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get formVersion => $composableBuilder(
+    column: $table.formVersion,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get number => $composableBuilder(
+    column: $table.number,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get collectorKey => $composableBuilder(
+    column: $table.collectorKey,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get answers => $composableBuilder(
+    column: $table.answers,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get media => $composableBuilder(
+    column: $table.media,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get startedAt => $composableBuilder(
+    column: $table.startedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get lat => $composableBuilder(
+    column: $table.lat,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get lon => $composableBuilder(
+    column: $table.lon,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get accuracyM => $composableBuilder(
+    column: $table.accuracyM,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get altitudeM => $composableBuilder(
+    column: $table.altitudeM,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$ResearchDraftsTableOrderingComposer
+    extends Composer<_$AppDatabase, $ResearchDraftsTable> {
+  $$ResearchDraftsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get formId => $composableBuilder(
+    column: $table.formId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get formVersion => $composableBuilder(
+    column: $table.formVersion,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get number => $composableBuilder(
+    column: $table.number,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get collectorKey => $composableBuilder(
+    column: $table.collectorKey,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get answers => $composableBuilder(
+    column: $table.answers,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get media => $composableBuilder(
+    column: $table.media,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get startedAt => $composableBuilder(
+    column: $table.startedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get lat => $composableBuilder(
+    column: $table.lat,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get lon => $composableBuilder(
+    column: $table.lon,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get accuracyM => $composableBuilder(
+    column: $table.accuracyM,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get altitudeM => $composableBuilder(
+    column: $table.altitudeM,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$ResearchDraftsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ResearchDraftsTable> {
+  $$ResearchDraftsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get formId =>
+      $composableBuilder(column: $table.formId, builder: (column) => column);
+
+  GeneratedColumn<int> get formVersion => $composableBuilder(
+    column: $table.formVersion,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get number =>
+      $composableBuilder(column: $table.number, builder: (column) => column);
+
+  GeneratedColumn<String> get collectorKey => $composableBuilder(
+    column: $table.collectorKey,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get answers =>
+      $composableBuilder(column: $table.answers, builder: (column) => column);
+
+  GeneratedColumn<String> get media =>
+      $composableBuilder(column: $table.media, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get startedAt =>
+      $composableBuilder(column: $table.startedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<double> get lat =>
+      $composableBuilder(column: $table.lat, builder: (column) => column);
+
+  GeneratedColumn<double> get lon =>
+      $composableBuilder(column: $table.lon, builder: (column) => column);
+
+  GeneratedColumn<double> get accuracyM =>
+      $composableBuilder(column: $table.accuracyM, builder: (column) => column);
+
+  GeneratedColumn<double> get altitudeM =>
+      $composableBuilder(column: $table.altitudeM, builder: (column) => column);
+}
+
+class $$ResearchDraftsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $ResearchDraftsTable,
+          ResearchDraftRow,
+          $$ResearchDraftsTableFilterComposer,
+          $$ResearchDraftsTableOrderingComposer,
+          $$ResearchDraftsTableAnnotationComposer,
+          $$ResearchDraftsTableCreateCompanionBuilder,
+          $$ResearchDraftsTableUpdateCompanionBuilder,
+          (
+            ResearchDraftRow,
+            BaseReferences<
+              _$AppDatabase,
+              $ResearchDraftsTable,
+              ResearchDraftRow
+            >,
+          ),
+          ResearchDraftRow,
+          PrefetchHooks Function()
+        > {
+  $$ResearchDraftsTableTableManager(
+    _$AppDatabase db,
+    $ResearchDraftsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ResearchDraftsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ResearchDraftsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ResearchDraftsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> formId = const Value.absent(),
+                Value<int> formVersion = const Value.absent(),
+                Value<String?> number = const Value.absent(),
+                Value<String?> collectorKey = const Value.absent(),
+                Value<String> answers = const Value.absent(),
+                Value<String> media = const Value.absent(),
+                Value<DateTime> startedAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<double?> lat = const Value.absent(),
+                Value<double?> lon = const Value.absent(),
+                Value<double?> accuracyM = const Value.absent(),
+                Value<double?> altitudeM = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ResearchDraftsCompanion(
+                id: id,
+                formId: formId,
+                formVersion: formVersion,
+                number: number,
+                collectorKey: collectorKey,
+                answers: answers,
+                media: media,
+                startedAt: startedAt,
+                updatedAt: updatedAt,
+                lat: lat,
+                lon: lon,
+                accuracyM: accuracyM,
+                altitudeM: altitudeM,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String formId,
+                required int formVersion,
+                Value<String?> number = const Value.absent(),
+                Value<String?> collectorKey = const Value.absent(),
+                required String answers,
+                Value<String> media = const Value.absent(),
+                required DateTime startedAt,
+                required DateTime updatedAt,
+                Value<double?> lat = const Value.absent(),
+                Value<double?> lon = const Value.absent(),
+                Value<double?> accuracyM = const Value.absent(),
+                Value<double?> altitudeM = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ResearchDraftsCompanion.insert(
+                id: id,
+                formId: formId,
+                formVersion: formVersion,
+                number: number,
+                collectorKey: collectorKey,
+                answers: answers,
+                media: media,
+                startedAt: startedAt,
+                updatedAt: updatedAt,
+                lat: lat,
+                lon: lon,
+                accuracyM: accuracyM,
+                altitudeM: altitudeM,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$ResearchDraftsTable, ResearchDraftRow>(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $ResearchDraftsTable,
+                    ResearchDraftRow
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$ResearchDraftsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $ResearchDraftsTable,
+      ResearchDraftRow,
+      $$ResearchDraftsTableFilterComposer,
+      $$ResearchDraftsTableOrderingComposer,
+      $$ResearchDraftsTableAnnotationComposer,
+      $$ResearchDraftsTableCreateCompanionBuilder,
+      $$ResearchDraftsTableUpdateCompanionBuilder,
+      (
+        ResearchDraftRow,
+        BaseReferences<_$AppDatabase, $ResearchDraftsTable, ResearchDraftRow>,
+      ),
+      ResearchDraftRow,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -31493,4 +36561,14 @@ class $AppDatabaseManager {
       $$TripsTableTableManager(_db, _db.trips);
   $$TripPointsTableTableManager get tripPoints =>
       $$TripPointsTableTableManager(_db, _db.tripPoints);
+  $$ResearchProjectsTableTableManager get researchProjects =>
+      $$ResearchProjectsTableTableManager(_db, _db.researchProjects);
+  $$ResearchFormsTableTableManager get researchForms =>
+      $$ResearchFormsTableTableManager(_db, _db.researchForms);
+  $$ResearchFormVersionsTableTableManager get researchFormVersions =>
+      $$ResearchFormVersionsTableTableManager(_db, _db.researchFormVersions);
+  $$ResearchRecordsTableTableManager get researchRecords =>
+      $$ResearchRecordsTableTableManager(_db, _db.researchRecords);
+  $$ResearchDraftsTableTableManager get researchDrafts =>
+      $$ResearchDraftsTableTableManager(_db, _db.researchDrafts);
 }

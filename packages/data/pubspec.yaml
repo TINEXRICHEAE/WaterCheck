@@ -13,6 +13,8 @@ dependencies:
     sdk: flutter
   domain:
     path: ../domain
+  forms:
+    path: ../forms
   drift: ^2.35.2
   sqlite3: ^3.7.0
   flutter_secure_storage: ^11.2.0

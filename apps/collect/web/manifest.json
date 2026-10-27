@@ -1,11 +1,11 @@
 {
-    "name": "WaterCheck Collect",
+    "name": "FieldQuire Collect",
     "short_name": "Collect",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0F172A",
     "theme_color": "#0F172A",
-    "description": "Record water tests in the field, offline.",
+    "description": "Record water tests and research forms in the field, offline.",
     "orientation": "any",
     "prefer_related_applications": false,
     "icons": [

@@ -48,8 +48,8 @@ The implementation has progressed beyond the original planning snapshot:
 - Test checks run through GitHub Actions and the documented local commands.
 - Production runs on an Azure Ubuntu VM in South Africa North using the
   `Standard_B2als_v2` size.
-- Production is live at `watercheck.cooptconnect.app` and
-  `api.watercheck.cooptconnect.app`, with Caddy-managed HTTPS, PostgreSQL/
+- Production is live at `watercheck.fieldquire.cooptconnect.app` and
+  `api.watercheck.fieldquire.cooptconnect.app`, with Caddy-managed HTTPS, PostgreSQL/
   PostGIS, SeaweedFS, worker, tile server and the Flutter Console.
 - The repeatable deployment procedure is maintained in the root
   [DEPLOYMENT_GUIDE.md](../DEPLOYMENT_GUIDE.md).
@@ -619,6 +619,25 @@ The lead's list of 2026-10-22 (DEVLOG entry 22). It absorbs what was left of sli
 | Email, phone and SMS settings | Profile toggles only; contacts set by the IT admin; prod email goes to Mailpit | Self-service contacts with code confirmation; channel details; real providers |
 | Forgot password | Console request only writes an audit entry for the IT admin; Collect has no password (PIN reset or re-activation) | (a) email reset link (needs real email), (b) SMS code, (c) IT admin reset with requests shown on the admin dashboard. Recommended: c now, a once email works |
 | Fixes without new installers | Web updates by deploying; reference data reaches phones by sync; code changes need new installers/APK | (a) in-app update check that downloads and installs a newer signed installer or APK (user approves), (b) Shorebird code push (paid; Windows support to confirm), (c) Play Store. Recommended: a now, b or c for the pilot |
+
+### 3b. FieldQuire research module (ADR-030), planned 2026-10-26
+
+**The deadline that drives the order:** the CHS4102 placement runs in Entebbe village, Abim, from 19 October to 16 November 2026.
+
+- **Appendix 1 (the log):** in use in weeks 2–3, now.
+- **Appendices 2 and 3:**
+  - pre-tested in a neighbouring village in week 3 (2–8 November);
+  - used on 130 households in week 4 (9–16 November).
+
+So **R1 must be field-ready by about 1 November**, on the web app on phones at least. Until then, Appendix 1 stays on paper and is entered afterwards.
+
+| Phase | Content | Target |
+|---|---|---|
+| **R1 Field core** | `research` schema, API and sync. `packages/forms`: the definition and expression engine, and a renderer for the types the three appendices use (note, text, number, yes/no, choose one/many with Other, Likert, date, GPS, photo, consent, group, repeat, research number). The sample admin with the three appendix forms and Table 6. **Collect › Research:** forms, filling offline, drafts, sync, a map of own points. **Console › Research:** projects, forms, the record table, the record with photos, the project map. Water/Research choice at sign-in. `research.fieldquire.cooptconnect.app` on dev and production. *(Cloning and messages on records moved to R2.)* | ~1 Nov · **built on dev 26 Oct** (DEVLOG 48) |
+| **R2 Authoring and access** | The form builder (all types, skip logic, validation, preview); publish and versions; collectors assigned, by code, open or hidden; public/private/shared visibility and cloning; self sign-up for researchers; XLSForm import and export. The FieldQuire rename (names, titles, logo). The Console's research part laid out like water testing; messages on records. | ~8 Nov · **built on dev 27 Oct except self sign-up** (DEVLOG 49) |
+| **R3 Media** | Audio (≤ 5 min) and video (≤ 60 s, 480p) capture, compressed; barcode/QR; Wi-Fi uploads; media in records and the zip export. | ~15 Nov |
+| **R4 Analysis** | Summaries and charts, indicator tables against targets (Table 6), cross-tabs, filters; CSV/Excel/GeoJSON exports; visit audit. A basic Table 6 summary comes earlier if needed for week 4. | ~22 Nov · **built on dev 27 Oct** (DEVLOG 49; date and collector filters still to come) |
+| **R5 Release** | Privacy Policy and Terms (research section, version 4); Android and Windows releases; deployment guide; storage per project for admins. | ~29 Nov |
 
 ### P12. Hardening and pilot release ⏱ 3 (+ field time)
 **Operations items carried from the Copilot baseline and the rounds above:**

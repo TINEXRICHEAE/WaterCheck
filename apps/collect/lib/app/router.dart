@@ -11,6 +11,11 @@ import '../features/collectors/tester_account_screen.dart';
 import '../features/collectors/collector_form_screen.dart';
 import '../features/collectors/who_is_testing_screen.dart';
 import '../features/home/home_screen.dart';
+import '../features/research/fill_screen.dart';
+import '../features/research/record_screen.dart';
+import '../features/research/research.dart';
+import '../features/research/research_home.dart';
+import '../features/research/research_map.dart';
 import '../features/collectors/recover_profile_screen.dart';
 import '../features/map/map_screen.dart';
 import '../features/settings/reference_detail_screens.dart';
@@ -161,6 +166,16 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
         ],
       ),
+      // Research (ADR-030): filling a record, and one finished record.
+      GoRoute(
+        path: '/research/fill/:id',
+        builder: (_, state) => FillScreen(draftId: state.pathParameters['id']!),
+      ),
+      GoRoute(
+        path: '/research/record/:id',
+        builder: (_, state) =>
+            RecordScreen(recordId: state.pathParameters['id']!),
+      ),
       GoRoute(
         path: '/alerts/:id',
         builder: (_, state) =>
@@ -191,16 +206,18 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state, shell) => _CollectShell(shell: shell),
         branches: [
           StatefulShellBranch(
-            routes: [GoRoute(path: '/', builder: (_, _) => const HomeScreen())],
+            routes: [GoRoute(path: '/', builder: (_, _) => const _ModeHome())],
           ),
           StatefulShellBranch(
             routes: [
               GoRoute(
                 path: '/map',
-                builder: (_, state) => MapScreen(
-                  areaId: state.uri.queryParameters['area'],
-                  sourceId: state.uri.queryParameters['source'],
-                  placeId: state.uri.queryParameters['place'],
+                builder: (_, state) => _ModeMap(
+                  water: MapScreen(
+                    areaId: state.uri.queryParameters['area'],
+                    sourceId: state.uri.queryParameters['source'],
+                    placeId: state.uri.queryParameters['place'],
+                  ),
                 ),
               ),
             ],
@@ -254,16 +271,43 @@ final routerProvider = Provider<GoRouter>((ref) {
   return router;
 });
 
-class _CollectShell extends StatelessWidget {
+/// Home: water sources, or the research forms (ADR-030).
+class _ModeHome extends ConsumerWidget {
+  const _ModeHome();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) =>
+      ref.watch(appModeProvider) == AppMode.research
+      ? const ResearchHome()
+      : const HomeScreen();
+}
+
+/// The map: water sources, or this tester's research points.
+class _ModeMap extends ConsumerWidget {
+  const _ModeMap({required this.water});
+
+  final Widget water;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) =>
+      ref.watch(appModeProvider) == AppMode.research
+      ? const ResearchMapScreen()
+      : water;
+}
+
+class _CollectShell extends ConsumerWidget {
   const _CollectShell({required this.shell});
 
   final StatefulNavigationShell shell;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
+    final research = ref.watch(appModeProvider) == AppMode.research;
     final items = [
-      (Icons.water_drop_outlined, Icons.water_drop, l10n.navHome),
+      research
+          ? (Icons.assignment_outlined, Icons.assignment, l10n.navForms)
+          : (Icons.water_drop_outlined, Icons.water_drop, l10n.navHome),
       (Icons.map_outlined, Icons.map, l10n.navMap),
       (Icons.cloud_upload_outlined, Icons.cloud_upload, l10n.navSync),
       (Icons.settings_outlined, Icons.settings, l10n.navSettings),

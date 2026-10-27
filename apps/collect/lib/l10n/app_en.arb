@@ -1,6 +1,6 @@
 {
   "@@locale": "en",
-  "appTitle": "WaterCheck Collect",
+  "appTitle": "FieldQuire Collect",
   "navHome": "Home",
   "navSync": "Sync",
   "navSettings": "Settings",
@@ -14,7 +14,7 @@
   "settingsReferenceData": "Reference data",
   "settingsReferenceDataHint": "Parameters, limits, tester profiles and areas on this device",
   "settingsAbout": "About",
-  "settingsAboutBody": "WaterCheck Collect {version}. Water quality screening for communities across Uganda. Results are screening only, not laboratory confirmation.",
+  "settingsAboutBody": "FieldQuire Collect {version}. Water quality screening for communities across Uganda. Results are screening only, not laboratory confirmation.",
   "@settingsAboutBody": {
     "placeholders": {
       "version": {
@@ -22,11 +22,11 @@
       }
     }
   },
-  "startupFailed": "WaterCheck could not open its data on this device.",
+  "startupFailed": "FieldQuire could not open its data on this device.",
   "startupRetry": "Try again",
-  "welcomeTitle": "Welcome to WaterCheck",
+  "welcomeTitle": "Welcome to FieldQuire",
   "privacyHeading": "In short",
-  "privacyBody": "WaterCheck records water tests at shared water sources so that communities and districts can act when water may be unsafe.\n\nWith each test it saves your name, the area you give, where you tested (GPS) and any pictures of the test or the source, with where and when each was taken. Places you add to the map show your name. Trips you follow with Go stay on this device. Your phone and email are optional. Stakeholders for the area see your records and can contact you; other testers see results and your name, not your contacts.\n\nWaterCheck does not ask for national ID numbers or information about households. Please do not photograph people.\n\nYour work is kept on this device (encrypted in the Android and Windows apps) and sent to the WaterCheck server, hosted outside Uganda (South Africa), when there is internet. You can edit your details, or delete your profile, any time under My profile.\n\nA test result is a warning, not a guarantee that water is safe: always follow the advice of your health officials.",
+  "privacyBody": "FieldQuire records water tests at shared water sources so that communities and districts can act when water may be unsafe.\n\nWith each test it saves your name, the area you give, where you tested (GPS) and any pictures of the test or the source, with where and when each was taken. Places you add to the map show your name. Trips you follow with Go stay on this device. Your phone and email are optional. Stakeholders for the area see your records and can contact you; other testers see results and your name, not your contacts.\n\nFieldQuire does not ask for national ID numbers or information about households. Please do not photograph people.\n\nYour work is kept on this device (encrypted in the Android and Windows apps) and sent to the FieldQuire server, hosted outside Uganda (South Africa), when there is internet. You can edit your details, or delete your profile, any time under My profile.\n\nA test result is a warning, not a guarantee that water is safe: always follow the advice of your health officials.",
   "privacyVersion": "Privacy notice version {version}",
   "@privacyVersion": {
     "placeholders": {
@@ -55,7 +55,7 @@
   "profileDistrict": "District",
   "profileOrganisation": "Group or organisation (optional)",
   "profileOrganisationHint": "e.g. COBERS team, school",
-  "profileNoId": "Do not enter a national ID number. WaterCheck does not need it.",
+  "profileNoId": "Do not enter a national ID number. FieldQuire does not need it.",
   "profileSave": "Save",
   "fieldRequired": "Please fill this in",
   "phoneInvalid": "Enter a Ugandan phone number, e.g. 0772 123456",
@@ -93,8 +93,8 @@
   "sourceLocationInvalid": "Enter a number between -90 and 90 (latitude) or -180 and 180 (longitude)",
   "sourceLocationPoorAccuracy": "Accuracy is poor. Stand in the open near the source and try again if you can.",
   "locationServiceOff": "Location is switched off on this device. Switch it on in the device settings.",
-  "locationDenied": "WaterCheck may not use your location. Allow it to record where the source is.",
-  "locationDeniedForever": "Location access is blocked for WaterCheck. Allow it in the device settings.",
+  "locationDenied": "FieldQuire may not use your location. Allow it to record where the source is.",
+  "locationDeniedForever": "Location access is blocked for FieldQuire. Allow it in the device settings.",
   "locationTimeout": "No GPS signal yet. Move into the open and try again.",
   "locationUnavailable": "The location could not be found on this device. You can type the coordinates.",
   "sourceSave": "Save source",
@@ -330,7 +330,7 @@
     }
   },
   "activationTitle": "Activate this device",
-  "activationIntro": "Enter the activation code from your IT admin. This needs the internet once. After that, WaterCheck works without internet and nobody needs to log in.",
+  "activationIntro": "Enter the activation code from your IT admin. This needs the internet once. After that, FieldQuire works without internet and nobody needs to log in.",
   "activationCodeLabel": "Activation code",
   "activationScan": "Scan QR code",
   "activationServer": "Server address",
@@ -340,7 +340,7 @@
   "activationWorking": "Activating…",
   "activationCodeFormat": "An activation code has 12 letters and numbers, like K7QM-RT4W-9XHB.",
   "activationServerFormat": "The server address must start with http:// or https://.",
-  "activationBadQr": "That QR code is not a WaterCheck activation code.",
+  "activationBadQr": "That QR code is not a FieldQuire activation code.",
   "activationInvalidCode": "This code is not recognised. Check it and try again.",
   "activationExpiredCode": "This code has expired. Ask the IT admin for a new one.",
   "activationUsedUp": "This code has already been used on as many devices as allowed. Ask the IT admin for a new one.",
@@ -355,25 +355,25 @@
   },
   "scanHint": "Point the camera at the QR code from the IT admin.",
   "scanCameraUnavailable": "The camera cannot be used. Type the code instead.",
-  "lockMessage": "WaterCheck is locked.",
-  "lockBiometricReason": "Unlock WaterCheck",
+  "lockMessage": "FieldQuire is locked.",
+  "lockBiometricReason": "Unlock FieldQuire",
   "lockForgot": "Forgot PIN?",
   "lockForgotTitle": "Forgot your PIN?",
-  "lockForgotBody": "The PIN cannot be recovered. Resetting the app saves unsent records to an encrypted file for the IT admin, then erases WaterCheck from this device so it can be activated again.",
+  "lockForgotBody": "The PIN cannot be recovered. Resetting the app saves unsent records to an encrypted file for the IT admin, then erases FieldQuire from this device so it can be activated again.",
   "lockForgotReset": "Reset the app",
-  "lockSetupTitle": "Choose a PIN to protect WaterCheck",
+  "lockSetupTitle": "Choose a PIN to protect FieldQuire",
   "lockTurnOff": "Turn off app lock",
   "lockOffTitle": "Turn off the app lock?",
-  "lockOffBody": "Anyone who picks up this device can then open WaterCheck and see the records on it.",
+  "lockOffBody": "Anyone who picks up this device can then open FieldQuire and see the records on it.",
   "lockBiometricOfferTitle": "Use your fingerprint too?",
   "lockBiometricOfferBody": "You can unlock with your fingerprint or face. The PIN still works.",
   "lockBiometricYes": "Yes",
   "lockBiometricNo": "No, PIN only",
   "lockCurrentPin": "Enter your current PIN",
   "revokedTitle": "This device has been switched off",
-  "revokedBody": "The IT admin has stopped this device from sending data. Save any unsent records to a file and give it to the IT admin. Then erase WaterCheck from this device.",
+  "revokedBody": "The IT admin has stopped this device from sending data. Save any unsent records to a file and give it to the IT admin. Then erase FieldQuire from this device.",
   "resetTitle": "Reset this device",
-  "resetBody": "This erases all WaterCheck data from this device and returns it to activation. Save unsent records to a file first and give it to the IT admin.",
+  "resetBody": "This erases all FieldQuire data from this device and returns it to activation. Save unsent records to a file first and give it to the IT admin.",
   "resetCounting": "Checking for unsent records…",
   "resetNothingUnsent": "Everything has been sent.",
   "resetUnsent": "{count, plural, =1{1 record not sent} other{{count} records not sent}}",
@@ -384,15 +384,15 @@
       }
     }
   },
-  "resetFileHint": "The file is encrypted. Only the WaterCheck server can open it.",
+  "resetFileHint": "The file is encrypted. Only the FieldQuire server can open it.",
   "resetSave": "Save unsent records to a file",
   "resetSaveAgain": "Saved. Save another copy",
   "resetSaved": "File saved.",
   "resetNotSaved": "Not saved.",
   "resetSaveFailed": "The file could not be saved. Try again.",
   "resetErase": "Erase this device",
-  "resetConfirmTitle": "Erase WaterCheck from this device?",
-  "resetConfirmBody": "All WaterCheck data on this device will be erased. This cannot be undone.",
+  "resetConfirmTitle": "Erase FieldQuire from this device?",
+  "resetConfirmBody": "All FieldQuire data on this device will be erased. This cannot be undone.",
   "resetConfirmLoses": "{count, plural, =1{1 record has not been sent or saved and will be lost.} other{{count} records have not been sent or saved and will be lost.}} This cannot be undone.",
   "@resetConfirmLoses": {
     "placeholders": {
@@ -418,14 +418,14 @@
     }
   },
   "settingsAppLock": "App lock",
-  "settingsAppLockHint": "Ask for a PIN when WaterCheck opens",
+  "settingsAppLockHint": "Ask for a PIN when FieldQuire opens",
   "settingsChangePin": "Change PIN",
   "settingsBiometric": "Unlock with fingerprint or face",
   "settingsReset": "Reset this device",
-  "settingsResetHint": "Save unsent records, then erase WaterCheck",
+  "settingsResetHint": "Save unsent records, then erase FieldQuire",
   "syncNow": "Sync now",
   "syncRunning": "Sending and receiving…",
-  "syncOffline": "No connection. WaterCheck will try again by itself (next try about {when}).",
+  "syncOffline": "No connection. FieldQuire will try again by itself (next try about {when}).",
   "@syncOffline": {
     "placeholders": {
       "when": {
@@ -433,7 +433,7 @@
       }
     }
   },
-  "syncServerProblem": "The server did not answer ({code}). WaterCheck will try again by itself (next try about {when}).",
+  "syncServerProblem": "The server did not answer ({code}). FieldQuire will try again by itself (next try about {when}).",
   "@syncServerProblem": {
     "placeholders": {
       "code": {
@@ -476,7 +476,7 @@
   "photoChoose": "Choose photo",
   "photoSaved": "Photo saved. It will upload when the device is on Wi-Fi.",
   "photoLowStorage": "This device is almost full (less than 100 MB free). Photos are switched off so readings can still be saved. Free some space to add photos.",
-  "photoNotImage": "That file is not a photo WaterCheck can use.",
+  "photoNotImage": "That file is not a photo FieldQuire can use.",
   "photoWaiting": "Waiting to upload",
   "photoUploaded": "Uploaded",
   "photoRejected": "Not accepted by the server",
@@ -503,7 +503,7 @@
   "smsOfferButton": "Send by SMS",
   "smsOfferFailed": "This device cannot open the SMS app.",
   "limitsStakeholderTitle": "Stakeholder approval",
-  "limitsStakeholderHint": "Only a stakeholder can change limits. Sign in with your WaterCheck Console account: the change is recorded under your name with your reason. Needs a connection; you are signed out right after.",
+  "limitsStakeholderHint": "Only a stakeholder can change limits. Sign in with your FieldQuire Console account: the change is recorded under your name with your reason. Needs a connection; you are signed out right after.",
   "limitsStakeholderUsername": "Stakeholder username",
   "limitsStakeholderPassword": "Password",
   "limitsStakeholderApprove": "Approve and use",
@@ -837,7 +837,7 @@
   },
   "messagesNone": "No messages yet. Messages about your tests and sources, and replies from stakeholders, appear here.",
   "messagesEmpty": "No messages yet. Ask a question or add a note; stakeholders see it in the Console.",
-  "messagesAbout": "{kind, select, test{Test} source{Source} collector{Collector} area{Area} other{Thread}}",
+  "messagesAbout": "{kind, select, test{Test} source{Source} collector{Collector} area{Area} research{Research record} other{Thread}}",
   "@messagesAbout": {
     "placeholders": {
       "kind": {
@@ -1039,6 +1039,126 @@
       }
     }
   },
-  "locationBlockedWeb": "This browser is not letting WaterCheck see your location. Allow location for this site (the icon in the address bar, or the site settings), then try again. On iPhone: Settings › Privacy & Security › Location Services › Safari Websites › While Using the App, then choose Allow in Safari.",
-  "locationOffWeb": "Location is switched off for this browser or device. On iPhone: Settings › Privacy & Security › Location Services, switch it on, and set Safari Websites to While Using the App. On Android: switch Location on, and allow it for the browser."
+  "locationBlockedWeb": "This browser is not letting FieldQuire see your location. Allow location for this site (the icon in the address bar, or the site settings), then try again. On iPhone: Settings › Privacy & Security › Location Services › Safari Websites › While Using the App, then choose Allow in Safari.",
+  "locationOffWeb": "Location is switched off for this browser or device. On iPhone: Settings › Privacy & Security › Location Services, switch it on, and set Safari Websites to While Using the App. On Android: switch Location on, and allow it for the browser.",
+  "modeChoose": "What are you here for?",
+  "modeWater": "Water testing",
+  "modeResearch": "Research",
+  "navForms": "Forms",
+  "researchTitle": "Research",
+  "researchForms": "Forms to fill",
+  "researchNoForms": "No research forms yet. They appear here once a researcher publishes one you may use. Sync to check.",
+  "researchStart": "Start",
+  "researchDrafts": "Not finished",
+  "researchNoNumber": "No number yet",
+  "researchMine": "My records",
+  "researchNone": "No records yet.",
+  "researchSent": "Sent",
+  "researchWaiting": "Waiting to send",
+  "researchClash": "Number used twice: your supervisor will check",
+  "researchNumberLabel": "Research number",
+  "researchNumberTyped": "Type the number from your list. Never a name.",
+  "researchNumberGenerated": "Given by the app; it shows on the map instead of a name.",
+  "researchNumberMissing": "Give the research number",
+  "researchNumberUsed": "{number} is already used in this project. Keep it anyway? Your supervisor will see both.",
+  "@researchNumberUsed": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "researchKeepNumber": "Keep it",
+  "researchChangeNumber": "Change it",
+  "researchIssues": "{count, plural, =1{1 answer needs attention} other{{count} answers need attention}}",
+  "@researchIssues": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "researchSaveClose": "Save and close",
+  "researchFinish": "Finish",
+  "researchFinished": "Saved {number}. It is sent when there is internet.",
+  "@researchFinished": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "researchDiscard": "Discard this record",
+  "researchDiscardTitle": "Discard this unfinished record and its pictures?",
+  "researchNoPoint": "Finding where you are… The record keeps the first location found.",
+  "researchPointAt": "Location: {point} (±{metres} m)",
+  "@researchPointAt": {
+    "placeholders": {
+      "point": {
+        "type": "String"
+      },
+      "metres": {
+        "type": "String"
+      }
+    }
+  },
+  "researchMap": "My research points",
+  "researchMapNone": "Your records with a location show here, by research number.",
+  "researchRecordTitle": "Record {number}",
+  "@researchRecordTitle": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "researchStartedAt": "Started {when}",
+  "@researchStartedAt": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "researchDeclined": "Declined: no consent, so no questions were asked.",
+  "researchWhichForm": "Which form?",
+  "researchJoinTitle": "Join with a code",
+  "researchJoinHint": "Type the access code the research team gave you. This needs the internet once.",
+  "researchJoinCode": "Access code",
+  "researchJoin": "Join",
+  "researchJoinWrong": "That code does not open any form. Check it with the research team.",
+  "researchJoinOffline": "No connection. Join when you have internet.",
+  "researchJoinFailed": "Could not join ({code}). Try again.",
+  "@researchJoinFailed": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "researchJoined": "Joined. The form is on this phone now.",
+  "researchSearch": "Search by research number or form",
+  "researchFilterAll": "All",
+  "researchFilterFlagged": "To check",
+  "researchMineCount": "{count, plural, =0{My records} =1{My records (1)} other{My records ({count})}}",
+  "@researchMineCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "researchFill": "Fill a form",
+  "researchTookMinutes": "Took {minutes} min",
+  "@researchTookMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "researchNoLocation": "No location",
+  "researchAnswers": "Answers",
+  "researchMessagesTitle": "Messages with the research team",
+  "researchOpenRecord": "Open the record"
 }

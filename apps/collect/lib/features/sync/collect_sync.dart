@@ -115,6 +115,8 @@ List<String> collectStreams(
       ?.id;
   return [
     'reference',
+    // Research forms and this device's testers' records (ADR-030).
+    'research',
     for (final area in {
       // A device that registered itself has no area (ADR-024).
       if (c.hasArea) districtOf(c.areaId, byId) ?? c.areaId,

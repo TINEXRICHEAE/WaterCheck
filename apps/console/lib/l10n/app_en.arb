@@ -1,6 +1,6 @@
 {
   "@@locale": "en",
-  "appTitle": "WaterCheck Console",
+  "appTitle": "FieldQuire Console",
   "navDashboard": "Dashboard",
   "navSources": "Sources",
   "navAlerts": "Alerts",
@@ -23,10 +23,10 @@
   "adminReferenceData": "Reference data",
   "adminReferenceDataHint": "Parameters, limits, tester profiles and areas loaded on this device",
   "adminMoreHint": "Changes here reach the devices with their next sync.",
-  "startupFailed": "WaterCheck Console could not open its local data.",
+  "startupFailed": "FieldQuire Console could not open its local data.",
   "startupRetry": "Try again",
   "cancel": "Cancel",
-  "signInTitle": "Sign in to WaterCheck Console",
+  "signInTitle": "Sign in to FieldQuire Console",
   "signInUsername": "Username",
   "signInUsernameHint": "Your phone number or email, as given by the IT admin",
   "signInPassword": "Password",
@@ -164,7 +164,7 @@
   "alertNoteHint": "For example: chlorinated the borehole, advised households to boil water",
   "alertSave": "Save",
   "alertHistory": "History",
-  "alertBySystem": "WaterCheck",
+  "alertBySystem": "FieldQuire",
   "alertByYou": "you",
   "alertByStakeholder": "a stakeholder",
   "eventAcknowledged": "Acknowledged",
@@ -503,7 +503,7 @@
   "noticeLimitationNoGermTest": "This test cannot detect germs. Boiling is still the safest choice.",
   "noticeLimitationGermNegative": "No E. coli was found in this test, but water can become unsafe at any time.",
   "noticeContact": "Questions: ask the village health team (VHT) or the health inspector.",
-  "noticePrinted": "Printed {date} from WaterCheck",
+  "noticePrinted": "Printed {date} from FieldQuire",
   "@noticePrinted": {
     "placeholders": {
       "date": {
@@ -1051,7 +1051,7 @@
   "cardsReportNote": "Note on reporting",
   "cardsSave": "Save new version",
   "cardsSaved": "Card saved",
-  "accountAbout": "About WaterCheck",
+  "accountAbout": "About FieldQuire",
   "appearanceTitle": "Appearance and time",
   "appearanceHint": "Saved with your account, so they follow you to any device.",
   "appearanceLocalOnly": "Saved on this device only: the server could not be reached.",
@@ -1209,7 +1209,7 @@
   "lockHint": "Optional. Turn it off on an office computer shared with colleagues; anyone using this device then sees your areas.",
   "lockAdminRequired": "Required for IT admins, who can change people, devices and records.",
   "lockOffTitle": "Turn off the PIN?",
-  "lockOffBody": "WaterCheck will open on this device without a PIN, and stay open when no one is using it. Sign out when you leave a shared computer.",
+  "lockOffBody": "FieldQuire will open on this device without a PIN, and stay open when no one is using it. Sign out when you leave a shared computer.",
   "lockOffConfirm": "Turn off",
   "recoveryAction": "Sign-in code for another device",
   "recoveryTitle": "Code for {name}",
@@ -1220,7 +1220,7 @@
       }
     }
   },
-  "recoveryHow": "Give this code to the collector (call or text them). In WaterCheck Collect on any phone: \"Who is testing?\" › \"I already have a profile\" › enter the code. They come back as the same person, with their details. The code works once.",
+  "recoveryHow": "Give this code to the collector (call or text them). In FieldQuire Collect on any phone: \"Who is testing?\" › \"I already have a profile\" › enter the code. They come back as the same person, with their details. The code works once.",
   "recoveryValid": "Valid until {when}.",
   "@recoveryValid": {
     "placeholders": {
@@ -1512,7 +1512,7 @@
   "messagesHint": "Conversations with collectors about tests, sources, collectors and areas. No SMS or email: everyone reads them in the apps.",
   "messagesNone": "No messages yet.",
   "messagesEmpty": "No messages yet. Write to the collectors here; they read it in Collect after their next sync.",
-  "messagesAbout": "{kind, select, test{Test} source{Source} collector{Collector} area{Area} other{Thread}}",
+  "messagesAbout": "{kind, select, test{Test} source{Source} collector{Collector} area{Area} research{Research record} other{Thread}}",
   "@messagesAbout": {
     "placeholders": {
       "kind": {
@@ -1707,7 +1707,7 @@
   "areaRequestApprove": "Approve",
   "areaRequestDecline": "Decline",
   "legalTitle": "Before you continue",
-  "legalSummary": "WaterCheck holds personal information about testers and officials: names, contacts, where tests were made, pictures with where and when they were taken, places people added, and messages. As a Console user you see this for your areas. Use it only to protect drinking water, keep it to yourself, and follow the Terms of Use. The data is hosted outside Uganda (South Africa).",
+  "legalSummary": "FieldQuire holds personal information about testers and officials: names, contacts, where tests were made, pictures with where and when they were taken, places people added, and messages. As a Console user you see this for your areas. Use it only to protect drinking water, keep it to yourself, and follow the Terms of Use. The data is hosted outside Uganda (South Africa).",
   "mapPlaceRename": "Rename",
   "mapPlaceRenameTitle": "Rename this place",
   "mapPlaceRemove": "Remove",
@@ -1728,5 +1728,684 @@
     }
   },
   "mapPlaceNotChanged": "Not changed: the server could not be reached. Try again.",
-  "mapLocationHelp": "Your location is not available. Allow location for this site (the icon in the address bar, or the site settings) and switch location on for the device. On iPhone: Settings › Privacy & Security › Location Services › Safari Websites › While Using the App. A laptop without GPS may show an approximate place."
+  "mapLocationHelp": "Your location is not available. Allow location for this site (the icon in the address bar, or the site settings) and switch location on for the device. On iPhone: Settings › Privacy & Security › Location Services › Safari Websites › While Using the App. A laptop without GPS may show an approximate place.",
+  "modeWater": "Water testing",
+  "modeResearch": "Research",
+  "researchProjects": "Research projects",
+  "researchNoProjects": "No research projects yet. Projects you own or help supervise appear here.",
+  "researchFormsCount": "{count, plural, =1{1 form} other{{count} forms}}",
+  "@researchFormsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "researchRecordsCount": "{count, plural, =0{no records} =1{1 record} other{{count} records}}",
+  "@researchRecordsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "researchFormsTitle": "Forms",
+  "researchPointsTitle": "Where records were made ({count})",
+  "@researchPointsTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "researchPublished": "Published",
+  "researchClosed": "Closed",
+  "researchDraft": "Draft",
+  "researchAccessOpen": "Any collector",
+  "researchAccessCode": "With a code",
+  "researchAccessAssigned": "Assigned collectors",
+  "researchHidden": "Hidden",
+  "researchPublic": "Public",
+  "researchShared": "Shared",
+  "researchPrivate": "Private",
+  "researchRecords": "Records",
+  "researchSearchNumber": "Search by research number",
+  "researchNoLocation": "No location",
+  "researchDeclinedShort": "Declined",
+  "researchClash": "Number used twice: check with the collector",
+  "researchMore": "Show more",
+  "researchRecordTitle": "Record {number}",
+  "@researchRecordTitle": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "researchMinutes": "{minutes} min",
+  "@researchMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "researchPointAt": "Location: {point} (±{metres} m)",
+  "@researchPointAt": {
+    "placeholders": {
+      "point": {
+        "type": "String"
+      },
+      "metres": {
+        "type": "String"
+      }
+    }
+  },
+  "researchErrCodeTaken": "That code is already used. Choose another.",
+  "researchErrNoUser": "No active account signs in with that email.",
+  "researchErrNothingToPublish": "There are no changes to publish.",
+  "researchErrNoFields": "Add at least one question before publishing.",
+  "researchErrAnalyst": "Analysts can read and analyse, not change the project.",
+  "researchErrOwnerOnly": "Only the project's owner can do this.",
+  "researchErrNothingToClone": "This form has nothing to copy yet.",
+  "researchErrInvalid": "The form could not be read. Check it and try again.",
+  "researchErrOffline": "No connection. Try again when online.",
+  "researchErrOther": "Something went wrong ({code}). Try again.",
+  "@researchErrOther": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "researchAppTitle": "Research",
+  "researchProject": "Project",
+  "researchNoProjectYet": "No project yet",
+  "researchNewProject": "New project",
+  "researchTitle": "Title",
+  "researchDescription": "Description",
+  "researchRequired": "Required",
+  "researchProjectCode": "Project code",
+  "researchProjectCodeHint": "2 to 8 letters or digits, e.g. ENT. It starts every research number (ENT-HQ-…) and cannot be changed later.",
+  "researchProjectCodeRule": "Use 2 to 8 letters or digits",
+  "researchCreate": "Create",
+  "researchDashboardHint": "Your research project at a glance: records, forms, collectors and where records were made.",
+  "researchOwnerRole": "Owner: {owner} · You: {role}",
+  "@researchOwnerRole": {
+    "placeholders": {
+      "owner": {
+        "type": "String"
+      },
+      "role": {
+        "type": "String"
+      }
+    }
+  },
+  "researchTeam": "{count, plural, =1{Team (1)} other{Team ({count})}}",
+  "@researchTeam": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "researchKpiRecords": "Records",
+  "researchKpiToday": "{count} made today",
+  "@researchKpiToday": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "researchKpiForms": "Published forms",
+  "researchKpiFormsHint": "{count, plural, =1{1 form in all} other{{count} forms in all}}",
+  "@researchKpiFormsHint": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "researchKpiCollectors": "Collectors",
+  "researchKpiCollectorsHint": "{count} with records",
+  "@researchKpiCollectorsHint": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "researchKpiMessages": "Awaiting an answer",
+  "researchKpiMessagesHint": "Messages from collectors",
+  "researchPointsHint": "Research numbers only, never names. Tap a point to open its record.",
+  "researchOpenMap": "Open the map",
+  "researchLatestRecords": "Latest records",
+  "researchSeeAllRecords": "All records",
+  "researchNoRecordsYet": "No records yet.",
+  "researchNoCollectorsYet": "No collectors yet. Give a form to testers, or share its access code.",
+  "researchLastAt": "last {when}",
+  "@researchLastAt": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "researchRoleOwner": "Owner",
+  "researchRoleSupervisor": "Supervisor",
+  "researchRoleAnalyst": "Analyst",
+  "researchRoleSupervisorHint": "Builds and publishes forms, manages collectors, sees all records.",
+  "researchRoleAnalystHint": "Sees all records and analysis; changes nothing.",
+  "researchWelcomeTitle": "Start your research",
+  "researchWelcomeBody": "Create a project, then build its forms here in the Console (or import an XLSForm, or copy one from the library). Publish a form and give it to collectors: they fill it in Collect, offline, and every record keeps where and when it was made.",
+  "researchLibrary": "Form library",
+  "researchTeamTitle": "Project and team",
+  "researchTeamHint": "Supervisors build forms and manage collectors; analysts read and analyse. People are added by the email they sign in with.",
+  "researchEditProject": "Edit the project",
+  "researchRemove": "Remove",
+  "researchRemoveMemberTitle": "Remove from the project?",
+  "researchRemoveMemberBody": "{name} will no longer see the project or its records.",
+  "@researchRemoveMemberBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "researchAddMember": "Add a person",
+  "researchMemberEmail": "Their sign-in email",
+  "researchMemberEmailHint": "They need a Console account. An IT admin can make one.",
+  "researchAdd": "Add",
+  "researchSave": "Save",
+  "researchSaved": "Saved",
+  "researchAllForms": "All forms",
+  "researchAllCollectors": "All collectors",
+  "researchCollectedBy": "Collected by",
+  "researchTook": "took {duration}",
+  "@researchTook": {
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "researchStarted": "started",
+  "researchFinishedAt": "Finished at {point}",
+  "@researchFinishedAt": {
+    "placeholders": {
+      "point": {
+        "type": "String"
+      }
+    }
+  },
+  "researchAnswers": "Answers",
+  "researchMessagesHint": "Talk with the collector about this record. They see it in Collect with their next sync.",
+  "researchMessagesListHint": "Conversations with collectors about records in this project.",
+  "researchNeedsAnswer": "needs an answer",
+  "researchAwaiting": "{count, plural, =1{1 record awaits an answer} other{{count} records await an answer}}",
+  "@researchAwaiting": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "researchFormsHint": "Build forms here, publish them, and choose who collects with them and who may copy them.",
+  "researchNewForm": "New form",
+  "researchImportXlsForm": "Import XLSForm",
+  "researchNoForms": "No forms yet. Start a new form, import an XLSForm, or copy one from the library.",
+  "researchVersion": "version {number}",
+  "@researchVersion": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "researchUnpublishedChanges": "unpublished changes",
+  "researchImportFailed": "That file could not be read as an XLSForm: {reason}",
+  "@researchImportFailed": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "researchImportWarnings": "{count, plural, =1{1 row could not be imported} other{{count} rows could not be imported}}",
+  "@researchImportWarnings": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "researchImportAnyway": "Import the rest",
+  "researchFormCode": "Form code",
+  "researchFormCodeHint": "1 to 6 letters or digits, e.g. HQ. It is part of the research numbers (ENT-HQ-…).",
+  "researchFormCodeRule": "Use 1 to 6 letters or digits",
+  "researchLibraryHint": "Forms other researchers made public or shared with you. Open one to see it, then copy it into your project as a draft.",
+  "researchLibraryEmpty": "No forms are shared with you yet.",
+  "researchFixFirst": "{count, plural, =1{Fix 1 problem first (listed above the questions).} other{Fix {count} problems first (listed above the questions).}}",
+  "@researchFixFirst": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "researchPublishTitle": "Publish the form?",
+  "researchPublishFirstBody": "Collectors who may use it get it with their next sync.",
+  "researchPublishBody": "This becomes version {number}. Collectors get it with their next sync; records already made keep the version they were filled with.",
+  "@researchPublishBody": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "researchPublish": "Publish",
+  "researchPublishedNow": "Published. Collectors get it with their next sync.",
+  "researchDiscardTitle": "Discard the changes?",
+  "researchDiscardBody": "The form goes back to its published version.",
+  "researchDiscard": "Discard changes",
+  "researchCopyForm": "Copy to my project",
+  "researchExportXlsForm": "Download XLSForm",
+  "researchSeeRecords": "See its records",
+  "researchDraftNote": "Changes are saved as a draft. Collectors keep the published version until you publish again.",
+  "researchTabQuestions": "Questions",
+  "researchTabAccess": "Access and sharing",
+  "researchTabVersions": "Versions",
+  "researchTabPreview": "Try it",
+  "researchNeedProject": "Create a project first.",
+  "researchWhoCollects": "Who may collect with this form",
+  "researchAccessAssignedHint": "Only testers you give the form to (Collectors).",
+  "researchAccessCodeHint": "Testers who type the form's access code in Collect, and those you give it to.",
+  "researchAccessOpenHint": "Any tester on Collect, unless the form is hidden.",
+  "researchCodeHint": "Testers type this code in Collect › Research to join.",
+  "researchCopyCode": "Copy the code",
+  "researchNewCode": "New code",
+  "researchNewCodeBody": "The old code stops working. Collectors who already joined keep the form.",
+  "researchFormCollectors": "{count, plural, =0{No collectors yet} =1{1 collector} other{{count} collectors}}",
+  "@researchFormCollectors": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "researchAssign": "Give the form",
+  "researchJoinedWithCode": "joined with the code",
+  "researchAssignedByTeam": "given by the team",
+  "researchHiddenTitle": "Hidden",
+  "researchHiddenHint": "Not listed for browsing or the library. Collectors you gave it to still get it.",
+  "researchOpenForCollection": "Open for collection",
+  "researchOpenForCollectionHint": "Off: collectors can no longer send new records (those made stay).",
+  "researchWhoSees": "Who may see and copy this form",
+  "researchPrivateHint": "Only this project's team.",
+  "researchSharedHint": "The team, and the people you name below.",
+  "researchPublicHint": "Any researcher on FieldQuire (never the records).",
+  "researchShareWith": "Share with a person",
+  "researchAssignTitle": "Give {code} to testers",
+  "@researchAssignTitle": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "researchFindTester": "Find a tester",
+  "researchFindTesterHint": "By name or phone number, as they set it in Collect.",
+  "researchDone": "Done",
+  "researchVersionsHint": "Each publish makes a new version. Records keep the version they were filled with.",
+  "researchNotPublished": "Not published yet.",
+  "researchPublishedOn": "published {when}",
+  "@researchPublishedOn": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "researchCurrent": "Current",
+  "researchPreviewBroken": "The form has a problem; see the list above the questions.",
+  "researchPreviewHint": "Fill the form as a collector would, to try skip logic and checks. Nothing is saved.",
+  "researchPreviewCheck": "Check the answers",
+  "researchPreviewReset": "Start again",
+  "researchPreviewOk": "All answers are accepted. This is what would be saved:",
+  "researchPreviewIssues": "{count, plural, =1{1 answer needs attention} other{{count} answers need attention}}",
+  "@researchPreviewIssues": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "researchCollectorsHint": "Testers collecting for this project, the forms each has, and their records.",
+  "researchGiveForm": "Give a form to testers",
+  "researchHowCollectorsJoin": "How collectors get each form",
+  "researchJoinHint": "Open a form to change who may collect, see its access code, or give it to testers.",
+  "researchCollectorsCount": "{count, plural, =1{1 collector} other{{count} collectors}}",
+  "@researchCollectorsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "researchByCode": "by code",
+  "researchAnalysis": "Analysis",
+  "researchAnalysisHint": "Summaries, cross-tabs, indicators against targets, the visit audit and exports, from the records of one form.",
+  "researchForm": "Form",
+  "researchTabSummary": "Summary",
+  "researchTabCrossTab": "Cross-tab",
+  "researchTabIndicators": "Indicators",
+  "researchTabAudit": "Visit audit",
+  "researchTabExport": "Export",
+  "researchSummaryLine": "{count, plural, =1{1 record} other{{count} records}} · {declined} declined",
+  "@researchSummaryLine": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "declined": {
+        "type": "int"
+      }
+    }
+  },
+  "researchAnswered": "{answered} of {asked} answered",
+  "@researchAnswered": {
+    "placeholders": {
+      "answered": {
+        "type": "int"
+      },
+      "asked": {
+        "type": "int"
+      }
+    }
+  },
+  "researchStatMean": "Mean",
+  "researchStatMedian": "Median",
+  "researchStatMin": "Lowest",
+  "researchStatMax": "Highest",
+  "researchStatTotal": "Total",
+  "researchDateRange": "From {first} to {last}",
+  "@researchDateRange": {
+    "placeholders": {
+      "first": {
+        "type": "String"
+      },
+      "last": {
+        "type": "String"
+      }
+    }
+  },
+  "researchNoAnswers": "No answers yet.",
+  "researchMultiNote": "Several answers per record are possible, so shares add up to more than 100%.",
+  "researchCrossTabNeeds": "A cross-tab needs two choice questions in the form.",
+  "researchRows": "Rows",
+  "researchColumns": "Columns",
+  "researchRowPercent": "Row percentages",
+  "researchTotal": "Total",
+  "researchCrossTabNote": "Declined records are left out. A choose-many answer counts once for each choice.",
+  "researchIndicatorsHint": "Indicators are kept with the project: the share of records where a condition holds, against its target (as in the proposal's indicator table).",
+  "researchNoIndicators": "No indicators for this form yet.",
+  "researchIndicator": "Indicator",
+  "researchResult": "Result",
+  "researchTarget": "Target",
+  "researchStatus": "Status",
+  "researchIndicatorBroken": "Check the expression",
+  "researchMet": "Met",
+  "researchNotMet": "Not met",
+  "researchNoTarget": "No target",
+  "researchAddIndicator": "Add an indicator",
+  "researchIndicatorLabel": "What it measures",
+  "researchNumerator": "Counts records where",
+  "researchNumeratorHint": "An expression, e.g. {example}",
+  "@researchNumeratorHint": {
+    "placeholders": {
+      "example": {
+        "type": "String"
+      }
+    }
+  },
+  "researchDenominator": "Out of records where (optional)",
+  "researchDenominatorHint": "Leave empty for all records that were not declined.",
+  "researchTargetPercent": "Target (%)",
+  "researchAuditHint": "Where and when each record was made, and how long it took, per collector. Flags are prompts to talk with collectors, not verdicts.",
+  "auditTooFast": "very quick",
+  "auditFar": "far from the others",
+  "auditSamePoint": "several at one spot",
+  "auditNoLocation": "no location",
+  "auditMoved": "finished elsewhere",
+  "auditFlagged": "{count} flagged",
+  "@auditFlagged": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "auditUsual": "usually {duration}",
+  "@auditUsual": {
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "auditKm": "{km} km from the centre",
+  "@auditKm": {
+    "placeholders": {
+      "km": {
+        "type": "String"
+      }
+    }
+  },
+  "auditNote": "Very quick: under a third of the form's usual time (at least 2 minutes). Far: over 5 km from the middle of all records. Several at one spot: 3 or more within 15 m by the same collector.",
+  "researchExportHint": "{count, plural, =1{1 record} other{{count} records}}. Repeats come as their own sheets, linked by research number.",
+  "@researchExportHint": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "researchExportLabels": "Choice labels",
+  "researchExportLabelsHint": "\"Boiling\" rather than the code \"boiling\".",
+  "researchExportIdentifying": "Include identifying answers",
+  "researchExportIdentifyingHint": "Names, phone numbers and other fields marked identifying. Off by default: research numbers stand for participants.",
+  "researchExportExcel": "Excel",
+  "researchExportCsv": "CSV",
+  "researchExportGeoJson": "GeoJSON (map)",
+  "researchExportMedia": "Pictures ({count})",
+  "@researchExportMedia": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "researchMediaProgress": "Getting pictures: record {done} of {total}",
+  "@researchMediaProgress": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "researchAdminHint": "IT admins see every research project. People, phones and the system are shared with water testing.",
+  "researchAdminPeople": "People and accounts",
+  "researchAdminPhones": "Phones",
+  "researchAdminSecurity": "Security",
+  "researchAdminSystem": "System",
+  "researchAdminAll": "All administration",
+  "researchAllProjects": "{count, plural, =1{1 research project} other{{count} research projects}}",
+  "@researchAllProjects": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "fieldNote": "Note",
+  "fieldText": "Text",
+  "fieldInteger": "Whole number",
+  "fieldDecimal": "Decimal number",
+  "fieldYesNo": "Yes / no",
+  "fieldSelectOne": "Choose one",
+  "fieldSelectMany": "Choose many",
+  "fieldLikert": "Scale (Likert)",
+  "fieldRange": "Range",
+  "fieldDate": "Date",
+  "fieldTime": "Time",
+  "fieldDateTime": "Date and time",
+  "fieldGeopoint": "GPS point",
+  "fieldPhoto": "Photo",
+  "fieldAudio": "Audio",
+  "fieldVideo": "Video",
+  "fieldBarcode": "Barcode / QR",
+  "fieldCalculate": "Calculation",
+  "fieldConsent": "Consent",
+  "fieldGroup": "Section",
+  "fieldRepeat": "Repeat (rows)",
+  "builderPickType": "What kind of question?",
+  "builderOption": "Option {number}",
+  "@builderOption": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "builderSettings": "Form settings",
+  "builderNumbering": "Research numbers",
+  "builderNumberingGenerated": "Made by the phone",
+  "builderNumberingTyped": "Typed from a list",
+  "builderNumberingGeneratedHint": "Each phone makes unique numbers without a connection: project, form, phone and a count, e.g. ENT-HQ-7Q2K-0007.",
+  "builderNumberingTypedHint": "Collectors type the number from the team's list (e.g. the sampling list). A number used twice is kept and flagged.",
+  "builderNumberLabel": "What the team calls the number (e.g. Household code)",
+  "builderProblems": "{count, plural, =1{1 problem to fix before publishing} other{{count} problems to fix before publishing}}",
+  "@builderProblems": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "builderQuestions": "{count, plural, =1{1 question} other{{count} questions}}",
+  "@builderQuestions": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "builderAddQuestion": "Add a question",
+  "builderEmpty": "No questions yet. Add the first one; consent usually comes first.",
+  "builderBadgeRequired": "required",
+  "builderBadgeLogic": "skip logic",
+  "builderBadgeCheck": "check",
+  "builderBadgeIdentifying": "identifying",
+  "builderBadgeChoices": "{count} choices",
+  "@builderBadgeChoices": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "builderNoLabel": "(no wording yet)",
+  "builderMore": "More",
+  "builderMoveUp": "Move up",
+  "builderMoveDown": "Move down",
+  "builderDuplicate": "Duplicate",
+  "builderDelete": "Delete",
+  "builderAddInRepeat": "Add a question to each row",
+  "builderAddInGroup": "Add a question to this section",
+  "builderNameRule": "Letters, digits and _ only, not starting with a digit",
+  "builderNameUsed": "Another question has this name",
+  "builderUnknownField": "No question is named \"{name}\"",
+  "@builderUnknownField": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "builderNeedChoices": "Add at least one choice",
+  "builderNeedCalculation": "Write the calculation",
+  "builderNewQuestion": "New question",
+  "builderEditQuestion": "Edit",
+  "builderType": "Kind",
+  "builderLabel": "Question (as asked)",
+  "builderName": "Name",
+  "builderNameHint": "The column name in exports; used in skip logic as {example}.",
+  "@builderNameHint": {
+    "placeholders": {
+      "example": {
+        "type": "String"
+      }
+    }
+  },
+  "builderHint": "Hint (shown under the question)",
+  "builderRequired": "An answer is required",
+  "builderIdentifying": "Identifying",
+  "builderIdentifyingHint": "A name, phone number…: left off maps and out of default exports.",
+  "builderChoices": "Choices",
+  "builderLikertDefault": "Without choices of its own the scale is Agree / Not sure / Disagree.",
+  "builderOther": "Add \"Other: specify\"",
+  "builderOtherHint": "The collector types what the other answer is.",
+  "builderMinRows": "Fewest rows",
+  "builderMaxRows": "Most rows",
+  "builderMin": "Lowest accepted",
+  "builderMax": "Highest accepted",
+  "builderMaxSeconds": "Longest recording (seconds)",
+  "builderMaxAudio": "At most 300 (5 minutes).",
+  "builderMaxVideo": "At most 60 seconds, at 480p.",
+  "builderLogic": "Logic",
+  "builderLogicHint": "Expressions as in XLSForm, e.g. {example}. A dot (.) is this answer.",
+  "@builderLogicHint": {
+    "placeholders": {
+      "example": {
+        "type": "String"
+      }
+    }
+  },
+  "builderRelevant": "Ask only when (skip logic)",
+  "builderRelevantHint": "e.g. {example}",
+  "@builderRelevantHint": {
+    "placeholders": {
+      "example": {
+        "type": "String"
+      }
+    }
+  },
+  "builderConstraint": "Accept only when (check)",
+  "builderConstraintHint": "e.g. . >= 0 and . <= 20",
+  "builderConstraintMessage": "Message when not accepted",
+  "builderDefault": "Default answer",
+  "builderCalculation": "Calculation",
+  "builderCalculationHint": "e.g. {example}",
+  "@builderCalculationHint": {
+    "placeholders": {
+      "example": {
+        "type": "String"
+      }
+    }
+  },
+  "builderChoiceLabel": "Choice {number}",
+  "@builderChoiceLabel": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "builderChoiceValue": "Code",
+  "builderAddChoice": "Add a choice",
+  "builderDone": "Done"
 }

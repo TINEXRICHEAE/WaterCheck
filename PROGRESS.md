@@ -124,12 +124,12 @@ deployment and cache versioning.
   Ubuntu 24.04, `Standard_B2als_v2`, 2 vCPU, 4 GiB RAM, 30 GiB Standard
   SSD, static public IP.
 - [x] DNS configured:
-  `watercheck.cooptconnect.app` and `api.watercheck.cooptconnect.app`.
+  `watercheck.fieldquire.cooptconnect.app` and `api.watercheck.fieldquire.cooptconnect.app`.
 - [x] Docker Engine and Compose installed and verified with `hello-world`.
 - [x] Repository deployed at `~/WaterCheck`; production `.env` remains VM-only
   with mode `600`.
 - [x] Flutter Console built on Windows with
-  `WC_API_URL=https://watercheck.cooptconnect.app/api` and transferred to the
+  `WC_API_URL=https://watercheck.fieldquire.cooptconnect.app/api` and transferred to the
   VM as a compressed archive.
 - [x] Abim map tiles generated on Windows and transferred as
   `infra/tiles/area.mbtiles`; generated tile files remain outside Git.
@@ -138,9 +138,9 @@ deployment and cache versioning.
 - [x] Full Compose stack is healthy: database, migration/seed, API, worker,
   SeaweedFS, tile server and Caddy.
 - [x] Public smoke checks passed:
-  `https://api.watercheck.cooptconnect.app/health`,
-  `https://watercheck.cooptconnect.app/health`,
-  `https://watercheck.cooptconnect.app/api/health`, and the Console root.
+  `https://api.watercheck.fieldquire.cooptconnect.app/health`,
+  `https://watercheck.fieldquire.cooptconnect.app/health`,
+  `https://watercheck.fieldquire.cooptconnect.app/api/health`, and the Console root.
 - [x] Browser confirmation passed: the Console sign-in page loads over HTTPS
   and the API health endpoint returns `{"status":"ok"}`.
 - [ ] Production onboarding: create the first IT admin, stakeholder and

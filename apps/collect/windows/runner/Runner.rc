@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "ug.watercheck" "\0"
-            VALUE "FileDescription", "WaterCheck Collect" "\0"
+            VALUE "FileDescription", "FieldQuire Collect" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
             VALUE "InternalName", "watercheck_collect" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2026 ug.watercheck. All rights reserved." "\0"
             VALUE "OriginalFilename", "watercheck_collect.exe" "\0"
-            VALUE "ProductName", "WaterCheck Collect" "\0"
+            VALUE "ProductName", "FieldQuire Collect" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

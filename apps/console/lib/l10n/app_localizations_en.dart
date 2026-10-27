@@ -10,7 +10,7 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appTitle => 'WaterCheck Console';
+  String get appTitle => 'FieldQuire Console';
 
   @override
   String get navDashboard => 'Dashboard';
@@ -68,7 +68,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get startupFailed =>
-      'WaterCheck Console could not open its local data.';
+      'FieldQuire Console could not open its local data.';
 
   @override
   String get startupRetry => 'Try again';
@@ -77,7 +77,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cancel => 'Cancel';
 
   @override
-  String get signInTitle => 'Sign in to WaterCheck Console';
+  String get signInTitle => 'Sign in to FieldQuire Console';
 
   @override
   String get signInUsername => 'Username';
@@ -344,7 +344,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get alertHistory => 'History';
 
   @override
-  String get alertBySystem => 'WaterCheck';
+  String get alertBySystem => 'FieldQuire';
 
   @override
   String get alertByYou => 'you';
@@ -925,7 +925,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String noticePrinted(String date) {
-    return 'Printed $date from WaterCheck';
+    return 'Printed $date from FieldQuire';
   }
 
   @override
@@ -1780,7 +1780,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cardsSaved => 'Card saved';
 
   @override
-  String get accountAbout => 'About WaterCheck';
+  String get accountAbout => 'About FieldQuire';
 
   @override
   String get appearanceTitle => 'Appearance and time';
@@ -2062,7 +2062,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get lockOffBody =>
-      'WaterCheck will open on this device without a PIN, and stay open when no one is using it. Sign out when you leave a shared computer.';
+      'FieldQuire will open on this device without a PIN, and stay open when no one is using it. Sign out when you leave a shared computer.';
 
   @override
   String get lockOffConfirm => 'Turn off';
@@ -2077,7 +2077,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get recoveryHow =>
-      'Give this code to the collector (call or text them). In WaterCheck Collect on any phone: \"Who is testing?\" › \"I already have a profile\" › enter the code. They come back as the same person, with their details. The code works once.';
+      'Give this code to the collector (call or text them). In FieldQuire Collect on any phone: \"Who is testing?\" › \"I already have a profile\" › enter the code. They come back as the same person, with their details. The code works once.';
 
   @override
   String recoveryValid(String when) {
@@ -2470,6 +2470,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'source': 'Source',
       'collector': 'Collector',
       'area': 'Area',
+      'research': 'Research record',
       'other': 'Thread',
     });
     return '$_temp0';
@@ -2789,7 +2790,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get legalSummary =>
-      'WaterCheck holds personal information about testers and officials: names, contacts, where tests were made, pictures with where and when they were taken, places people added, and messages. As a Console user you see this for your areas. Use it only to protect drinking water, keep it to yourself, and follow the Terms of Use. The data is hosted outside Uganda (South Africa).';
+      'FieldQuire holds personal information about testers and officials: names, contacts, where tests were made, pictures with where and when they were taken, places people added, and messages. As a Console user you see this for your areas. Use it only to protect drinking water, keep it to yourself, and follow the Terms of Use. The data is hosted outside Uganda (South Africa).';
 
   @override
   String get mapPlaceRename => 'Rename';
@@ -2817,4 +2818,1225 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get mapLocationHelp =>
       'Your location is not available. Allow location for this site (the icon in the address bar, or the site settings) and switch location on for the device. On iPhone: Settings › Privacy & Security › Location Services › Safari Websites › While Using the App. A laptop without GPS may show an approximate place.';
+
+  @override
+  String get modeWater => 'Water testing';
+
+  @override
+  String get modeResearch => 'Research';
+
+  @override
+  String get researchProjects => 'Research projects';
+
+  @override
+  String get researchNoProjects =>
+      'No research projects yet. Projects you own or help supervise appear here.';
+
+  @override
+  String researchFormsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count forms',
+      one: '1 form',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String researchRecordsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count records',
+      one: '1 record',
+      zero: 'no records',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get researchFormsTitle => 'Forms';
+
+  @override
+  String researchPointsTitle(int count) {
+    return 'Where records were made ($count)';
+  }
+
+  @override
+  String get researchPublished => 'Published';
+
+  @override
+  String get researchClosed => 'Closed';
+
+  @override
+  String get researchDraft => 'Draft';
+
+  @override
+  String get researchAccessOpen => 'Any collector';
+
+  @override
+  String get researchAccessCode => 'With a code';
+
+  @override
+  String get researchAccessAssigned => 'Assigned collectors';
+
+  @override
+  String get researchHidden => 'Hidden';
+
+  @override
+  String get researchPublic => 'Public';
+
+  @override
+  String get researchShared => 'Shared';
+
+  @override
+  String get researchPrivate => 'Private';
+
+  @override
+  String get researchRecords => 'Records';
+
+  @override
+  String get researchSearchNumber => 'Search by research number';
+
+  @override
+  String get researchNoLocation => 'No location';
+
+  @override
+  String get researchDeclinedShort => 'Declined';
+
+  @override
+  String get researchClash => 'Number used twice: check with the collector';
+
+  @override
+  String get researchMore => 'Show more';
+
+  @override
+  String researchRecordTitle(String number) {
+    return 'Record $number';
+  }
+
+  @override
+  String researchMinutes(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String researchPointAt(String point, String metres) {
+    return 'Location: $point (±$metres m)';
+  }
+
+  @override
+  String get researchErrCodeTaken =>
+      'That code is already used. Choose another.';
+
+  @override
+  String get researchErrNoUser => 'No active account signs in with that email.';
+
+  @override
+  String get researchErrNothingToPublish => 'There are no changes to publish.';
+
+  @override
+  String get researchErrNoFields =>
+      'Add at least one question before publishing.';
+
+  @override
+  String get researchErrAnalyst =>
+      'Analysts can read and analyse, not change the project.';
+
+  @override
+  String get researchErrOwnerOnly => 'Only the project\'s owner can do this.';
+
+  @override
+  String get researchErrNothingToClone => 'This form has nothing to copy yet.';
+
+  @override
+  String get researchErrInvalid =>
+      'The form could not be read. Check it and try again.';
+
+  @override
+  String get researchErrOffline => 'No connection. Try again when online.';
+
+  @override
+  String researchErrOther(String code) {
+    return 'Something went wrong ($code). Try again.';
+  }
+
+  @override
+  String get researchAppTitle => 'Research';
+
+  @override
+  String get researchProject => 'Project';
+
+  @override
+  String get researchNoProjectYet => 'No project yet';
+
+  @override
+  String get researchNewProject => 'New project';
+
+  @override
+  String get researchTitle => 'Title';
+
+  @override
+  String get researchDescription => 'Description';
+
+  @override
+  String get researchRequired => 'Required';
+
+  @override
+  String get researchProjectCode => 'Project code';
+
+  @override
+  String get researchProjectCodeHint =>
+      '2 to 8 letters or digits, e.g. ENT. It starts every research number (ENT-HQ-…) and cannot be changed later.';
+
+  @override
+  String get researchProjectCodeRule => 'Use 2 to 8 letters or digits';
+
+  @override
+  String get researchCreate => 'Create';
+
+  @override
+  String get researchDashboardHint =>
+      'Your research project at a glance: records, forms, collectors and where records were made.';
+
+  @override
+  String researchOwnerRole(String owner, String role) {
+    return 'Owner: $owner · You: $role';
+  }
+
+  @override
+  String researchTeam(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Team ($count)',
+      one: 'Team (1)',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get researchKpiRecords => 'Records';
+
+  @override
+  String researchKpiToday(int count) {
+    return '$count made today';
+  }
+
+  @override
+  String get researchKpiForms => 'Published forms';
+
+  @override
+  String researchKpiFormsHint(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count forms in all',
+      one: '1 form in all',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get researchKpiCollectors => 'Collectors';
+
+  @override
+  String researchKpiCollectorsHint(int count) {
+    return '$count with records';
+  }
+
+  @override
+  String get researchKpiMessages => 'Awaiting an answer';
+
+  @override
+  String get researchKpiMessagesHint => 'Messages from collectors';
+
+  @override
+  String get researchPointsHint =>
+      'Research numbers only, never names. Tap a point to open its record.';
+
+  @override
+  String get researchOpenMap => 'Open the map';
+
+  @override
+  String get researchLatestRecords => 'Latest records';
+
+  @override
+  String get researchSeeAllRecords => 'All records';
+
+  @override
+  String get researchNoRecordsYet => 'No records yet.';
+
+  @override
+  String get researchNoCollectorsYet =>
+      'No collectors yet. Give a form to testers, or share its access code.';
+
+  @override
+  String researchLastAt(String when) {
+    return 'last $when';
+  }
+
+  @override
+  String get researchRoleOwner => 'Owner';
+
+  @override
+  String get researchRoleSupervisor => 'Supervisor';
+
+  @override
+  String get researchRoleAnalyst => 'Analyst';
+
+  @override
+  String get researchRoleSupervisorHint =>
+      'Builds and publishes forms, manages collectors, sees all records.';
+
+  @override
+  String get researchRoleAnalystHint =>
+      'Sees all records and analysis; changes nothing.';
+
+  @override
+  String get researchWelcomeTitle => 'Start your research';
+
+  @override
+  String get researchWelcomeBody =>
+      'Create a project, then build its forms here in the Console (or import an XLSForm, or copy one from the library). Publish a form and give it to collectors: they fill it in Collect, offline, and every record keeps where and when it was made.';
+
+  @override
+  String get researchLibrary => 'Form library';
+
+  @override
+  String get researchTeamTitle => 'Project and team';
+
+  @override
+  String get researchTeamHint =>
+      'Supervisors build forms and manage collectors; analysts read and analyse. People are added by the email they sign in with.';
+
+  @override
+  String get researchEditProject => 'Edit the project';
+
+  @override
+  String get researchRemove => 'Remove';
+
+  @override
+  String get researchRemoveMemberTitle => 'Remove from the project?';
+
+  @override
+  String researchRemoveMemberBody(String name) {
+    return '$name will no longer see the project or its records.';
+  }
+
+  @override
+  String get researchAddMember => 'Add a person';
+
+  @override
+  String get researchMemberEmail => 'Their sign-in email';
+
+  @override
+  String get researchMemberEmailHint =>
+      'They need a Console account. An IT admin can make one.';
+
+  @override
+  String get researchAdd => 'Add';
+
+  @override
+  String get researchSave => 'Save';
+
+  @override
+  String get researchSaved => 'Saved';
+
+  @override
+  String get researchAllForms => 'All forms';
+
+  @override
+  String get researchAllCollectors => 'All collectors';
+
+  @override
+  String get researchCollectedBy => 'Collected by';
+
+  @override
+  String researchTook(String duration) {
+    return 'took $duration';
+  }
+
+  @override
+  String get researchStarted => 'started';
+
+  @override
+  String researchFinishedAt(String point) {
+    return 'Finished at $point';
+  }
+
+  @override
+  String get researchAnswers => 'Answers';
+
+  @override
+  String get researchMessagesHint =>
+      'Talk with the collector about this record. They see it in Collect with their next sync.';
+
+  @override
+  String get researchMessagesListHint =>
+      'Conversations with collectors about records in this project.';
+
+  @override
+  String get researchNeedsAnswer => 'needs an answer';
+
+  @override
+  String researchAwaiting(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count records await an answer',
+      one: '1 record awaits an answer',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get researchFormsHint =>
+      'Build forms here, publish them, and choose who collects with them and who may copy them.';
+
+  @override
+  String get researchNewForm => 'New form';
+
+  @override
+  String get researchImportXlsForm => 'Import XLSForm';
+
+  @override
+  String get researchNoForms =>
+      'No forms yet. Start a new form, import an XLSForm, or copy one from the library.';
+
+  @override
+  String researchVersion(int number) {
+    return 'version $number';
+  }
+
+  @override
+  String get researchUnpublishedChanges => 'unpublished changes';
+
+  @override
+  String researchImportFailed(String reason) {
+    return 'That file could not be read as an XLSForm: $reason';
+  }
+
+  @override
+  String researchImportWarnings(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count rows could not be imported',
+      one: '1 row could not be imported',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get researchImportAnyway => 'Import the rest';
+
+  @override
+  String get researchFormCode => 'Form code';
+
+  @override
+  String get researchFormCodeHint =>
+      '1 to 6 letters or digits, e.g. HQ. It is part of the research numbers (ENT-HQ-…).';
+
+  @override
+  String get researchFormCodeRule => 'Use 1 to 6 letters or digits';
+
+  @override
+  String get researchLibraryHint =>
+      'Forms other researchers made public or shared with you. Open one to see it, then copy it into your project as a draft.';
+
+  @override
+  String get researchLibraryEmpty => 'No forms are shared with you yet.';
+
+  @override
+  String researchFixFirst(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Fix $count problems first (listed above the questions).',
+      one: 'Fix 1 problem first (listed above the questions).',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get researchPublishTitle => 'Publish the form?';
+
+  @override
+  String get researchPublishFirstBody =>
+      'Collectors who may use it get it with their next sync.';
+
+  @override
+  String researchPublishBody(int number) {
+    return 'This becomes version $number. Collectors get it with their next sync; records already made keep the version they were filled with.';
+  }
+
+  @override
+  String get researchPublish => 'Publish';
+
+  @override
+  String get researchPublishedNow =>
+      'Published. Collectors get it with their next sync.';
+
+  @override
+  String get researchDiscardTitle => 'Discard the changes?';
+
+  @override
+  String get researchDiscardBody =>
+      'The form goes back to its published version.';
+
+  @override
+  String get researchDiscard => 'Discard changes';
+
+  @override
+  String get researchCopyForm => 'Copy to my project';
+
+  @override
+  String get researchExportXlsForm => 'Download XLSForm';
+
+  @override
+  String get researchSeeRecords => 'See its records';
+
+  @override
+  String get researchDraftNote =>
+      'Changes are saved as a draft. Collectors keep the published version until you publish again.';
+
+  @override
+  String get researchTabQuestions => 'Questions';
+
+  @override
+  String get researchTabAccess => 'Access and sharing';
+
+  @override
+  String get researchTabVersions => 'Versions';
+
+  @override
+  String get researchTabPreview => 'Try it';
+
+  @override
+  String get researchNeedProject => 'Create a project first.';
+
+  @override
+  String get researchWhoCollects => 'Who may collect with this form';
+
+  @override
+  String get researchAccessAssignedHint =>
+      'Only testers you give the form to (Collectors).';
+
+  @override
+  String get researchAccessCodeHint =>
+      'Testers who type the form\'s access code in Collect, and those you give it to.';
+
+  @override
+  String get researchAccessOpenHint =>
+      'Any tester on Collect, unless the form is hidden.';
+
+  @override
+  String get researchCodeHint =>
+      'Testers type this code in Collect › Research to join.';
+
+  @override
+  String get researchCopyCode => 'Copy the code';
+
+  @override
+  String get researchNewCode => 'New code';
+
+  @override
+  String get researchNewCodeBody =>
+      'The old code stops working. Collectors who already joined keep the form.';
+
+  @override
+  String researchFormCollectors(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count collectors',
+      one: '1 collector',
+      zero: 'No collectors yet',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get researchAssign => 'Give the form';
+
+  @override
+  String get researchJoinedWithCode => 'joined with the code';
+
+  @override
+  String get researchAssignedByTeam => 'given by the team';
+
+  @override
+  String get researchHiddenTitle => 'Hidden';
+
+  @override
+  String get researchHiddenHint =>
+      'Not listed for browsing or the library. Collectors you gave it to still get it.';
+
+  @override
+  String get researchOpenForCollection => 'Open for collection';
+
+  @override
+  String get researchOpenForCollectionHint =>
+      'Off: collectors can no longer send new records (those made stay).';
+
+  @override
+  String get researchWhoSees => 'Who may see and copy this form';
+
+  @override
+  String get researchPrivateHint => 'Only this project\'s team.';
+
+  @override
+  String get researchSharedHint => 'The team, and the people you name below.';
+
+  @override
+  String get researchPublicHint =>
+      'Any researcher on FieldQuire (never the records).';
+
+  @override
+  String get researchShareWith => 'Share with a person';
+
+  @override
+  String researchAssignTitle(String code) {
+    return 'Give $code to testers';
+  }
+
+  @override
+  String get researchFindTester => 'Find a tester';
+
+  @override
+  String get researchFindTesterHint =>
+      'By name or phone number, as they set it in Collect.';
+
+  @override
+  String get researchDone => 'Done';
+
+  @override
+  String get researchVersionsHint =>
+      'Each publish makes a new version. Records keep the version they were filled with.';
+
+  @override
+  String get researchNotPublished => 'Not published yet.';
+
+  @override
+  String researchPublishedOn(String when) {
+    return 'published $when';
+  }
+
+  @override
+  String get researchCurrent => 'Current';
+
+  @override
+  String get researchPreviewBroken =>
+      'The form has a problem; see the list above the questions.';
+
+  @override
+  String get researchPreviewHint =>
+      'Fill the form as a collector would, to try skip logic and checks. Nothing is saved.';
+
+  @override
+  String get researchPreviewCheck => 'Check the answers';
+
+  @override
+  String get researchPreviewReset => 'Start again';
+
+  @override
+  String get researchPreviewOk =>
+      'All answers are accepted. This is what would be saved:';
+
+  @override
+  String researchPreviewIssues(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count answers need attention',
+      one: '1 answer needs attention',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get researchCollectorsHint =>
+      'Testers collecting for this project, the forms each has, and their records.';
+
+  @override
+  String get researchGiveForm => 'Give a form to testers';
+
+  @override
+  String get researchHowCollectorsJoin => 'How collectors get each form';
+
+  @override
+  String get researchJoinHint =>
+      'Open a form to change who may collect, see its access code, or give it to testers.';
+
+  @override
+  String researchCollectorsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count collectors',
+      one: '1 collector',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get researchByCode => 'by code';
+
+  @override
+  String get researchAnalysis => 'Analysis';
+
+  @override
+  String get researchAnalysisHint =>
+      'Summaries, cross-tabs, indicators against targets, the visit audit and exports, from the records of one form.';
+
+  @override
+  String get researchForm => 'Form';
+
+  @override
+  String get researchTabSummary => 'Summary';
+
+  @override
+  String get researchTabCrossTab => 'Cross-tab';
+
+  @override
+  String get researchTabIndicators => 'Indicators';
+
+  @override
+  String get researchTabAudit => 'Visit audit';
+
+  @override
+  String get researchTabExport => 'Export';
+
+  @override
+  String researchSummaryLine(int count, int declined) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count records',
+      one: '1 record',
+    );
+    return '$_temp0 · $declined declined';
+  }
+
+  @override
+  String researchAnswered(int answered, int asked) {
+    return '$answered of $asked answered';
+  }
+
+  @override
+  String get researchStatMean => 'Mean';
+
+  @override
+  String get researchStatMedian => 'Median';
+
+  @override
+  String get researchStatMin => 'Lowest';
+
+  @override
+  String get researchStatMax => 'Highest';
+
+  @override
+  String get researchStatTotal => 'Total';
+
+  @override
+  String researchDateRange(String first, String last) {
+    return 'From $first to $last';
+  }
+
+  @override
+  String get researchNoAnswers => 'No answers yet.';
+
+  @override
+  String get researchMultiNote =>
+      'Several answers per record are possible, so shares add up to more than 100%.';
+
+  @override
+  String get researchCrossTabNeeds =>
+      'A cross-tab needs two choice questions in the form.';
+
+  @override
+  String get researchRows => 'Rows';
+
+  @override
+  String get researchColumns => 'Columns';
+
+  @override
+  String get researchRowPercent => 'Row percentages';
+
+  @override
+  String get researchTotal => 'Total';
+
+  @override
+  String get researchCrossTabNote =>
+      'Declined records are left out. A choose-many answer counts once for each choice.';
+
+  @override
+  String get researchIndicatorsHint =>
+      'Indicators are kept with the project: the share of records where a condition holds, against its target (as in the proposal\'s indicator table).';
+
+  @override
+  String get researchNoIndicators => 'No indicators for this form yet.';
+
+  @override
+  String get researchIndicator => 'Indicator';
+
+  @override
+  String get researchResult => 'Result';
+
+  @override
+  String get researchTarget => 'Target';
+
+  @override
+  String get researchStatus => 'Status';
+
+  @override
+  String get researchIndicatorBroken => 'Check the expression';
+
+  @override
+  String get researchMet => 'Met';
+
+  @override
+  String get researchNotMet => 'Not met';
+
+  @override
+  String get researchNoTarget => 'No target';
+
+  @override
+  String get researchAddIndicator => 'Add an indicator';
+
+  @override
+  String get researchIndicatorLabel => 'What it measures';
+
+  @override
+  String get researchNumerator => 'Counts records where';
+
+  @override
+  String researchNumeratorHint(String example) {
+    return 'An expression, e.g. $example';
+  }
+
+  @override
+  String get researchDenominator => 'Out of records where (optional)';
+
+  @override
+  String get researchDenominatorHint =>
+      'Leave empty for all records that were not declined.';
+
+  @override
+  String get researchTargetPercent => 'Target (%)';
+
+  @override
+  String get researchAuditHint =>
+      'Where and when each record was made, and how long it took, per collector. Flags are prompts to talk with collectors, not verdicts.';
+
+  @override
+  String get auditTooFast => 'very quick';
+
+  @override
+  String get auditFar => 'far from the others';
+
+  @override
+  String get auditSamePoint => 'several at one spot';
+
+  @override
+  String get auditNoLocation => 'no location';
+
+  @override
+  String get auditMoved => 'finished elsewhere';
+
+  @override
+  String auditFlagged(int count) {
+    return '$count flagged';
+  }
+
+  @override
+  String auditUsual(String duration) {
+    return 'usually $duration';
+  }
+
+  @override
+  String auditKm(String km) {
+    return '$km km from the centre';
+  }
+
+  @override
+  String get auditNote =>
+      'Very quick: under a third of the form\'s usual time (at least 2 minutes). Far: over 5 km from the middle of all records. Several at one spot: 3 or more within 15 m by the same collector.';
+
+  @override
+  String researchExportHint(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count records',
+      one: '1 record',
+    );
+    return '$_temp0. Repeats come as their own sheets, linked by research number.';
+  }
+
+  @override
+  String get researchExportLabels => 'Choice labels';
+
+  @override
+  String get researchExportLabelsHint =>
+      '\"Boiling\" rather than the code \"boiling\".';
+
+  @override
+  String get researchExportIdentifying => 'Include identifying answers';
+
+  @override
+  String get researchExportIdentifyingHint =>
+      'Names, phone numbers and other fields marked identifying. Off by default: research numbers stand for participants.';
+
+  @override
+  String get researchExportExcel => 'Excel';
+
+  @override
+  String get researchExportCsv => 'CSV';
+
+  @override
+  String get researchExportGeoJson => 'GeoJSON (map)';
+
+  @override
+  String researchExportMedia(int count) {
+    return 'Pictures ($count)';
+  }
+
+  @override
+  String researchMediaProgress(int done, int total) {
+    return 'Getting pictures: record $done of $total';
+  }
+
+  @override
+  String get researchAdminHint =>
+      'IT admins see every research project. People, phones and the system are shared with water testing.';
+
+  @override
+  String get researchAdminPeople => 'People and accounts';
+
+  @override
+  String get researchAdminPhones => 'Phones';
+
+  @override
+  String get researchAdminSecurity => 'Security';
+
+  @override
+  String get researchAdminSystem => 'System';
+
+  @override
+  String get researchAdminAll => 'All administration';
+
+  @override
+  String researchAllProjects(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count research projects',
+      one: '1 research project',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get fieldNote => 'Note';
+
+  @override
+  String get fieldText => 'Text';
+
+  @override
+  String get fieldInteger => 'Whole number';
+
+  @override
+  String get fieldDecimal => 'Decimal number';
+
+  @override
+  String get fieldYesNo => 'Yes / no';
+
+  @override
+  String get fieldSelectOne => 'Choose one';
+
+  @override
+  String get fieldSelectMany => 'Choose many';
+
+  @override
+  String get fieldLikert => 'Scale (Likert)';
+
+  @override
+  String get fieldRange => 'Range';
+
+  @override
+  String get fieldDate => 'Date';
+
+  @override
+  String get fieldTime => 'Time';
+
+  @override
+  String get fieldDateTime => 'Date and time';
+
+  @override
+  String get fieldGeopoint => 'GPS point';
+
+  @override
+  String get fieldPhoto => 'Photo';
+
+  @override
+  String get fieldAudio => 'Audio';
+
+  @override
+  String get fieldVideo => 'Video';
+
+  @override
+  String get fieldBarcode => 'Barcode / QR';
+
+  @override
+  String get fieldCalculate => 'Calculation';
+
+  @override
+  String get fieldConsent => 'Consent';
+
+  @override
+  String get fieldGroup => 'Section';
+
+  @override
+  String get fieldRepeat => 'Repeat (rows)';
+
+  @override
+  String get builderPickType => 'What kind of question?';
+
+  @override
+  String builderOption(int number) {
+    return 'Option $number';
+  }
+
+  @override
+  String get builderSettings => 'Form settings';
+
+  @override
+  String get builderNumbering => 'Research numbers';
+
+  @override
+  String get builderNumberingGenerated => 'Made by the phone';
+
+  @override
+  String get builderNumberingTyped => 'Typed from a list';
+
+  @override
+  String get builderNumberingGeneratedHint =>
+      'Each phone makes unique numbers without a connection: project, form, phone and a count, e.g. ENT-HQ-7Q2K-0007.';
+
+  @override
+  String get builderNumberingTypedHint =>
+      'Collectors type the number from the team\'s list (e.g. the sampling list). A number used twice is kept and flagged.';
+
+  @override
+  String get builderNumberLabel =>
+      'What the team calls the number (e.g. Household code)';
+
+  @override
+  String builderProblems(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count problems to fix before publishing',
+      one: '1 problem to fix before publishing',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String builderQuestions(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count questions',
+      one: '1 question',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get builderAddQuestion => 'Add a question';
+
+  @override
+  String get builderEmpty =>
+      'No questions yet. Add the first one; consent usually comes first.';
+
+  @override
+  String get builderBadgeRequired => 'required';
+
+  @override
+  String get builderBadgeLogic => 'skip logic';
+
+  @override
+  String get builderBadgeCheck => 'check';
+
+  @override
+  String get builderBadgeIdentifying => 'identifying';
+
+  @override
+  String builderBadgeChoices(int count) {
+    return '$count choices';
+  }
+
+  @override
+  String get builderNoLabel => '(no wording yet)';
+
+  @override
+  String get builderMore => 'More';
+
+  @override
+  String get builderMoveUp => 'Move up';
+
+  @override
+  String get builderMoveDown => 'Move down';
+
+  @override
+  String get builderDuplicate => 'Duplicate';
+
+  @override
+  String get builderDelete => 'Delete';
+
+  @override
+  String get builderAddInRepeat => 'Add a question to each row';
+
+  @override
+  String get builderAddInGroup => 'Add a question to this section';
+
+  @override
+  String get builderNameRule =>
+      'Letters, digits and _ only, not starting with a digit';
+
+  @override
+  String get builderNameUsed => 'Another question has this name';
+
+  @override
+  String builderUnknownField(String name) {
+    return 'No question is named \"$name\"';
+  }
+
+  @override
+  String get builderNeedChoices => 'Add at least one choice';
+
+  @override
+  String get builderNeedCalculation => 'Write the calculation';
+
+  @override
+  String get builderNewQuestion => 'New question';
+
+  @override
+  String get builderEditQuestion => 'Edit';
+
+  @override
+  String get builderType => 'Kind';
+
+  @override
+  String get builderLabel => 'Question (as asked)';
+
+  @override
+  String get builderName => 'Name';
+
+  @override
+  String builderNameHint(String example) {
+    return 'The column name in exports; used in skip logic as $example.';
+  }
+
+  @override
+  String get builderHint => 'Hint (shown under the question)';
+
+  @override
+  String get builderRequired => 'An answer is required';
+
+  @override
+  String get builderIdentifying => 'Identifying';
+
+  @override
+  String get builderIdentifyingHint =>
+      'A name, phone number…: left off maps and out of default exports.';
+
+  @override
+  String get builderChoices => 'Choices';
+
+  @override
+  String get builderLikertDefault =>
+      'Without choices of its own the scale is Agree / Not sure / Disagree.';
+
+  @override
+  String get builderOther => 'Add \"Other: specify\"';
+
+  @override
+  String get builderOtherHint =>
+      'The collector types what the other answer is.';
+
+  @override
+  String get builderMinRows => 'Fewest rows';
+
+  @override
+  String get builderMaxRows => 'Most rows';
+
+  @override
+  String get builderMin => 'Lowest accepted';
+
+  @override
+  String get builderMax => 'Highest accepted';
+
+  @override
+  String get builderMaxSeconds => 'Longest recording (seconds)';
+
+  @override
+  String get builderMaxAudio => 'At most 300 (5 minutes).';
+
+  @override
+  String get builderMaxVideo => 'At most 60 seconds, at 480p.';
+
+  @override
+  String get builderLogic => 'Logic';
+
+  @override
+  String builderLogicHint(String example) {
+    return 'Expressions as in XLSForm, e.g. $example. A dot (.) is this answer.';
+  }
+
+  @override
+  String get builderRelevant => 'Ask only when (skip logic)';
+
+  @override
+  String builderRelevantHint(String example) {
+    return 'e.g. $example';
+  }
+
+  @override
+  String get builderConstraint => 'Accept only when (check)';
+
+  @override
+  String get builderConstraintHint => 'e.g. . >= 0 and . <= 20';
+
+  @override
+  String get builderConstraintMessage => 'Message when not accepted';
+
+  @override
+  String get builderDefault => 'Default answer';
+
+  @override
+  String get builderCalculation => 'Calculation';
+
+  @override
+  String builderCalculationHint(String example) {
+    return 'e.g. $example';
+  }
+
+  @override
+  String builderChoiceLabel(int number) {
+    return 'Choice $number';
+  }
+
+  @override
+  String get builderChoiceValue => 'Code';
+
+  @override
+  String get builderAddChoice => 'Add a choice';
+
+  @override
+  String get builderDone => 'Done';
 }

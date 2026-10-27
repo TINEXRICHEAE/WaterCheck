@@ -23,8 +23,8 @@ stack:
 Public names:
 
 ```text
-https://watercheck.cooptconnect.app
-https://api.watercheck.cooptconnect.app
+https://watercheck.fieldquire.cooptconnect.app
+https://api.watercheck.fieldquire.cooptconnect.app
 ```
 
 The Console web application uses the first URL. Browser API requests use the
@@ -36,7 +36,7 @@ production `/collect/` browser route yet. Collectors should use the Android or
 Windows Collect application, configured with:
 
 ```text
-https://api.watercheck.cooptconnect.app/api
+https://api.watercheck.fieldquire.cooptconnect.app/api
 ```
 
 The Android APK procedure is documented in
@@ -86,15 +86,15 @@ cooptconnect.app
 DNS records point to the VM's static public IP:
 
 ```text
-watercheck.cooptconnect.app      A      <VM_PUBLIC_IP>
-api.watercheck.cooptconnect.app  A      <VM_PUBLIC_IP>
+watercheck.fieldquire.cooptconnect.app      A      <VM_PUBLIC_IP>
+api.watercheck.fieldquire.cooptconnect.app  A      <VM_PUBLIC_IP>
 ```
 
 Verify DNS from Windows PowerShell:
 
 ```powershell
-nslookup watercheck.cooptconnect.app
-nslookup api.watercheck.cooptconnect.app
+nslookup watercheck.fieldquire.cooptconnect.app
+nslookup api.watercheck.fieldquire.cooptconnect.app
 ```
 
 The `.app` top-level domain requires HTTPS. Caddy obtains and renews
@@ -271,7 +271,7 @@ answering. The hostnames default to the live names; set `WC_WEB_HOST` and
 
 It provides:
 
-- Flutter Console at `watercheck.cooptconnect.app`.
+- Flutter Console at `watercheck.fieldquire.cooptconnect.app`.
 - `/api/*` routed to `api:8000`.
 - `/tiles/*` routed to `tiles:8080`.
 - API hostname routed to `api:8000`, except `/tiles/*`: Windows and Android
@@ -331,7 +331,7 @@ cd C:\Users\ocenr\Desktop\Research\app\watercheck\apps\console
 flutter build web `
   --release `
   --base-href / `
-  --dart-define=WC_API_URL=https://watercheck.cooptconnect.app/api `
+  --dart-define=WC_API_URL=https://watercheck.fieldquire.cooptconnect.app/api `
   --no-web-resources-cdn `
   --no-pub
 ```
@@ -394,7 +394,7 @@ docker compose up -d --force-recreate tiles
 
 ```bash
 curl -s -o /dev/null -w "%{http_code} %{content_type}\n" \
-  https://watercheck.cooptconnect.app/tiles/styles/watercheck-v2/256/10/607/504.png
+  https://watercheck.fieldquire.cooptconnect.app/tiles/styles/watercheck-v2/256/10/607/504.png
 ```
 
 Expect `200 image/png`.
@@ -589,9 +589,9 @@ docker system df
 Public checks after Caddy obtains certificates:
 
 ```powershell
-curl.exe -I https://watercheck.cooptconnect.app
-curl.exe -i https://watercheck.cooptconnect.app/health
-curl.exe -i https://api.watercheck.cooptconnect.app/health
+curl.exe -I https://watercheck.fieldquire.cooptconnect.app
+curl.exe -i https://watercheck.fieldquire.cooptconnect.app/health
+curl.exe -i https://api.watercheck.fieldquire.cooptconnect.app/health
 ```
 
 Expected API health responses should have HTTP status `200`.
@@ -608,13 +608,13 @@ GET /v1/sync/pull ... status 200
 The Console web build uses:
 
 ```text
-https://watercheck.cooptconnect.app/api
+https://watercheck.fieldquire.cooptconnect.app/api
 ```
 
 Android and Windows clients should use:
 
 ```text
-https://api.watercheck.cooptconnect.app/api
+https://api.watercheck.fieldquire.cooptconnect.app/api
 ```
 
 The Collect application generally receives its API URL during activation or
@@ -652,7 +652,7 @@ docker compose run --rm migrate \
 ```
 
 The temporary password is printed once. Use it at
-`https://watercheck.cooptconnect.app/#/sign-in`; the first sign-in requires a
+`https://watercheck.fieldquire.cooptconnect.app/#/sign-in`; the first sign-in requires a
 password change. Do not put the password in Git, `.env`, screenshots, logs or
 chat messages.
 
@@ -792,7 +792,7 @@ cd ~/WaterCheck && git pull
 cd infra
 docker compose up -d --build migrate api worker
 docker compose logs --tail=30 migrate   # look for "Running upgrade 0008 -> 0009"
-curl -fsS https://api.watercheck.cooptconnect.app/v1/health
+curl -fsS https://api.watercheck.fieldquire.cooptconnect.app/v1/health
 ```
 
 Then rebuild and ship the web Console (§10–§11), because the archive and trail
@@ -825,7 +825,7 @@ recreate Caddy so `/route/` is routed:
 cd ~/WaterCheck/infra
 docker compose --profile routing up -d routing
 docker compose up -d --force-recreate caddy
-curl -s "https://api.watercheck.cooptconnect.app/route/status"
+curl -s "https://api.watercheck.fieldquire.cooptconnect.app/route/status"
 ```
 
 Without the service, routes show "no route found"; straight-line distances
@@ -907,17 +907,17 @@ uses the same-origin API; Windows and Android use the API hostname.
 # Web Console (a separate output keeps the local /console/ preview intact)
 Set-Location .\apps\console
 flutter build web --release --base-href / --no-web-resources-cdn `
-  --dart-define=WC_API_URL=https://watercheck.cooptconnect.app/api `
+  --dart-define=WC_API_URL=https://watercheck.fieldquire.cooptconnect.app/api `
   -o "C:\Users\ocenr\Desktop\Research\app\watercheck\apps\console\build\web-prod"
 New-Item -ItemType Directory -Force ..\..\dist\web | Out-Null
 tar -czf ..\..\dist\web\console-web.tar.gz -C build\web-prod .
 
 # Windows bundles
 flutter build windows --release `
-  --dart-define=WC_API_URL=https://api.watercheck.cooptconnect.app/api
+  --dart-define=WC_API_URL=https://api.watercheck.fieldquire.cooptconnect.app/api
 Set-Location ..\collect
 flutter build windows --release `
-  --dart-define=WC_API_URL=https://api.watercheck.cooptconnect.app/api
+  --dart-define=WC_API_URL=https://api.watercheck.fieldquire.cooptconnect.app/api
 
 # Offline installers (Visual C++ runtime bundled)
 Set-Location ..\..
@@ -927,7 +927,7 @@ Set-Location ..\..
 # Android APK
 Set-Location .\apps\collect
 flutter build apk --release `
-  --dart-define=WC_API_URL=https://api.watercheck.cooptconnect.app/api
+  --dart-define=WC_API_URL=https://api.watercheck.fieldquire.cooptconnect.app/api
 New-Item -ItemType Directory -Force ..\..\dist\android | Out-Null
 Copy-Item build\app\outputs\flutter-apk\app-release.apk ..\..\dist\android\WaterCheck-Collect-0.1.1.apk
 ```
@@ -946,9 +946,9 @@ Get-ChildItem .\dist -Recurse -File | ForEach-Object {
 
 Before shipping, check that the builds point at production:
 
-- `main.dart.js` contains `https://watercheck.cooptconnect.app/api`;
+- `main.dart.js` contains `https://watercheck.fieldquire.cooptconnect.app/api`;
 - the Windows `data\app.so` and the APK's `lib/arm64-v8a/libapp.so` contain
-  `api.watercheck.cooptconnect.app/api`;
+  `api.watercheck.fieldquire.cooptconnect.app/api`;
 - `aapt dump badging` on the APK shows the new `versionName`.
 
 Then run `.\tools\cleanup.ps1`; it keeps `dist\`.
@@ -1066,7 +1066,7 @@ Three causes were found and fixed:
 
 1. `tiles-config/config.json` pointed the vector WaterCheck style at the
    raster `area.mbtiles`, which it cannot draw. It must name `uganda.mbtiles`.
-2. Windows and Android request `https://api.watercheck.cooptconnect.app/tiles/`,
+2. Windows and Android request `https://api.watercheck.fieldquire.cooptconnect.app/tiles/`,
    which the API hostname did not route. `Caddyfile.prod` now sends `/tiles/*`
    on that hostname to the tile server.
 3. In rural areas at zoom 14 the old style's thin white roads disappeared on
@@ -1131,7 +1131,7 @@ Update (2026-10-24), round 3 (ADR-022):
 - The routing service (Valhalla 3.5.1) is running with data copied from dev
   (checksum matched), and `/route/` answers on both hostnames.
 - The web Console is at `/` and Collect on the web at `/collect/`; both are
-  built against `https://watercheck.cooptconnect.app/api` and swapped in
+  built against `https://watercheck.fieldquire.cooptconnect.app/api` and swapped in
   (`web.old` kept for rollback).
 - Smoke checks returned 200 for both apps, their service workers, manifests,
   `sqlite3.wasm`, health on both hosts and a map tile. A road route was
@@ -1182,8 +1182,8 @@ prod    Azure VM and protected production data
 ```
 
 Staging is future work and is not running on this VM. When added, use
-`staging.watercheck.cooptconnect.app` and
-`api-staging.watercheck.cooptconnect.app` on a separate host or a larger VM.
+`staging.watercheck.fieldquire.cooptconnect.app` and
+`api-staging.watercheck.fieldquire.cooptconnect.app` on a separate host or a larger VM.
 Staging must have its own Compose project, network, `.env`, database, object
 storage, Caddy certificate volume, test data and SMTP configuration. Never
 reuse production credentials or persistent volumes.

@@ -184,7 +184,7 @@ class UiKitLocalizationsEn extends UiKitLocalizations {
   String get trendLimit => 'Limit';
 
   @override
-  String get appLogo => 'WaterCheck logo';
+  String get appLogo => 'FieldQuire logo';
 
   @override
   String get passwordShow => 'Show password';
@@ -366,7 +366,7 @@ class UiKitLocalizationsEn extends UiKitLocalizations {
 
   @override
   String get installAppHint =>
-      'Open WaterCheck from your home screen or app list, also offline.';
+      'Open FieldQuire from your home screen or app list, also offline.';
 
   @override
   String get mapZoomIn => 'Zoom in (R key)';
@@ -485,7 +485,7 @@ class UiKitLocalizationsEn extends UiKitLocalizations {
 
   @override
   String get legalChanged =>
-      'The Privacy Policy or Terms of Use have changed. Please read them and agree again to keep using WaterCheck.';
+      'The Privacy Policy or Terms of Use have changed. Please read them and agree again to keep using FieldQuire.';
 
   @override
   String get mapPathOpen => 'Show the whole path';
@@ -638,9 +638,90 @@ class UiKitLocalizationsEn extends UiKitLocalizations {
   String get mapSearchNothing => 'Nothing found';
 
   @override
-  String get installAppIos => 'Add WaterCheck to your Home Screen';
+  String get installAppIos => 'Add FieldQuire to your Home Screen';
 
   @override
   String get installAppIosHint =>
-      'In Safari, tap Share, then Add to Home Screen. WaterCheck then opens like an app, full screen.';
+      'In Safari, tap Share, then Add to Home Screen. FieldQuire then opens like an app, full screen.';
+
+  @override
+  String get formRequired => 'Answer this question';
+
+  @override
+  String get formNotAccepted => 'This answer is not accepted';
+
+  @override
+  String get formNotNumber => 'Enter a number';
+
+  @override
+  String get formNotWhole => 'Enter a whole number';
+
+  @override
+  String formTooSmall(String min) {
+    return 'At least $min';
+  }
+
+  @override
+  String formTooLarge(String max) {
+    return 'At most $max';
+  }
+
+  @override
+  String get formOtherMissing => 'Say what \"Other\" is';
+
+  @override
+  String get formRows => 'Add the rows this needs';
+
+  @override
+  String get formOther => 'Other';
+
+  @override
+  String get formOtherSpecify => 'Other: specify';
+
+  @override
+  String get formYes => 'Yes';
+
+  @override
+  String get formNo => 'No';
+
+  @override
+  String formRow(int n) {
+    return 'Row $n';
+  }
+
+  @override
+  String get formAddRow => 'Add a row';
+
+  @override
+  String get formRemoveRow => 'Remove this row';
+
+  @override
+  String get formTakePicture => 'Take a picture';
+
+  @override
+  String get formRetakePicture => 'Take again';
+
+  @override
+  String get formRemovePicture => 'Remove';
+
+  @override
+  String get formPictureNotHere => 'Picture not on this device';
+
+  @override
+  String get formCaptureLocation => 'Record the location';
+
+  @override
+  String formLocationCaptured(String point, String accuracy) {
+    return '$point (±$accuracy m)';
+  }
+
+  @override
+  String get formPick => 'Choose';
+
+  @override
+  String get formTypeCode => 'Type the code';
+
+  @override
+  String get formNotYet =>
+      'This kind of question comes in a later version of FieldQuire.';
 }

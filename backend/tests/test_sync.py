@@ -1186,3 +1186,121 @@ async def test_people_manage_their_own_profiles(
     assert gone.status_code == 204
     refused = (await a.push(visit(a)))["results"]
     assert refused[0]["reason"] == "collector_signed_out"
+
+
+async def test_research_records_sync_with_their_point_and_stay_with_the_team(
+    client: AsyncClient, owner_db: Database, owner_conn_str: str, seeded: None
+) -> None:
+    """ADR-030 R1: the sample project's forms reach phones; a record keeps
+    where and when the interview was; a number used twice is kept and
+    flagged; another device does not see it; the project's managers (here
+    an IT admin) read projects, records, pictures and points; others do not."""
+    from app.research.seed import load
+
+    with psycopg.connect(owner_conn_str) as pg:
+        load(pg)
+    with psycopg.connect(owner_conn_str) as pg:
+        assert load(pg) == "research samples: up to date"
+
+    district = await make_area(owner_db, "district")
+    a = await phone(client, owner_db, district)
+    pulled = (await a.pull("research")).json()["changes"]
+    forms = {c["data"]["code"]: c["data"] for c in pulled if c["entity"] == "research_form"}
+    assert set(forms) >= {"LOG", "HQ", "OC"}
+    # The phone needs the project too: it lists forms under it.
+    assert "ENT" in {c["data"]["code"] for c in pulled if c["entity"] == "research_project"}
+    versions = [c for c in pulled if c["entity"] == "research_form_version"]
+    hq = forms["HQ"]
+    definition = next(v["data"]["definition"] for v in versions if v["data"]["form_id"] == hq["id"])
+    assert definition["settings"]["number_label"] == "Household code"
+
+    def record(number: str) -> dict[str, Any]:
+        return {
+            "entity": "research_record",
+            "op": "insert",
+            "id": str(uuid.uuid4()),
+            "data": {
+                "form_id": hq["id"],
+                "form_version": hq["current_version"],
+                "number": number,
+                "started_at": "2026-11-10T08:00:00Z",
+                "finished_at": "2026-11-10T08:16:00Z",
+                "lat": 2.7019,
+                "lon": 33.6531,
+                "accuracy_m": 6.0,
+                "answers": {"consent": "yes", "A2": 2, "B2": ["boiling"]},
+                **a.origin(),
+            },
+        }
+
+    first, second = record("H-001"), record(" H-001 ")
+    picture = {
+        "entity": "attachment",
+        "op": "insert",
+        "id": str(uuid.uuid4()),
+        "data": {
+            "owner_type": "research_record",
+            "owner_id": first["id"],
+            "field_name": "H_photo",
+            "sha256": "b" * 64,
+            "bytes": 2000,
+            "mime": "image/jpeg",
+            **a.origin(),
+        },
+    }
+    bad = record("H-002")
+    bad["data"]["form_version"] = 99
+    out = (await a.push([first, second, picture, bad]))["results"]
+    assert [(r["status"], r.get("reason")) for r in out] == [
+        ("applied", None),
+        ("applied", "number_clash"),
+        ("applied", None),
+        ("rejected", "unknown_version"),
+    ]
+    again = (await a.push([first]))["results"][0]
+    assert again["status"] == "duplicate"
+
+    mine = (await a.pull("research")).json()["changes"]
+    numbers = sorted(c["data"]["number"] for c in mine if c["entity"] == "research_record")
+    assert numbers == ["H-001", "H-001"]
+    assert any(c["entity"] == "attachment" for c in mine)
+
+    # Another device sees the forms, not these records.
+    b = await phone(client, owner_db, await make_area(owner_db, "district"))
+    theirs = (await b.pull("research")).json()["changes"]
+    assert not [c for c in theirs if c["entity"] == "research_record"]
+
+    admin = await signed_in(client, owner_db, role="it_admin")
+    projects = (await client.get("/v1/research/projects", headers=admin)).json()
+    ent = next(p for p in projects if p["code"] == "ENT")
+    assert ent["forms"] == 3 and ent["records"] >= 2
+    listed = (
+        await client.get(
+            f"/v1/research/forms/{hq['id']}/records", params={"q": "h-001"}, headers=admin
+        )
+    ).json()
+    assert listed["total"] >= 2
+    row = next(r for r in listed["items"] if r["id"] == first["id"])
+    assert (row["number"], row["collector"], row["declined"]) == (
+        "H-001",
+        "Example Collector",
+        False,
+    )
+    detail = (await client.get(f"/v1/research/records/{first['id']}", headers=admin)).json()
+    assert detail["answers"]["B2"] == ["boiling"]
+    assert detail["definition"]["title"] == "Household Questionnaire"
+    assert [p["field_name"] for p in detail["pictures"]] == ["H_photo"]
+    points = (await client.get(f"/v1/research/projects/{ent['id']}/points", headers=admin)).json()
+    assert any(p["number"] == "H-001" and p["lat"] == 2.7019 for p in points)
+    form = (await client.get(f"/v1/research/forms/{hq['id']}", headers=admin)).json()
+    assert form["definition"]["fields"][1]["type"] == "consent"
+
+    # A stakeholder who is not in the project sees none of it.
+    other = await signed_in(client, owner_db, role="stakeholder")
+    assert not [
+        p
+        for p in (await client.get("/v1/research/projects", headers=other)).json()
+        if p["code"] == "ENT"
+    ]
+    r = await client.get(f"/v1/research/records/{first['id']}", headers=other)
+    assert r.status_code == 404

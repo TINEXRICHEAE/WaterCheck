@@ -23,7 +23,7 @@ class PdfKit {
       await rootBundle.load('assets/fonts/Roboto-Bold.ttf'),
     );
     final logo = pw.MemoryImage(
-      (await rootBundle.load('packages/ui_kit/assets/2.0x/watercheck.png'))
+      (await rootBundle.load('packages/ui_kit/assets/2.0x/fieldquire.png'))
           .buffer
           .asUint8List(),
     );

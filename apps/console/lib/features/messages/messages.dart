@@ -120,6 +120,7 @@ IconData _icon(ThreadKind kind) => switch (kind) {
   ThreadKind.source => Icons.water_drop_outlined,
   ThreadKind.collector => Icons.person_outline,
   ThreadKind.area => Icons.place_outlined,
+  ThreadKind.research => Icons.assignment_outlined,
 };
 
 /// Every conversation in my areas, newest first (ADR-022).
@@ -207,6 +208,7 @@ class ThreadScreen extends ConsumerWidget {
       ThreadKind.area =>
         ref.watch(sessionProvider).isAdmin ? '/admin/places' : null,
       ThreadKind.test => ref.watch(_testPageProvider(subjectId)).value,
+      ThreadKind.research => '/research/records/$subjectId',
     };
     return ListView(
       padding: const EdgeInsets.all(16),

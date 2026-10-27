@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../app/gate.dart';
 import '../../app/providers.dart';
 import '../../l10n/app_localizations.dart';
+import '../research/research.dart';
 
 /// "Who is testing?" (SPEC §2.1): several people may share one phone.
 class WhoIsTestingScreen extends ConsumerWidget {
@@ -27,6 +28,15 @@ class WhoIsTestingScreen extends ConsumerWidget {
         data: (list) => ListView(
           padding: const EdgeInsets.symmetric(vertical: 8),
           children: [
+            // Water testing or research (ADR-030), chosen up front.
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+              child: Text(l10n.modeChoose),
+            ),
+            const Padding(
+              padding: EdgeInsets.fromLTRB(16, 8, 16, 0),
+              child: ModeSwitch(),
+            ),
             Padding(
               padding: const EdgeInsets.all(16),
               child: Text(list.isEmpty ? l10n.whoEmpty : l10n.whoIntro),

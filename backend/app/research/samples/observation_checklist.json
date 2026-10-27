@@ -1,0 +1,324 @@
+{
+  "schema": 1,
+  "title": "Observation Checklist",
+  "description": "Fill in with the respondent's permission at the end of the interview. Part P is filled once per shared borehole.",
+  "settings": {
+    "numbering": "typed",
+    "number_label": "Household code (or borehole code)"
+  },
+  "fields": [
+    {
+      "name": "part",
+      "type": "select_one",
+      "label": "What is observed?",
+      "required": true,
+      "choices": [
+        {
+          "value": "household",
+          "label": "Household (H1-H10)"
+        },
+        {
+          "value": "borehole",
+          "label": "Shared borehole (P1-P5)"
+        }
+      ]
+    },
+    {
+      "name": "H",
+      "type": "group",
+      "label": "Household",
+      "fields": [
+        {
+          "name": "H1",
+          "type": "select_one",
+          "label": "Drinking water container seen",
+          "required": true,
+          "choices": [
+            {
+              "value": "present",
+              "label": "Present"
+            },
+            {
+              "value": "absent",
+              "label": "Absent"
+            }
+          ]
+        },
+        {
+          "name": "H1_type",
+          "type": "select_one",
+          "label": "Container type",
+          "required": true,
+          "other": true,
+          "relevant": "${H1} = 'present'",
+          "choices": [
+            {
+              "value": "jerrycan",
+              "label": "Jerrycan"
+            },
+            {
+              "value": "clay_pot",
+              "label": "Clay pot"
+            },
+            {
+              "value": "bucket",
+              "label": "Bucket"
+            }
+          ]
+        },
+        {
+          "name": "H2",
+          "type": "select_one",
+          "label": "Container covered with a lid or cover",
+          "required": true,
+          "choices": [
+            {
+              "value": "present",
+              "label": "Present"
+            },
+            {
+              "value": "absent",
+              "label": "Absent"
+            }
+          ]
+        },
+        {
+          "name": "H3",
+          "type": "select_one",
+          "label": "Container clean inside and out (no slime, dirt or green growth)",
+          "required": true,
+          "choices": [
+            {
+              "value": "present",
+              "label": "Present"
+            },
+            {
+              "value": "absent",
+              "label": "Absent"
+            }
+          ]
+        },
+        {
+          "name": "H4",
+          "type": "select_one",
+          "label": "Container raised off the floor",
+          "required": true,
+          "choices": [
+            {
+              "value": "present",
+              "label": "Present"
+            },
+            {
+              "value": "absent",
+              "label": "Absent"
+            }
+          ]
+        },
+        {
+          "name": "H5",
+          "type": "select_one",
+          "label": "Water drawn by pouring or with a handled cup (no cup left inside the water)",
+          "required": true,
+          "choices": [
+            {
+              "value": "present",
+              "label": "Present"
+            },
+            {
+              "value": "absent",
+              "label": "Absent"
+            }
+          ]
+        },
+        {
+          "name": "H6",
+          "type": "select_one",
+          "label": "Treated water present (chlorine smell, or respondent shows water boiled today)",
+          "required": true,
+          "choices": [
+            {
+              "value": "present",
+              "label": "Present"
+            },
+            {
+              "value": "absent",
+              "label": "Absent"
+            }
+          ]
+        },
+        {
+          "name": "H7",
+          "type": "select_one",
+          "label": "Chlorine tablets in the house",
+          "required": true,
+          "choices": [
+            {
+              "value": "present",
+              "label": "Present"
+            },
+            {
+              "value": "absent",
+              "label": "Absent"
+            }
+          ]
+        },
+        {
+          "name": "H8",
+          "type": "select_one",
+          "label": "Chlorine tablets kept out of children's reach",
+          "required": true,
+          "choices": [
+            {
+              "value": "present",
+              "label": "Present"
+            },
+            {
+              "value": "absent",
+              "label": "Absent"
+            }
+          ]
+        },
+        {
+          "name": "H9",
+          "type": "select_one",
+          "label": "Sticker on the water container",
+          "required": true,
+          "choices": [
+            {
+              "value": "present",
+              "label": "Present"
+            },
+            {
+              "value": "absent",
+              "label": "Absent"
+            }
+          ]
+        },
+        {
+          "name": "H10",
+          "type": "select_one",
+          "label": "Picture guide kept in the house",
+          "required": true,
+          "choices": [
+            {
+              "value": "present",
+              "label": "Present"
+            },
+            {
+              "value": "absent",
+              "label": "Absent"
+            }
+          ]
+        },
+        {
+          "name": "H_photo",
+          "type": "photo",
+          "label": "Photo of the drinking water container (optional)",
+          "required": false,
+          "hint": "Do not photograph people."
+        }
+      ],
+      "relevant": "${part} = 'household'"
+    },
+    {
+      "name": "P",
+      "type": "group",
+      "label": "Shared borehole",
+      "fields": [
+        {
+          "name": "P_name",
+          "type": "text",
+          "label": "Borehole name",
+          "required": true
+        },
+        {
+          "name": "P1",
+          "type": "select_one",
+          "label": "Poster in place and readable",
+          "required": true,
+          "choices": [
+            {
+              "value": "present",
+              "label": "Present"
+            },
+            {
+              "value": "absent",
+              "label": "Absent"
+            }
+          ]
+        },
+        {
+          "name": "P2",
+          "type": "select_one",
+          "label": "Surroundings free of rubbish and animal dung",
+          "required": true,
+          "choices": [
+            {
+              "value": "present",
+              "label": "Present"
+            },
+            {
+              "value": "absent",
+              "label": "Absent"
+            }
+          ]
+        },
+        {
+          "name": "P3",
+          "type": "select_one",
+          "label": "No stagnant water around the apron",
+          "required": true,
+          "choices": [
+            {
+              "value": "present",
+              "label": "Present"
+            },
+            {
+              "value": "absent",
+              "label": "Absent"
+            }
+          ]
+        },
+        {
+          "name": "P4",
+          "type": "select_one",
+          "label": "Apron and drainage channel intact and clear",
+          "required": true,
+          "choices": [
+            {
+              "value": "present",
+              "label": "Present"
+            },
+            {
+              "value": "absent",
+              "label": "Absent"
+            }
+          ]
+        },
+        {
+          "name": "P5",
+          "type": "select_one",
+          "label": "No latrine or animal pen close to the borehole",
+          "required": true,
+          "choices": [
+            {
+              "value": "present",
+              "label": "Present"
+            },
+            {
+              "value": "absent",
+              "label": "Absent"
+            }
+          ]
+        },
+        {
+          "name": "P_photo",
+          "type": "photo",
+          "label": "Photo of the borehole and its surroundings (optional)",
+          "required": false
+        }
+      ],
+      "relevant": "${part} = 'borehole'"
+    }
+  ]
+}

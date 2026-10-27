@@ -240,7 +240,7 @@ For Collect, run from `.\WaterCheck\apps\collect`:
 
 ```powershell
 flutter build windows --release `
-  --dart-define=WC_API_URL=https://api.watercheck.cooptconnect.app/api
+  --dart-define=WC_API_URL=https://api.watercheck.fieldquire.cooptconnect.app/api
 ```
 
 The executable and required files are in:
@@ -407,14 +407,14 @@ Run from `.\WaterCheck\apps\collect` on Windows:
 
 ```powershell
 flutter build apk --release `
-  --dart-define=WC_API_URL=https://api.watercheck.cooptconnect.app/api
+  --dart-define=WC_API_URL=https://api.watercheck.fieldquire.cooptconnect.app/api
 ```
 
 Run from `./WaterCheck/apps/collect` on Linux:
 
 ```bash
 flutter build apk --release \
-  --dart-define=WC_API_URL=https://api.watercheck.cooptconnect.app/api
+  --dart-define=WC_API_URL=https://api.watercheck.fieldquire.cooptconnect.app/api
 ```
 
 The APK is under:
@@ -703,14 +703,14 @@ Windows, from `.\WaterCheck\apps\collect`:
 
 ```powershell
 flutter build apk --release `
-  --dart-define=WC_API_URL=https://api.watercheck.cooptconnect.app/api
+  --dart-define=WC_API_URL=https://api.watercheck.fieldquire.cooptconnect.app/api
 ```
 
 Linux, from `./WaterCheck/apps/collect`:
 
 ```bash
 flutter build apk --release \
-  --dart-define=WC_API_URL=https://api.watercheck.cooptconnect.app/api
+  --dart-define=WC_API_URL=https://api.watercheck.fieldquire.cooptconnect.app/api
 ```
 
 The `java.lang.System::load`, SDK XML version, deprecated Java source and

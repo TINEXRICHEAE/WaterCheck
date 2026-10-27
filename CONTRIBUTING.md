@@ -145,7 +145,7 @@ the full stack already includes PostgreSQL/PostGIS, SeaweedFS, a worker, Caddy,
 and a tile server. When staging is added, it must use a separate host or a
 larger VM, and separate:
 
-- `staging.watercheck.cooptconnect.app` and `api-staging.watercheck.cooptconnect.app`;
+- `staging.watercheck.fieldquire.cooptconnect.app` and `api-staging.watercheck.fieldquire.cooptconnect.app`;
 - Compose project name, network, containers and ports;
 - `.env` and all database, storage and Caddy certificate volumes;
 - Flutter build with the staging API URL;

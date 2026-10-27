@@ -415,11 +415,11 @@ The same backend can serve the web, Windows and Android clients. The
 
 | Client | Local development | Production |
 | --- | --- | --- |
-| Console web | `http://localhost/api` through local Caddy | `https://watercheck.cooptconnect.app/api` |
-| Console Windows | `http://localhost/api` or the computer LAN URL | `https://api.watercheck.cooptconnect.app/api` |
-| Console Android | `http://10.0.2.2/api` on an emulator | `https://api.watercheck.cooptconnect.app/api` |
-| Collect Windows | `http://localhost/api` or the computer LAN URL | `https://api.watercheck.cooptconnect.app/api` |
-| Collect Android | `http://10.0.2.2/api` on an emulator | `https://api.watercheck.cooptconnect.app/api` |
+| Console web | `http://localhost/api` through local Caddy | `https://watercheck.fieldquire.cooptconnect.app/api` |
+| Console Windows | `http://localhost/api` or the computer LAN URL | `https://api.watercheck.fieldquire.cooptconnect.app/api` |
+| Console Android | `http://10.0.2.2/api` on an emulator | `https://api.watercheck.fieldquire.cooptconnect.app/api` |
+| Collect Windows | `http://localhost/api` or the computer LAN URL | `https://api.watercheck.fieldquire.cooptconnect.app/api` |
+| Collect Android | `http://10.0.2.2/api` on an emulator | `https://api.watercheck.fieldquire.cooptconnect.app/api` |
 
 Native clients use the API hostname because they are not served from the web
 hostname and therefore cannot rely on same-origin `/api` routing. Production
@@ -436,7 +436,7 @@ Run from the repository root, `.\WaterCheck`:
 Set-Location .\apps\console
 flutter build web --release `
   --base-href / `
-  --dart-define=WC_API_URL=https://watercheck.cooptconnect.app/api `
+  --dart-define=WC_API_URL=https://watercheck.fieldquire.cooptconnect.app/api `
   --no-web-resources-cdn `
   --no-pub
 ```
@@ -454,7 +454,7 @@ On Linux, run the equivalent build from `./WaterCheck/apps/console`:
 ```bash
 flutter build web --release \
   --base-href / \
-  --dart-define=WC_API_URL=https://watercheck.cooptconnect.app/api \
+  --dart-define=WC_API_URL=https://watercheck.fieldquire.cooptconnect.app/api \
   --no-web-resources-cdn \
   --no-pub
 ```
@@ -469,7 +469,7 @@ Run from the repository root, `.\WaterCheck`:
 ```powershell
 Set-Location .\apps\console
 flutter build windows --release `
-  --dart-define=WC_API_URL=https://api.watercheck.cooptconnect.app/api
+  --dart-define=WC_API_URL=https://api.watercheck.fieldquire.cooptconnect.app/api
 ```
 
 Run from the repository root, `.\WaterCheck`:
@@ -477,7 +477,7 @@ Run from the repository root, `.\WaterCheck`:
 ```powershell
 Set-Location .\apps\collect
 flutter build windows --release `
-  --dart-define=WC_API_URL=https://api.watercheck.cooptconnect.app/api
+  --dart-define=WC_API_URL=https://api.watercheck.fieldquire.cooptconnect.app/api
 ```
 
 The resulting executables are under
@@ -564,7 +564,7 @@ To make a local production-API Collect bundle, run from
 
 ```powershell
 flutter build windows --release `
-  --dart-define=WC_API_URL=https://api.watercheck.cooptconnect.app/api
+  --dart-define=WC_API_URL=https://api.watercheck.fieldquire.cooptconnect.app/api
 ```
 
 The runnable bundle is:
@@ -603,7 +603,7 @@ Run from the repository root, `.\WaterCheck`:
 ```powershell
 Set-Location .\apps\console
 flutter build apk --release `
-  --dart-define=WC_API_URL=https://api.watercheck.cooptconnect.app/api
+  --dart-define=WC_API_URL=https://api.watercheck.fieldquire.cooptconnect.app/api
 ```
 
 Run from the repository root, `.\WaterCheck`:
@@ -611,7 +611,7 @@ Run from the repository root, `.\WaterCheck`:
 ```powershell
 Set-Location .\apps\collect
 flutter build apk --release `
-  --dart-define=WC_API_URL=https://api.watercheck.cooptconnect.app/api
+  --dart-define=WC_API_URL=https://api.watercheck.fieldquire.cooptconnect.app/api
 ```
 
 The APKs are under each app's `build\app\outputs\flutter-apk` directory.
@@ -622,21 +622,21 @@ Run from the repository root, `.\WaterCheck`:
 ```powershell
 Set-Location .\apps\console
 flutter build appbundle --release `
-  --dart-define=WC_API_URL=https://api.watercheck.cooptconnect.app/api
+  --dart-define=WC_API_URL=https://api.watercheck.fieldquire.cooptconnect.app/api
 ```
 
 On Linux, run the Android Console build from `./WaterCheck/apps/console`:
 
 ```bash
 flutter build apk --release \
-  --dart-define=WC_API_URL=https://api.watercheck.cooptconnect.app/api
+  --dart-define=WC_API_URL=https://api.watercheck.fieldquire.cooptconnect.app/api
 ```
 
 On Linux, run the Android Collect build from `./WaterCheck/apps/collect`:
 
 ```bash
 flutter build apk --release \
-  --dart-define=WC_API_URL=https://api.watercheck.cooptconnect.app/api
+  --dart-define=WC_API_URL=https://api.watercheck.fieldquire.cooptconnect.app/api
 ```
 
 For Linux app bundles, run from `./WaterCheck/apps/console` or
@@ -644,7 +644,7 @@ For Linux app bundles, run from `./WaterCheck/apps/console` or
 
 ```bash
 flutter build appbundle --release \
-  --dart-define=WC_API_URL=https://api.watercheck.cooptconnect.app/api
+  --dart-define=WC_API_URL=https://api.watercheck.fieldquire.cooptconnect.app/api
 ```
 
 Run from the repository root, `.\WaterCheck`:
@@ -652,7 +652,7 @@ Run from the repository root, `.\WaterCheck`:
 ```powershell
 Set-Location .\apps\collect
 flutter build appbundle --release `
-  --dart-define=WC_API_URL=https://api.watercheck.cooptconnect.app/api
+  --dart-define=WC_API_URL=https://api.watercheck.fieldquire.cooptconnect.app/api
 ```
 
 Install a test APK directly on a connected device:
@@ -905,10 +905,10 @@ production uses `Caddyfile.prod`, selected by `WC_CADDYFILE` in the VM's
 The current production smoke checks pass:
 
 ```text
-https://api.watercheck.cooptconnect.app/health
-https://watercheck.cooptconnect.app/health
-https://watercheck.cooptconnect.app/api/health
-https://watercheck.cooptconnect.app/
+https://api.watercheck.fieldquire.cooptconnect.app/health
+https://watercheck.fieldquire.cooptconnect.app/health
+https://watercheck.fieldquire.cooptconnect.app/api/health
+https://watercheck.fieldquire.cooptconnect.app/
 ```
 
 The Console root and sign-in page load publicly, and the health endpoints
@@ -966,8 +966,8 @@ prod  Azure VM with protected persistent data
 Production domains:
 
 ```text
-https://watercheck.cooptconnect.app
-https://api.watercheck.cooptconnect.app
+https://watercheck.fieldquire.cooptconnect.app
+https://api.watercheck.fieldquire.cooptconnect.app
 ```
 
 ## Documentation map

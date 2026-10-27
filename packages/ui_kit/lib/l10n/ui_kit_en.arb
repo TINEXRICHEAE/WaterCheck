@@ -148,7 +148,7 @@
   },
   "trendTitle": "Trend",
   "trendLimit": "Limit",
-  "appLogo": "WaterCheck logo",
+  "appLogo": "FieldQuire logo",
   "passwordShow": "Show password",
   "passwordHide": "Hide password",
   "loading": "Loading",
@@ -246,7 +246,7 @@
   "mapRouteLoading": "finding the route…",
   "mapRouteNone": "no route found (or routing is off)",
   "installApp": "Install app",
-  "installAppHint": "Open WaterCheck from your home screen or app list, also offline.",
+  "installAppHint": "Open FieldQuire from your home screen or app list, also offline.",
   "mapZoomIn": "Zoom in (R key)",
   "mapZoomOut": "Zoom out (F key)",
   "photoClose": "Close (Esc)",
@@ -312,7 +312,7 @@
     }
   },
   "legalAccept": "I agree to the Terms of Use and the Privacy Policy",
-  "legalChanged": "The Privacy Policy or Terms of Use have changed. Please read them and agree again to keep using WaterCheck.",
+  "legalChanged": "The Privacy Policy or Terms of Use have changed. Please read them and agree again to keep using FieldQuire.",
   "mapPathOpen": "Show the whole path",
   "mapPathFold": "Fold the path",
   "mapPathMore": "+{count}",
@@ -438,6 +438,61 @@
   "placeKindOther": "Other",
   "mapSearchingOnline": "Searching all of Uganda…",
   "mapSearchNothing": "Nothing found",
-  "installAppIos": "Add WaterCheck to your Home Screen",
-  "installAppIosHint": "In Safari, tap Share, then Add to Home Screen. WaterCheck then opens like an app, full screen."
+  "installAppIos": "Add FieldQuire to your Home Screen",
+  "installAppIosHint": "In Safari, tap Share, then Add to Home Screen. FieldQuire then opens like an app, full screen.",
+  "formRequired": "Answer this question",
+  "formNotAccepted": "This answer is not accepted",
+  "formNotNumber": "Enter a number",
+  "formNotWhole": "Enter a whole number",
+  "formTooSmall": "At least {min}",
+  "@formTooSmall": {
+    "placeholders": {
+      "min": {
+        "type": "String"
+      }
+    }
+  },
+  "formTooLarge": "At most {max}",
+  "@formTooLarge": {
+    "placeholders": {
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "formOtherMissing": "Say what \"Other\" is",
+  "formRows": "Add the rows this needs",
+  "formOther": "Other",
+  "formOtherSpecify": "Other: specify",
+  "formYes": "Yes",
+  "formNo": "No",
+  "formRow": "Row {n}",
+  "@formRow": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "formAddRow": "Add a row",
+  "formRemoveRow": "Remove this row",
+  "formTakePicture": "Take a picture",
+  "formRetakePicture": "Take again",
+  "formRemovePicture": "Remove",
+  "formPictureNotHere": "Picture not on this device",
+  "formCaptureLocation": "Record the location",
+  "formLocationCaptured": "{point} (±{accuracy} m)",
+  "@formLocationCaptured": {
+    "placeholders": {
+      "point": {
+        "type": "String"
+      },
+      "accuracy": {
+        "type": "String"
+      }
+    }
+  },
+  "formPick": "Choose",
+  "formTypeCode": "Type the code",
+  "formNotYet": "This kind of question comes in a later version of FieldQuire."
 }

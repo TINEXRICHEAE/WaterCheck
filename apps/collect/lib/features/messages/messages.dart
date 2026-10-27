@@ -155,6 +155,7 @@ IconData _icon(ThreadKind kind) => switch (kind) {
   ThreadKind.source => Icons.water_drop_outlined,
   ThreadKind.collector => Icons.person_outline,
   ThreadKind.area => Icons.place_outlined,
+  ThreadKind.research => Icons.assignment_outlined,
 };
 
 final _titleProvider = FutureProvider.autoDispose
@@ -188,6 +189,15 @@ class ThreadScreen extends ConsumerWidget {
                 onPressed: () => context.push('/sources/$subjectId'),
                 icon: const Icon(Icons.water_drop_outlined),
                 label: Text(l10n.messagesOpenSource),
+              ),
+            ),
+          if (kind == ThreadKind.research)
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton.icon(
+                onPressed: () => context.push('/research/record/$subjectId'),
+                icon: const Icon(Icons.assignment_outlined),
+                label: Text(l10n.researchOpenRecord),
               ),
             ),
           ThreadSection(kind: kind, subjectId: subjectId),

@@ -9,6 +9,7 @@ workspace:
   - apps/collect
   - apps/console
   - packages/domain
+  - packages/forms
   - packages/data
   - packages/ui_kit
   - packages/api_client

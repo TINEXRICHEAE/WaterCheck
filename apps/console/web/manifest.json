@@ -1,11 +1,11 @@
 {
-    "name": "WaterCheck Console",
+    "name": "FieldQuire Console",
     "short_name": "Console",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0F172A",
     "theme_color": "#0F172A",
-    "description": "Water quality dashboard, alerts and administration.",
+    "description": "Water quality and research: dashboards, forms, analysis and administration.",
     "orientation": "any",
     "prefer_related_applications": false,
     "icons": [

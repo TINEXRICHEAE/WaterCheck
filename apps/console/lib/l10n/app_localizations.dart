@@ -97,7 +97,7 @@ abstract class AppLocalizations {
   /// No description provided for @appTitle.
   ///
   /// In en, this message translates to:
-  /// **'WaterCheck Console'**
+  /// **'FieldQuire Console'**
   String get appTitle;
 
   /// No description provided for @navDashboard.
@@ -193,7 +193,7 @@ abstract class AppLocalizations {
   /// No description provided for @startupFailed.
   ///
   /// In en, this message translates to:
-  /// **'WaterCheck Console could not open its local data.'**
+  /// **'FieldQuire Console could not open its local data.'**
   String get startupFailed;
 
   /// No description provided for @startupRetry.
@@ -211,7 +211,7 @@ abstract class AppLocalizations {
   /// No description provided for @signInTitle.
   ///
   /// In en, this message translates to:
-  /// **'Sign in to WaterCheck Console'**
+  /// **'Sign in to FieldQuire Console'**
   String get signInTitle;
 
   /// No description provided for @signInUsername.
@@ -685,7 +685,7 @@ abstract class AppLocalizations {
   /// No description provided for @alertBySystem.
   ///
   /// In en, this message translates to:
-  /// **'WaterCheck'**
+  /// **'FieldQuire'**
   String get alertBySystem;
 
   /// No description provided for @alertByYou.
@@ -1573,7 +1573,7 @@ abstract class AppLocalizations {
   /// No description provided for @noticePrinted.
   ///
   /// In en, this message translates to:
-  /// **'Printed {date} from WaterCheck'**
+  /// **'Printed {date} from FieldQuire'**
   String noticePrinted(String date);
 
   /// No description provided for @pdfColParameter.
@@ -2971,7 +2971,7 @@ abstract class AppLocalizations {
   /// No description provided for @accountAbout.
   ///
   /// In en, this message translates to:
-  /// **'About WaterCheck'**
+  /// **'About FieldQuire'**
   String get accountAbout;
 
   /// No description provided for @appearanceTitle.
@@ -3343,7 +3343,7 @@ abstract class AppLocalizations {
   /// No description provided for @lockOffBody.
   ///
   /// In en, this message translates to:
-  /// **'WaterCheck will open on this device without a PIN, and stay open when no one is using it. Sign out when you leave a shared computer.'**
+  /// **'FieldQuire will open on this device without a PIN, and stay open when no one is using it. Sign out when you leave a shared computer.'**
   String get lockOffBody;
 
   /// No description provided for @lockOffConfirm.
@@ -3367,7 +3367,7 @@ abstract class AppLocalizations {
   /// No description provided for @recoveryHow.
   ///
   /// In en, this message translates to:
-  /// **'Give this code to the collector (call or text them). In WaterCheck Collect on any phone: \"Who is testing?\" › \"I already have a profile\" › enter the code. They come back as the same person, with their details. The code works once.'**
+  /// **'Give this code to the collector (call or text them). In FieldQuire Collect on any phone: \"Who is testing?\" › \"I already have a profile\" › enter the code. They come back as the same person, with their details. The code works once.'**
   String get recoveryHow;
 
   /// No description provided for @recoveryValid.
@@ -3853,7 +3853,7 @@ abstract class AppLocalizations {
   /// No description provided for @messagesAbout.
   ///
   /// In en, this message translates to:
-  /// **'{kind, select, test{Test} source{Source} collector{Collector} area{Area} other{Thread}}'**
+  /// **'{kind, select, test{Test} source{Source} collector{Collector} area{Area} research{Research record} other{Thread}}'**
   String messagesAbout(String kind);
 
   /// No description provided for @messagesOpen.
@@ -4363,7 +4363,7 @@ abstract class AppLocalizations {
   /// No description provided for @legalSummary.
   ///
   /// In en, this message translates to:
-  /// **'WaterCheck holds personal information about testers and officials: names, contacts, where tests were made, pictures with where and when they were taken, places people added, and messages. As a Console user you see this for your areas. Use it only to protect drinking water, keep it to yourself, and follow the Terms of Use. The data is hosted outside Uganda (South Africa).'**
+  /// **'FieldQuire holds personal information about testers and officials: names, contacts, where tests were made, pictures with where and when they were taken, places people added, and messages. As a Console user you see this for your areas. Use it only to protect drinking water, keep it to yourself, and follow the Terms of Use. The data is hosted outside Uganda (South Africa).'**
   String get legalSummary;
 
   /// No description provided for @mapPlaceRename.
@@ -4407,6 +4407,1956 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your location is not available. Allow location for this site (the icon in the address bar, or the site settings) and switch location on for the device. On iPhone: Settings › Privacy & Security › Location Services › Safari Websites › While Using the App. A laptop without GPS may show an approximate place.'**
   String get mapLocationHelp;
+
+  /// No description provided for @modeWater.
+  ///
+  /// In en, this message translates to:
+  /// **'Water testing'**
+  String get modeWater;
+
+  /// No description provided for @modeResearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Research'**
+  String get modeResearch;
+
+  /// No description provided for @researchProjects.
+  ///
+  /// In en, this message translates to:
+  /// **'Research projects'**
+  String get researchProjects;
+
+  /// No description provided for @researchNoProjects.
+  ///
+  /// In en, this message translates to:
+  /// **'No research projects yet. Projects you own or help supervise appear here.'**
+  String get researchNoProjects;
+
+  /// No description provided for @researchFormsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 form} other{{count} forms}}'**
+  String researchFormsCount(int count);
+
+  /// No description provided for @researchRecordsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{no records} =1{1 record} other{{count} records}}'**
+  String researchRecordsCount(int count);
+
+  /// No description provided for @researchFormsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Forms'**
+  String get researchFormsTitle;
+
+  /// No description provided for @researchPointsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Where records were made ({count})'**
+  String researchPointsTitle(int count);
+
+  /// No description provided for @researchPublished.
+  ///
+  /// In en, this message translates to:
+  /// **'Published'**
+  String get researchPublished;
+
+  /// No description provided for @researchClosed.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed'**
+  String get researchClosed;
+
+  /// No description provided for @researchDraft.
+  ///
+  /// In en, this message translates to:
+  /// **'Draft'**
+  String get researchDraft;
+
+  /// No description provided for @researchAccessOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Any collector'**
+  String get researchAccessOpen;
+
+  /// No description provided for @researchAccessCode.
+  ///
+  /// In en, this message translates to:
+  /// **'With a code'**
+  String get researchAccessCode;
+
+  /// No description provided for @researchAccessAssigned.
+  ///
+  /// In en, this message translates to:
+  /// **'Assigned collectors'**
+  String get researchAccessAssigned;
+
+  /// No description provided for @researchHidden.
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden'**
+  String get researchHidden;
+
+  /// No description provided for @researchPublic.
+  ///
+  /// In en, this message translates to:
+  /// **'Public'**
+  String get researchPublic;
+
+  /// No description provided for @researchShared.
+  ///
+  /// In en, this message translates to:
+  /// **'Shared'**
+  String get researchShared;
+
+  /// No description provided for @researchPrivate.
+  ///
+  /// In en, this message translates to:
+  /// **'Private'**
+  String get researchPrivate;
+
+  /// No description provided for @researchRecords.
+  ///
+  /// In en, this message translates to:
+  /// **'Records'**
+  String get researchRecords;
+
+  /// No description provided for @researchSearchNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by research number'**
+  String get researchSearchNumber;
+
+  /// No description provided for @researchNoLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'No location'**
+  String get researchNoLocation;
+
+  /// No description provided for @researchDeclinedShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Declined'**
+  String get researchDeclinedShort;
+
+  /// No description provided for @researchClash.
+  ///
+  /// In en, this message translates to:
+  /// **'Number used twice: check with the collector'**
+  String get researchClash;
+
+  /// No description provided for @researchMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Show more'**
+  String get researchMore;
+
+  /// No description provided for @researchRecordTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Record {number}'**
+  String researchRecordTitle(String number);
+
+  /// No description provided for @researchMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min'**
+  String researchMinutes(int minutes);
+
+  /// No description provided for @researchPointAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Location: {point} (±{metres} m)'**
+  String researchPointAt(String point, String metres);
+
+  /// No description provided for @researchErrCodeTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'That code is already used. Choose another.'**
+  String get researchErrCodeTaken;
+
+  /// No description provided for @researchErrNoUser.
+  ///
+  /// In en, this message translates to:
+  /// **'No active account signs in with that email.'**
+  String get researchErrNoUser;
+
+  /// No description provided for @researchErrNothingToPublish.
+  ///
+  /// In en, this message translates to:
+  /// **'There are no changes to publish.'**
+  String get researchErrNothingToPublish;
+
+  /// No description provided for @researchErrNoFields.
+  ///
+  /// In en, this message translates to:
+  /// **'Add at least one question before publishing.'**
+  String get researchErrNoFields;
+
+  /// No description provided for @researchErrAnalyst.
+  ///
+  /// In en, this message translates to:
+  /// **'Analysts can read and analyse, not change the project.'**
+  String get researchErrAnalyst;
+
+  /// No description provided for @researchErrOwnerOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Only the project\'s owner can do this.'**
+  String get researchErrOwnerOnly;
+
+  /// No description provided for @researchErrNothingToClone.
+  ///
+  /// In en, this message translates to:
+  /// **'This form has nothing to copy yet.'**
+  String get researchErrNothingToClone;
+
+  /// No description provided for @researchErrInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'The form could not be read. Check it and try again.'**
+  String get researchErrInvalid;
+
+  /// No description provided for @researchErrOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'No connection. Try again when online.'**
+  String get researchErrOffline;
+
+  /// No description provided for @researchErrOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong ({code}). Try again.'**
+  String researchErrOther(String code);
+
+  /// No description provided for @researchAppTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Research'**
+  String get researchAppTitle;
+
+  /// No description provided for @researchProject.
+  ///
+  /// In en, this message translates to:
+  /// **'Project'**
+  String get researchProject;
+
+  /// No description provided for @researchNoProjectYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No project yet'**
+  String get researchNoProjectYet;
+
+  /// No description provided for @researchNewProject.
+  ///
+  /// In en, this message translates to:
+  /// **'New project'**
+  String get researchNewProject;
+
+  /// No description provided for @researchTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Title'**
+  String get researchTitle;
+
+  /// No description provided for @researchDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get researchDescription;
+
+  /// No description provided for @researchRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Required'**
+  String get researchRequired;
+
+  /// No description provided for @researchProjectCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Project code'**
+  String get researchProjectCode;
+
+  /// No description provided for @researchProjectCodeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'2 to 8 letters or digits, e.g. ENT. It starts every research number (ENT-HQ-…) and cannot be changed later.'**
+  String get researchProjectCodeHint;
+
+  /// No description provided for @researchProjectCodeRule.
+  ///
+  /// In en, this message translates to:
+  /// **'Use 2 to 8 letters or digits'**
+  String get researchProjectCodeRule;
+
+  /// No description provided for @researchCreate.
+  ///
+  /// In en, this message translates to:
+  /// **'Create'**
+  String get researchCreate;
+
+  /// No description provided for @researchDashboardHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Your research project at a glance: records, forms, collectors and where records were made.'**
+  String get researchDashboardHint;
+
+  /// No description provided for @researchOwnerRole.
+  ///
+  /// In en, this message translates to:
+  /// **'Owner: {owner} · You: {role}'**
+  String researchOwnerRole(String owner, String role);
+
+  /// No description provided for @researchTeam.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Team (1)} other{Team ({count})}}'**
+  String researchTeam(int count);
+
+  /// No description provided for @researchKpiRecords.
+  ///
+  /// In en, this message translates to:
+  /// **'Records'**
+  String get researchKpiRecords;
+
+  /// No description provided for @researchKpiToday.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} made today'**
+  String researchKpiToday(int count);
+
+  /// No description provided for @researchKpiForms.
+  ///
+  /// In en, this message translates to:
+  /// **'Published forms'**
+  String get researchKpiForms;
+
+  /// No description provided for @researchKpiFormsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 form in all} other{{count} forms in all}}'**
+  String researchKpiFormsHint(int count);
+
+  /// No description provided for @researchKpiCollectors.
+  ///
+  /// In en, this message translates to:
+  /// **'Collectors'**
+  String get researchKpiCollectors;
+
+  /// No description provided for @researchKpiCollectorsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} with records'**
+  String researchKpiCollectorsHint(int count);
+
+  /// No description provided for @researchKpiMessages.
+  ///
+  /// In en, this message translates to:
+  /// **'Awaiting an answer'**
+  String get researchKpiMessages;
+
+  /// No description provided for @researchKpiMessagesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Messages from collectors'**
+  String get researchKpiMessagesHint;
+
+  /// No description provided for @researchPointsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Research numbers only, never names. Tap a point to open its record.'**
+  String get researchPointsHint;
+
+  /// No description provided for @researchOpenMap.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the map'**
+  String get researchOpenMap;
+
+  /// No description provided for @researchLatestRecords.
+  ///
+  /// In en, this message translates to:
+  /// **'Latest records'**
+  String get researchLatestRecords;
+
+  /// No description provided for @researchSeeAllRecords.
+  ///
+  /// In en, this message translates to:
+  /// **'All records'**
+  String get researchSeeAllRecords;
+
+  /// No description provided for @researchNoRecordsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No records yet.'**
+  String get researchNoRecordsYet;
+
+  /// No description provided for @researchNoCollectorsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No collectors yet. Give a form to testers, or share its access code.'**
+  String get researchNoCollectorsYet;
+
+  /// No description provided for @researchLastAt.
+  ///
+  /// In en, this message translates to:
+  /// **'last {when}'**
+  String researchLastAt(String when);
+
+  /// No description provided for @researchRoleOwner.
+  ///
+  /// In en, this message translates to:
+  /// **'Owner'**
+  String get researchRoleOwner;
+
+  /// No description provided for @researchRoleSupervisor.
+  ///
+  /// In en, this message translates to:
+  /// **'Supervisor'**
+  String get researchRoleSupervisor;
+
+  /// No description provided for @researchRoleAnalyst.
+  ///
+  /// In en, this message translates to:
+  /// **'Analyst'**
+  String get researchRoleAnalyst;
+
+  /// No description provided for @researchRoleSupervisorHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Builds and publishes forms, manages collectors, sees all records.'**
+  String get researchRoleSupervisorHint;
+
+  /// No description provided for @researchRoleAnalystHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Sees all records and analysis; changes nothing.'**
+  String get researchRoleAnalystHint;
+
+  /// No description provided for @researchWelcomeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Start your research'**
+  String get researchWelcomeTitle;
+
+  /// No description provided for @researchWelcomeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a project, then build its forms here in the Console (or import an XLSForm, or copy one from the library). Publish a form and give it to collectors: they fill it in Collect, offline, and every record keeps where and when it was made.'**
+  String get researchWelcomeBody;
+
+  /// No description provided for @researchLibrary.
+  ///
+  /// In en, this message translates to:
+  /// **'Form library'**
+  String get researchLibrary;
+
+  /// No description provided for @researchTeamTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Project and team'**
+  String get researchTeamTitle;
+
+  /// No description provided for @researchTeamHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Supervisors build forms and manage collectors; analysts read and analyse. People are added by the email they sign in with.'**
+  String get researchTeamHint;
+
+  /// No description provided for @researchEditProject.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit the project'**
+  String get researchEditProject;
+
+  /// No description provided for @researchRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get researchRemove;
+
+  /// No description provided for @researchRemoveMemberTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from the project?'**
+  String get researchRemoveMemberTitle;
+
+  /// No description provided for @researchRemoveMemberBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} will no longer see the project or its records.'**
+  String researchRemoveMemberBody(String name);
+
+  /// No description provided for @researchAddMember.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a person'**
+  String get researchAddMember;
+
+  /// No description provided for @researchMemberEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Their sign-in email'**
+  String get researchMemberEmail;
+
+  /// No description provided for @researchMemberEmailHint.
+  ///
+  /// In en, this message translates to:
+  /// **'They need a Console account. An IT admin can make one.'**
+  String get researchMemberEmailHint;
+
+  /// No description provided for @researchAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get researchAdd;
+
+  /// No description provided for @researchSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get researchSave;
+
+  /// No description provided for @researchSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved'**
+  String get researchSaved;
+
+  /// No description provided for @researchAllForms.
+  ///
+  /// In en, this message translates to:
+  /// **'All forms'**
+  String get researchAllForms;
+
+  /// No description provided for @researchAllCollectors.
+  ///
+  /// In en, this message translates to:
+  /// **'All collectors'**
+  String get researchAllCollectors;
+
+  /// No description provided for @researchCollectedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Collected by'**
+  String get researchCollectedBy;
+
+  /// No description provided for @researchTook.
+  ///
+  /// In en, this message translates to:
+  /// **'took {duration}'**
+  String researchTook(String duration);
+
+  /// No description provided for @researchStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'started'**
+  String get researchStarted;
+
+  /// No description provided for @researchFinishedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Finished at {point}'**
+  String researchFinishedAt(String point);
+
+  /// No description provided for @researchAnswers.
+  ///
+  /// In en, this message translates to:
+  /// **'Answers'**
+  String get researchAnswers;
+
+  /// No description provided for @researchMessagesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Talk with the collector about this record. They see it in Collect with their next sync.'**
+  String get researchMessagesHint;
+
+  /// No description provided for @researchMessagesListHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Conversations with collectors about records in this project.'**
+  String get researchMessagesListHint;
+
+  /// No description provided for @researchNeedsAnswer.
+  ///
+  /// In en, this message translates to:
+  /// **'needs an answer'**
+  String get researchNeedsAnswer;
+
+  /// No description provided for @researchAwaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 record awaits an answer} other{{count} records await an answer}}'**
+  String researchAwaiting(int count);
+
+  /// No description provided for @researchFormsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Build forms here, publish them, and choose who collects with them and who may copy them.'**
+  String get researchFormsHint;
+
+  /// No description provided for @researchNewForm.
+  ///
+  /// In en, this message translates to:
+  /// **'New form'**
+  String get researchNewForm;
+
+  /// No description provided for @researchImportXlsForm.
+  ///
+  /// In en, this message translates to:
+  /// **'Import XLSForm'**
+  String get researchImportXlsForm;
+
+  /// No description provided for @researchNoForms.
+  ///
+  /// In en, this message translates to:
+  /// **'No forms yet. Start a new form, import an XLSForm, or copy one from the library.'**
+  String get researchNoForms;
+
+  /// No description provided for @researchVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'version {number}'**
+  String researchVersion(int number);
+
+  /// No description provided for @researchUnpublishedChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'unpublished changes'**
+  String get researchUnpublishedChanges;
+
+  /// No description provided for @researchImportFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'That file could not be read as an XLSForm: {reason}'**
+  String researchImportFailed(String reason);
+
+  /// No description provided for @researchImportWarnings.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 row could not be imported} other{{count} rows could not be imported}}'**
+  String researchImportWarnings(int count);
+
+  /// No description provided for @researchImportAnyway.
+  ///
+  /// In en, this message translates to:
+  /// **'Import the rest'**
+  String get researchImportAnyway;
+
+  /// No description provided for @researchFormCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Form code'**
+  String get researchFormCode;
+
+  /// No description provided for @researchFormCodeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'1 to 6 letters or digits, e.g. HQ. It is part of the research numbers (ENT-HQ-…).'**
+  String get researchFormCodeHint;
+
+  /// No description provided for @researchFormCodeRule.
+  ///
+  /// In en, this message translates to:
+  /// **'Use 1 to 6 letters or digits'**
+  String get researchFormCodeRule;
+
+  /// No description provided for @researchLibraryHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Forms other researchers made public or shared with you. Open one to see it, then copy it into your project as a draft.'**
+  String get researchLibraryHint;
+
+  /// No description provided for @researchLibraryEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No forms are shared with you yet.'**
+  String get researchLibraryEmpty;
+
+  /// No description provided for @researchFixFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Fix 1 problem first (listed above the questions).} other{Fix {count} problems first (listed above the questions).}}'**
+  String researchFixFirst(int count);
+
+  /// No description provided for @researchPublishTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Publish the form?'**
+  String get researchPublishTitle;
+
+  /// No description provided for @researchPublishFirstBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Collectors who may use it get it with their next sync.'**
+  String get researchPublishFirstBody;
+
+  /// No description provided for @researchPublishBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This becomes version {number}. Collectors get it with their next sync; records already made keep the version they were filled with.'**
+  String researchPublishBody(int number);
+
+  /// No description provided for @researchPublish.
+  ///
+  /// In en, this message translates to:
+  /// **'Publish'**
+  String get researchPublish;
+
+  /// No description provided for @researchPublishedNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Published. Collectors get it with their next sync.'**
+  String get researchPublishedNow;
+
+  /// No description provided for @researchDiscardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard the changes?'**
+  String get researchDiscardTitle;
+
+  /// No description provided for @researchDiscardBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The form goes back to its published version.'**
+  String get researchDiscardBody;
+
+  /// No description provided for @researchDiscard.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard changes'**
+  String get researchDiscard;
+
+  /// No description provided for @researchCopyForm.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy to my project'**
+  String get researchCopyForm;
+
+  /// No description provided for @researchExportXlsForm.
+  ///
+  /// In en, this message translates to:
+  /// **'Download XLSForm'**
+  String get researchExportXlsForm;
+
+  /// No description provided for @researchSeeRecords.
+  ///
+  /// In en, this message translates to:
+  /// **'See its records'**
+  String get researchSeeRecords;
+
+  /// No description provided for @researchDraftNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Changes are saved as a draft. Collectors keep the published version until you publish again.'**
+  String get researchDraftNote;
+
+  /// No description provided for @researchTabQuestions.
+  ///
+  /// In en, this message translates to:
+  /// **'Questions'**
+  String get researchTabQuestions;
+
+  /// No description provided for @researchTabAccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Access and sharing'**
+  String get researchTabAccess;
+
+  /// No description provided for @researchTabVersions.
+  ///
+  /// In en, this message translates to:
+  /// **'Versions'**
+  String get researchTabVersions;
+
+  /// No description provided for @researchTabPreview.
+  ///
+  /// In en, this message translates to:
+  /// **'Try it'**
+  String get researchTabPreview;
+
+  /// No description provided for @researchNeedProject.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a project first.'**
+  String get researchNeedProject;
+
+  /// No description provided for @researchWhoCollects.
+  ///
+  /// In en, this message translates to:
+  /// **'Who may collect with this form'**
+  String get researchWhoCollects;
+
+  /// No description provided for @researchAccessAssignedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Only testers you give the form to (Collectors).'**
+  String get researchAccessAssignedHint;
+
+  /// No description provided for @researchAccessCodeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Testers who type the form\'s access code in Collect, and those you give it to.'**
+  String get researchAccessCodeHint;
+
+  /// No description provided for @researchAccessOpenHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Any tester on Collect, unless the form is hidden.'**
+  String get researchAccessOpenHint;
+
+  /// No description provided for @researchCodeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Testers type this code in Collect › Research to join.'**
+  String get researchCodeHint;
+
+  /// No description provided for @researchCopyCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy the code'**
+  String get researchCopyCode;
+
+  /// No description provided for @researchNewCode.
+  ///
+  /// In en, this message translates to:
+  /// **'New code'**
+  String get researchNewCode;
+
+  /// No description provided for @researchNewCodeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The old code stops working. Collectors who already joined keep the form.'**
+  String get researchNewCodeBody;
+
+  /// No description provided for @researchFormCollectors.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No collectors yet} =1{1 collector} other{{count} collectors}}'**
+  String researchFormCollectors(int count);
+
+  /// No description provided for @researchAssign.
+  ///
+  /// In en, this message translates to:
+  /// **'Give the form'**
+  String get researchAssign;
+
+  /// No description provided for @researchJoinedWithCode.
+  ///
+  /// In en, this message translates to:
+  /// **'joined with the code'**
+  String get researchJoinedWithCode;
+
+  /// No description provided for @researchAssignedByTeam.
+  ///
+  /// In en, this message translates to:
+  /// **'given by the team'**
+  String get researchAssignedByTeam;
+
+  /// No description provided for @researchHiddenTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden'**
+  String get researchHiddenTitle;
+
+  /// No description provided for @researchHiddenHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Not listed for browsing or the library. Collectors you gave it to still get it.'**
+  String get researchHiddenHint;
+
+  /// No description provided for @researchOpenForCollection.
+  ///
+  /// In en, this message translates to:
+  /// **'Open for collection'**
+  String get researchOpenForCollection;
+
+  /// No description provided for @researchOpenForCollectionHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Off: collectors can no longer send new records (those made stay).'**
+  String get researchOpenForCollectionHint;
+
+  /// No description provided for @researchWhoSees.
+  ///
+  /// In en, this message translates to:
+  /// **'Who may see and copy this form'**
+  String get researchWhoSees;
+
+  /// No description provided for @researchPrivateHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Only this project\'s team.'**
+  String get researchPrivateHint;
+
+  /// No description provided for @researchSharedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The team, and the people you name below.'**
+  String get researchSharedHint;
+
+  /// No description provided for @researchPublicHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Any researcher on FieldQuire (never the records).'**
+  String get researchPublicHint;
+
+  /// No description provided for @researchShareWith.
+  ///
+  /// In en, this message translates to:
+  /// **'Share with a person'**
+  String get researchShareWith;
+
+  /// No description provided for @researchAssignTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Give {code} to testers'**
+  String researchAssignTitle(String code);
+
+  /// No description provided for @researchFindTester.
+  ///
+  /// In en, this message translates to:
+  /// **'Find a tester'**
+  String get researchFindTester;
+
+  /// No description provided for @researchFindTesterHint.
+  ///
+  /// In en, this message translates to:
+  /// **'By name or phone number, as they set it in Collect.'**
+  String get researchFindTesterHint;
+
+  /// No description provided for @researchDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get researchDone;
+
+  /// No description provided for @researchVersionsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Each publish makes a new version. Records keep the version they were filled with.'**
+  String get researchVersionsHint;
+
+  /// No description provided for @researchNotPublished.
+  ///
+  /// In en, this message translates to:
+  /// **'Not published yet.'**
+  String get researchNotPublished;
+
+  /// No description provided for @researchPublishedOn.
+  ///
+  /// In en, this message translates to:
+  /// **'published {when}'**
+  String researchPublishedOn(String when);
+
+  /// No description provided for @researchCurrent.
+  ///
+  /// In en, this message translates to:
+  /// **'Current'**
+  String get researchCurrent;
+
+  /// No description provided for @researchPreviewBroken.
+  ///
+  /// In en, this message translates to:
+  /// **'The form has a problem; see the list above the questions.'**
+  String get researchPreviewBroken;
+
+  /// No description provided for @researchPreviewHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill the form as a collector would, to try skip logic and checks. Nothing is saved.'**
+  String get researchPreviewHint;
+
+  /// No description provided for @researchPreviewCheck.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the answers'**
+  String get researchPreviewCheck;
+
+  /// No description provided for @researchPreviewReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Start again'**
+  String get researchPreviewReset;
+
+  /// No description provided for @researchPreviewOk.
+  ///
+  /// In en, this message translates to:
+  /// **'All answers are accepted. This is what would be saved:'**
+  String get researchPreviewOk;
+
+  /// No description provided for @researchPreviewIssues.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 answer needs attention} other{{count} answers need attention}}'**
+  String researchPreviewIssues(int count);
+
+  /// No description provided for @researchCollectorsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Testers collecting for this project, the forms each has, and their records.'**
+  String get researchCollectorsHint;
+
+  /// No description provided for @researchGiveForm.
+  ///
+  /// In en, this message translates to:
+  /// **'Give a form to testers'**
+  String get researchGiveForm;
+
+  /// No description provided for @researchHowCollectorsJoin.
+  ///
+  /// In en, this message translates to:
+  /// **'How collectors get each form'**
+  String get researchHowCollectorsJoin;
+
+  /// No description provided for @researchJoinHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Open a form to change who may collect, see its access code, or give it to testers.'**
+  String get researchJoinHint;
+
+  /// No description provided for @researchCollectorsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 collector} other{{count} collectors}}'**
+  String researchCollectorsCount(int count);
+
+  /// No description provided for @researchByCode.
+  ///
+  /// In en, this message translates to:
+  /// **'by code'**
+  String get researchByCode;
+
+  /// No description provided for @researchAnalysis.
+  ///
+  /// In en, this message translates to:
+  /// **'Analysis'**
+  String get researchAnalysis;
+
+  /// No description provided for @researchAnalysisHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Summaries, cross-tabs, indicators against targets, the visit audit and exports, from the records of one form.'**
+  String get researchAnalysisHint;
+
+  /// No description provided for @researchForm.
+  ///
+  /// In en, this message translates to:
+  /// **'Form'**
+  String get researchForm;
+
+  /// No description provided for @researchTabSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Summary'**
+  String get researchTabSummary;
+
+  /// No description provided for @researchTabCrossTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Cross-tab'**
+  String get researchTabCrossTab;
+
+  /// No description provided for @researchTabIndicators.
+  ///
+  /// In en, this message translates to:
+  /// **'Indicators'**
+  String get researchTabIndicators;
+
+  /// No description provided for @researchTabAudit.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit audit'**
+  String get researchTabAudit;
+
+  /// No description provided for @researchTabExport.
+  ///
+  /// In en, this message translates to:
+  /// **'Export'**
+  String get researchTabExport;
+
+  /// No description provided for @researchSummaryLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 record} other{{count} records}} · {declined} declined'**
+  String researchSummaryLine(int count, int declined);
+
+  /// No description provided for @researchAnswered.
+  ///
+  /// In en, this message translates to:
+  /// **'{answered} of {asked} answered'**
+  String researchAnswered(int answered, int asked);
+
+  /// No description provided for @researchStatMean.
+  ///
+  /// In en, this message translates to:
+  /// **'Mean'**
+  String get researchStatMean;
+
+  /// No description provided for @researchStatMedian.
+  ///
+  /// In en, this message translates to:
+  /// **'Median'**
+  String get researchStatMedian;
+
+  /// No description provided for @researchStatMin.
+  ///
+  /// In en, this message translates to:
+  /// **'Lowest'**
+  String get researchStatMin;
+
+  /// No description provided for @researchStatMax.
+  ///
+  /// In en, this message translates to:
+  /// **'Highest'**
+  String get researchStatMax;
+
+  /// No description provided for @researchStatTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get researchStatTotal;
+
+  /// No description provided for @researchDateRange.
+  ///
+  /// In en, this message translates to:
+  /// **'From {first} to {last}'**
+  String researchDateRange(String first, String last);
+
+  /// No description provided for @researchNoAnswers.
+  ///
+  /// In en, this message translates to:
+  /// **'No answers yet.'**
+  String get researchNoAnswers;
+
+  /// No description provided for @researchMultiNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Several answers per record are possible, so shares add up to more than 100%.'**
+  String get researchMultiNote;
+
+  /// No description provided for @researchCrossTabNeeds.
+  ///
+  /// In en, this message translates to:
+  /// **'A cross-tab needs two choice questions in the form.'**
+  String get researchCrossTabNeeds;
+
+  /// No description provided for @researchRows.
+  ///
+  /// In en, this message translates to:
+  /// **'Rows'**
+  String get researchRows;
+
+  /// No description provided for @researchColumns.
+  ///
+  /// In en, this message translates to:
+  /// **'Columns'**
+  String get researchColumns;
+
+  /// No description provided for @researchRowPercent.
+  ///
+  /// In en, this message translates to:
+  /// **'Row percentages'**
+  String get researchRowPercent;
+
+  /// No description provided for @researchTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get researchTotal;
+
+  /// No description provided for @researchCrossTabNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Declined records are left out. A choose-many answer counts once for each choice.'**
+  String get researchCrossTabNote;
+
+  /// No description provided for @researchIndicatorsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Indicators are kept with the project: the share of records where a condition holds, against its target (as in the proposal\'s indicator table).'**
+  String get researchIndicatorsHint;
+
+  /// No description provided for @researchNoIndicators.
+  ///
+  /// In en, this message translates to:
+  /// **'No indicators for this form yet.'**
+  String get researchNoIndicators;
+
+  /// No description provided for @researchIndicator.
+  ///
+  /// In en, this message translates to:
+  /// **'Indicator'**
+  String get researchIndicator;
+
+  /// No description provided for @researchResult.
+  ///
+  /// In en, this message translates to:
+  /// **'Result'**
+  String get researchResult;
+
+  /// No description provided for @researchTarget.
+  ///
+  /// In en, this message translates to:
+  /// **'Target'**
+  String get researchTarget;
+
+  /// No description provided for @researchStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get researchStatus;
+
+  /// No description provided for @researchIndicatorBroken.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the expression'**
+  String get researchIndicatorBroken;
+
+  /// No description provided for @researchMet.
+  ///
+  /// In en, this message translates to:
+  /// **'Met'**
+  String get researchMet;
+
+  /// No description provided for @researchNotMet.
+  ///
+  /// In en, this message translates to:
+  /// **'Not met'**
+  String get researchNotMet;
+
+  /// No description provided for @researchNoTarget.
+  ///
+  /// In en, this message translates to:
+  /// **'No target'**
+  String get researchNoTarget;
+
+  /// No description provided for @researchAddIndicator.
+  ///
+  /// In en, this message translates to:
+  /// **'Add an indicator'**
+  String get researchAddIndicator;
+
+  /// No description provided for @researchIndicatorLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'What it measures'**
+  String get researchIndicatorLabel;
+
+  /// No description provided for @researchNumerator.
+  ///
+  /// In en, this message translates to:
+  /// **'Counts records where'**
+  String get researchNumerator;
+
+  /// No description provided for @researchNumeratorHint.
+  ///
+  /// In en, this message translates to:
+  /// **'An expression, e.g. {example}'**
+  String researchNumeratorHint(String example);
+
+  /// No description provided for @researchDenominator.
+  ///
+  /// In en, this message translates to:
+  /// **'Out of records where (optional)'**
+  String get researchDenominator;
+
+  /// No description provided for @researchDenominatorHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave empty for all records that were not declined.'**
+  String get researchDenominatorHint;
+
+  /// No description provided for @researchTargetPercent.
+  ///
+  /// In en, this message translates to:
+  /// **'Target (%)'**
+  String get researchTargetPercent;
+
+  /// No description provided for @researchAuditHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Where and when each record was made, and how long it took, per collector. Flags are prompts to talk with collectors, not verdicts.'**
+  String get researchAuditHint;
+
+  /// No description provided for @auditTooFast.
+  ///
+  /// In en, this message translates to:
+  /// **'very quick'**
+  String get auditTooFast;
+
+  /// No description provided for @auditFar.
+  ///
+  /// In en, this message translates to:
+  /// **'far from the others'**
+  String get auditFar;
+
+  /// No description provided for @auditSamePoint.
+  ///
+  /// In en, this message translates to:
+  /// **'several at one spot'**
+  String get auditSamePoint;
+
+  /// No description provided for @auditNoLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'no location'**
+  String get auditNoLocation;
+
+  /// No description provided for @auditMoved.
+  ///
+  /// In en, this message translates to:
+  /// **'finished elsewhere'**
+  String get auditMoved;
+
+  /// No description provided for @auditFlagged.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} flagged'**
+  String auditFlagged(int count);
+
+  /// No description provided for @auditUsual.
+  ///
+  /// In en, this message translates to:
+  /// **'usually {duration}'**
+  String auditUsual(String duration);
+
+  /// No description provided for @auditKm.
+  ///
+  /// In en, this message translates to:
+  /// **'{km} km from the centre'**
+  String auditKm(String km);
+
+  /// No description provided for @auditNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Very quick: under a third of the form\'s usual time (at least 2 minutes). Far: over 5 km from the middle of all records. Several at one spot: 3 or more within 15 m by the same collector.'**
+  String get auditNote;
+
+  /// No description provided for @researchExportHint.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 record} other{{count} records}}. Repeats come as their own sheets, linked by research number.'**
+  String researchExportHint(int count);
+
+  /// No description provided for @researchExportLabels.
+  ///
+  /// In en, this message translates to:
+  /// **'Choice labels'**
+  String get researchExportLabels;
+
+  /// No description provided for @researchExportLabelsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'\"Boiling\" rather than the code \"boiling\".'**
+  String get researchExportLabelsHint;
+
+  /// No description provided for @researchExportIdentifying.
+  ///
+  /// In en, this message translates to:
+  /// **'Include identifying answers'**
+  String get researchExportIdentifying;
+
+  /// No description provided for @researchExportIdentifyingHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Names, phone numbers and other fields marked identifying. Off by default: research numbers stand for participants.'**
+  String get researchExportIdentifyingHint;
+
+  /// No description provided for @researchExportExcel.
+  ///
+  /// In en, this message translates to:
+  /// **'Excel'**
+  String get researchExportExcel;
+
+  /// No description provided for @researchExportCsv.
+  ///
+  /// In en, this message translates to:
+  /// **'CSV'**
+  String get researchExportCsv;
+
+  /// No description provided for @researchExportGeoJson.
+  ///
+  /// In en, this message translates to:
+  /// **'GeoJSON (map)'**
+  String get researchExportGeoJson;
+
+  /// No description provided for @researchExportMedia.
+  ///
+  /// In en, this message translates to:
+  /// **'Pictures ({count})'**
+  String researchExportMedia(int count);
+
+  /// No description provided for @researchMediaProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Getting pictures: record {done} of {total}'**
+  String researchMediaProgress(int done, int total);
+
+  /// No description provided for @researchAdminHint.
+  ///
+  /// In en, this message translates to:
+  /// **'IT admins see every research project. People, phones and the system are shared with water testing.'**
+  String get researchAdminHint;
+
+  /// No description provided for @researchAdminPeople.
+  ///
+  /// In en, this message translates to:
+  /// **'People and accounts'**
+  String get researchAdminPeople;
+
+  /// No description provided for @researchAdminPhones.
+  ///
+  /// In en, this message translates to:
+  /// **'Phones'**
+  String get researchAdminPhones;
+
+  /// No description provided for @researchAdminSecurity.
+  ///
+  /// In en, this message translates to:
+  /// **'Security'**
+  String get researchAdminSecurity;
+
+  /// No description provided for @researchAdminSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'System'**
+  String get researchAdminSystem;
+
+  /// No description provided for @researchAdminAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All administration'**
+  String get researchAdminAll;
+
+  /// No description provided for @researchAllProjects.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 research project} other{{count} research projects}}'**
+  String researchAllProjects(int count);
+
+  /// No description provided for @fieldNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get fieldNote;
+
+  /// No description provided for @fieldText.
+  ///
+  /// In en, this message translates to:
+  /// **'Text'**
+  String get fieldText;
+
+  /// No description provided for @fieldInteger.
+  ///
+  /// In en, this message translates to:
+  /// **'Whole number'**
+  String get fieldInteger;
+
+  /// No description provided for @fieldDecimal.
+  ///
+  /// In en, this message translates to:
+  /// **'Decimal number'**
+  String get fieldDecimal;
+
+  /// No description provided for @fieldYesNo.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes / no'**
+  String get fieldYesNo;
+
+  /// No description provided for @fieldSelectOne.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose one'**
+  String get fieldSelectOne;
+
+  /// No description provided for @fieldSelectMany.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose many'**
+  String get fieldSelectMany;
+
+  /// No description provided for @fieldLikert.
+  ///
+  /// In en, this message translates to:
+  /// **'Scale (Likert)'**
+  String get fieldLikert;
+
+  /// No description provided for @fieldRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Range'**
+  String get fieldRange;
+
+  /// No description provided for @fieldDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get fieldDate;
+
+  /// No description provided for @fieldTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get fieldTime;
+
+  /// No description provided for @fieldDateTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Date and time'**
+  String get fieldDateTime;
+
+  /// No description provided for @fieldGeopoint.
+  ///
+  /// In en, this message translates to:
+  /// **'GPS point'**
+  String get fieldGeopoint;
+
+  /// No description provided for @fieldPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo'**
+  String get fieldPhoto;
+
+  /// No description provided for @fieldAudio.
+  ///
+  /// In en, this message translates to:
+  /// **'Audio'**
+  String get fieldAudio;
+
+  /// No description provided for @fieldVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'Video'**
+  String get fieldVideo;
+
+  /// No description provided for @fieldBarcode.
+  ///
+  /// In en, this message translates to:
+  /// **'Barcode / QR'**
+  String get fieldBarcode;
+
+  /// No description provided for @fieldCalculate.
+  ///
+  /// In en, this message translates to:
+  /// **'Calculation'**
+  String get fieldCalculate;
+
+  /// No description provided for @fieldConsent.
+  ///
+  /// In en, this message translates to:
+  /// **'Consent'**
+  String get fieldConsent;
+
+  /// No description provided for @fieldGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Section'**
+  String get fieldGroup;
+
+  /// No description provided for @fieldRepeat.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeat (rows)'**
+  String get fieldRepeat;
+
+  /// No description provided for @builderPickType.
+  ///
+  /// In en, this message translates to:
+  /// **'What kind of question?'**
+  String get builderPickType;
+
+  /// No description provided for @builderOption.
+  ///
+  /// In en, this message translates to:
+  /// **'Option {number}'**
+  String builderOption(int number);
+
+  /// No description provided for @builderSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Form settings'**
+  String get builderSettings;
+
+  /// No description provided for @builderNumbering.
+  ///
+  /// In en, this message translates to:
+  /// **'Research numbers'**
+  String get builderNumbering;
+
+  /// No description provided for @builderNumberingGenerated.
+  ///
+  /// In en, this message translates to:
+  /// **'Made by the phone'**
+  String get builderNumberingGenerated;
+
+  /// No description provided for @builderNumberingTyped.
+  ///
+  /// In en, this message translates to:
+  /// **'Typed from a list'**
+  String get builderNumberingTyped;
+
+  /// No description provided for @builderNumberingGeneratedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Each phone makes unique numbers without a connection: project, form, phone and a count, e.g. ENT-HQ-7Q2K-0007.'**
+  String get builderNumberingGeneratedHint;
+
+  /// No description provided for @builderNumberingTypedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Collectors type the number from the team\'s list (e.g. the sampling list). A number used twice is kept and flagged.'**
+  String get builderNumberingTypedHint;
+
+  /// No description provided for @builderNumberLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'What the team calls the number (e.g. Household code)'**
+  String get builderNumberLabel;
+
+  /// No description provided for @builderProblems.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 problem to fix before publishing} other{{count} problems to fix before publishing}}'**
+  String builderProblems(int count);
+
+  /// No description provided for @builderQuestions.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 question} other{{count} questions}}'**
+  String builderQuestions(int count);
+
+  /// No description provided for @builderAddQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a question'**
+  String get builderAddQuestion;
+
+  /// No description provided for @builderEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No questions yet. Add the first one; consent usually comes first.'**
+  String get builderEmpty;
+
+  /// No description provided for @builderBadgeRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'required'**
+  String get builderBadgeRequired;
+
+  /// No description provided for @builderBadgeLogic.
+  ///
+  /// In en, this message translates to:
+  /// **'skip logic'**
+  String get builderBadgeLogic;
+
+  /// No description provided for @builderBadgeCheck.
+  ///
+  /// In en, this message translates to:
+  /// **'check'**
+  String get builderBadgeCheck;
+
+  /// No description provided for @builderBadgeIdentifying.
+  ///
+  /// In en, this message translates to:
+  /// **'identifying'**
+  String get builderBadgeIdentifying;
+
+  /// No description provided for @builderBadgeChoices.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} choices'**
+  String builderBadgeChoices(int count);
+
+  /// No description provided for @builderNoLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'(no wording yet)'**
+  String get builderNoLabel;
+
+  /// No description provided for @builderMore.
+  ///
+  /// In en, this message translates to:
+  /// **'More'**
+  String get builderMore;
+
+  /// No description provided for @builderMoveUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Move up'**
+  String get builderMoveUp;
+
+  /// No description provided for @builderMoveDown.
+  ///
+  /// In en, this message translates to:
+  /// **'Move down'**
+  String get builderMoveDown;
+
+  /// No description provided for @builderDuplicate.
+  ///
+  /// In en, this message translates to:
+  /// **'Duplicate'**
+  String get builderDuplicate;
+
+  /// No description provided for @builderDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get builderDelete;
+
+  /// No description provided for @builderAddInRepeat.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a question to each row'**
+  String get builderAddInRepeat;
+
+  /// No description provided for @builderAddInGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a question to this section'**
+  String get builderAddInGroup;
+
+  /// No description provided for @builderNameRule.
+  ///
+  /// In en, this message translates to:
+  /// **'Letters, digits and _ only, not starting with a digit'**
+  String get builderNameRule;
+
+  /// No description provided for @builderNameUsed.
+  ///
+  /// In en, this message translates to:
+  /// **'Another question has this name'**
+  String get builderNameUsed;
+
+  /// No description provided for @builderUnknownField.
+  ///
+  /// In en, this message translates to:
+  /// **'No question is named \"{name}\"'**
+  String builderUnknownField(String name);
+
+  /// No description provided for @builderNeedChoices.
+  ///
+  /// In en, this message translates to:
+  /// **'Add at least one choice'**
+  String get builderNeedChoices;
+
+  /// No description provided for @builderNeedCalculation.
+  ///
+  /// In en, this message translates to:
+  /// **'Write the calculation'**
+  String get builderNeedCalculation;
+
+  /// No description provided for @builderNewQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'New question'**
+  String get builderNewQuestion;
+
+  /// No description provided for @builderEditQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get builderEditQuestion;
+
+  /// No description provided for @builderType.
+  ///
+  /// In en, this message translates to:
+  /// **'Kind'**
+  String get builderType;
+
+  /// No description provided for @builderLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Question (as asked)'**
+  String get builderLabel;
+
+  /// No description provided for @builderName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get builderName;
+
+  /// No description provided for @builderNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The column name in exports; used in skip logic as {example}.'**
+  String builderNameHint(String example);
+
+  /// No description provided for @builderHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Hint (shown under the question)'**
+  String get builderHint;
+
+  /// No description provided for @builderRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'An answer is required'**
+  String get builderRequired;
+
+  /// No description provided for @builderIdentifying.
+  ///
+  /// In en, this message translates to:
+  /// **'Identifying'**
+  String get builderIdentifying;
+
+  /// No description provided for @builderIdentifyingHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A name, phone number…: left off maps and out of default exports.'**
+  String get builderIdentifyingHint;
+
+  /// No description provided for @builderChoices.
+  ///
+  /// In en, this message translates to:
+  /// **'Choices'**
+  String get builderChoices;
+
+  /// No description provided for @builderLikertDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Without choices of its own the scale is Agree / Not sure / Disagree.'**
+  String get builderLikertDefault;
+
+  /// No description provided for @builderOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Add \"Other: specify\"'**
+  String get builderOther;
+
+  /// No description provided for @builderOtherHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The collector types what the other answer is.'**
+  String get builderOtherHint;
+
+  /// No description provided for @builderMinRows.
+  ///
+  /// In en, this message translates to:
+  /// **'Fewest rows'**
+  String get builderMinRows;
+
+  /// No description provided for @builderMaxRows.
+  ///
+  /// In en, this message translates to:
+  /// **'Most rows'**
+  String get builderMaxRows;
+
+  /// No description provided for @builderMin.
+  ///
+  /// In en, this message translates to:
+  /// **'Lowest accepted'**
+  String get builderMin;
+
+  /// No description provided for @builderMax.
+  ///
+  /// In en, this message translates to:
+  /// **'Highest accepted'**
+  String get builderMax;
+
+  /// No description provided for @builderMaxSeconds.
+  ///
+  /// In en, this message translates to:
+  /// **'Longest recording (seconds)'**
+  String get builderMaxSeconds;
+
+  /// No description provided for @builderMaxAudio.
+  ///
+  /// In en, this message translates to:
+  /// **'At most 300 (5 minutes).'**
+  String get builderMaxAudio;
+
+  /// No description provided for @builderMaxVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'At most 60 seconds, at 480p.'**
+  String get builderMaxVideo;
+
+  /// No description provided for @builderLogic.
+  ///
+  /// In en, this message translates to:
+  /// **'Logic'**
+  String get builderLogic;
+
+  /// No description provided for @builderLogicHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Expressions as in XLSForm, e.g. {example}. A dot (.) is this answer.'**
+  String builderLogicHint(String example);
+
+  /// No description provided for @builderRelevant.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask only when (skip logic)'**
+  String get builderRelevant;
+
+  /// No description provided for @builderRelevantHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. {example}'**
+  String builderRelevantHint(String example);
+
+  /// No description provided for @builderConstraint.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept only when (check)'**
+  String get builderConstraint;
+
+  /// No description provided for @builderConstraintHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. . >= 0 and . <= 20'**
+  String get builderConstraintHint;
+
+  /// No description provided for @builderConstraintMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Message when not accepted'**
+  String get builderConstraintMessage;
+
+  /// No description provided for @builderDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Default answer'**
+  String get builderDefault;
+
+  /// No description provided for @builderCalculation.
+  ///
+  /// In en, this message translates to:
+  /// **'Calculation'**
+  String get builderCalculation;
+
+  /// No description provided for @builderCalculationHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. {example}'**
+  String builderCalculationHint(String example);
+
+  /// No description provided for @builderChoiceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Choice {number}'**
+  String builderChoiceLabel(int number);
+
+  /// No description provided for @builderChoiceValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Code'**
+  String get builderChoiceValue;
+
+  /// No description provided for @builderAddChoice.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a choice'**
+  String get builderAddChoice;
+
+  /// No description provided for @builderDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get builderDone;
 }
 
 class _AppLocalizationsDelegate

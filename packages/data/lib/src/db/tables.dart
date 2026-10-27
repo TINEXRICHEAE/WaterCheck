@@ -410,6 +410,9 @@ class Attachments extends Table with ServerSeq {
   RealColumn get takenSpeedMps => real().nullable()();
   RealColumn get takenHeadingDeg => real().nullable()();
   DateTimeColumn get takenAt => dateTime().nullable()();
+
+  /// The form field a research record's picture answers (ADR-030). v12.
+  TextColumn get fieldName => text().nullable()();
   TextColumn get uploadStatus =>
       text().withDefault(const Constant('pending'))();
 
@@ -601,4 +604,110 @@ class TripPoints extends Table {
   RealColumn get altitudeM => real().nullable()();
   RealColumn get speedMps => real().nullable()();
   RealColumn get headingDeg => real().nullable()();
+}
+
+// ---------------------------------------------------------------- research
+// FieldQuire research (ADR-030): projects, published forms and their
+// versions from the server, this device's testers' records, and drafts
+// (local only). Added in v12.
+
+@DataClassName('ResearchProjectRow')
+class ResearchProjects extends Table {
+  TextColumn get id => text()();
+  TextColumn get code => text()();
+  TextColumn get title => text()();
+  TextColumn get description => text().nullable()();
+  IntColumn get serverSeq => integer().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+@DataClassName('ResearchFormRow')
+class ResearchForms extends Table {
+  TextColumn get id => text()();
+  TextColumn get projectId => text()();
+  TextColumn get code => text()();
+  TextColumn get title => text()();
+  TextColumn get description => text().nullable()();
+  TextColumn get status => text()();
+  TextColumn get collectAccess => text()();
+  BoolColumn get hidden => boolean().withDefault(const Constant(false))();
+  TextColumn get numbering => text()();
+  IntColumn get currentVersion => integer().nullable()();
+  IntColumn get serverSeq => integer().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+@DataClassName('ResearchFormVersionRow')
+class ResearchFormVersions extends Table {
+  TextColumn get formId => text()();
+  IntColumn get version => integer()();
+
+  /// The form's definition (JSON, package:forms).
+  TextColumn get definition => text()();
+  DateTimeColumn get publishedAt => dateTime().nullable()();
+  IntColumn get serverSeq => integer().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {formId, version};
+}
+
+@DataClassName('ResearchRecordRow')
+class ResearchRecords extends Table {
+  TextColumn get id => text()();
+  TextColumn get formId => text()();
+  IntColumn get formVersion => integer()();
+
+  /// The research number, never a participant's name.
+  TextColumn get number => text()();
+  BoolColumn get numberClash => boolean().withDefault(const Constant(false))();
+  TextColumn get collectorKey => text().nullable()();
+  TextColumn get installationId => text().nullable()();
+  TextColumn get collectorSnapshot => text().nullable()();
+  DateTimeColumn get startedAt => dateTime().nullable()();
+  DateTimeColumn get finishedAt => dateTime().nullable()();
+
+  /// Where the interview took place (when started), and where it ended.
+  RealColumn get lat => real().nullable()();
+  RealColumn get lon => real().nullable()();
+  RealColumn get accuracyM => real().nullable()();
+  RealColumn get altitudeM => real().nullable()();
+  RealColumn get endLat => real().nullable()();
+  RealColumn get endLon => real().nullable()();
+  RealColumn get endAccuracyM => real().nullable()();
+
+  /// The answers (JSON).
+  TextColumn get answers => text()();
+  DateTimeColumn get createdAtServer => dateTime().nullable()();
+  IntColumn get serverSeq => integer().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// A record being filled; saved as the collector goes, never sent. Its
+/// pictures wait here as files ([media]) until the record is finished.
+@DataClassName('ResearchDraftRow')
+class ResearchDrafts extends Table {
+  TextColumn get id => text()();
+  TextColumn get formId => text()();
+  IntColumn get formVersion => integer()();
+  TextColumn get number => text().nullable()();
+  TextColumn get collectorKey => text().nullable()();
+  TextColumn get answers => text()();
+
+  /// Pictures taken so far (JSON): attachment id → local file and fix.
+  TextColumn get media => text().withDefault(const Constant('{}'))();
+  DateTimeColumn get startedAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
+  RealColumn get lat => real().nullable()();
+  RealColumn get lon => real().nullable()();
+  RealColumn get accuracyM => real().nullable()();
+  RealColumn get altitudeM => real().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
 }

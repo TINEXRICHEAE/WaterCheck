@@ -874,3 +874,149 @@ Decisions are also recorded in [PLAN.md](PLAN.md) (decisions log and §3a), the 
     - the apps, health and tiles answer.
   - The local builds and archives were removed; 21 GB free on C:.
 - **Watch:** to be checked on the lead's iPhone and Android phone.
+
+### 47. FieldQuire research module planned (ADR-030) (2026-10-26)
+- **Asked:**
+  - Add a Research section to Collect and the Console for Objective 5 of the CHS4102 water-treatment proposal (Appendix 1 log, Appendix 2 questionnaire, Appendix 3 checklist), with the community diagnosis report as the baseline.
+  - Records sync with location, messages and photos, shown and searched on maps by research number only; collectors see their own points.
+  - Separate endpoints on the same containers; Water or Research chosen at sign-in.
+  - Admins and researchers create forms (all custom fields, skip logic, validation), publish them with access control (assigned, codes, hidden, open), and make them public, private or shared for cloning; our three forms are the first, owned by a sample admin.
+  - GPS, photos, video, audio and barcodes, offline; analysis and exports.
+  - Rename the app to FieldQuire, on cooptconnect.app.
+- **Decisions (lead):**
+  - two subdomains (`watercheck.`, `research.`);
+  - names and logo only, keeping app IDs;
+  - media capped and compressed;
+  - a builder plus XLSForm import and export;
+  - anyone may sign up to create research;
+  - research numbers generated or typed, chosen per form;
+  - points visible to project members only;
+  - first outputs: summaries and charts, cross-tabs, exports, and a visit audit.
+- **Outcome:**
+  - ADR-030 and PLAN §3b (phases R1–R5). R1, the field core, targets about 1 November for the week-3 pre-test and the week-4 survey (9–16 November).
+  - Appendix 1 stays on paper until R1 is live.
+
+### 48. FieldQuire R1 field core built (ADR-030) (2026-10-26)
+- **Outcome (on dev, not yet committed):**
+  - **`packages/forms` (pure Dart):**
+    - the form definition (XLSForm-like types, groups, repeats, "Other", consent, research-number settings) with soundness checks;
+    - a safe expression engine (skip logic, constraints, calculations; XLSForm semantics);
+    - the answers model: relevance, consent ending the form, issues, calculations, cleaned answers.
+  - **The three CHS4102 appendices as forms** (`backend/app/research/samples/`), wording word for word:
+    - Appendix 1: one record per household visit;
+    - Appendix 2: consent first, Y3 item numbers in hints, and the Table 6 indicators worked out as calculations;
+    - Appendix 3: household or shared borehole.
+  - **Server:**
+    - **Migration 0018:** a `research` schema (project, form, form version, form collector, form share, record) with row-level security; attachments can belong to a record.
+    - **Seed** (`app.research.seed`, run by migrate): a sign-in-proof "FieldQuire Samples" owner and a public project ENT with forms LOG, HQ and OC, published to any collector.
+    - **Sync:** a `research_record` push (the point and time of interview; a number used twice in the project is kept and flagged) and a `research` stream.
+    - **`/v1/research/*`:** projects, forms, records (search by number), one record with pictures, project points.
+  - **Device schema 12:** research tables, drafts, and the form field a picture answers. `ResearchRepository` covers drafts saved as you go, pictures kept with a draft until it is finished, generated numbers (`ENT-HQ-<device>-0001`), finishing (record then pictures), and own records.
+  - **UI kit `form_kit`:** a `FormFiller` for every R1 type (audio and video say "later version"; a barcode is typed) and a read-only `FormAnswersView`.
+  - **Collect:**
+    - **Water testing | Research** on "Who is testing?" and in Settings; `research.` hosts start in Research;
+    - Forms home (forms, unfinished, my records with sent or waiting);
+    - filling, with the point of interview taken on start and on finish;
+    - a record view, and a map of own points by number.
+  - **Console:**
+    - **Water testing | Research** on the sign-in page and a switch in the app bar;
+    - Research projects, a project (forms and the points map), a form's records (search by number), and one record (point, map, answers, pictures).
+  - **Production Caddy:** `research.cooptconnect.app` is served by the same site block.
+- **Found and fixed:** the project security policy compared the form's own id (`id` inside a subquery), so devices saw forms but not their project. It is now `project.id`, and the test checks the project arrives.
+- **Tests:**
+  - forms: 10, including the seeded forms' soundness and the Table 6 calculations;
+  - backend: research sync, clash, privacy, API;
+  - data: research drafts, pictures, numbering; migration 11 → 12;
+  - UI kit: the filler and the view;
+  - Collect: choose Research, fill, finish, queued.
+  - Suites: Collect 74, Console 48, UI kit 39, data 88; backend all passing.
+- **Checked on dev:**
+  - the Console lists the ENT project;
+  - a fresh Collect device gets the three forms in Research mode and opens the questionnaire.
+- **Still to do for R1 in production:**
+  - a DNS A record for `research.cooptconnect.app` (the lead);
+  - commit and push, then deploy (migration 0018, seed, web apps).
+- **Then R2:** the builder, access and cloning, sign-up, XLSForm, and the FieldQuire rename.
+
+### 49. FieldQuire names, addresses and icons; the Console's research part like water testing (2026-10-27)
+- **Request (lead):**
+  - remove "Objective 5", "Week 4" and "Appendix" from the forms;
+  - lay out every research page in the Console and Collect exactly like WaterCheck (map, records, settings, profile, admin, messages on records, collected data), changing only the content; installed apps keep the names Console and Collect;
+  - new DNS: `fieldquire.cooptconnect.app` is the main name, with `watercheck.`, `research.` and `api.watercheck.` under it; update everywhere (production later);
+  - FieldQuire in all shared places, and the new icons from `design/fieldquire-icons`;
+  - forms are created in the Console (research, forms and analysis); Collect is for data collectors.
+- **Decisions (lead):**
+  - teach the production server the new names now;
+  - `fieldquire.cooptconnect.app` serves both apps (Console at `/`, Collect at `/collect/`), the mode chosen at sign-in;
+  - the Console's research menu is like water testing's: Dashboard, Records, Forms, Collectors, Analysis, Admin.
+- **Production (done the same day):**
+  - The lead's DNS change left the old names without records, so the site was down. Only `infra/caddy/Caddyfile.prod` was deployed, with the four new names and the old ones kept for installed apps. Certificates were issued and all names answer.
+  - The deployed web apps had the old API address built in. They were rebuilt from the deployed commit without a fixed address (the web uses its own origin) and packaged with checksums. **The upload to the server was stopped by the permission check and waits for the lead.**
+- **Outcome (on dev, not yet committed):**
+  - **Forms:** the three sample forms are now `household_log`, `household_questionnaire` and `observation_checklist`, without "Objective 5", "Week 4" or "Appendix". The seed updates the project's title and adds a new version when a definition changes.
+  - **Names:**
+    - "FieldQuire" in every text of the three ARB files, the Privacy Policy and Terms, web titles and manifests, Windows window titles and version info, and the installers (`FieldQuire Collect/Console`);
+    - home-screen names stay **Collect** and **Console** (Android labels, iOS web app titles, manifest short names);
+    - web descriptions mention research.
+  - **Icons:** the FieldQuire set in both apps for:
+    - the web (PWA, maskable, Apple, favicons);
+    - Windows (`app_icon.ico`);
+    - Android (legacy and adaptive, on the icon's field green);
+    - the in-app logo (`fieldquire.png` at 1x, 2x and 3x; the PDF reports use it too).
+  - **Addresses:** docs, `.env.example` and compose defaults use the new names. On the web, `defaultApiUrl()` now always uses the page's own origin, so a renamed host never needs a rebuild.
+  - **Server:**
+    - **Migration 0019:**
+      - a form's draft, its access code and when it changed;
+      - the project's analysis set-up;
+      - name and code helpers that answer without revealing other projects;
+      - `join_with_code`;
+      - messages on research records (seen by whoever may see the record).
+    - **Endpoints under `/v1/research/`:**
+      - projects: create, edit, members (supervisor, analyst);
+      - forms: create (blank or a whole definition), draft save and discard, publish (the next version), access, hidden, open or closed, a new access code, versions, clone, library, sharing;
+      - testers: search, give and take back a form; project collectors; project records filtered by form and collector;
+      - a form's records with answers;
+      - messages: per record, send, threads;
+      - `POST /join` for Collect.
+    - **Sync:** a message about a research record is pushed and pulled on the `research` stream.
+  - **`packages/forms`:**
+    - **analysis:** summaries, cross-tabs, indicators against targets, the visit audit (too quick, far, several at one spot, no location, finished elsewhere);
+    - **exports:** tables with repeats as their own sheets, identifying fields left out unless asked, CSV, GeoJSON;
+    - a small Excel reader and writer;
+    - XLSForm import (with warnings) and export (FieldQuire's own kinds round-trip in `fq_` columns).
+  - **Console › Research:** the same frame as water testing, with a project picker:
+    - **Dashboard:** counts, the points map, latest records, collectors, the team.
+    - **Records:** a list or full-screen map, with search and form and collector filters. A record has its point, map, answers with pictures, and messages with the collector.
+    - **Forms:**
+      - new (blank or XLSForm import), the library of public and shared forms, copy to my project;
+      - the builder: settings, numbering, questions in sections and repeats, choices, "Other", required, identifying, bounds, skip logic, checks, calculations; problems are listed before publishing;
+      - publish, discard, versions, "Try it";
+      - access and sharing: assigned, code or open; the code; testers; hidden; open for collection; private, shared or public; named people.
+    - **Collectors:** who collects, the forms each has (given or joined by code), their records; give a form to testers.
+    - **Analysis:** summary with bars, cross-tab, indicators (kept with the project), visit audit, and exports (Excel, CSV, GeoJSON, pictures zip).
+    - **Admin (IT admins):** all projects, and links to the shared administration.
+    - **Messages:** threads awaiting an answer.
+    - Profile and settings are reached from the account menu.
+  - **Collect › Research** is laid out like the water Home:
+    - collector chip, profile, messages, sync;
+    - search and filters (all, unfinished, waiting, sent, to check);
+    - a "Fill a form" button;
+    - "Join with a code".
+    - A record looks like a source's page, with messages with the research team (thread kind `research`).
+- **Tests:**
+  - backend: a new test covers a researcher who builds, publishes, joins by code, collects, adds a team, reads data, talks with the collector, and clones a public form; the full suite passes (one run hit a dropped Docker connection on Windows, and passed when run again);
+  - forms 18 (analysis, exports, Excel, XLSForm round trip and import warnings);
+  - Console 50, including the builder;
+  - Collect 74, UI kit 39, data 88;
+  - analyze clean in every package; ruff and mypy clean.
+- **Dev rebuilt (the lead asked to see it):**
+  - the API, migrate and worker images were rebuilt; migration 0019 ran, and the seed made version 2 of each sample form with the new wording;
+  - both web previews were rebuilt;
+  - 23 GB free afterwards.
+- **Still to do:**
+  - the lead's go-ahead to upload the production web fix;
+  - after the lead confirms on dev: commit, push, then deploy;
+  - self sign-up for researchers;
+  - date and collector filters in Analysis;
+  - R3 media (audio, video, barcode scan);
+  - the legal research section (R5).

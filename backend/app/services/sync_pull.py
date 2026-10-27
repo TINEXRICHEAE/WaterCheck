@@ -10,6 +10,10 @@ Streams:
   area. Row-level security still limits rows to the caller's scope.
 - ``scope``: everything in the caller's scope (Console, which may have
   several areas).
+- ``research``: research projects, published forms and their versions,
+  records, their pictures and messages (ADR-030). Row-level security
+  gives a device the forms it may collect with and its own testers'
+  records.
 
 The cursor is opaque to clients: ``<xid>.<seq>`` of the last row sent. Rows
 come in (server_xid, server_seq) order and only from transactions older than
@@ -222,9 +226,43 @@ class Cursor:
         return f"{self.xid}.{self.seq}"
 
 
+RESEARCH: dict[str, str] = {
+    "research_project": ("SELECT id, code, title, description, {cols} FROM research.project x"),
+    "research_form": (
+        "SELECT id, project_id, code, title, description, status, collect_access, hidden, "
+        "numbering, current_version, {cols} FROM research.form x WHERE x.status <> 'draft'"
+    ),
+    "research_form_version": (
+        "SELECT form_id, version, definition, published_at, {cols} "
+        "FROM research.form_version x WHERE x.published_at IS NOT NULL"
+    ),
+    "research_record": (
+        "SELECT id, form_id, form_version, number, number_clash, collector_key, "
+        "installation_id, collector_snapshot, started_at, finished_at, lat, lon, accuracy_m, "
+        "altitude_m, end_lat, end_lon, end_accuracy_m, answers, created_at_server, {cols} "
+        "FROM research.record x"
+    ),
+    "attachment": (
+        "SELECT id, owner_type, owner_id, field_name, object_key, sha256, bytes, mime, "
+        "upload_status, collector_key, removed_at, taken_lat, taken_lon, taken_accuracy_m, "
+        "taken_altitude_m, taken_speed_mps, taken_heading_deg, taken_at, {cols} "
+        "FROM attachment x WHERE x.owner_type = 'research_record'"
+    ),
+    # Messages on research records (ADR-030 R2): row-level security gives
+    # the threads on records the caller may see.
+    "message": (
+        "SELECT id, subject_type, subject_id, body, author_user_id, installation_id, "
+        "collector_key, author_name, written_at_device, created_at_server, {cols} "
+        "FROM message x WHERE x.subject_type = 'research_record'"
+    ),
+}
+
+
 def _queries(stream: str) -> tuple[dict[str, str], UUID | None]:
     if stream == "reference":
         return REFERENCE, None
+    if stream == "research":
+        return RESEARCH, None
     if stream == "scope":
         return AREA, None
     if stream.startswith("area:"):
@@ -244,6 +282,7 @@ JSON_COLUMNS = {
     "answers",
     "reading_results",
     "parameters",
+    "definition",
 }
 
 
@@ -335,6 +374,8 @@ async def pull(
         key = _KEY.get(entity)
         if entity == "archive_mark":
             ident = f"{data['entity']}/{data['record_id']}"
+        elif entity == "research_form_version":
+            ident = f"{data['form_id']}/{data['version']}"
         else:
             ident = (
                 data[key] if key else data.get("id") or f"{data['result_id']}/{data['standard_id']}"

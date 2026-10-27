@@ -10,7 +10,7 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appTitle => 'WaterCheck Collect';
+  String get appTitle => 'FieldQuire Collect';
 
   @override
   String get navHome => 'Home';
@@ -56,25 +56,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String settingsAboutBody(String version) {
-    return 'WaterCheck Collect $version. Water quality screening for communities across Uganda. Results are screening only, not laboratory confirmation.';
+    return 'FieldQuire Collect $version. Water quality screening for communities across Uganda. Results are screening only, not laboratory confirmation.';
   }
 
   @override
   String get startupFailed =>
-      'WaterCheck could not open its data on this device.';
+      'FieldQuire could not open its data on this device.';
 
   @override
   String get startupRetry => 'Try again';
 
   @override
-  String get welcomeTitle => 'Welcome to WaterCheck';
+  String get welcomeTitle => 'Welcome to FieldQuire';
 
   @override
   String get privacyHeading => 'In short';
 
   @override
   String get privacyBody =>
-      'WaterCheck records water tests at shared water sources so that communities and districts can act when water may be unsafe.\n\nWith each test it saves your name, the area you give, where you tested (GPS) and any pictures of the test or the source, with where and when each was taken. Places you add to the map show your name. Trips you follow with Go stay on this device. Your phone and email are optional. Stakeholders for the area see your records and can contact you; other testers see results and your name, not your contacts.\n\nWaterCheck does not ask for national ID numbers or information about households. Please do not photograph people.\n\nYour work is kept on this device (encrypted in the Android and Windows apps) and sent to the WaterCheck server, hosted outside Uganda (South Africa), when there is internet. You can edit your details, or delete your profile, any time under My profile.\n\nA test result is a warning, not a guarantee that water is safe: always follow the advice of your health officials.';
+      'FieldQuire records water tests at shared water sources so that communities and districts can act when water may be unsafe.\n\nWith each test it saves your name, the area you give, where you tested (GPS) and any pictures of the test or the source, with where and when each was taken. Places you add to the map show your name. Trips you follow with Go stay on this device. Your phone and email are optional. Stakeholders for the area see your records and can contact you; other testers see results and your name, not your contacts.\n\nFieldQuire does not ask for national ID numbers or information about households. Please do not photograph people.\n\nYour work is kept on this device (encrypted in the Android and Windows apps) and sent to the FieldQuire server, hosted outside Uganda (South Africa), when there is internet. You can edit your details, or delete your profile, any time under My profile.\n\nA test result is a warning, not a guarantee that water is safe: always follow the advice of your health officials.';
 
   @override
   String privacyVersion(int version) {
@@ -144,7 +144,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get profileNoId =>
-      'Do not enter a national ID number. WaterCheck does not need it.';
+      'Do not enter a national ID number. FieldQuire does not need it.';
 
   @override
   String get profileSave => 'Save';
@@ -226,11 +226,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get locationDenied =>
-      'WaterCheck may not use your location. Allow it to record where the source is.';
+      'FieldQuire may not use your location. Allow it to record where the source is.';
 
   @override
   String get locationDeniedForever =>
-      'Location access is blocked for WaterCheck. Allow it in the device settings.';
+      'Location access is blocked for FieldQuire. Allow it in the device settings.';
 
   @override
   String get locationTimeout =>
@@ -731,7 +731,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get activationIntro =>
-      'Enter the activation code from your IT admin. This needs the internet once. After that, WaterCheck works without internet and nobody needs to log in.';
+      'Enter the activation code from your IT admin. This needs the internet once. After that, FieldQuire works without internet and nobody needs to log in.';
 
   @override
   String get activationCodeLabel => 'Activation code';
@@ -765,7 +765,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get activationBadQr =>
-      'That QR code is not a WaterCheck activation code.';
+      'That QR code is not a FieldQuire activation code.';
 
   @override
   String get activationInvalidCode =>
@@ -796,10 +796,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'The camera cannot be used. Type the code instead.';
 
   @override
-  String get lockMessage => 'WaterCheck is locked.';
+  String get lockMessage => 'FieldQuire is locked.';
 
   @override
-  String get lockBiometricReason => 'Unlock WaterCheck';
+  String get lockBiometricReason => 'Unlock FieldQuire';
 
   @override
   String get lockForgot => 'Forgot PIN?';
@@ -809,13 +809,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get lockForgotBody =>
-      'The PIN cannot be recovered. Resetting the app saves unsent records to an encrypted file for the IT admin, then erases WaterCheck from this device so it can be activated again.';
+      'The PIN cannot be recovered. Resetting the app saves unsent records to an encrypted file for the IT admin, then erases FieldQuire from this device so it can be activated again.';
 
   @override
   String get lockForgotReset => 'Reset the app';
 
   @override
-  String get lockSetupTitle => 'Choose a PIN to protect WaterCheck';
+  String get lockSetupTitle => 'Choose a PIN to protect FieldQuire';
 
   @override
   String get lockTurnOff => 'Turn off app lock';
@@ -825,7 +825,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get lockOffBody =>
-      'Anyone who picks up this device can then open WaterCheck and see the records on it.';
+      'Anyone who picks up this device can then open FieldQuire and see the records on it.';
 
   @override
   String get lockBiometricOfferTitle => 'Use your fingerprint too?';
@@ -848,14 +848,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get revokedBody =>
-      'The IT admin has stopped this device from sending data. Save any unsent records to a file and give it to the IT admin. Then erase WaterCheck from this device.';
+      'The IT admin has stopped this device from sending data. Save any unsent records to a file and give it to the IT admin. Then erase FieldQuire from this device.';
 
   @override
   String get resetTitle => 'Reset this device';
 
   @override
   String get resetBody =>
-      'This erases all WaterCheck data from this device and returns it to activation. Save unsent records to a file first and give it to the IT admin.';
+      'This erases all FieldQuire data from this device and returns it to activation. Save unsent records to a file first and give it to the IT admin.';
 
   @override
   String get resetCounting => 'Checking for unsent records…';
@@ -876,7 +876,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get resetFileHint =>
-      'The file is encrypted. Only the WaterCheck server can open it.';
+      'The file is encrypted. Only the FieldQuire server can open it.';
 
   @override
   String get resetSave => 'Save unsent records to a file';
@@ -897,11 +897,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get resetErase => 'Erase this device';
 
   @override
-  String get resetConfirmTitle => 'Erase WaterCheck from this device?';
+  String get resetConfirmTitle => 'Erase FieldQuire from this device?';
 
   @override
   String get resetConfirmBody =>
-      'All WaterCheck data on this device will be erased. This cannot be undone.';
+      'All FieldQuire data on this device will be erased. This cannot be undone.';
 
   @override
   String resetConfirmLoses(int count) {
@@ -928,7 +928,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsAppLock => 'App lock';
 
   @override
-  String get settingsAppLockHint => 'Ask for a PIN when WaterCheck opens';
+  String get settingsAppLockHint => 'Ask for a PIN when FieldQuire opens';
 
   @override
   String get settingsChangePin => 'Change PIN';
@@ -940,7 +940,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsReset => 'Reset this device';
 
   @override
-  String get settingsResetHint => 'Save unsent records, then erase WaterCheck';
+  String get settingsResetHint => 'Save unsent records, then erase FieldQuire';
 
   @override
   String get syncNow => 'Sync now';
@@ -950,12 +950,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String syncOffline(String when) {
-    return 'No connection. WaterCheck will try again by itself (next try about $when).';
+    return 'No connection. FieldQuire will try again by itself (next try about $when).';
   }
 
   @override
   String syncServerProblem(String code, String when) {
-    return 'The server did not answer ($code). WaterCheck will try again by itself (next try about $when).';
+    return 'The server did not answer ($code). FieldQuire will try again by itself (next try about $when).';
   }
 
   @override
@@ -1040,7 +1040,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'This device is almost full (less than 100 MB free). Photos are switched off so readings can still be saved. Free some space to add photos.';
 
   @override
-  String get photoNotImage => 'That file is not a photo WaterCheck can use.';
+  String get photoNotImage => 'That file is not a photo FieldQuire can use.';
 
   @override
   String get photoWaiting => 'Waiting to upload';
@@ -1099,7 +1099,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get limitsStakeholderHint =>
-      'Only a stakeholder can change limits. Sign in with your WaterCheck Console account: the change is recorded under your name with your reason. Needs a connection; you are signed out right after.';
+      'Only a stakeholder can change limits. Sign in with your FieldQuire Console account: the change is recorded under your name with your reason. Needs a connection; you are signed out right after.';
 
   @override
   String get limitsStakeholderUsername => 'Stakeholder username';
@@ -1649,6 +1649,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'source': 'Source',
       'collector': 'Collector',
       'area': 'Area',
+      'research': 'Research record',
       'other': 'Thread',
     });
     return '$_temp0';
@@ -1983,9 +1984,212 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get locationBlockedWeb =>
-      'This browser is not letting WaterCheck see your location. Allow location for this site (the icon in the address bar, or the site settings), then try again. On iPhone: Settings › Privacy & Security › Location Services › Safari Websites › While Using the App, then choose Allow in Safari.';
+      'This browser is not letting FieldQuire see your location. Allow location for this site (the icon in the address bar, or the site settings), then try again. On iPhone: Settings › Privacy & Security › Location Services › Safari Websites › While Using the App, then choose Allow in Safari.';
 
   @override
   String get locationOffWeb =>
       'Location is switched off for this browser or device. On iPhone: Settings › Privacy & Security › Location Services, switch it on, and set Safari Websites to While Using the App. On Android: switch Location on, and allow it for the browser.';
+
+  @override
+  String get modeChoose => 'What are you here for?';
+
+  @override
+  String get modeWater => 'Water testing';
+
+  @override
+  String get modeResearch => 'Research';
+
+  @override
+  String get navForms => 'Forms';
+
+  @override
+  String get researchTitle => 'Research';
+
+  @override
+  String get researchForms => 'Forms to fill';
+
+  @override
+  String get researchNoForms =>
+      'No research forms yet. They appear here once a researcher publishes one you may use. Sync to check.';
+
+  @override
+  String get researchStart => 'Start';
+
+  @override
+  String get researchDrafts => 'Not finished';
+
+  @override
+  String get researchNoNumber => 'No number yet';
+
+  @override
+  String get researchMine => 'My records';
+
+  @override
+  String get researchNone => 'No records yet.';
+
+  @override
+  String get researchSent => 'Sent';
+
+  @override
+  String get researchWaiting => 'Waiting to send';
+
+  @override
+  String get researchClash => 'Number used twice: your supervisor will check';
+
+  @override
+  String get researchNumberLabel => 'Research number';
+
+  @override
+  String get researchNumberTyped =>
+      'Type the number from your list. Never a name.';
+
+  @override
+  String get researchNumberGenerated =>
+      'Given by the app; it shows on the map instead of a name.';
+
+  @override
+  String get researchNumberMissing => 'Give the research number';
+
+  @override
+  String researchNumberUsed(String number) {
+    return '$number is already used in this project. Keep it anyway? Your supervisor will see both.';
+  }
+
+  @override
+  String get researchKeepNumber => 'Keep it';
+
+  @override
+  String get researchChangeNumber => 'Change it';
+
+  @override
+  String researchIssues(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count answers need attention',
+      one: '1 answer needs attention',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get researchSaveClose => 'Save and close';
+
+  @override
+  String get researchFinish => 'Finish';
+
+  @override
+  String researchFinished(String number) {
+    return 'Saved $number. It is sent when there is internet.';
+  }
+
+  @override
+  String get researchDiscard => 'Discard this record';
+
+  @override
+  String get researchDiscardTitle =>
+      'Discard this unfinished record and its pictures?';
+
+  @override
+  String get researchNoPoint =>
+      'Finding where you are… The record keeps the first location found.';
+
+  @override
+  String researchPointAt(String point, String metres) {
+    return 'Location: $point (±$metres m)';
+  }
+
+  @override
+  String get researchMap => 'My research points';
+
+  @override
+  String get researchMapNone =>
+      'Your records with a location show here, by research number.';
+
+  @override
+  String researchRecordTitle(String number) {
+    return 'Record $number';
+  }
+
+  @override
+  String researchStartedAt(String when) {
+    return 'Started $when';
+  }
+
+  @override
+  String get researchDeclined =>
+      'Declined: no consent, so no questions were asked.';
+
+  @override
+  String get researchWhichForm => 'Which form?';
+
+  @override
+  String get researchJoinTitle => 'Join with a code';
+
+  @override
+  String get researchJoinHint =>
+      'Type the access code the research team gave you. This needs the internet once.';
+
+  @override
+  String get researchJoinCode => 'Access code';
+
+  @override
+  String get researchJoin => 'Join';
+
+  @override
+  String get researchJoinWrong =>
+      'That code does not open any form. Check it with the research team.';
+
+  @override
+  String get researchJoinOffline =>
+      'No connection. Join when you have internet.';
+
+  @override
+  String researchJoinFailed(String code) {
+    return 'Could not join ($code). Try again.';
+  }
+
+  @override
+  String get researchJoined => 'Joined. The form is on this phone now.';
+
+  @override
+  String get researchSearch => 'Search by research number or form';
+
+  @override
+  String get researchFilterAll => 'All';
+
+  @override
+  String get researchFilterFlagged => 'To check';
+
+  @override
+  String researchMineCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'My records ($count)',
+      one: 'My records (1)',
+      zero: 'My records',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get researchFill => 'Fill a form';
+
+  @override
+  String researchTookMinutes(int minutes) {
+    return 'Took $minutes min';
+  }
+
+  @override
+  String get researchNoLocation => 'No location';
+
+  @override
+  String get researchAnswers => 'Answers';
+
+  @override
+  String get researchMessagesTitle => 'Messages with the research team';
+
+  @override
+  String get researchOpenRecord => 'Open the record';
 }

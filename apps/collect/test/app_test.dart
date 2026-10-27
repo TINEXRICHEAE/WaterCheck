@@ -34,7 +34,7 @@ void main() {
 
   testWidgets('first launch: consent, add a person, then home', (tester) async {
     final db = await pumpCollect(tester, onboarded: false);
-    expect(find.text('Welcome to WaterCheck'), findsOneWidget);
+    expect(find.text('Welcome to FieldQuire'), findsOneWidget);
     expect(find.textContaining('does not ask for national ID'), findsOneWidget);
 
     await tapAndSettle(

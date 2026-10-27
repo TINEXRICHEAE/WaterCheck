@@ -1,0 +1,56 @@
+{
+  "schema": 1,
+  "title": "Household Demonstration and Supply Log",
+  "description": "One record for each household visited: what was demonstrated and supplied.",
+  "settings": {
+    "numbering": "typed",
+    "number_label": "Household code"
+  },
+  "fields": [
+    {
+      "name": "boiling",
+      "type": "yes_no",
+      "label": "Boiling practised",
+      "required": true
+    },
+    {
+      "name": "tablet_dosing",
+      "type": "yes_no",
+      "label": "Tablet dosing practised",
+      "required": true
+    },
+    {
+      "name": "container_cleaning",
+      "type": "yes_no",
+      "label": "Container cleaning shown",
+      "required": true
+    },
+    {
+      "name": "starter_tablets",
+      "type": "integer",
+      "label": "Starter tablets given (number)",
+      "required": true,
+      "min": 0,
+      "max": 100
+    },
+    {
+      "name": "sticker",
+      "type": "yes_no",
+      "label": "Sticker placed",
+      "required": true
+    },
+    {
+      "name": "photo",
+      "type": "photo",
+      "label": "Photo of the sticker or the demonstration (optional)",
+      "required": false,
+      "hint": "Do not photograph people."
+    },
+    {
+      "name": "notes",
+      "type": "text",
+      "label": "Notes",
+      "required": false
+    }
+  ]
+}

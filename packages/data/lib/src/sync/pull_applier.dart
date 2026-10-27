@@ -130,6 +130,27 @@ class PullApplier {
         PlaceNameRow.fromJson(j, serializer: _s),
       );
     },
+    // FieldQuire research (ADR-030).
+    'research_project': (db, j) => _upsert(
+      db,
+      db.researchProjects,
+      ResearchProjectRow.fromJson(j, serializer: _s),
+    ),
+    'research_form': (db, j) => _upsert(
+      db,
+      db.researchForms,
+      ResearchFormRow.fromJson(j, serializer: _s),
+    ),
+    'research_form_version': (db, j) => _upsert(
+      db,
+      db.researchFormVersions,
+      ResearchFormVersionRow.fromJson(j, serializer: _s),
+    ),
+    'research_record': (db, j) => _upsert(
+      db,
+      db.researchRecords,
+      ResearchRecordRow.fromJson(j, serializer: _s),
+    ),
     'change_trail': (db, j) =>
         _keep(db, db.changeTrails, ChangeTrailRow.fromJson(j, serializer: _s)),
     // A message (ADR-022): the server's copy fills in the author and time,

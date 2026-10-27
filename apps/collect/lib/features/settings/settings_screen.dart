@@ -9,6 +9,7 @@ import '../../app/gate.dart';
 import '../../app/providers.dart';
 import '../../app/services.dart';
 import '../../l10n/app_localizations.dart';
+import '../research/research.dart';
 import '../lock/lock_screens.dart' show confirmLockOff;
 import '../photos/photo_service.dart';
 
@@ -41,6 +42,18 @@ class SettingsScreen extends ConsumerWidget {
       body: ListView(
         children: [
           const InstallAppTile(),
+          // Water testing or research (ADR-030).
+          ListTile(
+            leading: const Icon(Icons.swap_horiz),
+            title: Text(l10n.modeChoose),
+            subtitle: const Padding(
+              padding: EdgeInsets.only(top: 8),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: ModeSwitch(),
+              ),
+            ),
+          ),
           // Testers, not devices, are assigned to areas (ADR-024).
           if (collector != null)
             ListTile(

@@ -1,0 +1,736 @@
+{
+  "schema": 1,
+  "title": "Household Questionnaire",
+  "description": "Interviewer-administered. Items marked (Y3 Qn) repeat the Year 3 questionnaire wording so that results can be compared. Read options only where shown; tick all that apply where stated.",
+  "settings": {
+    "numbering": "typed",
+    "number_label": "Household code"
+  },
+  "fields": [
+    {
+      "name": "intro",
+      "type": "note",
+      "label": "Introduction and consent",
+      "hint": "We are Year 4 medical students from Makerere University working with the VHTs in Entebbe village. We would like to ask you a few questions about drinking water. It takes about 15 minutes. Taking part is voluntary, you may stop at any time, and your answers are confidential."
+    },
+    {
+      "name": "consent",
+      "type": "consent",
+      "label": "Do you agree to take part?",
+      "required": true
+    },
+    {
+      "name": "respondent",
+      "type": "select_one",
+      "label": "Respondent",
+      "required": true,
+      "choices": [
+        {
+          "value": "collects_water",
+          "label": "Collects water"
+        },
+        {
+          "value": "caregiver",
+          "label": "Caregiver of child under 5"
+        },
+        {
+          "value": "other",
+          "label": "Other"
+        }
+      ]
+    },
+    {
+      "name": "A",
+      "type": "group",
+      "label": "Section A: Household",
+      "fields": [
+        {
+          "name": "A1",
+          "type": "select_one",
+          "label": "How many people stay in this household?",
+          "required": true,
+          "hint": "(Y3 Q6)",
+          "choices": [
+            {
+              "value": "lt5",
+              "label": "Less than 5"
+            },
+            {
+              "value": "6_10",
+              "label": "6 to 10"
+            },
+            {
+              "value": "gt10",
+              "label": "More than 10"
+            }
+          ]
+        },
+        {
+          "name": "A2",
+          "type": "integer",
+          "label": "How many children below 5 years live here?",
+          "required": true,
+          "hint": "(Y3 Q7)",
+          "min": 0,
+          "max": 30
+        }
+      ]
+    },
+    {
+      "name": "B",
+      "type": "group",
+      "label": "Section B: Water source, treatment and storage",
+      "fields": [
+        {
+          "name": "B1",
+          "type": "select_one",
+          "label": "What's your main source of water for domestic use?",
+          "required": true,
+          "hint": "(Y3 Q10)",
+          "other": true,
+          "choices": [
+            {
+              "value": "borehole",
+              "label": "Borehole"
+            },
+            {
+              "value": "piped",
+              "label": "Piped water (tap)"
+            },
+            {
+              "value": "well",
+              "label": "Well"
+            },
+            {
+              "value": "stream",
+              "label": "Stream/river"
+            }
+          ]
+        },
+        {
+          "name": "B2",
+          "type": "select_many",
+          "label": "How do you treat your drinking water?",
+          "required": true,
+          "hint": "(Y3 Q11) Tick all that apply.",
+          "other": true,
+          "choices": [
+            {
+              "value": "boiling",
+              "label": "Boiling"
+            },
+            {
+              "value": "filtering",
+              "label": "Filtering"
+            },
+            {
+              "value": "chemicals",
+              "label": "WaterGuard or other chemicals"
+            },
+            {
+              "value": "none",
+              "label": "None"
+            }
+          ],
+          "constraint": "not(selected(., 'none') and count-selected(.) > 1)",
+          "constraint_message": "\"None\" cannot be ticked with another answer."
+        },
+        {
+          "name": "B3",
+          "type": "select_one",
+          "label": "Was the drinking water you have now treated?",
+          "required": true,
+          "choices": [
+            {
+              "value": "boiled",
+              "label": "Yes, boiled"
+            },
+            {
+              "value": "tablet",
+              "label": "Yes, chlorine tablet"
+            },
+            {
+              "value": "no",
+              "label": "No"
+            },
+            {
+              "value": "not_sure",
+              "label": "Not sure"
+            }
+          ]
+        },
+        {
+          "name": "B4",
+          "type": "select_one",
+          "label": "How do you store drinking water at home?",
+          "required": true,
+          "hint": "(Y3 Q20)",
+          "other": true,
+          "choices": [
+            {
+              "value": "covered",
+              "label": "Covered container"
+            },
+            {
+              "value": "uncovered",
+              "label": "Uncovered container"
+            },
+            {
+              "value": "sealed_bottle",
+              "label": "Sealed bottle"
+            },
+            {
+              "value": "clay_pot",
+              "label": "Clay pot"
+            }
+          ]
+        },
+        {
+          "name": "B5",
+          "type": "yes_no",
+          "label": "Do you clean your water storage containers regularly?",
+          "required": true,
+          "hint": "(Y3 Q21)"
+        },
+        {
+          "name": "B6",
+          "type": "select_one",
+          "label": "If yes, how often?",
+          "required": true,
+          "hint": "(Y3 Q22)",
+          "relevant": "${B5} = 'yes'",
+          "choices": [
+            {
+              "value": "daily",
+              "label": "Daily"
+            },
+            {
+              "value": "weekly",
+              "label": "Weekly"
+            },
+            {
+              "value": "monthly",
+              "label": "Monthly"
+            },
+            {
+              "value": "rarely",
+              "label": "Rarely"
+            }
+          ]
+        },
+        {
+          "name": "B7",
+          "type": "select_one",
+          "label": "What do you use to clean the containers?",
+          "required": true,
+          "other": true,
+          "choices": [
+            {
+              "value": "water",
+              "label": "Water only"
+            },
+            {
+              "value": "soap",
+              "label": "Water and soap"
+            },
+            {
+              "value": "ash_sand",
+              "label": "Ash or sand"
+            }
+          ]
+        },
+        {
+          "name": "B8",
+          "type": "select_one",
+          "label": "How do you take drinking water out of the container?",
+          "required": true,
+          "other": true,
+          "choices": [
+            {
+              "value": "pour",
+              "label": "Pour"
+            },
+            {
+              "value": "handle_cup",
+              "label": "Cup with a handle"
+            },
+            {
+              "value": "dip_cup",
+              "label": "Dip a cup"
+            }
+          ]
+        },
+        {
+          "name": "B9",
+          "type": "select_one",
+          "label": "Do you ever mix treated and untreated water?",
+          "required": true,
+          "choices": [
+            {
+              "value": "yes",
+              "label": "Yes"
+            },
+            {
+              "value": "no",
+              "label": "No"
+            },
+            {
+              "value": "not_sure",
+              "label": "Not sure"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "C",
+      "type": "group",
+      "label": "Section C: Knowledge",
+      "fields": [
+        {
+          "name": "C1",
+          "type": "select_one",
+          "label": "Can clear borehole water make a person sick?",
+          "required": true,
+          "choices": [
+            {
+              "value": "yes",
+              "label": "Yes"
+            },
+            {
+              "value": "no",
+              "label": "No"
+            },
+            {
+              "value": "not_sure",
+              "label": "Not sure"
+            }
+          ]
+        },
+        {
+          "name": "C2",
+          "type": "select_many",
+          "label": "Where can germs get into drinking water?",
+          "required": true,
+          "hint": "Do not read; tick all mentioned.",
+          "choices": [
+            {
+              "value": "borehole",
+              "label": "At the borehole"
+            },
+            {
+              "value": "jerrycan",
+              "label": "In the jerrycan"
+            },
+            {
+              "value": "storage_pot",
+              "label": "In the storage pot"
+            },
+            {
+              "value": "hands_cups",
+              "label": "From hands or cups"
+            },
+            {
+              "value": "dont_know",
+              "label": "Don't know"
+            }
+          ],
+          "constraint": "not(selected(., 'dont_know') and count-selected(.) > 1)",
+          "constraint_message": "\"Don't know\" cannot be ticked with another answer."
+        },
+        {
+          "name": "C3",
+          "type": "select_many",
+          "label": "What can happen to a child who has Diarrhea for many days?",
+          "required": true,
+          "hint": "Do not read; tick all.",
+          "choices": [
+            {
+              "value": "loses_water",
+              "label": "Loses body water"
+            },
+            {
+              "value": "weak",
+              "label": "Becomes weak"
+            },
+            {
+              "value": "can_die",
+              "label": "Can die"
+            },
+            {
+              "value": "other",
+              "label": "Other"
+            },
+            {
+              "value": "dont_know",
+              "label": "Don't know"
+            }
+          ]
+        },
+        {
+          "name": "C4",
+          "type": "select_many",
+          "label": "How do you make water safe by boiling?",
+          "required": true,
+          "hint": "Tick steps mentioned.",
+          "choices": [
+            {
+              "value": "rolling_boil",
+              "label": "Rolling boil"
+            },
+            {
+              "value": "cool_lid_on",
+              "label": "Cool with lid on"
+            },
+            {
+              "value": "store_covered",
+              "label": "Store covered"
+            },
+            {
+              "value": "dont_know",
+              "label": "Don't know"
+            }
+          ]
+        },
+        {
+          "name": "C5",
+          "type": "select_one",
+          "label": "How many WaterGuard tablets treat 20 litres of clear water?",
+          "required": true,
+          "other": true,
+          "choices": [
+            {
+              "value": "1",
+              "label": "1 (correct)"
+            },
+            {
+              "value": "dont_know",
+              "label": "Don't know"
+            }
+          ]
+        },
+        {
+          "name": "C6",
+          "type": "select_one",
+          "label": "How many tablets for 20 litres of cloudy water?",
+          "required": true,
+          "other": true,
+          "choices": [
+            {
+              "value": "2",
+              "label": "2 (correct)"
+            },
+            {
+              "value": "dont_know",
+              "label": "Don't know"
+            }
+          ]
+        },
+        {
+          "name": "C7",
+          "type": "select_one",
+          "label": "How long should you wait after adding a tablet before drinking?",
+          "required": true,
+          "other": true,
+          "choices": [
+            {
+              "value": "30_min",
+              "label": "30 minutes (correct)"
+            },
+            {
+              "value": "dont_know",
+              "label": "Don't know"
+            }
+          ]
+        },
+        {
+          "name": "C8",
+          "type": "select_one",
+          "label": "Where can you buy chlorine tablets near your home?",
+          "required": true,
+          "choices": [
+            {
+              "value": "named",
+              "label": "Names a place"
+            },
+            {
+              "value": "dont_know",
+              "label": "Don't know"
+            }
+          ]
+        },
+        {
+          "name": "C8_name",
+          "type": "text",
+          "label": "Name of the place",
+          "required": true,
+          "relevant": "${C8} = 'named'"
+        },
+        {
+          "name": "C9",
+          "type": "select_many",
+          "label": "What should you do for a child with Diarrhea?",
+          "required": true,
+          "hint": "Tick all mentioned.",
+          "choices": [
+            {
+              "value": "ors",
+              "label": "Give ORS"
+            },
+            {
+              "value": "zinc",
+              "label": "Give zinc"
+            },
+            {
+              "value": "facility_early",
+              "label": "Go to health facility early"
+            },
+            {
+              "value": "dont_know",
+              "label": "Don't know"
+            }
+          ]
+        },
+        {
+          "name": "C10",
+          "type": "select_one",
+          "label": "At what ages are the rotavirus drops given?",
+          "required": true,
+          "choices": [
+            {
+              "value": "6_10_weeks",
+              "label": "6 and 10 weeks"
+            },
+            {
+              "value": "other",
+              "label": "Other"
+            },
+            {
+              "value": "dont_know",
+              "label": "Don't know"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "D",
+      "type": "group",
+      "label": "Section D: Beliefs",
+      "fields": [
+        {
+          "name": "D_intro",
+          "type": "note",
+          "label": "Read each statement: do you agree, are you not sure, or do you disagree?"
+        },
+        {
+          "name": "D1",
+          "type": "likert",
+          "label": "Our borehole water is clean enough to drink without boiling or treating it.",
+          "required": true
+        },
+        {
+          "name": "D2",
+          "type": "likert",
+          "label": "Diarrhea in a young child can be dangerous.",
+          "required": true
+        },
+        {
+          "name": "D3",
+          "type": "likert",
+          "label": "Boiling or treating drinking water is worth the effort.",
+          "required": true
+        },
+        {
+          "name": "D4",
+          "type": "likert",
+          "label": "The taste of chlorine means the water is protected.",
+          "required": true
+        },
+        {
+          "name": "D5",
+          "type": "likert",
+          "label": "I feel able to treat my drinking water correctly.",
+          "required": true
+        },
+        {
+          "name": "D6",
+          "type": "likert",
+          "label": "I plan to boil or treat all our drinking water from now on.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "E",
+      "type": "group",
+      "label": "Section E: Contact with the project",
+      "fields": [
+        {
+          "name": "E1",
+          "type": "yes_no",
+          "label": "Did anyone in this household attend a session or demonstration on safe water?",
+          "required": true
+        },
+        {
+          "name": "E2",
+          "type": "select_one",
+          "label": "Did you receive starter chlorine tablets? If yes, are any left?",
+          "required": true,
+          "choices": [
+            {
+              "value": "some_left",
+              "label": "Yes, some left"
+            },
+            {
+              "value": "used_up",
+              "label": "Yes, used up"
+            },
+            {
+              "value": "no",
+              "label": "No"
+            }
+          ]
+        },
+        {
+          "name": "E3",
+          "type": "yes_no",
+          "label": "Have you bought chlorine tablets since the demonstration?",
+          "required": true
+        },
+        {
+          "name": "E4",
+          "type": "yes_no",
+          "label": "Have you seen the poster at the borehole?",
+          "required": true
+        },
+        {
+          "name": "E5",
+          "type": "yes_no",
+          "label": "Did anyone in this household take part in the cleaning day on 31 October?",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "F",
+      "type": "group",
+      "label": "Section F: Illness",
+      "fields": [
+        {
+          "name": "F1",
+          "type": "select_many",
+          "label": "Which disease(s) commonly affect(s) members of the household?",
+          "required": true,
+          "hint": "(Y3 Q34) Tick all.",
+          "other": true,
+          "choices": [
+            {
+              "value": "malaria",
+              "label": "Malaria"
+            },
+            {
+              "value": "rti",
+              "label": "Respiratory tract infections (cough)"
+            },
+            {
+              "value": "diarrhoeal",
+              "label": "Diarrheal diseases"
+            }
+          ]
+        },
+        {
+          "name": "F2",
+          "type": "select_one",
+          "label": "Has anyone in the household had Diarrhea in the past two weeks?",
+          "required": true,
+          "choices": [
+            {
+              "value": "child_u5",
+              "label": "Yes, child under 5"
+            },
+            {
+              "value": "older",
+              "label": "Yes, older person"
+            },
+            {
+              "value": "no",
+              "label": "No"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "thanks",
+      "type": "note",
+      "label": "Thank the respondent.",
+      "hint": "Answer any questions and correct any wrong answers only after the interview is complete."
+    },
+    {
+      "name": "ind_borehole_main",
+      "type": "calculate",
+      "calculation": "${B1} = 'borehole'"
+    },
+    {
+      "name": "ind_boil_or_chlorinate",
+      "type": "calculate",
+      "calculation": "selected(${B2}, 'boiling') or selected(${B2}, 'chemicals')"
+    },
+    {
+      "name": "ind_covered_storage",
+      "type": "calculate",
+      "calculation": "${B4} = 'covered'"
+    },
+    {
+      "name": "ind_cleans_containers",
+      "type": "calculate",
+      "calculation": "${B5} = 'yes'"
+    },
+    {
+      "name": "ind_diarrhoea_common",
+      "type": "calculate",
+      "calculation": "selected(${F1}, 'diarrhoeal')"
+    },
+    {
+      "name": "ind_clear_water_risk",
+      "type": "calculate",
+      "calculation": "${C1} = 'yes'"
+    },
+    {
+      "name": "ind_risk_chain",
+      "type": "calculate",
+      "calculation": "selected(${C3}, 'loses_water') + selected(${C3}, 'weak') + selected(${C3}, 'can_die') >= 2"
+    },
+    {
+      "name": "ind_boiling_steps",
+      "type": "calculate",
+      "calculation": "selected(${C4}, 'rolling_boil') and selected(${C4}, 'cool_lid_on') and selected(${C4}, 'store_covered')"
+    },
+    {
+      "name": "ind_tablet_dose_wait",
+      "type": "calculate",
+      "calculation": "${C5} = '1' and ${C7} = '30_min'"
+    },
+    {
+      "name": "ind_knows_where_to_buy",
+      "type": "calculate",
+      "calculation": "${C8} = 'named'"
+    },
+    {
+      "name": "ind_ors_zinc_care",
+      "type": "calculate",
+      "calculation": "selected(${C9}, 'ors') and selected(${C9}, 'zinc') and selected(${C9}, 'facility_early')"
+    },
+    {
+      "name": "ind_child_diarrhoea_dangerous",
+      "type": "calculate",
+      "calculation": "${D2} = 'agree'"
+    },
+    {
+      "name": "ind_able_to_treat",
+      "type": "calculate",
+      "calculation": "${D5} = 'agree'"
+    }
+  ]
+}

@@ -74,12 +74,12 @@ void main() {
     final svc = TestServices();
     final db = await pumpCollect(tester, onboarded: false, services: svc);
     await tapAndSettle(tester, find.text('Privacy Policy'));
-    expect(find.text('WaterCheck Privacy Policy'), findsOneWidget);
+    expect(find.text('FieldQuire Privacy Policy'), findsOneWidget);
     expect(find.text('1. Who is responsible'), findsOneWidget);
     await tester.pageBack();
     await settle(tester);
     await tapAndSettle(tester, find.text('Terms of Use'));
-    expect(find.text('WaterCheck Terms of Use'), findsOneWidget);
+    expect(find.text('FieldQuire Terms of Use'), findsOneWidget);
     await tester.pageBack();
     await settle(tester);
     await tapAndSettle(

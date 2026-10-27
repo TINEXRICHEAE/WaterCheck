@@ -343,7 +343,7 @@ abstract class UiKitLocalizations {
   /// No description provided for @appLogo.
   ///
   /// In en, this message translates to:
-  /// **'WaterCheck logo'**
+  /// **'FieldQuire logo'**
   String get appLogo;
 
   /// No description provided for @passwordShow.
@@ -667,7 +667,7 @@ abstract class UiKitLocalizations {
   /// No description provided for @installAppHint.
   ///
   /// In en, this message translates to:
-  /// **'Open WaterCheck from your home screen or app list, also offline.'**
+  /// **'Open FieldQuire from your home screen or app list, also offline.'**
   String get installAppHint;
 
   /// No description provided for @mapZoomIn.
@@ -877,7 +877,7 @@ abstract class UiKitLocalizations {
   /// No description provided for @legalChanged.
   ///
   /// In en, this message translates to:
-  /// **'The Privacy Policy or Terms of Use have changed. Please read them and agree again to keep using WaterCheck.'**
+  /// **'The Privacy Policy or Terms of Use have changed. Please read them and agree again to keep using FieldQuire.'**
   String get legalChanged;
 
   /// No description provided for @mapPathOpen.
@@ -1135,14 +1135,158 @@ abstract class UiKitLocalizations {
   /// No description provided for @installAppIos.
   ///
   /// In en, this message translates to:
-  /// **'Add WaterCheck to your Home Screen'**
+  /// **'Add FieldQuire to your Home Screen'**
   String get installAppIos;
 
   /// No description provided for @installAppIosHint.
   ///
   /// In en, this message translates to:
-  /// **'In Safari, tap Share, then Add to Home Screen. WaterCheck then opens like an app, full screen.'**
+  /// **'In Safari, tap Share, then Add to Home Screen. FieldQuire then opens like an app, full screen.'**
   String get installAppIosHint;
+
+  /// No description provided for @formRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Answer this question'**
+  String get formRequired;
+
+  /// No description provided for @formNotAccepted.
+  ///
+  /// In en, this message translates to:
+  /// **'This answer is not accepted'**
+  String get formNotAccepted;
+
+  /// No description provided for @formNotNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a number'**
+  String get formNotNumber;
+
+  /// No description provided for @formNotWhole.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a whole number'**
+  String get formNotWhole;
+
+  /// No description provided for @formTooSmall.
+  ///
+  /// In en, this message translates to:
+  /// **'At least {min}'**
+  String formTooSmall(String min);
+
+  /// No description provided for @formTooLarge.
+  ///
+  /// In en, this message translates to:
+  /// **'At most {max}'**
+  String formTooLarge(String max);
+
+  /// No description provided for @formOtherMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Say what \"Other\" is'**
+  String get formOtherMissing;
+
+  /// No description provided for @formRows.
+  ///
+  /// In en, this message translates to:
+  /// **'Add the rows this needs'**
+  String get formRows;
+
+  /// No description provided for @formOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get formOther;
+
+  /// No description provided for @formOtherSpecify.
+  ///
+  /// In en, this message translates to:
+  /// **'Other: specify'**
+  String get formOtherSpecify;
+
+  /// No description provided for @formYes.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes'**
+  String get formYes;
+
+  /// No description provided for @formNo.
+  ///
+  /// In en, this message translates to:
+  /// **'No'**
+  String get formNo;
+
+  /// No description provided for @formRow.
+  ///
+  /// In en, this message translates to:
+  /// **'Row {n}'**
+  String formRow(int n);
+
+  /// No description provided for @formAddRow.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a row'**
+  String get formAddRow;
+
+  /// No description provided for @formRemoveRow.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove this row'**
+  String get formRemoveRow;
+
+  /// No description provided for @formTakePicture.
+  ///
+  /// In en, this message translates to:
+  /// **'Take a picture'**
+  String get formTakePicture;
+
+  /// No description provided for @formRetakePicture.
+  ///
+  /// In en, this message translates to:
+  /// **'Take again'**
+  String get formRetakePicture;
+
+  /// No description provided for @formRemovePicture.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get formRemovePicture;
+
+  /// No description provided for @formPictureNotHere.
+  ///
+  /// In en, this message translates to:
+  /// **'Picture not on this device'**
+  String get formPictureNotHere;
+
+  /// No description provided for @formCaptureLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Record the location'**
+  String get formCaptureLocation;
+
+  /// No description provided for @formLocationCaptured.
+  ///
+  /// In en, this message translates to:
+  /// **'{point} (±{accuracy} m)'**
+  String formLocationCaptured(String point, String accuracy);
+
+  /// No description provided for @formPick.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose'**
+  String get formPick;
+
+  /// No description provided for @formTypeCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Type the code'**
+  String get formTypeCode;
+
+  /// No description provided for @formNotYet.
+  ///
+  /// In en, this message translates to:
+  /// **'This kind of question comes in a later version of FieldQuire.'**
+  String get formNotYet;
 }
 
 class _UiKitLocalizationsDelegate
