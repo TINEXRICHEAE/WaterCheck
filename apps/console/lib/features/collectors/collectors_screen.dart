@@ -35,93 +35,104 @@ class CollectorsScreen extends ConsumerWidget {
             for (final a in ref.watch(assignmentsProvider).value!)
               a.collectorKey,
           };
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        Text(
-          l10n.navCollectors,
-          style: Theme.of(context).textTheme.headlineSmall,
-        ),
-        const SizedBox(height: 4),
-        Text(l10n.collectorsHint),
-        const SizedBox(height: 12),
-        const FilterBar(),
-        const SizedBox(height: 12),
-        if (rows.isEmpty) Text(l10n.collectorsNone),
-        // Testers officially assigned to an area (ADR-024); empty offline.
-        for (final c in rows)
-          Card(
-            child: ListTile(
-              // Their page: profile, sources, tests (ADR-022).
-              onTap: () => context.go('/collectors/${c.collectorKey}'),
-              leading: Icon(switch (c.mark) {
-                'known' => Icons.verified_outlined,
-                'flagged' => Icons.flag_outlined,
-                _ => Icons.person_outline,
-              }),
-              title: Text(c.name),
-              subtitle: Text(
-                [
-                  l10n.collectorLine(
-                    c.submissions,
-                    when.format(WcTime.local(c.lastSubmission, context)),
-                  ),
-                  if (c.collectorType != null)
-                    collectorTypeLabel(l10n, c.collectorType!),
-                  ?c.village,
-                  ?c.phone,
-                  if (c.mark == 'known') l10n.markKnown,
-                  if (c.mark == 'flagged') l10n.markFlagged,
-                  if (assigned != null && !assigned.contains(c.collectorKey))
-                    l10n.collectorNotAssigned,
-                ].join(' · '),
-              ),
-              trailing: PopupMenuButton<String>(
-                tooltip: l10n.markCollector,
-                icon: const Icon(Icons.more_vert),
-                onSelected: (action) => switch (action) {
-                  'trail' => showTrail(
-                    context,
-                    title: l10n.trailTitle,
-                    entity: 'collector',
-                    id: c.collectorKey,
-                  ),
-                  'code' => showRecoveryCode(context, ref, c.collectorKey),
-                  'archive' => archiveRecord(
-                    context,
-                    ref,
-                    entity: ArchiveInEntity.collector,
-                    recordId: c.collectorKey,
-                    label: c.name,
-                  ),
-                  _ => _mark(ref, c, action),
-                },
-                itemBuilder: (_) => [
-                  PopupMenuItem(
-                    value: 'known',
-                    enabled: c.mark != 'known',
-                    child: Text(l10n.markAsKnown),
-                  ),
-                  PopupMenuItem(
-                    value: 'flagged',
-                    enabled: c.mark != 'flagged',
-                    child: Text(l10n.markAsFlagged),
-                  ),
-                  PopupMenuItem(value: 'trail', child: Text(l10n.trailTitle)),
-                  PopupMenuItem(
-                    value: 'code',
-                    child: Text(l10n.recoveryAction),
-                  ),
-                  if (admin)
-                    PopupMenuItem(
-                      value: 'archive',
-                      child: Text(l10n.archiveAction),
-                    ),
-                ],
-              ),
-            ),
+    return SearchBuilder(
+      label: l10n.searchCollectors,
+      history: 'console.collectors',
+      builder: (context, field, matches) => ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          Text(
+            l10n.navCollectors,
+            style: Theme.of(context).textTheme.headlineSmall,
           ),
-      ],
+          const SizedBox(height: 4),
+          Text(l10n.collectorsHint),
+          const SizedBox(height: 12),
+          const FilterBar(),
+          const SizedBox(height: 12),
+          field,
+          const SizedBox(height: 8),
+          if (rows.isEmpty) Text(l10n.collectorsNone),
+          // Testers officially assigned to an area (ADR-024); empty offline.
+          for (final c in rows)
+            if (matches([c.name, c.collectorType]))
+              Card(
+                child: ListTile(
+                  // Their page: profile, sources, tests (ADR-022).
+                  onTap: () => context.go('/collectors/${c.collectorKey}'),
+                  leading: Icon(switch (c.mark) {
+                    'known' => Icons.verified_outlined,
+                    'flagged' => Icons.flag_outlined,
+                    _ => Icons.person_outline,
+                  }),
+                  title: Text(c.name),
+                  subtitle: Text(
+                    [
+                      l10n.collectorLine(
+                        c.submissions,
+                        when.format(WcTime.local(c.lastSubmission, context)),
+                      ),
+                      if (c.collectorType != null)
+                        collectorTypeLabel(l10n, c.collectorType!),
+                      ?c.village,
+                      ?c.phone,
+                      if (c.mark == 'known') l10n.markKnown,
+                      if (c.mark == 'flagged') l10n.markFlagged,
+                      if (assigned != null &&
+                          !assigned.contains(c.collectorKey))
+                        l10n.collectorNotAssigned,
+                    ].join(' · '),
+                  ),
+                  trailing: PopupMenuButton<String>(
+                    tooltip: l10n.markCollector,
+                    icon: const Icon(Icons.more_vert),
+                    onSelected: (action) => switch (action) {
+                      'trail' => showTrail(
+                        context,
+                        title: l10n.trailTitle,
+                        entity: 'collector',
+                        id: c.collectorKey,
+                      ),
+                      'code' => showRecoveryCode(context, ref, c.collectorKey),
+                      'archive' => archiveRecord(
+                        context,
+                        ref,
+                        entity: ArchiveInEntity.collector,
+                        recordId: c.collectorKey,
+                        label: c.name,
+                      ),
+                      _ => _mark(ref, c, action),
+                    },
+                    itemBuilder: (_) => [
+                      PopupMenuItem(
+                        value: 'known',
+                        enabled: c.mark != 'known',
+                        child: Text(l10n.markAsKnown),
+                      ),
+                      PopupMenuItem(
+                        value: 'flagged',
+                        enabled: c.mark != 'flagged',
+                        child: Text(l10n.markAsFlagged),
+                      ),
+                      PopupMenuItem(
+                        value: 'trail',
+                        child: Text(l10n.trailTitle),
+                      ),
+                      PopupMenuItem(
+                        value: 'code',
+                        child: Text(l10n.recoveryAction),
+                      ),
+                      if (admin)
+                        PopupMenuItem(
+                          value: 'archive',
+                          child: Text(l10n.archiveAction),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+        ],
+      ),
     );
   }
 

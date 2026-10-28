@@ -1674,10 +1674,14 @@ paths:
       tags:
       - research
       summary: Find Testers
-      description: 'Research collectors on Collect, found by name or phone, to give
-        a
+      description: 'Research collectors on Collect, to give a form to (water testers
+        are
 
-        form to (water testers are other people, ADR-031).'
+        other people, ADR-031). By their own collector code, anyone; by name or
+
+        phone, those who chose to be found, those already working on the
+
+        caller''s projects, and (for IT admins) everyone.'
       operationId: find_testers
       security:
       - HTTPBearer: []
@@ -1700,6 +1704,85 @@ paths:
                 items:
                   $ref: '#/components/schemas/TesterOut'
                 title: Response Find Testers
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/research/device/forms:
+    get:
+      tags:
+      - research
+      summary: Device Forms
+      description: 'After each sync, Collect keeps only the research forms it may
+        still
+
+        use and lists those behind a code (2026-10-27).'
+      operationId: device_forms
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeviceForms'
+  /v1/research/collectors/{collector_key}/card:
+    get:
+      tags:
+      - research
+      summary: Collector Card
+      description: 'A research collector''s own code to give research teams, and whether
+
+        teams may find them by name.'
+      operationId: collector_card
+      parameters:
+      - name: collector_key
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Collector Key
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CollectorCard'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    put:
+      tags:
+      - research
+      summary: Set Discoverable
+      operationId: set_discoverable
+      parameters:
+      - name: collector_key
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Collector Key
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DiscoverableIn'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CollectorCard'
         '422':
           description: Validation Error
           content:
@@ -5359,6 +5442,19 @@ components:
       required:
       - collector_key
       title: CollectorAssignIn
+    CollectorCard:
+      properties:
+        share_code:
+          type: string
+          title: Share Code
+        discoverable:
+          type: boolean
+          title: Discoverable
+      type: object
+      required:
+      - share_code
+      - discoverable
+      title: CollectorCard
     CollectorDetail:
       properties:
         collector_key:
@@ -5789,6 +5885,33 @@ components:
       description: 'Someone who worked on a device: from their tests, sources, details
 
         or a recovery code redeemed there (ADR-022).'
+    DeviceForms:
+      properties:
+        allowed:
+          items:
+            type: string
+            format: uuid
+          type: array
+          title: Allowed
+        locked:
+          items:
+            $ref: '#/components/schemas/LockedForm'
+          type: array
+          title: Locked
+      type: object
+      required:
+      - allowed
+      - locked
+      title: DeviceForms
+    DiscoverableIn:
+      properties:
+        discoverable:
+          type: boolean
+          title: Discoverable
+      type: object
+      required:
+      - discoverable
+      title: DiscoverableIn
     DraftIn:
       properties:
         definition:
@@ -6686,6 +6809,34 @@ components:
       - project_title
       - owner
       title: LibraryForm
+    LockedForm:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        code:
+          type: string
+          title: Code
+        title:
+          type: string
+          title: Title
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        project_title:
+          type: string
+          title: Project Title
+      type: object
+      required:
+      - id
+      - code
+      - title
+      - description
+      - project_title
+      title: LockedForm
     LoginRequest:
       properties:
         username:
@@ -8472,6 +8623,10 @@ components:
           type: string
           format: date-time
           title: Expires At
+        resend_in:
+          type: integer
+          title: Resend In
+          default: 0
       type: object
       required:
       - request_id

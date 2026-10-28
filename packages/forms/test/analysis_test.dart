@@ -257,4 +257,45 @@ void main() {
     expect(r.warnings.length, 2);
     expect(r.definition.check(), isEmpty);
   });
+
+  test('aggregation sums, splits and reads repeat rows (2026-10-27)', () {
+    FormItem f(String n) => def.allFields.firstWhere((x) => x.name == n);
+    final sum = aggregate(
+      def,
+      records,
+      by: ByField(f('stored')),
+      measure: Measure.sum,
+      value: f('people'),
+    );
+    expect(sum.groups, ['Yes', 'No']);
+    expect(sum.values.single, [8, 7]);
+
+    final split = aggregate(
+      def,
+      records,
+      by: ByField(f('method')),
+      split: f('stored'),
+    );
+    expect(split.groups, ['Boiling', 'Chlorine']);
+    expect(split.series, ['Yes', 'No']);
+    expect(split.values, [
+      [1, 1],
+      [1, 1],
+    ]);
+
+    final rows = aggregate(
+      def,
+      records,
+      by: ByField(f('day')),
+      measure: Measure.mean,
+      value: f('litres'),
+    );
+    expect(rows.groups, ['2026-11']);
+    expect(rows.values.single, [15]);
+    expect((rows.units, rows.isTime), (2, true));
+
+    final who = aggregate(def, records, by: const ByCollector());
+    expect(who.groups, ['Collector A', 'Collector B']);
+    expect(who.values.single, [2, 1]);
+  });
 }

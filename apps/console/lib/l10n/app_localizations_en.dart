@@ -3396,11 +3396,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get researchFindTester => 'Find a tester';
+  String get researchFindTester => 'Find a collector';
 
   @override
   String get researchFindTesterHint =>
-      'By name or phone number, as they set it in Collect.';
+      'By the collector code they give you (on their Collect profile), or by name or phone if they let research teams find them.';
 
   @override
   String get researchDone => 'Done';
@@ -4253,5 +4253,142 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String switchNewHint(String side) {
     return 'With other details. You leave this account first.';
+  }
+
+  @override
+  String get searchPhones => 'Search phones by name, area, code or app';
+
+  @override
+  String get searchLedger => 'Search codes and accounts';
+
+  @override
+  String get searchCollectors => 'Search collectors';
+
+  @override
+  String get searchAlerts => 'Search alerts by source or status';
+
+  @override
+  String get searchArchived => 'Search archived items';
+
+  @override
+  String get searchCodes => 'Search by person, code or reason';
+
+  @override
+  String get searchMessages => 'Search messages';
+
+  @override
+  String get searchProjects => 'Search projects';
+
+  @override
+  String get searchForms => 'Search forms by code, title or status';
+
+  @override
+  String get researchAllPublished => 'Published';
+
+  @override
+  String researchExportCsvOf(String table) {
+    return 'CSV: $table';
+  }
+
+  @override
+  String get researchTabCharts => 'Charts';
+
+  @override
+  String get researchChartsHint =>
+      'Put the answers together: group the records by an answer, the day they were finished or the collector; count them or add up, average or compare a number; split each group by a second answer.';
+
+  @override
+  String get researchChartGroupBy => 'Group by';
+
+  @override
+  String get researchChartByFinished => 'Day finished';
+
+  @override
+  String get researchChartByCollector => 'Collector';
+
+  @override
+  String get researchChartStep => 'Dates by';
+
+  @override
+  String get researchChartDay => 'Day';
+
+  @override
+  String get researchChartWeek => 'Week';
+
+  @override
+  String get researchChartMonth => 'Month';
+
+  @override
+  String get researchChartSplit => 'Split by';
+
+  @override
+  String get researchChartNoSplit => 'No split';
+
+  @override
+  String get researchChartMeasure => 'Show';
+
+  @override
+  String get researchChartCount => 'Number of records';
+
+  @override
+  String get researchChartSum => 'Total';
+
+  @override
+  String get researchChartMean => 'Average';
+
+  @override
+  String get researchChartMin => 'Lowest';
+
+  @override
+  String get researchChartMax => 'Highest';
+
+  @override
+  String get researchChartOf => 'Of';
+
+  @override
+  String get researchChartBars => 'Bars';
+
+  @override
+  String get researchChartHorizontal => 'Horizontal bars';
+
+  @override
+  String get researchChartGrouped => 'Grouped bars';
+
+  @override
+  String get researchChartStacked => 'Stacked bars';
+
+  @override
+  String get researchChartLine => 'Line';
+
+  @override
+  String get researchChartArea => 'Area';
+
+  @override
+  String get researchChartPie => 'Pie';
+
+  @override
+  String get researchChartDonut => 'Donut';
+
+  @override
+  String get researchChartOther => 'Other';
+
+  @override
+  String get researchChartNone => '(no answer)';
+
+  @override
+  String get researchChartGroup => 'Group';
+
+  @override
+  String get researchChartNothing => 'No records to chart yet.';
+
+  @override
+  String researchChartUnits(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'From $count records or repeat rows',
+      one: 'From 1 record or repeat row',
+    );
+    return '$_temp0';
   }
 }

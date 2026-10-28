@@ -23,6 +23,7 @@ from sqlalchemy.ext.asyncio import AsyncConnection
 
 from app.api.deps import DbDep, ResearcherDep
 from app.api.installations import InstallationDep
+from app.db.database import Principal
 
 router = APIRouter(prefix="/v1/research", tags=["research"])
 
@@ -946,8 +947,11 @@ class TesterOut(BaseModel):
 async def find_testers(
     user: ResearcherDep, db: DbDep, q: str = Query(min_length=2, max_length=100)
 ) -> list[TesterOut]:
-    """Research collectors on Collect, found by name or phone, to give a
-    form to (water testers are other people, ADR-031)."""
+    """Research collectors on Collect, to give a form to (water testers are
+    other people, ADR-031). By their own collector code, anyone; by name or
+    phone, those who chose to be found, those already working on the
+    caller's projects, and (for IT admins) everyone."""
+    term = q.strip()
     async with db.transaction(user) as conn:
         rows = await conn.execute(
             text(
@@ -955,12 +959,105 @@ async def find_testers(
                 "cp.snapshot->>'phone' AS phone FROM collector_profile cp "
                 # Research collectors, and profiles made before sides that
                 # never tested water (ADR-031).
-                f"WHERE {_RESEARCH_PROFILE} AND (cp.snapshot->>'full_name' ILIKE :q "
-                "OR cp.snapshot->>'phone' ILIKE :q) ORDER BY cp.last_seen_at DESC LIMIT 20"
+                f"WHERE {_RESEARCH_PROFILE} AND (cp.share_code = upper(:code) OR ("
+                "(cp.snapshot->>'full_name' ILIKE :q OR cp.snapshot->>'phone' ILIKE :q) "
+                "AND (cp.discoverable OR wc_is_admin() OR EXISTS (SELECT 1 FROM "
+                "research.form_collector c JOIN research.form f ON f.id = c.form_id "
+                "WHERE c.collector_key = cp.collector_key AND research.can_manage(f.project_id)) "
+                "OR EXISTS (SELECT 1 FROM research.record r JOIN research.form f "
+                "ON f.id = r.form_id WHERE r.collector_key = cp.collector_key "
+                "AND research.can_manage(f.project_id))))) "
+                "ORDER BY cp.share_code = upper(:code) DESC, cp.last_seen_at DESC LIMIT 20"
             ),
-            {"q": f"%{q.strip()}%"},
+            {"q": f"%{term}%", "code": term.replace("-", "").replace(" ", "")},
         )
         return [TesterOut(**r._mapping) for r in rows]
+
+
+# ---------------------------------------------------------- on a phone
+class LockedForm(BaseModel):
+    id: UUID
+    code: str
+    title: str
+    description: str | None
+    project_title: str
+
+
+class DeviceForms(BaseModel):
+    # The forms this phone may collect with now; any other on the phone is
+    # removed (access changed, closed, or taken back).
+    allowed: list[UUID]
+    # Forms behind an access code, shown with a lock.
+    locked: list[LockedForm]
+
+
+@router.get("/device/forms")
+async def device_forms(device: InstallationDep, db: DbDep) -> DeviceForms:
+    """After each sync, Collect keeps only the research forms it may still
+    use and lists those behind a code (2026-10-27)."""
+    async with db.transaction(device) as conn:
+        allowed = await conn.execute(
+            text(
+                "SELECT f.id FROM research.form f WHERE research.can_collect(f.id) "
+                "AND f.current_version IS NOT NULL"
+            )
+        )
+        locked = await conn.execute(text("SELECT * FROM research.locked_forms()"))
+        return DeviceForms(
+            allowed=[r.id for r in allowed],
+            locked=[LockedForm(**r._mapping) for r in locked],
+        )
+
+
+class CollectorCard(BaseModel):
+    # Given to research teams so they can add this collector to forms.
+    share_code: str
+    # Found by name or phone by any research team.
+    discoverable: bool
+
+
+class DiscoverableIn(BaseModel):
+    discoverable: bool
+
+
+async def _research_card(
+    conn: AsyncConnection, key: UUID, installation: UUID | None
+) -> CollectorCard:
+    row = (
+        await conn.execute(
+            text(
+                "SELECT p.share_code, p.discoverable FROM collector_profile p "
+                "JOIN collector_device d ON d.collector_key = p.collector_key "
+                "WHERE p.collector_key = :k AND d.installation_id = :i AND d.signed_out_at IS NULL"
+            ),
+            {"k": key, "i": installation},
+        )
+    ).first()
+    if row is None:
+        # Not on the server from this phone yet: the first sync brings it.
+        raise HTTPException(status.HTTP_409_CONFLICT, "sync_first")
+    return CollectorCard(share_code=row.share_code, discoverable=row.discoverable)
+
+
+@router.get("/collectors/{collector_key}/card")
+async def collector_card(collector_key: UUID, device: InstallationDep, db: DbDep) -> CollectorCard:
+    """A research collector's own code to give research teams, and whether
+    teams may find them by name."""
+    async with db.transaction(Principal.system()) as conn:
+        return await _research_card(conn, collector_key, device.installation_id)
+
+
+@router.put("/collectors/{collector_key}/card")
+async def set_discoverable(
+    collector_key: UUID, body: DiscoverableIn, device: InstallationDep, db: DbDep
+) -> CollectorCard:
+    async with db.transaction(Principal.system()) as conn:
+        await _research_card(conn, collector_key, device.installation_id)
+        await conn.execute(
+            text("UPDATE collector_profile SET discoverable = :d WHERE collector_key = :k"),
+            {"d": body.discoverable, "k": collector_key},
+        )
+        return await _research_card(conn, collector_key, device.installation_id)
 
 
 class CollectorDetail(BaseModel):

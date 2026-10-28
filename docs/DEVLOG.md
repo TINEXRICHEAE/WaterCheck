@@ -1099,3 +1099,66 @@ Decisions are also recorded in [PLAN.md](PLAN.md) (decisions log and §3a), the 
   - backend all passing, with new acceptance and per-side admin tests;
   - Console 51; Collect 73.
 - **Dev:** rebuilt (migration 0021) and previews rebuilt.
+
+### 52. One code at a time, research access enforced on phones, searches remembered, charts, exports that open (2026-10-27)
+- **Request (lead):**
+  - commit entry 51, then:
+    - device sign-out codes piled up with repeated taps; keep one code at a time, made again only after a short wait (as with OTPs), and let stale codes disappear;
+    - search active research forms in the Console and in Collect;
+    - add search, with remembered recent searches, to every list that grows;
+    - on research maps, search all areas and places as well as the points the person may see;
+    - show code-protected forms to every collector, locked, opened with the code;
+    - hide Publish when there is nothing new to publish;
+    - enforce form access on the next sync, even if that removes forms already on a phone;
+    - make the Excel and CSV exports open;
+    - add pie, donut, bar and line charts, and combinations of fields;
+    - fix the sign-up page's height, and enable "Create the account" only once everything required is filled and ticked;
+    - keep collectors and their records private to their own research teams (only forms are shared);
+    - let collectors choose a public profile, or stay private and give teams a code.
+- **Outcome (on dev, not yet committed):**
+  - **Committed first:** entry 51 as `08e9771`.
+  - **One code at a time:**
+    - a second request within 60 seconds returns the same code (with how long to wait) instead of making another;
+    - a later request replaces it, and the old one expires;
+    - confirmation codes for contacts work the same way;
+    - the IT admins' codes page refreshes every 20 seconds and drops expired codes.
+  - **Research access on phones (migration 0022):**
+    - after each sync, Collect asks which forms it may still use (`/v1/research/device/forms`);
+    - forms that were taken back, closed or had their access changed leave the phone with their unfinished drafts (finished records stay);
+    - published forms behind an access code are listed for every research collector with a lock; tapping one asks for the code.
+  - **Collectors' privacy:**
+    - every research collector has a collector code (on their Collect profile, with Copy);
+    - they are private by default: teams add them with that code;
+    - "Let research teams find me by name" opts in to being found by name or phone;
+    - teams still find collectors already on their own projects;
+    - records and collectors stay visible only to their project's team (checked again: only forms are public or shared).
+  - **Search:**
+    - search boxes keep the person's recent searches on that device, shown under the box with one-tap reuse and a way to forget each;
+    - **new search boxes:**
+      - Console: phones, accounts and codes, collectors (water and research), alerts, archived items, codes to pass on, messages (water and research), research projects, research forms and the library;
+      - Collect: messages and trips;
+    - **forms search:** Collect's research home searches forms, locked forms and records together;
+    - **maps:** remember the places chosen;
+    - **research maps** (Console and Collect) search the person's own points and every area and named place, plus places across Uganda online.
+  - **Publish:** shows "Published", inactive, until there is a saved draft or an unsaved change.
+  - **Exports:**
+    - the Console's .xlsx and .zip files were broken: in the web build, the zip library wrote the zip directory in the wrong byte order;
+    - a small zip writer replaces it, and the .xlsx now includes a basic styles part;
+    - CSV is always a single .csv file, and each repeat group has its own CSV button;
+    - downloads are no longer cut short.
+  - **Charts tab (analysis):**
+    - group by an answer, the day finished (by day, week or month) or the collector;
+    - show the number of records, or the total, average, lowest or highest of a number;
+    - split by a second answer;
+    - draw as bars, horizontal bars, grouped bars, stacked bars, line, area, pie or donut;
+    - each chart has a legend and the table of numbers under it;
+    - colours come from a fixed eight-colour palette safe for colour blindness, and further series fold into "Other".
+  - **Sign-up:**
+    - a wider, shorter card with fields in pairs on wide screens;
+    - "Create the account" stays inactive, with what is missing shown under it, until name, email, password (twice) and both ticks are in place.
+- **Tests:**
+  - backend: all passing, including tests for repeated sign-out requests, phones' allowed and locked forms, collector cards and finding by code;
+  - Console 51; data 90 (forms leaving a phone); UI kit 39;
+  - forms 21 (zip and .xlsx read back, and aggregation);
+  - the new zip was also checked in a JavaScript build: openpyxl opens it, while the old library's zip from the same build did not open.
+- **Dev:** rebuilt (migration 0022; existing collector profiles got their codes) and both previews rebuilt; 22.8 GB free.

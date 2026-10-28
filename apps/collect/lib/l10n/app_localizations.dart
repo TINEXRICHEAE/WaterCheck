@@ -3619,7 +3619,7 @@ abstract class AppLocalizations {
   /// No description provided for @researchSearch.
   ///
   /// In en, this message translates to:
-  /// **'Search by research number or form'**
+  /// **'Search forms, research numbers and records'**
   String get researchSearch;
 
   /// No description provided for @researchFilterAll.
@@ -3837,6 +3837,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'With other details, and the side\'s own Terms of Use.'**
   String get switchSideNewHint;
+
+  /// No description provided for @researchLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs the access code from the research team'**
+  String get researchLocked;
+
+  /// No description provided for @researchUnlock.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter code'**
+  String get researchUnlock;
+
+  /// No description provided for @researchNoMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'No form matches the search.'**
+  String get researchNoMatch;
+
+  /// No description provided for @searchMessages.
+  ///
+  /// In en, this message translates to:
+  /// **'Search messages'**
+  String get searchMessages;
+
+  /// No description provided for @searchTrips.
+  ///
+  /// In en, this message translates to:
+  /// **'Search trips by place or date'**
+  String get searchTrips;
+
+  /// No description provided for @cardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your collector code'**
+  String get cardTitle;
+
+  /// No description provided for @cardIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Research teams add you to their forms with this code. Give it only to teams you want to work with.'**
+  String get cardIntro;
+
+  /// No description provided for @cardCodeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell it to the research team, or send it to them.'**
+  String get cardCodeHint;
+
+  /// No description provided for @cardCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy the code'**
+  String get cardCopy;
+
+  /// No description provided for @cardCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Code copied.'**
+  String get cardCopied;
+
+  /// No description provided for @cardFindMe.
+  ///
+  /// In en, this message translates to:
+  /// **'Let research teams find me by name'**
+  String get cardFindMe;
+
+  /// No description provided for @cardPublic.
+  ///
+  /// In en, this message translates to:
+  /// **'Any research team can find you by your name or phone and ask you to collect data.'**
+  String get cardPublic;
+
+  /// No description provided for @cardPrivate.
+  ///
+  /// In en, this message translates to:
+  /// **'Private: only teams you give your code to can add you.'**
+  String get cardPrivate;
+
+  /// No description provided for @cardSyncFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync once with the internet on to see your code.'**
+  String get cardSyncFirst;
+
+  /// No description provided for @cardOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Your code shows when you are online.'**
+  String get cardOffline;
+
+  /// No description provided for @cardRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get cardRetry;
+
+  /// No description provided for @cardFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not change this ({code}). Try again online.'**
+  String cardFailed(String code);
 }
 
 class _AppLocalizationsDelegate

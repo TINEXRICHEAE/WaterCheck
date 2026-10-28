@@ -141,6 +141,7 @@ class _ResearchRecordsScreenState extends ConsumerState<ResearchRecordsScreen> {
         SearchField(
           value: _q,
           label: l10n.researchSearchNumber,
+          history: 'console.research.records',
           onChanged: (v) {
             _q = v.trim();
             _load(reset: true);

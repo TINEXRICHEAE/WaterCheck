@@ -5305,13 +5305,13 @@ abstract class AppLocalizations {
   /// No description provided for @researchFindTester.
   ///
   /// In en, this message translates to:
-  /// **'Find a tester'**
+  /// **'Find a collector'**
   String get researchFindTester;
 
   /// No description provided for @researchFindTesterHint.
   ///
   /// In en, this message translates to:
-  /// **'By name or phone number, as they set it in Collect.'**
+  /// **'By the collector code they give you (on their Collect profile), or by name or phone if they let research teams find them.'**
   String get researchFindTesterHint;
 
   /// No description provided for @researchDone.
@@ -6675,6 +6675,258 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'With other details. You leave this account first.'**
   String switchNewHint(String side);
+
+  /// No description provided for @searchPhones.
+  ///
+  /// In en, this message translates to:
+  /// **'Search phones by name, area, code or app'**
+  String get searchPhones;
+
+  /// No description provided for @searchLedger.
+  ///
+  /// In en, this message translates to:
+  /// **'Search codes and accounts'**
+  String get searchLedger;
+
+  /// No description provided for @searchCollectors.
+  ///
+  /// In en, this message translates to:
+  /// **'Search collectors'**
+  String get searchCollectors;
+
+  /// No description provided for @searchAlerts.
+  ///
+  /// In en, this message translates to:
+  /// **'Search alerts by source or status'**
+  String get searchAlerts;
+
+  /// No description provided for @searchArchived.
+  ///
+  /// In en, this message translates to:
+  /// **'Search archived items'**
+  String get searchArchived;
+
+  /// No description provided for @searchCodes.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by person, code or reason'**
+  String get searchCodes;
+
+  /// No description provided for @searchMessages.
+  ///
+  /// In en, this message translates to:
+  /// **'Search messages'**
+  String get searchMessages;
+
+  /// No description provided for @searchProjects.
+  ///
+  /// In en, this message translates to:
+  /// **'Search projects'**
+  String get searchProjects;
+
+  /// No description provided for @searchForms.
+  ///
+  /// In en, this message translates to:
+  /// **'Search forms by code, title or status'**
+  String get searchForms;
+
+  /// No description provided for @researchAllPublished.
+  ///
+  /// In en, this message translates to:
+  /// **'Published'**
+  String get researchAllPublished;
+
+  /// No description provided for @researchExportCsvOf.
+  ///
+  /// In en, this message translates to:
+  /// **'CSV: {table}'**
+  String researchExportCsvOf(String table);
+
+  /// No description provided for @researchTabCharts.
+  ///
+  /// In en, this message translates to:
+  /// **'Charts'**
+  String get researchTabCharts;
+
+  /// No description provided for @researchChartsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Put the answers together: group the records by an answer, the day they were finished or the collector; count them or add up, average or compare a number; split each group by a second answer.'**
+  String get researchChartsHint;
+
+  /// No description provided for @researchChartGroupBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Group by'**
+  String get researchChartGroupBy;
+
+  /// No description provided for @researchChartByFinished.
+  ///
+  /// In en, this message translates to:
+  /// **'Day finished'**
+  String get researchChartByFinished;
+
+  /// No description provided for @researchChartByCollector.
+  ///
+  /// In en, this message translates to:
+  /// **'Collector'**
+  String get researchChartByCollector;
+
+  /// No description provided for @researchChartStep.
+  ///
+  /// In en, this message translates to:
+  /// **'Dates by'**
+  String get researchChartStep;
+
+  /// No description provided for @researchChartDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Day'**
+  String get researchChartDay;
+
+  /// No description provided for @researchChartWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Week'**
+  String get researchChartWeek;
+
+  /// No description provided for @researchChartMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Month'**
+  String get researchChartMonth;
+
+  /// No description provided for @researchChartSplit.
+  ///
+  /// In en, this message translates to:
+  /// **'Split by'**
+  String get researchChartSplit;
+
+  /// No description provided for @researchChartNoSplit.
+  ///
+  /// In en, this message translates to:
+  /// **'No split'**
+  String get researchChartNoSplit;
+
+  /// No description provided for @researchChartMeasure.
+  ///
+  /// In en, this message translates to:
+  /// **'Show'**
+  String get researchChartMeasure;
+
+  /// No description provided for @researchChartCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Number of records'**
+  String get researchChartCount;
+
+  /// No description provided for @researchChartSum.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get researchChartSum;
+
+  /// No description provided for @researchChartMean.
+  ///
+  /// In en, this message translates to:
+  /// **'Average'**
+  String get researchChartMean;
+
+  /// No description provided for @researchChartMin.
+  ///
+  /// In en, this message translates to:
+  /// **'Lowest'**
+  String get researchChartMin;
+
+  /// No description provided for @researchChartMax.
+  ///
+  /// In en, this message translates to:
+  /// **'Highest'**
+  String get researchChartMax;
+
+  /// No description provided for @researchChartOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Of'**
+  String get researchChartOf;
+
+  /// No description provided for @researchChartBars.
+  ///
+  /// In en, this message translates to:
+  /// **'Bars'**
+  String get researchChartBars;
+
+  /// No description provided for @researchChartHorizontal.
+  ///
+  /// In en, this message translates to:
+  /// **'Horizontal bars'**
+  String get researchChartHorizontal;
+
+  /// No description provided for @researchChartGrouped.
+  ///
+  /// In en, this message translates to:
+  /// **'Grouped bars'**
+  String get researchChartGrouped;
+
+  /// No description provided for @researchChartStacked.
+  ///
+  /// In en, this message translates to:
+  /// **'Stacked bars'**
+  String get researchChartStacked;
+
+  /// No description provided for @researchChartLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Line'**
+  String get researchChartLine;
+
+  /// No description provided for @researchChartArea.
+  ///
+  /// In en, this message translates to:
+  /// **'Area'**
+  String get researchChartArea;
+
+  /// No description provided for @researchChartPie.
+  ///
+  /// In en, this message translates to:
+  /// **'Pie'**
+  String get researchChartPie;
+
+  /// No description provided for @researchChartDonut.
+  ///
+  /// In en, this message translates to:
+  /// **'Donut'**
+  String get researchChartDonut;
+
+  /// No description provided for @researchChartOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get researchChartOther;
+
+  /// No description provided for @researchChartNone.
+  ///
+  /// In en, this message translates to:
+  /// **'(no answer)'**
+  String get researchChartNone;
+
+  /// No description provided for @researchChartGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Group'**
+  String get researchChartGroup;
+
+  /// No description provided for @researchChartNothing.
+  ///
+  /// In en, this message translates to:
+  /// **'No records to chart yet.'**
+  String get researchChartNothing;
+
+  /// No description provided for @researchChartUnits.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{From 1 record or repeat row} other{From {count} records or repeat rows}}'**
+  String researchChartUnits(int count);
 }
 
 class _AppLocalizationsDelegate

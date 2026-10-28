@@ -189,6 +189,8 @@
   "aboutLegalese": "Field data collection, monitoring, analysis and reporting: water testing, research and more. Licensed under the project licence; open-source components are listed under View licences.",
   "cancel": "Cancel",
   "searchClear": "Clear search",
+  "searchRecent": "Recent:",
+  "searchForget": "Forget this search",
   "filterAll": "All",
   "refSearch": "Search parameters, limits, kits and areas",
   "refSearchClear": "Clear the search",

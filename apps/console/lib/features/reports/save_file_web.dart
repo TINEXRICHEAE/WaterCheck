@@ -10,6 +10,11 @@ Future<String?> saveFile(String name, Uint8List bytes, String mime) async {
     ..href = url
     ..download = name
     ..click();
-  web.URL.revokeObjectURL(url);
+  // Freed once the browser has the file; freed at once, some browsers
+  // save nothing or a cut-off file.
+  Future<void>.delayed(
+    const Duration(seconds: 30),
+    () => web.URL.revokeObjectURL(url),
+  );
   return name;
 }

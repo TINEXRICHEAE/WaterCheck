@@ -296,6 +296,12 @@ class UiKitLocalizationsEn extends UiKitLocalizations {
   String get searchClear => 'Clear search';
 
   @override
+  String get searchRecent => 'Recent:';
+
+  @override
+  String get searchForget => 'Forget this search';
+
+  @override
   String get filterAll => 'All';
 
   @override

@@ -45,19 +45,31 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
     super.dispose();
   }
 
+  @override
+  void initState() {
+    super.initState();
+    // The button wakes as soon as everything needed is there.
+    for (final c in [_name, _email, _password, _again]) {
+      c.addListener(() => setState(() {}));
+    }
+  }
+
+  /// What is still missing, or null when the account can be made.
+  String? _missing(AppLocalizations l10n) => _name.text.trim().isEmpty
+      ? l10n.signUpName
+      : !RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(_email.text.trim())
+      ? l10n.signUpEmail
+      : !passwordAcceptable(_password.text)
+      ? l10n.passwordRule
+      : _password.text != _again.text
+      ? l10n.passwordMismatch
+      : !_ticked
+      ? l10n.signUpTick
+      : null;
+
   Future<void> _go(AppSide side) async {
     final l10n = AppLocalizations.of(context);
-    final problem = _name.text.trim().isEmpty
-        ? l10n.signUpName
-        : !RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(_email.text.trim())
-        ? l10n.signUpEmail
-        : !passwordAcceptable(_password.text)
-        ? l10n.passwordRule
-        : _password.text != _again.text
-        ? l10n.passwordMismatch
-        : !_ticked
-        ? l10n.signUpTick
-        : null;
+    final problem = _missing(l10n);
     if (problem != null) {
       setState(() => _error = problem);
       return;
@@ -90,26 +102,39 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
     final l10n = AppLocalizations.of(context);
     final side = ref.watch(consoleModeProvider).side;
     final name = sideName(UiKitLocalizations.of(context), side);
+    final missing = _missing(l10n);
     return AuthCard(
       title: l10n.signUpTitle(name),
+      compact: true,
       children: [
         Text(
           side == AppSide.water
               ? l10n.signUpWaterIntro
               : l10n.signUpResearchIntro,
         ),
-        const SizedBox(height: 12),
-        TextField(
-          controller: _name,
-          enabled: !_busy,
-          autofillHints: const [AutofillHints.name],
-          textCapitalization: TextCapitalization.words,
-          decoration: InputDecoration(
-            labelText: l10n.signUpFullName,
-            border: const OutlineInputBorder(),
+        const SizedBox(height: 8),
+        _Pair(
+          TextField(
+            controller: _name,
+            enabled: !_busy,
+            autofillHints: const [AutofillHints.name],
+            textCapitalization: TextCapitalization.words,
+            decoration: InputDecoration(
+              labelText: l10n.signUpFullName,
+              border: const OutlineInputBorder(),
+            ),
+          ),
+          TextField(
+            controller: _organisation,
+            enabled: !_busy,
+            autofillHints: const [AutofillHints.organizationName],
+            decoration: InputDecoration(
+              labelText: l10n.signUpOrganisation,
+              border: const OutlineInputBorder(),
+            ),
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 8),
         TextField(
           controller: _email,
           enabled: !_busy,
@@ -123,35 +148,26 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
             border: const OutlineInputBorder(),
           ),
         ),
-        const SizedBox(height: 12),
-        TextField(
-          controller: _organisation,
-          enabled: !_busy,
-          autofillHints: const [AutofillHints.organizationName],
-          decoration: InputDecoration(
-            labelText: l10n.signUpOrganisation,
-            border: const OutlineInputBorder(),
+        const SizedBox(height: 8),
+        _Pair(
+          PasswordField(
+            controller: _password,
+            enabled: !_busy,
+            autofillHints: const [AutofillHints.newPassword],
+            decoration: InputDecoration(
+              labelText: l10n.signInPassword,
+              helperText: l10n.passwordRule,
+              helperMaxLines: 2,
+              border: const OutlineInputBorder(),
+            ),
           ),
-        ),
-        const SizedBox(height: 12),
-        PasswordField(
-          controller: _password,
-          enabled: !_busy,
-          autofillHints: const [AutofillHints.newPassword],
-          decoration: InputDecoration(
-            labelText: l10n.signInPassword,
-            helperText: l10n.passwordRule,
-            helperMaxLines: 2,
-            border: const OutlineInputBorder(),
-          ),
-        ),
-        const SizedBox(height: 12),
-        PasswordField(
-          controller: _again,
-          enabled: !_busy,
-          decoration: InputDecoration(
-            labelText: l10n.passwordAgain,
-            border: const OutlineInputBorder(),
+          PasswordField(
+            controller: _again,
+            enabled: !_busy,
+            decoration: InputDecoration(
+              labelText: l10n.passwordAgain,
+              border: const OutlineInputBorder(),
+            ),
           ),
         ),
         const SizedBox(height: 8),
@@ -160,11 +176,20 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
           side: side,
           onChanged: (v) => setState(() => _ticked = v),
         ),
-        ErrorText(_error),
+        if (_error != null) ErrorText(_error),
         FilledButton(
-          onPressed: _busy ? null : () => _go(side),
+          onPressed: _busy || missing != null ? null : () => _go(side),
           child: BusyLabel(busy: _busy, child: Text(l10n.signUpGo)),
         ),
+        if (missing != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 6),
+            child: Text(
+              missing,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ),
         const SizedBox(height: 8),
         TextButton(
           onPressed: _busy ? null : () => context.go('/sign-in'),
@@ -264,7 +289,7 @@ class _JoinSideScreenState extends ConsumerState<JoinSideScreen> {
           ),
           onSubmitted: (_) => _join(),
         ),
-        ErrorText(_error),
+        if (_error != null) ErrorText(_error),
         Align(
           alignment: Alignment.centerLeft,
           child: FilledButton.icon(
@@ -276,4 +301,30 @@ class _JoinSideScreenState extends ConsumerState<JoinSideScreen> {
       ],
     );
   }
+}
+
+/// Two fields side by side when there is room, one under the other on a
+/// phone.
+class _Pair extends StatelessWidget {
+  const _Pair(this.first, this.second);
+
+  final Widget first;
+  final Widget second;
+
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, box) => box.maxWidth < 520
+        ? Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [first, const SizedBox(height: 8), second],
+          )
+        : Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(child: first),
+              const SizedBox(width: 12),
+              Expanded(child: second),
+            ],
+          ),
+  );
 }

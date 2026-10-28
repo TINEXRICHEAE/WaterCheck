@@ -40,61 +40,72 @@ class ResearchMessagesScreen extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final text = Theme.of(context).textTheme;
     final when = DateFormat('d MMM, HH:mm');
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        Text(l10n.messagesTitle, style: text.headlineSmall),
-        Text(l10n.researchMessagesListHint),
-        const SizedBox(height: 12),
-        const ProjectPicker(),
-        const SizedBox(height: 12),
-        ...switch (ref.watch(researchThreadsProvider)) {
-          AsyncData(:final value) when value.isEmpty => [
-            Text(l10n.messagesNone),
-          ],
-          AsyncData(:final value) => [
-            for (final t in value)
-              Card(
-                child: ListTile(
-                  leading: Icon(
-                    t.lastFromTeam
-                        ? Icons.mark_chat_read_outlined
-                        : Icons.mark_chat_unread_outlined,
-                  ),
-                  title: Text(
-                    '${l10n.researchRecordTitle(t.number)} · ${t.formCode}',
-                  ),
-                  subtitle: Text(
-                    '${t.lastAuthor ?? '?'}: ${t.lastBody}',
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  trailing: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        when.format(t.lastAt.toLocal()),
-                        style: text.bodySmall,
+    return SearchBuilder(
+      label: l10n.searchMessages,
+      history: 'console.research.messages',
+      builder: (context, field, matches) => ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          Text(l10n.messagesTitle, style: text.headlineSmall),
+          Text(l10n.researchMessagesListHint),
+          const SizedBox(height: 12),
+          const ProjectPicker(),
+          const SizedBox(height: 12),
+          field,
+          const SizedBox(height: 8),
+          ...switch (ref.watch(researchThreadsProvider)) {
+            AsyncData(:final value) when value.isEmpty => [
+              Text(l10n.messagesNone),
+            ],
+            AsyncData(:final value) => [
+              for (final t in value)
+                if (matches([t.number, t.formCode, t.lastAuthor, t.lastBody]))
+                  Card(
+                    child: ListTile(
+                      leading: Icon(
+                        t.lastFromTeam
+                            ? Icons.mark_chat_read_outlined
+                            : Icons.mark_chat_unread_outlined,
                       ),
-                      if (!t.lastFromTeam)
-                        Text(l10n.researchNeedsAnswer, style: text.labelSmall),
-                    ],
+                      title: Text(
+                        '${l10n.researchRecordTitle(t.number)} · ${t.formCode}',
+                      ),
+                      subtitle: Text(
+                        '${t.lastAuthor ?? '?'}: ${t.lastBody}',
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      trailing: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            when.format(t.lastAt.toLocal()),
+                            style: text.bodySmall,
+                          ),
+                          if (!t.lastFromTeam)
+                            Text(
+                              l10n.researchNeedsAnswer,
+                              style: text.labelSmall,
+                            ),
+                        ],
+                      ),
+                      onTap: () =>
+                          context.go('/research/records/${t.recordId}'),
+                    ),
                   ),
-                  onTap: () => context.go('/research/records/${t.recordId}'),
-                ),
+            ],
+            AsyncError(:final error) => [
+              ErrorView(
+                error: error,
+                compact: true,
+                onRetry: () => ref.invalidate(researchThreadsProvider),
               ),
-          ],
-          AsyncError(:final error) => [
-            ErrorView(
-              error: error,
-              compact: true,
-              onRetry: () => ref.invalidate(researchThreadsProvider),
-            ),
-          ],
-          _ => [const Center(child: CircularProgressIndicator())],
-        },
-      ],
+            ],
+            _ => [const Center(child: CircularProgressIndicator())],
+          },
+        ],
+      ),
     );
   }
 }
@@ -110,79 +121,86 @@ class ResearchAdminScreen extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final text = Theme.of(context).textTheme;
     final projects = ref.watch(researchProjectsProvider).value ?? const [];
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        Text(l10n.navAdmin, style: text.headlineSmall),
-        Text(l10n.researchAdminHint),
-        const SizedBox(height: 12),
-        Card(
-          child: Column(
-            children: [
-              // Research's own administration (ADR-031): research
-              // accounts, devices and codes only; water has its own.
-              for (final (icon, title, path) in [
-                (
-                  Icons.people_alt_outlined,
-                  l10n.researchAdminPeople,
-                  '/research/admin/people',
-                ),
-                (
-                  Icons.phone_android,
-                  l10n.researchAdminPhones,
-                  '/research/admin/phones',
-                ),
-                (
-                  Icons.key_outlined,
-                  l10n.researchAdminLedger,
-                  '/research/admin/credentials',
-                ),
-                (
-                  Icons.lock_outline,
-                  l10n.researchAdminSecurity,
-                  '/research/admin/security',
-                ),
-                (
-                  Icons.monitor_heart_outlined,
-                  l10n.researchAdminSystem,
-                  '/research/admin/system',
-                ),
-              ])
-                ListTile(
-                  leading: Icon(icon),
-                  title: Text(title),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () => context.go(path),
-                ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 16),
-        Text(
-          l10n.researchAllProjects(projects.length),
-          style: text.titleMedium,
-        ),
-        const SizedBox(height: 8),
-        for (final p in projects)
+    return SearchBuilder(
+      label: l10n.searchProjects,
+      history: 'console.research.projects',
+      builder: (context, field, matches) => ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          Text(l10n.navAdmin, style: text.headlineSmall),
+          Text(l10n.researchAdminHint),
+          const SizedBox(height: 12),
           Card(
-            child: ListTile(
-              leading: CircleAvatar(child: Text(p.code)),
-              title: Text(p.title),
-              subtitle: Text(
-                [
-                  ?p.owner,
-                  l10n.researchFormsCount(p.forms),
-                  l10n.researchRecordsCount(p.records),
-                ].join(' · '),
-              ),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () async {
-                await ref.read(chosenProjectProvider.notifier).set(p.id);
-                if (context.mounted) context.go('/research');
-              },
+            child: Column(
+              children: [
+                // Research's own administration (ADR-031): research
+                // accounts, devices and codes only; water has its own.
+                for (final (icon, title, path) in [
+                  (
+                    Icons.people_alt_outlined,
+                    l10n.researchAdminPeople,
+                    '/research/admin/people',
+                  ),
+                  (
+                    Icons.phone_android,
+                    l10n.researchAdminPhones,
+                    '/research/admin/phones',
+                  ),
+                  (
+                    Icons.key_outlined,
+                    l10n.researchAdminLedger,
+                    '/research/admin/credentials',
+                  ),
+                  (
+                    Icons.lock_outline,
+                    l10n.researchAdminSecurity,
+                    '/research/admin/security',
+                  ),
+                  (
+                    Icons.monitor_heart_outlined,
+                    l10n.researchAdminSystem,
+                    '/research/admin/system',
+                  ),
+                ])
+                  ListTile(
+                    leading: Icon(icon),
+                    title: Text(title),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () => context.go(path),
+                  ),
+              ],
             ),
           ),
-      ],
+          const SizedBox(height: 16),
+          Text(
+            l10n.researchAllProjects(projects.length),
+            style: text.titleMedium,
+          ),
+          const SizedBox(height: 8),
+          field,
+          const SizedBox(height: 8),
+          for (final p in projects)
+            if (matches([p.code, p.title, p.owner]))
+              Card(
+                child: ListTile(
+                  leading: CircleAvatar(child: Text(p.code)),
+                  title: Text(p.title),
+                  subtitle: Text(
+                    [
+                      ?p.owner,
+                      l10n.researchFormsCount(p.forms),
+                      l10n.researchRecordsCount(p.records),
+                    ].join(' · '),
+                  ),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () async {
+                    await ref.read(chosenProjectProvider.notifier).set(p.id);
+                    if (context.mounted) context.go('/research');
+                  },
+                ),
+              ),
+        ],
+      ),
     );
   }
 }

@@ -62,57 +62,72 @@ class AlertsScreen extends ConsumerWidget {
     final alerts = ref.watch(_alertListProvider).value ?? const [];
     final showClosed = ref.watch(_showClosedProvider);
     final when = DateFormat('d MMM y, HH:mm');
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        Row(
-          children: [
-            Expanded(
-              child: Text(
-                l10n.alertsTitle,
-                style: Theme.of(context).textTheme.headlineSmall,
+    return SearchBuilder(
+      label: l10n.searchAlerts,
+      history: 'console.alerts',
+      builder: (context, field, matches) => ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  l10n.alertsTitle,
+                  style: Theme.of(context).textTheme.headlineSmall,
+                ),
               ),
-            ),
-            SegmentedButton<bool>(
-              showSelectedIcon: false,
-              segments: [
-                ButtonSegment(value: false, label: Text(l10n.alertsFilterOpen)),
-                ButtonSegment(value: true, label: Text(l10n.alertsFilterAll)),
-              ],
-              selected: {showClosed},
-              onSelectionChanged: (v) =>
-                  ref.read(_showClosedProvider.notifier).set(v.single),
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        if (alerts.isEmpty)
-          Padding(
-            padding: const EdgeInsets.all(24),
-            child: Text(l10n.alertsNone, textAlign: TextAlign.center),
+              SegmentedButton<bool>(
+                showSelectedIcon: false,
+                segments: [
+                  ButtonSegment(
+                    value: false,
+                    label: Text(l10n.alertsFilterOpen),
+                  ),
+                  ButtonSegment(value: true, label: Text(l10n.alertsFilterAll)),
+                ],
+                selected: {showClosed},
+                onSelectionChanged: (v) =>
+                    ref.read(_showClosedProvider.notifier).set(v.single),
+              ),
+            ],
           ),
-        for (final a in alerts)
-          Card(
-            child: ListTile(
-              leading: Icon(
-                a.triggerRule == 'ecoli'
-                    ? Icons.coronavirus_outlined
-                    : Icons.warning_rounded,
-                color: severityColor(context, a.severity),
-              ),
-              title: Text(
-                '${triggerText(l10n, a.triggerRule)}: '
-                '${a.sourceName ?? a.sourceCode}',
-              ),
-              subtitle: Text(
-                '${a.sourceCode} · ${when.format(WcTime.local(a.openedAt, context))} · '
-                '${statusText(l10n, a.status)}',
-              ),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => context.go('/alerts/${a.id}'),
+          const SizedBox(height: 8),
+          field,
+          const SizedBox(height: 8),
+          if (alerts.isEmpty)
+            Padding(
+              padding: const EdgeInsets.all(24),
+              child: Text(l10n.alertsNone, textAlign: TextAlign.center),
             ),
-          ),
-      ],
+          for (final a in alerts)
+            if (matches([
+              a.sourceName,
+              a.sourceCode,
+              triggerText(l10n, a.triggerRule),
+              statusText(l10n, a.status),
+            ]))
+              Card(
+                child: ListTile(
+                  leading: Icon(
+                    a.triggerRule == 'ecoli'
+                        ? Icons.coronavirus_outlined
+                        : Icons.warning_rounded,
+                    color: severityColor(context, a.severity),
+                  ),
+                  title: Text(
+                    '${triggerText(l10n, a.triggerRule)}: '
+                    '${a.sourceName ?? a.sourceCode}',
+                  ),
+                  subtitle: Text(
+                    '${a.sourceCode} · ${when.format(WcTime.local(a.openedAt, context))} · '
+                    '${statusText(l10n, a.status)}',
+                  ),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => context.go('/alerts/${a.id}'),
+                ),
+              ),
+        ],
+      ),
     );
   }
 }

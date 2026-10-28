@@ -649,6 +649,7 @@ class _MapScreenState extends ConsumerState<MapScreen>
             children: [
               MapSearchBar(
                 places: places,
+                history: 'collect.map',
                 online: (t) => _searchOnline(t, tree),
                 onSelected: (p) {
                   if (p.fromMap) {

@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:api_client/api_client.dart' show ProjectPatch;
-import 'package:archive/archive.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -13,6 +12,7 @@ import 'package:ui_kit/ui_kit.dart';
 import '../../l10n/app_localizations.dart';
 import '../reports/save_file.dart';
 import '../sources/photos.dart' show photoBytesProvider;
+import 'research_charts.dart';
 import 'research_dashboard.dart';
 import 'research_mode.dart';
 import 'research_state.dart';
@@ -88,7 +88,7 @@ class ResearchAnalysisScreen extends ConsumerWidget {
     }
     return switch (ref.watch(formDatasetProvider(form.id))) {
       AsyncData(value: final data) => DefaultTabController(
-        length: 5,
+        length: 6,
         child: NestedScrollView(
           headerSliverBuilder: (context, _) => [
             SliverPadding(
@@ -100,6 +100,7 @@ class ResearchAnalysisScreen extends ConsumerWidget {
                 isScrollable: true,
                 tabs: [
                   Tab(text: l10n.researchTabSummary),
+                  Tab(text: l10n.researchTabCharts),
                   Tab(text: l10n.researchTabCrossTab),
                   Tab(text: l10n.researchTabIndicators),
                   Tab(text: l10n.researchTabAudit),
@@ -111,6 +112,7 @@ class ResearchAnalysisScreen extends ConsumerWidget {
           body: TabBarView(
             children: [
               _Summary(data: data),
+              ResearchCharts(data: data),
               _CrossTabView(data: data),
               _Indicators(data: data),
               _Audit(data: data),
@@ -820,40 +822,38 @@ class _ExportState extends ConsumerState<_Export> {
   ExportOptions get _options =>
       ExportOptions(labels: _labels, identifying: _identifying);
 
-  Future<void> _csv() async {
+  (ExportOptions, List<ExportTable>)? _made;
+
+  /// The tables for the chosen options, made once per choice.
+  List<ExportTable> get _tables {
+    final made = _made;
+    if (made != null &&
+        made.$1.labels == _labels &&
+        made.$1.identifying == _identifying) {
+      return made.$2;
+    }
     final tables = exportTables(
       d.definition,
       d.records,
       options: _options,
       clashes: d.clashes,
     );
-    if (tables.length == 1) {
-      await saveFile(
-        '$_base.csv',
-        Uint8List.fromList(utf8.encode(toCsv(tables.single))),
-        'text/csv',
-      );
-      return;
-    }
-    final zip = Archive();
-    for (final t in tables) {
-      final bytes = utf8.encode(toCsv(t));
-      zip.addFile(ArchiveFile('$_base-${t.name}.csv', bytes.length, bytes));
-    }
-    await saveFile(
-      '$_base-csv.zip',
-      Uint8List.fromList(ZipEncoder().encode(zip)),
-      'application/zip',
-    );
+    _made = (_options, tables);
+    return tables;
   }
 
+  /// One table as one .csv file that opens in Excel and anything else; a
+  /// repeat group's rows are a table of their own (2026-10-27).
+  Future<void> _csv(ExportTable t, {bool main = false}) => saveFile(
+    main
+        ? '$_base.csv'
+        : '$_base-${t.name}.csv'.replaceAll(RegExp(r'[^A-Za-z0-9._-]+'), '_'),
+    Uint8List.fromList(utf8.encode(toCsv(t))),
+    'text/csv',
+  );
+
   Future<void> _xlsx() async {
-    final tables = exportTables(
-      d.definition,
-      d.records,
-      options: _options,
-      clashes: d.clashes,
-    );
+    final tables = _tables;
     await saveFile(
       '$_base.xlsx',
       writeXlsx({
@@ -873,7 +873,7 @@ class _ExportState extends ConsumerState<_Export> {
 
   Future<void> _media() async {
     final l10n = AppLocalizations.of(context);
-    final zip = Archive();
+    final zip = <String, List<int>>{};
     final api = ref.read(researchApiProvider);
     var done = 0;
     final withPictures = [
@@ -895,15 +895,11 @@ class _ExportState extends ConsumerState<_Export> {
           RegExp(r'[^A-Za-z0-9._-]+'),
           '_',
         );
-        zip.addFile(ArchiveFile(name, bytes.length, bytes));
+        zip[name] = bytes;
       }
     }
     if (mounted) setState(() => _progress = null);
-    await saveFile(
-      '$_base-pictures.zip',
-      Uint8List.fromList(ZipEncoder().encode(zip)),
-      'application/zip',
-    );
+    await saveFile('$_base-pictures.zip', zipFiles(zip), 'application/zip');
   }
 
   @override
@@ -940,9 +936,19 @@ class _ExportState extends ConsumerState<_Export> {
             BusyButton(
               kind: BusyButtonKind.outlined,
               icon: const Icon(Icons.description_outlined),
-              onPressed: d.records.isEmpty ? null : _csv,
+              onPressed: d.records.isEmpty
+                  ? null
+                  : () => _csv(_tables.first, main: true),
               child: Text(l10n.researchExportCsv),
             ),
+            if (d.records.isNotEmpty)
+              for (final t in _tables.skip(1))
+                BusyButton(
+                  kind: BusyButtonKind.outlined,
+                  icon: const Icon(Icons.description_outlined),
+                  onPressed: () => _csv(t),
+                  child: Text(l10n.researchExportCsvOf(t.name)),
+                ),
             BusyButton(
               kind: BusyButtonKind.outlined,
               icon: const Icon(Icons.map_outlined),

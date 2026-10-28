@@ -6,13 +6,16 @@ import 'package:go_router/go_router.dart';
 
 import '../../app/console_sync.dart';
 import '../../app/providers.dart';
+import '../../app/session.dart';
 import '../dashboard/dashboard_state.dart';
 
 /// The IT admin's API (P11). Online only: people and phones are managed on
 /// the server.
-final adminApiProvider = Provider<WaterCheckApi>(
-  (ref) => WaterCheckApi(ref.watch(consoleDioProvider)),
-);
+final adminApiProvider = Provider<WaterCheckApi>((ref) {
+  // Another account: nothing loaded for the last one stays (ADR-031).
+  ref.watch(sessionProvider.select((s) => s.me?.id));
+  return WaterCheckApi(ref.watch(consoleDioProvider));
+});
 
 /// The refresh button bumps the data version: every list fetches again.
 WaterCheckApi _api(Ref ref) {

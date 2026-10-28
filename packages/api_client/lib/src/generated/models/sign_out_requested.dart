@@ -8,7 +8,11 @@ part 'sign_out_requested.g.dart';
 
 @JsonSerializable()
 class SignOutRequested {
-  const SignOutRequested({required this.requestId, required this.expiresAt});
+  const SignOutRequested({
+    required this.requestId,
+    required this.expiresAt,
+    this.resendIn = 0,
+  });
 
   factory SignOutRequested.fromJson(Map<String, Object?> json) =>
       _$SignOutRequestedFromJson(json);
@@ -17,6 +21,8 @@ class SignOutRequested {
   final String requestId;
   @JsonKey(name: 'expires_at')
   final DateTime expiresAt;
+  @JsonKey(name: 'resend_in')
+  final int resendIn;
 
   Map<String, Object?> toJson() => _$SignOutRequestedToJson(this);
 }

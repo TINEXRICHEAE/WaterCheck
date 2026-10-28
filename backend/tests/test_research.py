@@ -144,6 +144,10 @@ async def test_researcher_builds_publishes_and_collects(
         },
     }
     assert (await a.push([hello]))["results"][0]["status"] == "applied"
+    # Before joining, the form shows locked on the phone.
+    mine = await a.get("/v1/research/device/forms")
+    assert form["id"] in {f["id"] for f in mine["locked"]}
+    assert form["id"] not in mine["allowed"]
     wrong = await _join(client, a, "ZZZZZZZZ")
     assert wrong.status_code == 404
     joined = await _join(client, a, patched["access_code"].lower())
@@ -315,3 +319,37 @@ async def test_researcher_builds_publishes_and_collects(
     ).json()
     assert closed["status"] == "closed"
     assert (await _join(client, a, patched["access_code"])).status_code == 404
+    # Closing takes it off the phone at its next sync.
+    mine = await a.get("/v1/research/device/forms")
+    assert form["id"] not in mine["allowed"]
+
+    # Collectors are private unless they choose otherwise; their own code
+    # always finds them.
+    card = await a.get(f"/v1/research/collectors/{a.collector}/card")
+    assert card["discoverable"] is False and len(card["share_code"]) == 8
+    stranger = (await _person(client, owner_db))[1]
+    by_name = (
+        await client.get("/v1/research/testers", params={"q": "Example"}, headers=stranger)
+    ).json()
+    assert a.collector not in {t["collector_key"] for t in by_name}
+    by_code = (
+        await client.get(
+            "/v1/research/testers", params={"q": card["share_code"].lower()}, headers=stranger
+        )
+    ).json()
+    assert [t["collector_key"] for t in by_code] == [a.collector]
+    body = json.dumps({"discoverable": True}).encode()
+    path = f"/v1/research/collectors/{a.collector}/card"
+    r = await client.put(
+        path,
+        content=body,
+        headers={
+            "Content-Type": "application/json",
+            **signed_headers(a.id, a.secret, "PUT", path, body, nonce=uuid.uuid4().hex),
+        },
+    )
+    assert r.json()["discoverable"] is True
+    by_name = (
+        await client.get("/v1/research/testers", params={"q": "Example"}, headers=stranger)
+    ).json()
+    assert a.collector in {t["collector_key"] for t in by_name}

@@ -100,9 +100,65 @@ final mapNamePlacesProvider = FutureProvider<List<MapPlace>>((ref) async {
 });
 
 /// The area list, for the map search and the path to a chosen place.
-final _mapAreasProvider = FutureProvider<List<AdminUnit>>(
+final mapAreasProvider = FutureProvider<List<AdminUnit>>(
   (ref) => ref.watch(referenceDataRepositoryProvider).adminUnits(),
 );
+
+/// Places anywhere in Uganda from the server, for the search box:
+/// names on the map and places people added outside this account's
+/// districts, and parishes and villages added from phones (ADR-028).
+Future<List<MapPlace>> searchPlacesOnline(
+  BuildContext context,
+  WidgetRef ref,
+  String text,
+  AreaTree tree,
+) async {
+  final ui = UiKitLocalizations.of(context);
+  final hits = await WaterCheckApi(ref.read(consoleDioProvider)).reference
+      .searchPlaces(q: text);
+  return [
+    for (final h in hits)
+      if (h.lat != null &&
+          h.lon != null &&
+          h.subcountyId != null &&
+          tree.byId[h.id] == null)
+        MapPlace(
+          id: h.id,
+          name: h.name,
+          isSource: false,
+          fromMap: true,
+          lat: h.lat!.toDouble(),
+          lon: h.lon!.toDouble(),
+          areaId: h.subcountyId,
+          addedBy: h.addedBy,
+          detail: [
+            if (h.addedBy case final by?) ui.placeAddedBy(by),
+            ?h.subcounty,
+            ?h.district,
+          ].join(' · '),
+        ),
+  ];
+}
+
+/// Every area as a search result: its level and the areas above it.
+List<MapPlace> areaPlaces(
+  AppLocalizations l10n,
+  List<AdminUnit> units,
+  AreaTree tree,
+) => [
+  for (final u in units)
+    if (u.level != 'country')
+      MapPlace(
+        id: u.id,
+        name: u.name,
+        isSource: false,
+        detail: [
+          l10n.areaLevel(u.level),
+          for (final a in tree.pathTo(u.id).reversed.skip(1))
+            if (a.level != 'country' && a.level != 'region') a.name,
+        ].join(' · '),
+      ),
+];
 
 final openAlertsProvider = StreamProvider<List<AlertListItem>>(
   (ref) => ref.watch(alertRepositoryProvider).watchList(),
@@ -452,36 +508,8 @@ class _SourcesMapState extends ConsumerState<SourcesMap>
     );
   }
 
-  /// Places anywhere in Uganda from the server, for the search box:
-  /// names on the map and places people added outside this account's
-  /// districts, and parishes and villages added from phones (ADR-028).
-  Future<List<MapPlace>> _searchOnline(String text, AreaTree tree) async {
-    final ui = UiKitLocalizations.of(context);
-    final hits = await WaterCheckApi(ref.read(consoleDioProvider)).reference
-        .searchPlaces(q: text);
-    return [
-      for (final h in hits)
-        if (h.lat != null &&
-            h.lon != null &&
-            h.subcountyId != null &&
-            tree.byId[h.id] == null)
-          MapPlace(
-            id: h.id,
-            name: h.name,
-            isSource: false,
-            fromMap: true,
-            lat: h.lat!.toDouble(),
-            lon: h.lon!.toDouble(),
-            areaId: h.subcountyId,
-            addedBy: h.addedBy,
-            detail: [
-              if (h.addedBy case final by?) ui.placeAddedBy(by),
-              ?h.subcounty,
-              ?h.district,
-            ].join(' · '),
-          ),
-    ];
-  }
+  Future<List<MapPlace>> _searchOnline(String text, AreaTree tree) =>
+      searchPlacesOnline(context, ref, text, tree);
 
   /// Flies to a source, or around an area's sources.
   void _choose(MapPlace p, AreaTree tree) {
@@ -563,7 +591,7 @@ class _SourcesMapState extends ConsumerState<SourcesMap>
     final issue = latestIssue(placed, alerts);
     final dots = [for (final s in placed) pointOf(s)];
     final focus = dots.where((d) => d.id == focusId).firstOrNull;
-    final units = ref.watch(_mapAreasProvider).value ?? const <AdminUnit>[];
+    final units = ref.watch(mapAreasProvider).value ?? const <AdminUnit>[];
     final tree = AreaTree(units);
     // An area asked for by another page: choose it once the map is there.
     final askedArea = ref.watch(mapAreaFocusProvider);
@@ -610,18 +638,7 @@ class _SourcesMapState extends ConsumerState<SourcesMap>
     }
     final isAdmin = ref.watch(sessionProvider).isAdmin;
     final places = [
-      for (final u in units)
-        if (u.level != 'country')
-          MapPlace(
-            id: u.id,
-            name: u.name,
-            isSource: false,
-            detail: [
-              l10n.areaLevel(u.level),
-              for (final a in tree.pathTo(u.id).reversed.skip(1))
-                if (a.level != 'country' && a.level != 'region') a.name,
-            ].join(' · '),
-          ),
+      ...areaPlaces(l10n, units, tree),
       ...?ref.watch(mapNamePlacesProvider).value,
       for (final s in widget.sources)
         MapPlace(
@@ -779,6 +796,7 @@ class _SourcesMapState extends ConsumerState<SourcesMap>
             children: [
               MapSearchBar(
                 places: places,
+                history: 'console.map',
                 online: (t) => _searchOnline(t, tree),
                 onSelected: (p) => _choose(p, tree),
               ),

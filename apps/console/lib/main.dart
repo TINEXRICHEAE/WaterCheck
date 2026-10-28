@@ -1,6 +1,8 @@
+import 'package:data/data.dart' show DriftLocalSettingsRepository;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
+import 'package:ui_kit/ui_kit.dart' show SearchHistory;
 
 import 'app/app.dart';
 import 'app/bootstrap.dart';
@@ -17,7 +19,10 @@ Future<void> main() async {
 
 Future<void> start() async {
   try {
-    runApp(ConsoleRoot(boot: await openConsole()));
+    final boot = await openConsole();
+    final settings = DriftLocalSettingsRepository(boot.db);
+    SearchHistory.use(read: settings.read, write: settings.write);
+    runApp(ConsoleRoot(boot: boot));
   } catch (error, stack) {
     debugPrint('Startup failed: $error\n$stack');
     runApp(StartupErrorApp(onRetry: start));

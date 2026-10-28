@@ -134,29 +134,42 @@ class InboxScreen extends ConsumerWidget {
               padding: const EdgeInsets.all(16),
               child: Text(l10n.messagesNone),
             )
-          : ListView(
-              children: [
-                for (final t in threads)
-                  ListTile(
-                    leading: Badge(
-                      isLabelVisible: t.unread > 0,
-                      label: Text('${t.unread}'),
-                      child: Icon(_icon(t.kind)),
-                    ),
-                    title: Text('${threadKindLabel(l10n, t.kind)}: ${t.title}'),
-                    subtitle: Text(
-                      '${t.lastAuthor ?? '?'}: ${t.lastBody}',
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    onTap: () => context.push(
-                      sidePath(
-                        ref.read(appModeProvider),
-                        '/messages/${t.kind.name}/${t.subjectId}',
-                      ),
-                    ),
+          : SearchBuilder(
+              label: l10n.searchMessages,
+              history: research
+                  ? 'collect.research.messages'
+                  : 'collect.messages',
+              builder: (context, field, matches) => ListView(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+                    child: field,
                   ),
-              ],
+                  for (final t in threads)
+                    if (matches([t.title, t.lastAuthor, t.lastBody]))
+                      ListTile(
+                        leading: Badge(
+                          isLabelVisible: t.unread > 0,
+                          label: Text('${t.unread}'),
+                          child: Icon(_icon(t.kind)),
+                        ),
+                        title: Text(
+                          '${threadKindLabel(l10n, t.kind)}: ${t.title}',
+                        ),
+                        subtitle: Text(
+                          '${t.lastAuthor ?? '?'}: ${t.lastBody}',
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        onTap: () => context.push(
+                          sidePath(
+                            ref.read(appModeProvider),
+                            '/messages/${t.kind.name}/${t.subjectId}',
+                          ),
+                        ),
+                      ),
+                ],
+              ),
             ),
     );
   }

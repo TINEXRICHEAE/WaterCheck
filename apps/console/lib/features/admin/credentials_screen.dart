@@ -39,135 +39,146 @@ class CredentialsScreen extends ConsumerWidget {
         error: e,
         onRetry: () => ref.invalidate(_ledgerProvider(side)),
       ),
-      data: (d) => ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          Text(l10n.ledgerTitle, style: text.headlineSmall),
-          Text(l10n.ledgerHint),
-          const SizedBox(height: 16),
-          Text(l10n.ledgerCodes(d.codes.length), style: text.titleMedium),
-          for (final c in d.codes)
-            Card(
-              child: ExpansionTile(
-                leading: Icon(
-                  c.revokedAt != null
-                      ? Icons.block
-                      : c.expiresAt.isBefore(DateTime.now())
-                      ? Icons.timer_off_outlined
-                      : Icons.vpn_key_outlined,
-                ),
-                title: Text(
-                  '${c.area.name} (${l10n.areaLevel(c.area.level)}) · '
-                  '${l10n.phonesCodeLine(c.usedCount, c.maxInstallations, at(c.expiresAt))}',
-                ),
-                subtitle: Text(
-                  [
-                    l10n.ledgerMadeBy(c.createdBy ?? '?', at(c.createdAt)),
-                    if (c.revokedAt != null)
-                      l10n.ledgerWithdrawn(at(c.revokedAt!))
-                    else if (c.expiresAt.isBefore(DateTime.now()))
-                      l10n.ledgerExpired
-                    else if (c.usedCount >= c.maxInstallations)
-                      l10n.ledgerUsedUp,
-                  ].join(' · '),
-                ),
-                children: [
-                  // Testers it assigned (ADR-024), then devices activated
-                  // with it before.
-                  for (final t in c.testers)
-                    ListTile(
-                      leading: const Icon(Icons.badge_outlined),
-                      title: Text(t.fullName ?? t.collectorKey),
-                      subtitle: Text(l10n.ledgerAssigned(at(t.assignedAt))),
-                      trailing: const Icon(Icons.chevron_right),
-                      onTap: () =>
-                          context.go(collectorPath(side, t.collectorKey)),
+      data: (d) => SearchBuilder(
+        label: l10n.searchLedger,
+        history: 'console.ledger',
+        builder: (context, field, matches) => ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            Text(l10n.ledgerTitle, style: text.headlineSmall),
+            Text(l10n.ledgerHint),
+            const SizedBox(height: 12),
+            field,
+            const SizedBox(height: 8),
+            Text(l10n.ledgerCodes(d.codes.length), style: text.titleMedium),
+            for (final c in d.codes)
+              if (matches([c.area.name, c.createdBy]))
+                Card(
+                  child: ExpansionTile(
+                    leading: Icon(
+                      c.revokedAt != null
+                          ? Icons.block
+                          : c.expiresAt.isBefore(DateTime.now())
+                          ? Icons.timer_off_outlined
+                          : Icons.vpn_key_outlined,
                     ),
-                  if (c.devices.isEmpty && c.testers.isEmpty)
-                    ListTile(title: Text(l10n.ledgerNoDevices)),
-                  for (final dev in c.devices)
-                    ListTile(
-                      leading: Icon(
-                        dev.revokedAt == null
-                            ? Icons.devices
-                            : Icons.phonelink_erase,
-                      ),
-                      title: Text(
-                        [
-                          ?dev.label,
-                          ?dev.shortCode,
-                          [?dev.platform].join(),
-                        ].where((s) => s.isNotEmpty).join(' · '),
-                      ),
-                      subtitle: Text(
-                        [
-                          l10n.deviceActivated(at(dev.activatedAt)),
-                          if (dev.lastSeenAt != null)
-                            l10n.phonesLastSeen(at(dev.lastSeenAt!)),
-                        ].join(' · '),
-                      ),
-                      trailing: const Icon(Icons.chevron_right),
-                      onTap: () =>
-                          context.go('${adminBase(side)}/phones/${dev.id}'),
+                    title: Text(
+                      '${c.area.name} (${l10n.areaLevel(c.area.level)}) · '
+                      '${l10n.phonesCodeLine(c.usedCount, c.maxInstallations, at(c.expiresAt))}',
                     ),
-                  if (c.revokedAt == null &&
-                      c.expiresAt.isAfter(DateTime.now()) &&
-                      c.usedCount < c.maxInstallations)
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: Padding(
-                        padding: const EdgeInsets.all(8),
-                        child: TextButton.icon(
-                          icon: const Icon(Icons.block),
-                          label: Text(l10n.ledgerWithdraw),
-                          onPressed: () async {
-                            final messenger = ScaffoldMessenger.of(context);
-                            try {
-                              await ref
-                                  .read(adminApiProvider)
-                                  .admin
-                                  .revokeCode(codeId: c.id);
-                              ref.invalidate(_ledgerProvider(side));
-                            } on Object {
-                              messenger.showSnackBar(
-                                SnackBar(
-                                  content: Text(l10n.adminNeedsConnection),
-                                ),
-                              );
-                            }
-                          },
+                    subtitle: Text(
+                      [
+                        l10n.ledgerMadeBy(c.createdBy ?? '?', at(c.createdAt)),
+                        if (c.revokedAt != null)
+                          l10n.ledgerWithdrawn(at(c.revokedAt!))
+                        else if (c.expiresAt.isBefore(DateTime.now()))
+                          l10n.ledgerExpired
+                        else if (c.usedCount >= c.maxInstallations)
+                          l10n.ledgerUsedUp,
+                      ].join(' · '),
+                    ),
+                    children: [
+                      // Testers it assigned (ADR-024), then devices activated
+                      // with it before.
+                      for (final t in c.testers)
+                        ListTile(
+                          leading: const Icon(Icons.badge_outlined),
+                          title: Text(t.fullName ?? t.collectorKey),
+                          subtitle: Text(l10n.ledgerAssigned(at(t.assignedAt))),
+                          trailing: const Icon(Icons.chevron_right),
+                          onTap: () =>
+                              context.go(collectorPath(side, t.collectorKey)),
                         ),
-                      ),
+                      if (c.devices.isEmpty && c.testers.isEmpty)
+                        ListTile(title: Text(l10n.ledgerNoDevices)),
+                      for (final dev in c.devices)
+                        ListTile(
+                          leading: Icon(
+                            dev.revokedAt == null
+                                ? Icons.devices
+                                : Icons.phonelink_erase,
+                          ),
+                          title: Text(
+                            [
+                              ?dev.label,
+                              ?dev.shortCode,
+                              [?dev.platform].join(),
+                            ].where((s) => s.isNotEmpty).join(' · '),
+                          ),
+                          subtitle: Text(
+                            [
+                              l10n.deviceActivated(at(dev.activatedAt)),
+                              if (dev.lastSeenAt != null)
+                                l10n.phonesLastSeen(at(dev.lastSeenAt!)),
+                            ].join(' · '),
+                          ),
+                          trailing: const Icon(Icons.chevron_right),
+                          onTap: () =>
+                              context.go('${adminBase(side)}/phones/${dev.id}'),
+                        ),
+                      if (c.revokedAt == null &&
+                          c.expiresAt.isAfter(DateTime.now()) &&
+                          c.usedCount < c.maxInstallations)
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: Padding(
+                            padding: const EdgeInsets.all(8),
+                            child: TextButton.icon(
+                              icon: const Icon(Icons.block),
+                              label: Text(l10n.ledgerWithdraw),
+                              onPressed: () async {
+                                final messenger = ScaffoldMessenger.of(context);
+                                try {
+                                  await ref
+                                      .read(adminApiProvider)
+                                      .admin
+                                      .revokeCode(codeId: c.id);
+                                  ref.invalidate(_ledgerProvider(side));
+                                } on Object {
+                                  messenger.showSnackBar(
+                                    SnackBar(
+                                      content: Text(l10n.adminNeedsConnection),
+                                    ),
+                                  );
+                                }
+                              },
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+            const SizedBox(height: 16),
+            Text(
+              l10n.ledgerAccounts(d.accounts.length),
+              style: text.titleMedium,
+            ),
+            for (final a in d.accounts)
+              if (matches([a.fullName, a.username, a.createdBy]))
+                Card(
+                  child: ListTile(
+                    leading: Icon(
+                      a.role == 'it_admin'
+                          ? Icons.admin_panel_settings_outlined
+                          : Icons.person_outline,
                     ),
-                ],
-              ),
-            ),
-          const SizedBox(height: 16),
-          Text(l10n.ledgerAccounts(d.accounts.length), style: text.titleMedium),
-          for (final a in d.accounts)
-            Card(
-              child: ListTile(
-                leading: Icon(
-                  a.role == 'it_admin'
-                      ? Icons.admin_panel_settings_outlined
-                      : Icons.person_outline,
+                    title: Text('${a.fullName} · ${a.username}'),
+                    subtitle: Text(
+                      [
+                        l10n.ledgerMadeBy(a.createdBy ?? '?', at(a.createdAt)),
+                        if (!a.firstSignInDone)
+                          l10n.ledgerNotUsed
+                        else if (a.lastSignInAt != null)
+                          l10n.ledgerLastSignIn(at(a.lastSignInAt!)),
+                        if (!a.isActive) l10n.usersDisabled,
+                        if (a.areas.isNotEmpty) a.areas.join(', '),
+                      ].join(' · '),
+                    ),
+                    onTap: () => context.go('${adminBase(side)}/people'),
+                  ),
                 ),
-                title: Text('${a.fullName} · ${a.username}'),
-                subtitle: Text(
-                  [
-                    l10n.ledgerMadeBy(a.createdBy ?? '?', at(a.createdAt)),
-                    if (!a.firstSignInDone)
-                      l10n.ledgerNotUsed
-                    else if (a.lastSignInAt != null)
-                      l10n.ledgerLastSignIn(at(a.lastSignInAt!)),
-                    if (!a.isActive) l10n.usersDisabled,
-                    if (a.areas.isNotEmpty) a.areas.join(', '),
-                  ].join(' · '),
-                ),
-                onTap: () => context.go('${adminBase(side)}/people'),
-              ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }

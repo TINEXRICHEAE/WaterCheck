@@ -2052,8 +2052,8 @@
       }
     }
   },
-  "researchFindTester": "Find a tester",
-  "researchFindTesterHint": "By name or phone number, as they set it in Collect.",
+  "researchFindTester": "Find a collector",
+  "researchFindTesterHint": "By the collector code they give you (on their Collect profile), or by name or phone if they let research teams find them.",
   "researchDone": "Done",
   "researchVersionsHint": "Each publish makes a new version. Records keep the version they were filled with.",
   "researchNotPublished": "Not published yet.",
@@ -2597,6 +2597,62 @@
     "placeholders": {
       "side": {
         "type": "String"
+      }
+    }
+  },
+  "searchPhones": "Search phones by name, area, code or app",
+  "searchLedger": "Search codes and accounts",
+  "searchCollectors": "Search collectors",
+  "searchAlerts": "Search alerts by source or status",
+  "searchArchived": "Search archived items",
+  "searchCodes": "Search by person, code or reason",
+  "searchMessages": "Search messages",
+  "searchProjects": "Search projects",
+  "searchForms": "Search forms by code, title or status",
+  "researchAllPublished": "Published",
+  "researchExportCsvOf": "CSV: {table}",
+  "@researchExportCsvOf": {
+    "placeholders": {
+      "table": {
+        "type": "String"
+      }
+    }
+  },
+  "researchTabCharts": "Charts",
+  "researchChartsHint": "Put the answers together: group the records by an answer, the day they were finished or the collector; count them or add up, average or compare a number; split each group by a second answer.",
+  "researchChartGroupBy": "Group by",
+  "researchChartByFinished": "Day finished",
+  "researchChartByCollector": "Collector",
+  "researchChartStep": "Dates by",
+  "researchChartDay": "Day",
+  "researchChartWeek": "Week",
+  "researchChartMonth": "Month",
+  "researchChartSplit": "Split by",
+  "researchChartNoSplit": "No split",
+  "researchChartMeasure": "Show",
+  "researchChartCount": "Number of records",
+  "researchChartSum": "Total",
+  "researchChartMean": "Average",
+  "researchChartMin": "Lowest",
+  "researchChartMax": "Highest",
+  "researchChartOf": "Of",
+  "researchChartBars": "Bars",
+  "researchChartHorizontal": "Horizontal bars",
+  "researchChartGrouped": "Grouped bars",
+  "researchChartStacked": "Stacked bars",
+  "researchChartLine": "Line",
+  "researchChartArea": "Area",
+  "researchChartPie": "Pie",
+  "researchChartDonut": "Donut",
+  "researchChartOther": "Other",
+  "researchChartNone": "(no answer)",
+  "researchChartGroup": "Group",
+  "researchChartNothing": "No records to chart yet.",
+  "researchChartUnits": "{count, plural, =1{From 1 record or repeat row} other{From {count} records or repeat rows}}",
+  "@researchChartUnits": {
+    "placeholders": {
+      "count": {
+        "type": "int"
       }
     }
   }

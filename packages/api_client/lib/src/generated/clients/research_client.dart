@@ -7,8 +7,11 @@ import 'package:retrofit/retrofit.dart';
 
 import '../models/clone_in.dart';
 import '../models/collector_assign_in.dart';
+import '../models/collector_card.dart';
 import '../models/collector_detail.dart';
 import '../models/collector_out.dart';
+import '../models/device_forms.dart';
+import '../models/discoverable_in.dart';
 import '../models/draft_in.dart';
 import '../models/form_detail.dart';
 import '../models/form_in.dart';
@@ -225,10 +228,35 @@ abstract class ResearchClient {
 
   /// Find Testers.
   ///
-  /// Research collectors on Collect, found by name or phone, to give a.
-  /// form to (water testers are other people, ADR-031).
+  /// Research collectors on Collect, to give a form to (water testers are.
+  /// other people, ADR-031). By their own collector code, anyone; by name or.
+  /// phone, those who chose to be found, those already working on the.
+  /// caller's projects, and (for IT admins) everyone.
   @GET('/v1/research/testers')
   Future<List<TesterOut>> findTesters({@Query('q') required String q});
+
+  /// Device Forms.
+  ///
+  /// After each sync, Collect keeps only the research forms it may still.
+  /// use and lists those behind a code (2026-10-27).
+  @GET('/v1/research/device/forms')
+  Future<DeviceForms> deviceForms();
+
+  /// Collector Card.
+  ///
+  /// A research collector's own code to give research teams, and whether.
+  /// teams may find them by name.
+  @GET('/v1/research/collectors/{collector_key}/card')
+  Future<CollectorCard> collectorCard({
+    @Path('collector_key') required String collectorKey,
+  });
+
+  /// Set Discoverable
+  @PUT('/v1/research/collectors/{collector_key}/card')
+  Future<CollectorCard> setDiscoverable({
+    @Path('collector_key') required String collectorKey,
+    @Body() required DiscoverableIn body,
+  });
 
   /// Research Collector.
   ///

@@ -59,6 +59,16 @@ void main() {
   });
   tearDown(() => db.close());
 
+  test('a form this phone may no longer use leaves it, with its drafts '
+      '(2026-10-27)', () async {
+    await repo.startDraft(formId: _form, version: 1);
+    expect(await repo.keepOnlyForms({_form}), 0);
+    expect(await repo.watchForms().first, hasLength(1));
+    expect(await repo.keepOnlyForms({}), 1);
+    expect(await repo.watchForms().first, isEmpty);
+    expect(await db.select(db.researchDrafts).get(), isEmpty);
+  });
+
   test('published forms come from the server with their definition', () async {
     final forms = await repo.watchForms().first;
     expect(forms.single.code, 'HQ');

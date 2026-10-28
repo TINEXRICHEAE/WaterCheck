@@ -132,37 +132,44 @@ class MessagesScreen extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final threads = ref.watch(_inboxProvider).value;
     if (threads == null) return const PageLoading();
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        Text(
-          l10n.messagesTitle,
-          style: Theme.of(context).textTheme.headlineSmall,
-        ),
-        Text(l10n.messagesHint),
-        const SizedBox(height: 12),
-        if (threads.isEmpty) Text(l10n.messagesNone),
-        for (final t in threads)
-          Card(
-            child: ListTile(
-              leading: Badge(
-                isLabelVisible: t.unread > 0,
-                label: Text('${t.unread}'),
-                child: Icon(_icon(t.kind)),
-              ),
-              title: Text('${l10n.messagesAbout(t.kind.name)}: ${t.title}'),
-              subtitle: Text(
-                '${t.lastAuthor ?? '?'}: ${t.lastBody}',
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => context.go(
-                '/dashboard/messages/${t.kind.name}/${t.subjectId}',
-              ),
-            ),
+    return SearchBuilder(
+      label: l10n.searchMessages,
+      history: 'console.messages',
+      builder: (context, field, matches) => ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          Text(
+            l10n.messagesTitle,
+            style: Theme.of(context).textTheme.headlineSmall,
           ),
-      ],
+          Text(l10n.messagesHint),
+          const SizedBox(height: 12),
+          if (threads.isEmpty) Text(l10n.messagesNone),
+          field,
+          const SizedBox(height: 8),
+          for (final t in threads)
+            if (matches([t.title, t.lastAuthor, t.lastBody]))
+              Card(
+                child: ListTile(
+                  leading: Badge(
+                    isLabelVisible: t.unread > 0,
+                    label: Text('${t.unread}'),
+                    child: Icon(_icon(t.kind)),
+                  ),
+                  title: Text('${l10n.messagesAbout(t.kind.name)}: ${t.title}'),
+                  subtitle: Text(
+                    '${t.lastAuthor ?? '?'}: ${t.lastBody}',
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => context.go(
+                    '/dashboard/messages/${t.kind.name}/${t.subjectId}',
+                  ),
+                ),
+              ),
+        ],
+      ),
     );
   }
 }

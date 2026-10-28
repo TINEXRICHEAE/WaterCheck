@@ -1135,7 +1135,7 @@
     }
   },
   "researchJoined": "Joined. The form is on this phone now.",
-  "researchSearch": "Search by research number or form",
+  "researchSearch": "Search forms, research numbers and records",
   "researchFilterAll": "All",
   "researchFilterFlagged": "To check",
   "researchMineCount": "{count, plural, =0{My records} =1{My records (1)} other{My records ({count})}}",
@@ -1297,5 +1297,29 @@
       }
     }
   },
-  "switchSideNewHint": "With other details, and the side's own Terms of Use."
+  "switchSideNewHint": "With other details, and the side's own Terms of Use.",
+  "researchLocked": "Needs the access code from the research team",
+  "researchUnlock": "Enter code",
+  "researchNoMatch": "No form matches the search.",
+  "searchMessages": "Search messages",
+  "searchTrips": "Search trips by place or date",
+  "cardTitle": "Your collector code",
+  "cardIntro": "Research teams add you to their forms with this code. Give it only to teams you want to work with.",
+  "cardCodeHint": "Tell it to the research team, or send it to them.",
+  "cardCopy": "Copy the code",
+  "cardCopied": "Code copied.",
+  "cardFindMe": "Let research teams find me by name",
+  "cardPublic": "Any research team can find you by your name or phone and ask you to collect data.",
+  "cardPrivate": "Private: only teams you give your code to can add you.",
+  "cardSyncFirst": "Sync once with the internet on to see your code.",
+  "cardOffline": "Your code shows when you are online.",
+  "cardRetry": "Try again",
+  "cardFailed": "Could not change this ({code}). Try again online.",
+  "@cardFailed": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  }
 }

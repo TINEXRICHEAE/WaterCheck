@@ -69,10 +69,14 @@ final activeModeProvider = Provider<ConsoleMode>((ref) {
 String homeFor(ConsoleMode mode) =>
     mode == ConsoleMode.research ? '/research' : '/dashboard';
 
-/// The research API for the signed-in user.
-final researchApiProvider = Provider(
-  (ref) => WaterCheckApi(ref.watch(consoleDioProvider)).research,
-);
+/// The research API for the signed-in user. Everything read through it
+/// is the signed-in account's: a change of account (signing out, another
+/// person, a switch of side) drops it all, so nobody sees what the last
+/// person loaded.
+final researchApiProvider = Provider((ref) {
+  ref.watch(sessionProvider.select((s) => s.me?.id));
+  return WaterCheckApi(ref.watch(consoleDioProvider)).research;
+});
 
 /// "Water testing | Research", on the sign-in and sign-up pages: the side
 /// signed in to (ADR-031).

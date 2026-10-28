@@ -1,4 +1,5 @@
 import 'package:api_client/api_client.dart' show PointOut;
+import 'package:data/data.dart' show AdminUnit, AreaTree;
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -6,7 +7,14 @@ import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:ui_kit/map_kit.dart';
 
+import '../../l10n/app_localizations.dart';
 import '../map/map_tiles.dart';
+import '../map/sources_map.dart'
+    show
+        areaPlaces,
+        mapAreasProvider,
+        mapNamePlacesProvider,
+        searchPlacesOnline;
 
 /// One colour per form, the same on every map and legend.
 Color formColour(BuildContext context, String formCode, List<String> codes) {
@@ -53,6 +61,20 @@ class _PointsMapState extends ConsumerState<PointsMap>
   final _map = MapController();
   late final _motion = MapMotion(_map, this);
 
+  /// A point close up; a place where it is; an area around its centre.
+  void _go(MapPlace p, AreaTree tree) {
+    if (p.lat != null && p.lon != null) {
+      final point = p.icon == Icons.assignment_outlined;
+      _motion.moveTo(LatLng(p.lat!, p.lon!), point ? 18 : 15);
+      return;
+    }
+    final c = tree.centre(p.id);
+    final u = tree.byId[p.id];
+    if (c != null && u != null) {
+      _motion.moveTo(LatLng(c.lat, c.lon), AreaTree.zoomFor(u.level));
+    }
+  }
+
   @override
   void dispose() {
     _motion.dispose();
@@ -63,6 +85,11 @@ class _PointsMapState extends ConsumerState<PointsMap>
   @override
   Widget build(BuildContext context) {
     final tiles = ref.watch(mapTilesProvider).value ?? MapTiles.none;
+    final l10n = AppLocalizations.of(context);
+    final units = widget.interactive
+        ? ref.watch(mapAreasProvider).value ?? const <AdminUnit>[]
+        : const <AdminUnit>[];
+    final tree = AreaTree(units);
     final at = [
       for (final p in widget.points) LatLng(p.lat.toDouble(), p.lon.toDouble()),
     ];
@@ -116,7 +143,10 @@ class _PointsMapState extends ConsumerState<PointsMap>
             top: 8,
             left: 8,
             right: 60,
+            // Only the points this account may see come from the server;
+            // every area and place in Uganda can be searched (2026-10-27).
             child: MapSearchBar(
+              history: 'console.research.map',
               places: [
                 for (final p in widget.points)
                   MapPlace(
@@ -124,12 +154,16 @@ class _PointsMapState extends ConsumerState<PointsMap>
                     name: p.number,
                     isSource: false,
                     fromMap: true,
+                    icon: Icons.assignment_outlined,
                     lat: p.lat.toDouble(),
                     lon: p.lon.toDouble(),
                     detail: [p.formCode, ?p.collector].join(' · '),
                   ),
+                ...areaPlaces(l10n, units, tree),
+                ...?ref.watch(mapNamePlacesProvider).value,
               ],
-              onSelected: (p) => _motion.moveTo(LatLng(p.lat!, p.lon!), 18),
+              online: (t) => searchPlacesOnline(context, ref, t, tree),
+              onSelected: (p) => _go(p, tree),
             ),
           ),
         Positioned(

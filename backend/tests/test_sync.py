@@ -1087,8 +1087,15 @@ async def test_a_tester_on_any_device_is_assigned_and_signs_in_elsewhere(
     req = (
         await a.post(f"/v1/collectors/{key}/devices/sign-out", {"installation_ids": [b.id]})
     ).json()
+    # Asking again at once (repeated taps) gives the same request and code,
+    # like a one-time password: one code waits, never a pile of them.
+    again = (
+        await a.post(f"/v1/collectors/{key}/devices/sign-out", {"installation_ids": [b.id]})
+    ).json()
+    assert again["request_id"] == req["request_id"] and again["resend_in"] > 0
     access = (await client.get(f"/v1/admin/collectors/{key}/access", headers=admin)).json()
     assert [s["via"] for s in access["sign_ins"]] == ["own_code"]
+    assert len(access["pending"]) == 1
     pending = next(p for p in access["pending"] if p["id"] == req["request_id"])
     confirm = f"/v1/collectors/{key}/devices/sign-out/{req['request_id']}/confirm"
     wrong = "000000" if pending["code"] != "000000" else "111111"

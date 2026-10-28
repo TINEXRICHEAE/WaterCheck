@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
+import 'package:ui_kit/ui_kit.dart' show SearchHistory;
 
 import 'app/app.dart';
 import 'app/background_sync.dart';
@@ -26,6 +27,8 @@ Future<void> start() async {
   final keys = kIsWeb ? InMemoryKeyStore() : SecureStorageKeyStore();
   try {
     final boot = await openLocalData(values: values, keys: keys);
+    final settings = DriftLocalSettingsRepository(boot.db);
+    SearchHistory.use(read: settings.read, write: settings.write);
     runApp(
       CollectRoot(
         // A new key forces a fresh widget tree after a wipe and restart.

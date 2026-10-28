@@ -2146,7 +2146,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get researchJoined => 'Joined. The form is on this phone now.';
 
   @override
-  String get researchSearch => 'Search by research number or form';
+  String get researchSearch => 'Search forms, research numbers and records';
 
   @override
   String get researchFilterAll => 'All';
@@ -2304,4 +2304,62 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get switchSideNewHint =>
       'With other details, and the side\'s own Terms of Use.';
+
+  @override
+  String get researchLocked => 'Needs the access code from the research team';
+
+  @override
+  String get researchUnlock => 'Enter code';
+
+  @override
+  String get researchNoMatch => 'No form matches the search.';
+
+  @override
+  String get searchMessages => 'Search messages';
+
+  @override
+  String get searchTrips => 'Search trips by place or date';
+
+  @override
+  String get cardTitle => 'Your collector code';
+
+  @override
+  String get cardIntro =>
+      'Research teams add you to their forms with this code. Give it only to teams you want to work with.';
+
+  @override
+  String get cardCodeHint =>
+      'Tell it to the research team, or send it to them.';
+
+  @override
+  String get cardCopy => 'Copy the code';
+
+  @override
+  String get cardCopied => 'Code copied.';
+
+  @override
+  String get cardFindMe => 'Let research teams find me by name';
+
+  @override
+  String get cardPublic =>
+      'Any research team can find you by your name or phone and ask you to collect data.';
+
+  @override
+  String get cardPrivate =>
+      'Private: only teams you give your code to can add you.';
+
+  @override
+  String get cardSyncFirst =>
+      'Sync once with the internet on to see your code.';
+
+  @override
+  String get cardOffline => 'Your code shows when you are online.';
+
+  @override
+  String get cardRetry => 'Try again';
+
+  @override
+  String cardFailed(String code) {
+    return 'Could not change this ($code). Try again online.';
+  }
 }

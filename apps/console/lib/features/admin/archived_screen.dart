@@ -53,70 +53,77 @@ class ArchivedScreen extends ConsumerWidget {
     final items = ref.watch(adminArchivedProvider);
     return RefreshIndicator(
       onRefresh: () => ref.refresh(adminArchivedProvider.future),
-      child: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(l10n.archiveListTitle, style: text.headlineSmall),
-              ),
-              IconButton(
-                tooltip: l10n.refresh,
-                icon: const Icon(Icons.refresh),
-                onPressed: () => ref.invalidate(adminArchivedProvider),
-              ),
-            ],
-          ),
-          Text(l10n.archiveListHint),
-          const SizedBox(height: 12),
-          ...items.when(
-            loading: () => [const LinearProgressIndicator()],
-            error: (e, _) => [
-              ErrorView(
-                error: e,
-                compact: true,
-                onRetry: () => ref.invalidate(adminArchivedProvider),
-              ),
-            ],
-            data: (list) => [
-              if (list.isEmpty) Text(l10n.archiveListNone),
-              for (final i in list)
-                Card(
-                  child: ListTile(
-                    leading: Icon(switch (i.entity) {
-                      'installation' => Icons.phone_android,
-                      'collector' => Icons.person_outline,
-                      'water_source' => Icons.water_drop_outlined,
-                      _ => Icons.science_outlined,
-                    }),
-                    title: Text(i.label),
-                    subtitle: Text(
-                      [
-                        l10n.archiveEntity(i.entity),
-                        i.reason,
-                        l10n.archiveBy(
-                          i.archivedBy ?? '?',
-                          when.format(WcTime.local(i.archivedAt, context)),
-                        ),
-                        [
-                          for (final e in i.counts.entries)
-                            l10n.archiveCount(e.key, e.value),
-                        ].join(', '),
-                      ].join('\n'),
-                    ),
-                    isThreeLine: true,
-                    trailing: BusyButton(
-                      kind: BusyButtonKind.text,
-                      icon: const Icon(Icons.unarchive_outlined),
-                      onPressed: () => _restore(context, ref, i),
-                      child: Text(l10n.archiveRestore),
-                    ),
-                  ),
+      child: SearchBuilder(
+        label: l10n.searchArchived,
+        history: 'console.archived',
+        builder: (context, field, matches) => ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(l10n.archiveListTitle, style: text.headlineSmall),
                 ),
-            ],
-          ),
-        ],
+                IconButton(
+                  tooltip: l10n.refresh,
+                  icon: const Icon(Icons.refresh),
+                  onPressed: () => ref.invalidate(adminArchivedProvider),
+                ),
+              ],
+            ),
+            Text(l10n.archiveListHint),
+            const SizedBox(height: 12),
+            field,
+            const SizedBox(height: 8),
+            ...items.when(
+              loading: () => [const LinearProgressIndicator()],
+              error: (e, _) => [
+                ErrorView(
+                  error: e,
+                  compact: true,
+                  onRetry: () => ref.invalidate(adminArchivedProvider),
+                ),
+              ],
+              data: (list) => [
+                if (list.isEmpty) Text(l10n.archiveListNone),
+                for (final i in list)
+                  if (matches([i.label, i.entity]))
+                    Card(
+                      child: ListTile(
+                        leading: Icon(switch (i.entity) {
+                          'installation' => Icons.phone_android,
+                          'collector' => Icons.person_outline,
+                          'water_source' => Icons.water_drop_outlined,
+                          _ => Icons.science_outlined,
+                        }),
+                        title: Text(i.label),
+                        subtitle: Text(
+                          [
+                            l10n.archiveEntity(i.entity),
+                            i.reason,
+                            l10n.archiveBy(
+                              i.archivedBy ?? '?',
+                              when.format(WcTime.local(i.archivedAt, context)),
+                            ),
+                            [
+                              for (final e in i.counts.entries)
+                                l10n.archiveCount(e.key, e.value),
+                            ].join(', '),
+                          ].join('\n'),
+                        ),
+                        isThreeLine: true,
+                        trailing: BusyButton(
+                          kind: BusyButtonKind.text,
+                          icon: const Icon(Icons.unarchive_outlined),
+                          onPressed: () => _restore(context, ref, i),
+                          child: Text(l10n.archiveRestore),
+                        ),
+                      ),
+                    ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

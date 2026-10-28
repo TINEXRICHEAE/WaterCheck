@@ -65,32 +65,44 @@ class TripsScreen extends ConsumerWidget {
           padding: const EdgeInsets.all(24),
           child: Text(l10n.tripsNone),
         ),
-        AsyncData(:final value) => ListView(
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
-              child: Text(l10n.tripsHint),
-            ),
-            for (final t in value)
-              ListTile(
-                leading: Icon(t.arrived ? Icons.flag : Icons.route),
-                title: Text(t.toName),
-                subtitle: Text(
-                  [
-                    when.format(t.startedAt.toLocal()),
-                    if (t.endedAt case final end?)
-                      formatSeconds(
-                        end.difference(t.startedAt).inSeconds.toDouble(),
-                      ),
-                    t.arrived ? l10n.tripsArrived : l10n.tripsStopped,
-                  ].join(' · '),
-                ),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () => context.push(
-                  sidePath(ref.read(appModeProvider), '/profile/trips/${t.id}'),
-                ),
+        AsyncData(:final value) => SearchBuilder(
+          label: l10n.searchTrips,
+          history: 'collect.trips',
+          builder: (context, field, matches) => ListView(
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+                child: Text(l10n.tripsHint),
               ),
-          ],
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+                child: field,
+              ),
+              for (final t in value)
+                if (matches([t.toName, when.format(t.startedAt.toLocal())]))
+                  ListTile(
+                    leading: Icon(t.arrived ? Icons.flag : Icons.route),
+                    title: Text(t.toName),
+                    subtitle: Text(
+                      [
+                        when.format(t.startedAt.toLocal()),
+                        if (t.endedAt case final end?)
+                          formatSeconds(
+                            end.difference(t.startedAt).inSeconds.toDouble(),
+                          ),
+                        t.arrived ? l10n.tripsArrived : l10n.tripsStopped,
+                      ].join(' · '),
+                    ),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () => context.push(
+                      sidePath(
+                        ref.read(appModeProvider),
+                        '/profile/trips/${t.id}',
+                      ),
+                    ),
+                  ),
+            ],
+          ),
         ),
         AsyncError() => Center(child: Text(l10n.tripsNone)),
         _ => const PageLoading(),

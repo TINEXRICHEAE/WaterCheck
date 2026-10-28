@@ -108,6 +108,7 @@ class SourcesScreen extends ConsumerWidget {
       SearchField(
         value: q.text,
         label: l10n.sourcesSearch,
+        history: 'console.sources',
         onChanged: ref.read(sourcesQueryProvider.notifier).text,
       ),
       const SizedBox(height: 8),

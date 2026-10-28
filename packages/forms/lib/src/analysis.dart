@@ -561,3 +561,276 @@ List<CollectorAudit> audit(
       ),
   ]..sort((a, b) => a.name.compareTo(b.name));
 }
+
+/// What each group of an [Aggregation] shows (2026-10-27).
+enum Measure { count, sum, mean, min, max }
+
+/// How dates are put together when grouping by time.
+enum TimeStep { day, week, month }
+
+/// What records are grouped by: an answer, the day they were finished, or
+/// who collected them.
+sealed class GroupBy {
+  const GroupBy();
+}
+
+class ByField extends GroupBy {
+  const ByField(this.field, {this.step = TimeStep.month});
+
+  final FormItem field;
+
+  /// For a date answer.
+  final TimeStep step;
+}
+
+class ByFinished extends GroupBy {
+  const ByFinished(this.step);
+
+  final TimeStep step;
+}
+
+class ByCollector extends GroupBy {
+  const ByCollector();
+}
+
+/// Records (or repeat rows) put together: [groups] along, one series per
+/// value of the split (or one, unnamed), and a value for each.
+class Aggregation {
+  Aggregation({
+    required this.groups,
+    required this.series,
+    required this.values,
+    required this.units,
+    required this.isTime,
+  });
+
+  final List<String> groups;
+  final List<String> series;
+
+  /// values[s][g]: the measure for series s in group g; null when there
+  /// was nothing to measure.
+  final List<List<double?>> values;
+
+  /// How many records or repeat rows were looked at.
+  final int units;
+
+  /// Groups are days, weeks or months, in order.
+  final bool isTime;
+
+  double total(int g) => values.fold(0, (a, s) => a + (s[g] ?? 0));
+}
+
+/// Fields records can be grouped or split by: choices, yes/no, dates,
+/// whole numbers and short text.
+Iterable<FormItem> groupFields(FormDefinition def) => answerFields(def).where(
+  (f) =>
+      choicesOf(f).isNotEmpty ||
+      const {
+        FieldType.date,
+        FieldType.dateTime,
+        FieldType.integer,
+        FieldType.text,
+      }.contains(f.type),
+);
+
+/// Fields that can be summed or averaged.
+Iterable<FormItem> numberFields(FormDefinition def) => answerFields(def).where(
+  (f) =>
+      f.type == FieldType.integer ||
+      f.type == FieldType.decimal ||
+      f.type == FieldType.range ||
+      f.type == FieldType.calculate,
+);
+
+String _bucket(DateTime t, TimeStep step) {
+  String two(int n) => n.toString().padLeft(2, '0');
+  switch (step) {
+    case TimeStep.day:
+      return '${t.year}-${two(t.month)}-${two(t.day)}';
+    case TimeStep.month:
+      return '${t.year}-${two(t.month)}';
+    case TimeStep.week:
+      // The Monday the week starts on.
+      final d = DateTime.utc(
+        t.year,
+        t.month,
+        t.day,
+      ).subtract(Duration(days: t.weekday - 1));
+      return '${d.year}-${two(d.month)}-${two(d.day)}';
+  }
+}
+
+/// Puts records together (2026-10-27): grouped by [by], optionally split by
+/// a second field, counting them or summing, averaging or taking the least
+/// or most of [value]. Fields in one repeat are read row by row; a
+/// choose-many answer counts under each choice. Declined records are left
+/// out. Beyond [most] groups the rest fold into [other]; beyond eight
+/// series (one colour each) too.
+Aggregation aggregate(
+  FormDefinition def,
+  List<RecordData> records, {
+  required GroupBy by,
+  FormItem? split,
+  Measure measure = Measure.count,
+  FormItem? value,
+  int most = 30,
+  String other = 'Other',
+  String none = '(none)',
+}) {
+  final involved = [
+    if (by case ByField(:final field)) field,
+    ?split,
+    if (measure != Measure.count) ?value,
+  ];
+  final repeats = {for (final f in involved) repeatOf(def, f.name)?.name}
+    ..remove(null);
+  // One repeat at most is read row by row; rows of two are not related.
+  final repeat = repeats.length == 1 ? repeats.single : null;
+
+  List<String> labels(FormItem f, Object? v, TimeStep step) {
+    if (!_hasValue(v)) return [none];
+    final choices = choicesOf(f);
+    if (choices.isNotEmpty) {
+      return [
+        for (final x in v is List ? v : [v])
+          choices.where((c) => c.value == '$x').firstOrNull?.label ?? '$x',
+      ];
+    }
+    if (f.type == FieldType.date || f.type == FieldType.dateTime) {
+      final t = DateTime.tryParse('$v');
+      return [t == null ? '$v' : _bucket(t, step)];
+    }
+    return ['$v'.trim()];
+  }
+
+  // (groups, series, number) for every record or repeat row.
+  final seen = <(List<String>, List<String>, num?)>[];
+  var units = 0;
+  for (final r in records) {
+    if (r.declined) continue;
+    final rows = <Map<Object?, Object?>>[
+      if (repeat == null)
+        r.answers
+      else if (r.answers[repeat] case final List<Object?> list)
+        for (final row in list.whereType<Map<Object?, Object?>>())
+          {...r.answers, ...row},
+    ];
+    for (final a in rows) {
+      units++;
+      final g = switch (by) {
+        ByField(:final field, :final step) => labels(
+          field,
+          a[field.name],
+          step,
+        ),
+        ByFinished(:final step) => [
+          if (r.finishedAt ?? r.startedAt case final t?)
+            _bucket(t.toUtc(), step)
+          else
+            none,
+        ],
+        ByCollector() => [r.collector ?? none],
+      };
+      final s = split == null
+          ? const ['']
+          : labels(split, a[split.name], TimeStep.month);
+      final n = value == null ? null : _num(a[value.name]);
+      seen.add((g, s, n));
+    }
+  }
+
+  final time =
+      by is ByFinished ||
+      (by is ByField &&
+          (by.field.type == FieldType.date ||
+              by.field.type == FieldType.dateTime));
+
+  // A choice field's own order; time and whole numbers ascending; anything
+  // else commonest first; "(none)" last.
+  List<String> order(Iterable<String> found, FormItem? f, bool time) {
+    final counts = <String, int>{};
+    for (final x in found) {
+      counts[x] = (counts[x] ?? 0) + 1;
+    }
+    final keys = counts.keys.toList();
+    final choices = f == null ? const <Choice>[] : choicesOf(f);
+    if (choices.isNotEmpty) {
+      final at = {for (final (i, c) in choices.indexed) c.label: i};
+      keys.sort((a, b) => (at[a] ?? 1 << 20).compareTo(at[b] ?? 1 << 20));
+    } else if (time) {
+      keys.sort();
+    } else if (f != null && f.type == FieldType.integer) {
+      keys.sort(
+        (a, b) => (num.tryParse(a) ?? double.infinity).compareTo(
+          num.tryParse(b) ?? double.infinity,
+        ),
+      );
+    } else {
+      keys.sort((a, b) => counts[b]!.compareTo(counts[a]!));
+    }
+    if (keys.remove(none)) keys.add(none);
+    return keys;
+  }
+
+  List<String> fold(List<String> keys, int keep, int part) {
+    final kept = keys.take(keep - 1).toSet();
+    for (var i = 0; i < seen.length; i++) {
+      final (g, s, n) = seen[i];
+      List<String> f(List<String> l) => [
+        for (final x in l) kept.contains(x) ? x : other,
+      ];
+      seen[i] = part == 0 ? (f(g), s, n) : (g, f(s), n);
+    }
+    return [...kept, other];
+  }
+
+  var groups = order(
+    [for (final u in seen) ...u.$1],
+    by is ByField ? by.field : null,
+    time,
+  );
+  if (groups.length > most && !time) groups = fold(groups, most, 0);
+  var series = split == null
+      ? ['']
+      : order([for (final u in seen) ...u.$2], split, false);
+  if (series.length > 8) series = fold(series, 8, 1);
+
+  final gi = {for (final (i, g) in groups.indexed) g: i};
+  final si = {for (final (i, s) in series.indexed) s: i};
+  final bags = [
+    for (final _ in series) [for (final _ in groups) <num>[]],
+  ];
+  final counts = [for (final _ in series) List.filled(groups.length, 0)];
+  for (final (g, s, n) in seen) {
+    for (final x in g.toSet()) {
+      for (final y in s.toSet()) {
+        final (a, b) = (si[y]!, gi[x]!);
+        counts[a][b]++;
+        if (n != null) bags[a][b].add(n);
+      }
+    }
+  }
+  double? measured(int a, int b) {
+    final bag = bags[a][b];
+    if (measure == Measure.count) return counts[a][b].toDouble();
+    if (bag.isEmpty) return null;
+    final sum = bag.fold<num>(0, (x, y) => x + y);
+    return switch (measure) {
+      Measure.count || Measure.sum => sum.toDouble(),
+      Measure.mean => sum / bag.length,
+      Measure.min => bag.reduce(math.min).toDouble(),
+      Measure.max => bag.reduce(math.max).toDouble(),
+    };
+  }
+
+  return Aggregation(
+    groups: groups,
+    series: series,
+    values: [
+      for (var a = 0; a < series.length; a++)
+        [for (var b = 0; b < groups.length; b++) measured(a, b)],
+    ],
+    units: units,
+    isTime: time,
+  );
+}

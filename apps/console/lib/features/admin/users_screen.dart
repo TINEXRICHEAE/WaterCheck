@@ -117,6 +117,7 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
           SearchField(
             value: _raw,
             label: l10n.usersSearch,
+            history: 'console.users',
             onChanged: (v) => setState(() {
               _raw = v;
               _query = v.trim().toLowerCase();

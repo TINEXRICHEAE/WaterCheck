@@ -32,134 +32,153 @@ class PhonesScreen extends ConsumerWidget {
         icon: const Icon(Icons.qr_code_2),
         label: Text(l10n.phonesNewCode),
       ),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
-        children: [
-          Text(l10n.phonesTitle, style: text.headlineSmall),
-          Text(l10n.phonesHint),
-          const SizedBox(height: 8),
-          ...phones.when(
-            loading: () => [const Center(child: CircularProgressIndicator())],
-            error: (e, _) => [
-              ErrorView(
-                error: e,
-                compact: true,
-                onRetry: () => ref
-                  ..invalidate(adminInstallationsProvider)
-                  ..invalidate(adminCodesProvider),
-              ),
-            ],
-            data: (list) => [
-              if (list.isEmpty) Text(l10n.phonesNone),
-              for (final p in list)
-                Card(
-                  child: ListTile(
-                    leading: Icon(
-                      p.revokedAt == null
-                          ? Icons.phone_android
-                          : Icons.phonelink_erase,
-                    ),
-                    title: Text(
-                      [
-                        ?p.label,
-                        if (p.area case final a?)
-                          '${a.name} (${l10n.areaLevel(a.level)})'
-                        else
-                          l10n.deviceSelfRegistered,
-                        ?p.shortCode,
-                        if (p.archived) l10n.archivedTag,
-                      ].join(' · '),
-                    ),
-                    subtitle: Text(
-                      [
-                        [?p.platform, ?p.appVersion].join(' '),
-                        l10n.phonesActivity(p.collectorsSeen, p.tests),
-                        p.lastSeenAt == null
-                            ? l10n.phonesNeverSynced
-                            : l10n.phonesLastSeen(
+      body: SearchBuilder(
+        label: l10n.searchPhones,
+        history: 'console.devices',
+        builder: (context, field, matches) => ListView(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
+          children: [
+            Text(l10n.phonesTitle, style: text.headlineSmall),
+            Text(l10n.phonesHint),
+            const SizedBox(height: 8),
+            field,
+            const SizedBox(height: 8),
+            ...phones.when(
+              loading: () => [const Center(child: CircularProgressIndicator())],
+              error: (e, _) => [
+                ErrorView(
+                  error: e,
+                  compact: true,
+                  onRetry: () => ref
+                    ..invalidate(adminInstallationsProvider)
+                    ..invalidate(adminCodesProvider),
+                ),
+              ],
+              data: (list) => [
+                if (list.isEmpty) Text(l10n.phonesNone),
+                for (final p in list)
+                  if (matches([
+                    p.label,
+                    p.area?.name,
+                    p.shortCode,
+                    p.platform,
+                    p.appVersion,
+                  ]))
+                    Card(
+                      child: ListTile(
+                        leading: Icon(
+                          p.revokedAt == null
+                              ? Icons.phone_android
+                              : Icons.phonelink_erase,
+                        ),
+                        title: Text(
+                          [
+                            ?p.label,
+                            if (p.area case final a?)
+                              '${a.name} (${l10n.areaLevel(a.level)})'
+                            else
+                              l10n.deviceSelfRegistered,
+                            ?p.shortCode,
+                            if (p.archived) l10n.archivedTag,
+                          ].join(' · '),
+                        ),
+                        subtitle: Text(
+                          [
+                            [?p.platform, ?p.appVersion].join(' '),
+                            l10n.phonesActivity(p.collectorsSeen, p.tests),
+                            p.lastSeenAt == null
+                                ? l10n.phonesNeverSynced
+                                : l10n.phonesLastSeen(
+                                    when.format(
+                                      WcTime.local(p.lastSeenAt!, context),
+                                    ),
+                                  ),
+                            if (p.revokedAt != null)
+                              l10n.phonesRevokedAt(
                                 when.format(
-                                  WcTime.local(p.lastSeenAt!, context),
+                                  WcTime.local(p.revokedAt!, context),
                                 ),
                               ),
-                        if (p.revokedAt != null)
-                          l10n.phonesRevokedAt(
-                            when.format(WcTime.local(p.revokedAt!, context)),
-                          ),
-                      ].where((s) => s.isNotEmpty).join('\n'),
+                          ].where((s) => s.isNotEmpty).join('\n'),
+                        ),
+                        isThreeLine: true,
+                        // The device's page: who used it (ADR-022).
+                        onTap: () =>
+                            context.go('${adminBase(side)}/phones/${p.id}'),
+                        trailing: PopupMenuButton<String>(
+                          tooltip: l10n.moreActions,
+                          onSelected: (a) => switch (a) {
+                            'name' => _name(context, ref, p),
+                            'trail' => showTrail(
+                              context,
+                              title: l10n.trailTitle,
+                              entity: 'installation',
+                              id: p.id,
+                            ),
+                            'revoke' => _revoke(context, ref, p),
+                            _ => archiveRecord(
+                              context,
+                              ref,
+                              entity: ArchiveInEntity.installation,
+                              recordId: p.id,
+                              label:
+                                  p.label ??
+                                  p.shortCode ??
+                                  p.area?.name ??
+                                  p.id,
+                            ),
+                          },
+                          itemBuilder: (_) => [
+                            PopupMenuItem(
+                              value: 'name',
+                              child: Text(l10n.phonesName),
+                            ),
+                            PopupMenuItem(
+                              value: 'trail',
+                              child: Text(l10n.trailTitle),
+                            ),
+                            if (p.revokedAt == null)
+                              PopupMenuItem(
+                                value: 'revoke',
+                                child: Text(l10n.phonesRevoke),
+                              ),
+                            if (!p.archived)
+                              PopupMenuItem(
+                                value: 'archive',
+                                child: Text(l10n.archiveAction),
+                              ),
+                          ],
+                        ),
+                      ),
                     ),
-                    isThreeLine: true,
-                    // The device's page: who used it (ADR-022).
-                    onTap: () =>
-                        context.go('${adminBase(side)}/phones/${p.id}'),
-                    trailing: PopupMenuButton<String>(
-                      tooltip: l10n.moreActions,
-                      onSelected: (a) => switch (a) {
-                        'name' => _name(context, ref, p),
-                        'trail' => showTrail(
-                          context,
-                          title: l10n.trailTitle,
-                          entity: 'installation',
-                          id: p.id,
-                        ),
-                        'revoke' => _revoke(context, ref, p),
-                        _ => archiveRecord(
-                          context,
-                          ref,
-                          entity: ArchiveInEntity.installation,
-                          recordId: p.id,
-                          label: p.label ?? p.shortCode ?? p.area?.name ?? p.id,
-                        ),
-                      },
-                      itemBuilder: (_) => [
-                        PopupMenuItem(
-                          value: 'name',
-                          child: Text(l10n.phonesName),
-                        ),
-                        PopupMenuItem(
-                          value: 'trail',
-                          child: Text(l10n.trailTitle),
-                        ),
-                        if (p.revokedAt == null)
-                          PopupMenuItem(
-                            value: 'revoke',
-                            child: Text(l10n.phonesRevoke),
-                          ),
-                        if (!p.archived)
-                          PopupMenuItem(
-                            value: 'archive',
-                            child: Text(l10n.archiveAction),
-                          ),
-                      ],
+              ],
+            ),
+            const SizedBox(height: 16),
+            Text(l10n.phonesCodes, style: text.titleMedium),
+            ...codes.when(
+              loading: () => const [],
+              error: (_, _) => const [],
+              data: (list) => [
+                if (list.isEmpty) Text(l10n.phonesNoCodes),
+                for (final c in list.take(20))
+                  ListTile(
+                    dense: true,
+                    leading: const Icon(Icons.vpn_key_outlined),
+                    title: Text(
+                      '${c.area.name} (${l10n.areaLevel(c.area.level)})',
+                    ),
+                    subtitle: Text(
+                      l10n.phonesCodeLine(
+                        c.usedCount,
+                        c.maxInstallations,
+                        when.format(WcTime.local(c.expiresAt, context)),
+                      ),
                     ),
                   ),
-                ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Text(l10n.phonesCodes, style: text.titleMedium),
-          ...codes.when(
-            loading: () => const [],
-            error: (_, _) => const [],
-            data: (list) => [
-              if (list.isEmpty) Text(l10n.phonesNoCodes),
-              for (final c in list.take(20))
-                ListTile(
-                  dense: true,
-                  leading: const Icon(Icons.vpn_key_outlined),
-                  title: Text(
-                    '${c.area.name} (${l10n.areaLevel(c.area.level)})',
-                  ),
-                  subtitle: Text(
-                    l10n.phonesCodeLine(
-                      c.usedCount,
-                      c.maxInstallations,
-                      when.format(WcTime.local(c.expiresAt, context)),
-                    ),
-                  ),
-                ),
-            ],
-          ),
-        ],
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

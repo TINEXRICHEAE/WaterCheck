@@ -89,17 +89,22 @@ class _ResearchHomeState extends ConsumerState<ResearchHome> {
     if (f != null) await _start(f.id, f.version);
   }
 
-  Future<void> _join() async {
+  /// Joins with a code; from a locked form, its title says which.
+  Future<void> _join([LockedForm? locked]) async {
     final l10n = AppLocalizations.of(context);
     final code = TextEditingController();
     final joined = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(l10n.researchJoinTitle),
+        title: Text(locked?.title ?? l10n.researchJoinTitle),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            if (locked != null) ...[
+              Text(locked.projectTitle),
+              const SizedBox(height: 8),
+            ],
             Text(l10n.researchJoinHint),
             const SizedBox(height: 12),
             TextField(
@@ -145,11 +150,11 @@ class _ResearchHomeState extends ConsumerState<ResearchHome> {
     }
   }
 
-  bool _matches(String number, String title) {
+  bool _matches(Iterable<String?> words) {
     final q = _query.trim().toLowerCase();
-    return q.isEmpty ||
-        number.toLowerCase().contains(q) ||
-        title.toLowerCase().contains(q);
+    if (q.isEmpty) return true;
+    final all = words.whereType<String>().join(' ').toLowerCase();
+    return q.split(RegExp(r'\s+')).every(all.contains);
   }
 
   @override
@@ -159,17 +164,26 @@ class _ResearchHomeState extends ConsumerState<ResearchHome> {
     final forms = ref.watch(researchFormsProvider).value;
     final drafts = ref.watch(researchDraftsProvider).value ?? const [];
     final records = ref.watch(researchRecordsProvider).value ?? const [];
+    final locked = ref.watch(lockedFormsProvider);
+    final shownForms = [
+      for (final f in forms ?? const <ResearchFormItem>[])
+        if (_matches([f.code, f.title, f.projectTitle])) f,
+    ];
+    final shownLocked = [
+      for (final f in locked)
+        if (_matches([f.code, f.title, f.projectTitle])) f,
+    ];
     final sync = ref.watch(syncSummaryProvider).value;
     final when = DateFormat.MMMd().add_Hm();
     final shownDrafts = [
       if (_filter == _Filter.all || _filter == _Filter.unfinished)
         for (final d in drafts)
-          if (_matches(d.number ?? '', d.formTitle)) d,
+          if (_matches([d.number, d.formTitle])) d,
     ];
     final shownRecords = [
       if (_filter != _Filter.unfinished)
         for (final r in records)
-          if (_matches(r.number, r.formTitle) &&
+          if (_matches([r.number, r.formTitle]) &&
               switch (_filter) {
                 _Filter.waiting => !r.sent,
                 _Filter.sent => r.sent,
@@ -218,9 +232,16 @@ class _ResearchHomeState extends ConsumerState<ResearchHome> {
           : ListView(
               padding: const EdgeInsets.fromLTRB(12, 12, 12, 96),
               children: [
+                SearchField(
+                  value: _query,
+                  label: l10n.researchSearch,
+                  history: 'collect.research',
+                  onChanged: (v) => setState(() => _query = v),
+                ),
+                const SizedBox(height: 12),
                 Text(l10n.researchForms, style: text.titleMedium),
                 const SizedBox(height: 4),
-                if (forms.isEmpty)
+                if (forms.isEmpty && locked.isEmpty)
                   Card(
                     child: Padding(
                       padding: const EdgeInsets.all(16),
@@ -238,7 +259,14 @@ class _ResearchHomeState extends ConsumerState<ResearchHome> {
                       ),
                     ),
                   ),
-                for (final f in forms)
+                if (shownForms.isEmpty &&
+                    shownLocked.isEmpty &&
+                    forms.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.all(8),
+                    child: Text(l10n.researchNoMatch),
+                  ),
+                for (final f in shownForms)
                   Card(
                     child: ListTile(
                       leading: CircleAvatar(child: Text(f.code)),
@@ -252,13 +280,27 @@ class _ResearchHomeState extends ConsumerState<ResearchHome> {
                       ),
                     ),
                   ),
+                // Forms behind an access code: seen by every collector,
+                // opened with the code (2026-10-27).
+                for (final f in shownLocked)
+                  Card(
+                    child: ListTile(
+                      leading: const CircleAvatar(
+                        child: Icon(Icons.lock_outline),
+                      ),
+                      title: Text(f.title),
+                      subtitle: Text(
+                        '${f.projectTitle} · ${l10n.researchLocked}',
+                      ),
+                      onTap: () => _join(f),
+                      trailing: OutlinedButton.icon(
+                        onPressed: () => _join(f),
+                        icon: const Icon(Icons.key_outlined),
+                        label: Text(l10n.researchUnlock),
+                      ),
+                    ),
+                  ),
                 const SizedBox(height: 16),
-                SearchField(
-                  value: _query,
-                  label: l10n.researchSearch,
-                  onChanged: (v) => setState(() => _query = v),
-                ),
-                const SizedBox(height: 8),
                 Wrap(
                   spacing: 8,
                   runSpacing: 4,

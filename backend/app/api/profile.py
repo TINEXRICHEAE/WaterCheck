@@ -34,7 +34,10 @@ from app.services.auth import record_acceptance
 
 router = APIRouter(prefix="/v1", tags=["profile"])
 
-CODE_LIFETIME = timedelta(hours=24)
+# One-time-password style (2026-10-27): one code per person and contact,
+# short-lived, replaced only after a short wait.
+CODE_LIFETIME = timedelta(minutes=15)
+RESEND_AFTER = timedelta(seconds=60)
 MAX_ATTEMPTS = 5
 _EMAIL = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
@@ -130,8 +133,34 @@ async def _new_code(
     channel: str,
     value: str,
 ) -> ContactPending:
+    now = utcnow()
+    who = {"u": user_id, "k": collector_key, "ch": channel, "v": value}
+    match = (
+        "(CAST(:u AS uuid) IS NOT NULL AND user_id = CAST(:u AS uuid) OR "
+        "CAST(:k AS uuid) IS NOT NULL AND collector_key = CAST(:k AS uuid)) "
+        "AND channel = :ch AND value = :v AND confirmed_at IS NULL AND expires_at > now()"
+    )
+    recent = (
+        await conn.execute(
+            text(
+                "SELECT id, created_at, expires_at FROM contact_confirmation "  # noqa: S608
+                f"WHERE {match} ORDER BY created_at DESC LIMIT 1"
+            ),
+            who,
+        )
+    ).first()
+    if recent is not None and now - recent.created_at < RESEND_AFTER:
+        # Asked again at once: the same code stands.
+        return ContactPending(
+            id=recent.id, channel=channel, value=value, expires_at=recent.expires_at
+        )
+    # A new code replaces any older one.
+    await conn.execute(
+        text(f"UPDATE contact_confirmation SET expires_at = now() WHERE {match}"),  # noqa: S608
+        who,
+    )
     pending = ContactPending(
-        id=uuid4(), channel=channel, value=value, expires_at=utcnow() + CODE_LIFETIME
+        id=uuid4(), channel=channel, value=value, expires_at=now + CODE_LIFETIME
     )
     await conn.execute(
         text(

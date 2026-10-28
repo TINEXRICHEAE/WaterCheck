@@ -15,6 +15,7 @@ import '../activation/collect_api.dart' show parseHttpDate;
 import '../activation/installation_service.dart'
     show installationServiceProvider;
 import '../photos/photo_service.dart';
+import '../research/research.dart';
 
 /// Server time minus device time (SPEC §5.2), kept fresh from every
 /// response's `Date` header so signatures stay valid on a wrong clock.
@@ -235,6 +236,7 @@ class SyncController extends Notifier<SyncUiState> {
         // Photos after their metadata, and only on an allowed network
         // (SPEC §8.3). Readings never wait for photos.
         await ref.read(attachmentUploaderProvider)?.run();
+        await _researchAccess();
       }
       await _dropSignedOut();
       if (ref.mounted) state = SyncUiState(last: report);
@@ -242,6 +244,25 @@ class SyncController extends Notifier<SyncUiState> {
     } catch (e) {
       if (ref.mounted) state = SyncUiState(last: state.last);
       rethrow;
+    }
+  }
+
+  /// Research access as it is now on the server (2026-10-27): forms this
+  /// phone may no longer use leave it (taken back, closed, access
+  /// changed), and forms behind an access code are listed with a lock.
+  Future<void> _researchAccess() async {
+    final dio = ref.read(collectApiDioProvider);
+    if (dio == null) return;
+    try {
+      final now = await WaterCheckApi(dio).research.deviceForms();
+      await ref.read(researchRepositoryProvider).keepOnlyForms({
+        for (final id in now.allowed) id,
+      });
+      if (ref.mounted) {
+        ref.read(lockedFormsProvider.notifier).set(now.locked);
+      }
+    } catch (_) {
+      // Offline or an older server: the next sync tries again.
     }
   }
 

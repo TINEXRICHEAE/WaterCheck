@@ -281,6 +281,7 @@ class _SourceBrowserState extends ConsumerState<SourceBrowser> {
           child: SearchField(
             value: _query,
             label: l10n.sourcesSearch,
+            history: 'collect.sources',
             onChanged: (v) => setState(() {
               _query = v;
               _online = false;

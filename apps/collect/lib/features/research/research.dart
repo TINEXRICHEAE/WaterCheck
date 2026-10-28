@@ -1,3 +1,4 @@
+import 'package:api_client/api_client.dart' show LockedForm;
 import 'package:data/data.dart';
 import 'package:domain/domain.dart' show AppSide, CollectorSnapshot;
 import 'package:flutter/foundation.dart';
@@ -66,6 +67,19 @@ bool isDevicePage(String location) =>
 
 final researchRepositoryProvider = Provider<ResearchRepository>(
   (ref) => ResearchRepository(ref.watch(databaseProvider)),
+);
+
+/// Forms behind an access code, from the last sync: shown with a lock;
+/// the code opens them (2026-10-27).
+class LockedForms extends Notifier<List<LockedForm>> {
+  @override
+  List<LockedForm> build() => const [];
+
+  void set(List<LockedForm> forms) => state = forms;
+}
+
+final lockedFormsProvider = NotifierProvider<LockedForms, List<LockedForm>>(
+  LockedForms.new,
 );
 
 final researchFormsProvider = StreamProvider<List<ResearchFormItem>>(

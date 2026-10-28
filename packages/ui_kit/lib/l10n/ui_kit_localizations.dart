@@ -544,6 +544,18 @@ abstract class UiKitLocalizations {
   /// **'Clear search'**
   String get searchClear;
 
+  /// No description provided for @searchRecent.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent:'**
+  String get searchRecent;
+
+  /// No description provided for @searchForget.
+  ///
+  /// In en, this message translates to:
+  /// **'Forget this search'**
+  String get searchForget;
+
   /// No description provided for @filterAll.
   ///
   /// In en, this message translates to:

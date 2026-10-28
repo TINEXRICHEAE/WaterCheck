@@ -46,86 +46,94 @@ class ResearchFormsScreen extends ConsumerWidget {
     final text = Theme.of(context).textTheme;
     final project = ref.watch(projectDetailProvider).value;
     final forms = ref.watch(projectFormsProvider);
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        Row(
-          children: [
-            Expanded(
-              child: Text(l10n.researchFormsTitle, style: text.headlineSmall),
-            ),
-            OutlinedButton.icon(
-              onPressed: () => context.go('/research/forms/library'),
-              icon: const Icon(Icons.library_books_outlined),
-              label: Text(l10n.researchLibrary),
-            ),
-          ],
-        ),
-        Text(l10n.researchFormsHint),
-        const SizedBox(height: 12),
-        const ProjectPicker(),
-        const SizedBox(height: 12),
-        if (project != null && project.canEdit)
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
+    return SearchBuilder(
+      label: l10n.searchForms,
+      history: 'console.research.forms',
+      builder: (context, field, matches) => ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          Row(
             children: [
-              FilledButton.icon(
-                onPressed: () => _newForm(context, ref, project),
-                icon: const Icon(Icons.add),
-                label: Text(l10n.researchNewForm),
+              Expanded(
+                child: Text(l10n.researchFormsTitle, style: text.headlineSmall),
               ),
               OutlinedButton.icon(
-                onPressed: () => _import(context, ref, project),
-                icon: const Icon(Icons.upload_file),
-                label: Text(l10n.researchImportXlsForm),
+                onPressed: () => context.go('/research/forms/library'),
+                icon: const Icon(Icons.library_books_outlined),
+                label: Text(l10n.researchLibrary),
               ),
             ],
           ),
-        const SizedBox(height: 12),
-        ...switch (forms) {
-          AsyncData(:final value) when value.isEmpty && project != null => [
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Text(l10n.researchNoForms),
-              ),
+          Text(l10n.researchFormsHint),
+          const SizedBox(height: 12),
+          const ProjectPicker(),
+          const SizedBox(height: 12),
+          if (project != null && project.canEdit)
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                FilledButton.icon(
+                  onPressed: () => _newForm(context, ref, project),
+                  icon: const Icon(Icons.add),
+                  label: Text(l10n.researchNewForm),
+                ),
+                OutlinedButton.icon(
+                  onPressed: () => _import(context, ref, project),
+                  icon: const Icon(Icons.upload_file),
+                  label: Text(l10n.researchImportXlsForm),
+                ),
+              ],
             ),
-          ],
-          AsyncData(:final value) => [
-            for (final f in value)
+          const SizedBox(height: 12),
+          const SizedBox(height: 12),
+          field,
+          const SizedBox(height: 8),
+          ...switch (forms) {
+            AsyncData(:final value) when value.isEmpty && project != null => [
               Card(
-                child: ListTile(
-                  leading: CircleAvatar(child: Text(f.code)),
-                  title: Text(f.title),
-                  subtitle: Text(
-                    [
-                      formStatusText(l10n, f.status),
-                      if (f.currentVersion != null)
-                        l10n.researchVersion(f.currentVersion!),
-                      if (f.hasDraft && f.currentVersion != null)
-                        l10n.researchUnpublishedChanges,
-                      accessText(l10n, f.collectAccess),
-                      visibilityText(l10n, f.visibility),
-                      if (f.hidden) l10n.researchHidden,
-                      l10n.researchRecordsCount(f.records),
-                    ].join(' · '),
-                  ),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () => context.go('/research/forms/${f.id}'),
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Text(l10n.researchNoForms),
                 ),
               ),
-          ],
-          AsyncError(:final error) => [
-            ErrorView(
-              error: error,
-              compact: true,
-              onRetry: () => ref.invalidate(projectFormsProvider),
-            ),
-          ],
-          _ => [const Center(child: CircularProgressIndicator())],
-        },
-      ],
+            ],
+            AsyncData(:final value) => [
+              for (final f in value)
+                if (matches([f.code, f.title, formStatusText(l10n, f.status)]))
+                  Card(
+                    child: ListTile(
+                      leading: CircleAvatar(child: Text(f.code)),
+                      title: Text(f.title),
+                      subtitle: Text(
+                        [
+                          formStatusText(l10n, f.status),
+                          if (f.currentVersion != null)
+                            l10n.researchVersion(f.currentVersion!),
+                          if (f.hasDraft && f.currentVersion != null)
+                            l10n.researchUnpublishedChanges,
+                          accessText(l10n, f.collectAccess),
+                          visibilityText(l10n, f.visibility),
+                          if (f.hidden) l10n.researchHidden,
+                          l10n.researchRecordsCount(f.records),
+                        ].join(' · '),
+                      ),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () => context.go('/research/forms/${f.id}'),
+                    ),
+                  ),
+            ],
+            AsyncError(:final error) => [
+              ErrorView(
+                error: error,
+                compact: true,
+                onRetry: () => ref.invalidate(projectFormsProvider),
+              ),
+            ],
+            _ => [const Center(child: CircularProgressIndicator())],
+          },
+        ],
+      ),
     );
   }
 
@@ -304,46 +312,53 @@ class ResearchLibraryScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final text = Theme.of(context).textTheme;
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        Text(l10n.researchLibrary, style: text.headlineSmall),
-        Text(l10n.researchLibraryHint),
-        const SizedBox(height: 12),
-        ...switch (ref.watch(_libraryProvider)) {
-          AsyncData(:final value) when value.isEmpty => [
-            Text(l10n.researchLibraryEmpty),
-          ],
-          AsyncData(:final value) => [
-            for (final f in value)
-              Card(
-                child: ListTile(
-                  leading: CircleAvatar(child: Text(f.code)),
-                  title: Text(f.title),
-                  subtitle: Text(
-                    [
-                      f.projectTitle,
-                      ?f.owner,
-                      visibilityText(l10n, f.visibility),
-                      if (f.currentVersion != null)
-                        l10n.researchVersion(f.currentVersion!),
-                    ].join(' · '),
+    return SearchBuilder(
+      label: l10n.searchForms,
+      history: 'console.research.library',
+      builder: (context, field, matches) => ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          Text(l10n.researchLibrary, style: text.headlineSmall),
+          Text(l10n.researchLibraryHint),
+          const SizedBox(height: 12),
+          field,
+          const SizedBox(height: 8),
+          ...switch (ref.watch(_libraryProvider)) {
+            AsyncData(:final value) when value.isEmpty => [
+              Text(l10n.researchLibraryEmpty),
+            ],
+            AsyncData(:final value) => [
+              for (final f in value)
+                if (matches([f.code, f.title, f.projectTitle, f.owner]))
+                  Card(
+                    child: ListTile(
+                      leading: CircleAvatar(child: Text(f.code)),
+                      title: Text(f.title),
+                      subtitle: Text(
+                        [
+                          f.projectTitle,
+                          ?f.owner,
+                          visibilityText(l10n, f.visibility),
+                          if (f.currentVersion != null)
+                            l10n.researchVersion(f.currentVersion!),
+                        ].join(' · '),
+                      ),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () => context.go('/research/forms/${f.id}'),
+                    ),
                   ),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () => context.go('/research/forms/${f.id}'),
-                ),
+            ],
+            AsyncError(:final error) => [
+              ErrorView(
+                error: error,
+                compact: true,
+                onRetry: () => ref.invalidate(_libraryProvider),
               ),
-          ],
-          AsyncError(:final error) => [
-            ErrorView(
-              error: error,
-              compact: true,
-              onRetry: () => ref.invalidate(_libraryProvider),
-            ),
-          ],
-          _ => [const Center(child: CircularProgressIndicator())],
-        },
-      ],
+            ],
+            _ => [const Center(child: CircularProgressIndicator())],
+          },
+        ],
+      ),
     );
   }
 }
@@ -462,11 +477,21 @@ class _ResearchFormScreenState extends ConsumerState<ResearchFormScreen> {
                     crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
                       if (form.canManage) ...[
-                        FilledButton.icon(
-                          onPressed: _saving ? null : () => _publish(form),
-                          icon: const Icon(Icons.publish),
-                          label: Text(l10n.researchPublish),
-                        ),
+                        // Only changes not yet published can be (2026-10-27).
+                        if (_edited != null ||
+                            form.hasDraft ||
+                            form.currentVersion == null)
+                          FilledButton.icon(
+                            onPressed: _saving ? null : () => _publish(form),
+                            icon: const Icon(Icons.publish),
+                            label: Text(l10n.researchPublish),
+                          )
+                        else
+                          FilledButton.icon(
+                            onPressed: null,
+                            icon: const Icon(Icons.check),
+                            label: Text(l10n.researchAllPublished),
+                          ),
                         OutlinedButton.icon(
                           onPressed: _edited == null || _saving
                               ? null

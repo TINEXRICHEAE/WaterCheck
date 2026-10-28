@@ -11,3 +11,4 @@ export 'src/export.dart';
 export 'src/expression.dart';
 export 'src/xlsform.dart';
 export 'src/xlsx.dart' show readXlsx, writeXlsx;
+export 'src/zip.dart' show zipFiles;

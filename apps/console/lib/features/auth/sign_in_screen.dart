@@ -19,10 +19,19 @@ String signInError(AppLocalizations l10n, ApiFailure f) => switch (f.code) {
 
 /// A centred card used by the sign-in screens on every screen size.
 class AuthCard extends StatelessWidget {
-  const AuthCard({super.key, required this.title, required this.children});
+  const AuthCard({
+    super.key,
+    required this.title,
+    required this.children,
+    this.compact = false,
+  });
 
   final String title;
   final List<Widget> children;
+
+  /// A wider, shorter card for long forms such as sign-up (2026-10-27):
+  /// a smaller logo and less space, so it fits on one screen.
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
@@ -30,30 +39,33 @@ class AuthCard extends StatelessWidget {
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(compact ? 8 : 16),
             child: RelativeWidth(
-              tablet: 0.6,
-              desktop: 0.32,
+              tablet: compact ? 0.85 : 0.6,
+              desktop: compact ? 0.5 : 0.32,
               child: Card(
                 child: Padding(
-                  padding: const EdgeInsets.all(24),
+                  padding: EdgeInsets.all(compact ? 16 : 24),
                   child: AutofillGroup(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        const Center(
-                          child: AppLogo(size: 72, decorative: true),
+                        Center(
+                          child: AppLogo(
+                            size: compact ? 40 : 72,
+                            decorative: true,
+                          ),
                         ),
-                        const SizedBox(height: 8),
+                        SizedBox(height: compact ? 4 : 8),
                         Text(
                           title,
                           style: Theme.of(context).textTheme.titleLarge,
                           textAlign: TextAlign.center,
                         ),
-                        const SizedBox(height: 12),
+                        SizedBox(height: compact ? 8 : 12),
                         // Water testing or research (ADR-030).
                         const Center(child: ConsoleModeSwitch()),
-                        const SizedBox(height: 16),
+                        SizedBox(height: compact ? 8 : 16),
                         ...children,
                       ],
                     ),

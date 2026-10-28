@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:api_client/api_client.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,9 +10,13 @@ import 'package:ui_kit/ui_kit.dart';
 import '../../l10n/app_localizations.dart';
 import 'admin_api.dart';
 
-final _codesProvider = FutureProvider.autoDispose<List<CodeToPass>>(
-  (ref) => ref.watch(adminApiProvider).profile.codesToPass(),
-);
+/// Fetched again every 20 seconds while open: a new code replaces the one
+/// before it, and stale ones go (2026-10-27).
+final _codesProvider = FutureProvider.autoDispose<List<CodeToPass>>((ref) {
+  final again = Timer(const Duration(seconds: 20), ref.invalidateSelf);
+  ref.onDispose(again.cancel);
+  return ref.watch(adminApiProvider).profile.codesToPass();
+});
 
 /// Confirmation codes people wait for (ADR-024/025): a new email or phone,
 /// or signing other devices out. Until email and SMS are set up an IT
@@ -30,39 +36,47 @@ class CodesScreen extends ConsumerWidget {
           ErrorView(error: e, onRetry: () => ref.invalidate(_codesProvider)),
       data: (list) => RefreshIndicator(
         onRefresh: () async => ref.invalidate(_codesProvider),
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            Text(l10n.codesTitle, style: text.headlineSmall),
-            Text(l10n.codesHint),
-            const SizedBox(height: 12),
-            if (list.isEmpty) Text(l10n.codesNone),
-            for (final c in list)
-              Card(
-                child: ListTile(
-                  leading: Icon(
-                    c.kind == CodeToPassKind.contact
-                        ? Icons.contact_mail_outlined
-                        : Icons.phonelink_erase_outlined,
-                  ),
-                  title: SelectableText(c.code, style: text.headlineSmall),
-                  subtitle: Text(
-                    [
-                      l10n.codesFor(c.who, c.detail),
-                      l10n.codesUntil(
-                        when.format(WcTime.local(c.expiresAt, context)),
+        child: SearchBuilder(
+          label: l10n.searchCodes,
+          history: 'console.codes',
+          builder: (context, field, matches) => ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              Text(l10n.codesTitle, style: text.headlineSmall),
+              Text(l10n.codesHint),
+              const SizedBox(height: 12),
+              field,
+              const SizedBox(height: 8),
+              if (list.isEmpty) Text(l10n.codesNone),
+              for (final c in list)
+                if (c.expiresAt.isAfter(DateTime.now()) &&
+                    matches([c.who, c.detail, c.code]))
+                  Card(
+                    child: ListTile(
+                      leading: Icon(
+                        c.kind == CodeToPassKind.contact
+                            ? Icons.contact_mail_outlined
+                            : Icons.phonelink_erase_outlined,
                       ),
-                    ].join('\n'),
+                      title: SelectableText(c.code, style: text.headlineSmall),
+                      subtitle: Text(
+                        [
+                          l10n.codesFor(c.who, c.detail),
+                          l10n.codesUntil(
+                            when.format(WcTime.local(c.expiresAt, context)),
+                          ),
+                        ].join('\n'),
+                      ),
+                      trailing: c.collectorKey == null
+                          ? null
+                          : const Icon(Icons.chevron_right),
+                      onTap: c.collectorKey == null
+                          ? null
+                          : () => context.go('/collectors/${c.collectorKey}'),
+                    ),
                   ),
-                  trailing: c.collectorKey == null
-                      ? null
-                      : const Icon(Icons.chevron_right),
-                  onTap: c.collectorKey == null
-                      ? null
-                      : () => context.go('/collectors/${c.collectorKey}'),
-                ),
-              ),
-          ],
+            ],
+          ),
         ),
       ),
     );

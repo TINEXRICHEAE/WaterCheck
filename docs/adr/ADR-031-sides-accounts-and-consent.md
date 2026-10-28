@@ -138,3 +138,15 @@ The lead found these problems:
     - time.
   - **Never changed.** Rows cannot be edited or deleted.
   - **Who reads them:** IT admins, on people's and collectors' pages.
+
+## Amendment, 2026-10-27 (DEVLOG entry 52)
+
+- **Only forms are shared.** Collectors and their records belong to the project that made, adopted or copied the form. Other research accounts never see them, including when a form is public or shared to save others from building it again (the same way templates will be offered).
+- **Collectors choose to be found.**
+  - Research collectors are private by default.
+  - Each has a collector code, derived from their profile, to give to teams.
+  - With "Let research teams find me by name" on, any research team can find them by name or phone.
+  - Teams always find collectors already working on their own projects.
+- **Access is enforced on phones.** Each sync removes research forms the phone may no longer use, with their unfinished drafts. Finished records stay with their collector. Code-protected forms are listed for all research collectors with a lock and open with the code.
+- **One confirmation code at a time.** A repeated request within 60 seconds returns the open code. A later request replaces it. Expired codes leave the IT admins' list.
+

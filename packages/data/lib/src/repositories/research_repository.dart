@@ -110,6 +110,26 @@ class ResearchRepository {
     );
   }
 
+  /// Keeps only the forms this phone may still collect with (from the
+  /// server after each sync): any other form leaves the phone with its
+  /// unfinished drafts (2026-10-27). Its versions stay, so the collector's
+  /// sent records still show; the form comes back with a sync if access
+  /// returns. Returns how many forms were removed.
+  Future<int> keepOnlyForms(Set<String> allowed) => _db.transaction(() async {
+    final gone = [
+      for (final f in await _db.select(_db.researchForms).get())
+        if (!allowed.contains(f.id)) f.id,
+    ];
+    if (gone.isEmpty) return 0;
+    await (_db.delete(
+      _db.researchDrafts,
+    )..where((d) => d.formId.isIn(gone))).go();
+    await (_db.delete(
+      _db.researchForms,
+    )..where((f) => f.id.isIn(gone))).go();
+    return gone.length;
+  });
+
   Future<FormDefinition?> definition(String formId, int version) async {
     final v =
         await (_db.select(_db.researchFormVersions)..where(

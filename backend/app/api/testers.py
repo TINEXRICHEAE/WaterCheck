@@ -32,7 +32,11 @@ from app.services.installations import normalise_code
 router = APIRouter(prefix="/v1", tags=["testers"])
 
 _ALPHABET = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ"
-CONFIRM_LIFETIME = timedelta(hours=24)
+# Confirmation codes work like one-time passwords (2026-10-27): one at a
+# time per person, short-lived, and a new one only after a short wait,
+# replacing the old one; stale ones are never shown.
+CONFIRM_LIFETIME = timedelta(minutes=15)
+CONFIRM_RESEND_AFTER = timedelta(seconds=60)
 CONFIRM_ATTEMPTS = 5
 
 
@@ -74,6 +78,9 @@ class SignOutIn(BaseModel):
 class SignOutRequested(BaseModel):
     request_id: UUID
     expires_at: datetime
+    # Seconds before a new code may be asked for; the same request (and
+    # code) comes back until then.
+    resend_in: int = 0
 
 
 class ConfirmIn(BaseModel):
@@ -271,9 +278,45 @@ async def request_sign_out(
     if device.installation_id in body.installation_ids:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "not_this_device")
     code = "".join(secrets.choice("0123456789") for _ in range(6))
-    request_id, expires = uuid4(), utcnow() + CONFIRM_LIFETIME
+    now = utcnow()
+    request_id, expires = uuid4(), now + CONFIRM_LIFETIME
     async with db.transaction(Principal.system()) as conn:
         await _holds(conn, collector_key, device.installation_id)
+        # One code at a time: a request made in the last minute comes back
+        # as it is (its devices updated); an older one is withdrawn.
+        await conn.execute(
+            text("SELECT pg_advisory_xact_lock(hashtext(:k))"),
+            {"k": str(collector_key)},
+        )
+        open_ = (
+            await conn.execute(
+                text(
+                    "SELECT id, created_at, expires_at FROM collector_confirmation "
+                    "WHERE collector_key = :k AND purpose = 'sign_out_devices' "
+                    "AND confirmed_at IS NULL AND expires_at > now() AND attempts < :max "
+                    "ORDER BY created_at DESC LIMIT 1"
+                ),
+                {"k": collector_key, "max": CONFIRM_ATTEMPTS},
+            )
+        ).first()
+        if open_ is not None and now - open_.created_at < CONFIRM_RESEND_AFTER:
+            await conn.execute(
+                text("UPDATE collector_confirmation SET installation_ids = :ids WHERE id = :id"),
+                {"ids": list(body.installation_ids), "id": open_.id},
+            )
+            wait = CONFIRM_RESEND_AFTER - (now - open_.created_at)
+            return SignOutRequested(
+                request_id=open_.id,
+                expires_at=open_.expires_at,
+                resend_in=max(1, int(wait.total_seconds())),
+            )
+        await conn.execute(
+            text(
+                "UPDATE collector_confirmation SET expires_at = now() WHERE collector_key = :k "
+                "AND purpose = 'sign_out_devices' AND confirmed_at IS NULL AND expires_at > now()"
+            ),
+            {"k": collector_key},
+        )
         known = {
             r.installation_id
             for r in await conn.execute(
@@ -306,7 +349,11 @@ async def request_sign_out(
             ),
             {"i": device.installation_id, "k": collector_key, "id": request_id},
         )
-    return SignOutRequested(request_id=request_id, expires_at=expires)
+    return SignOutRequested(
+        request_id=request_id,
+        expires_at=expires,
+        resend_in=int(CONFIRM_RESEND_AFTER.total_seconds()),
+    )
 
 
 @router.post("/collectors/{collector_key}/devices/sign-out/{request_id}/confirm")

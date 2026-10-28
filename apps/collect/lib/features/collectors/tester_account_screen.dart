@@ -13,6 +13,7 @@ import '../../app/gate.dart';
 import '../../app/providers.dart';
 import '../../l10n/app_localizations.dart';
 import '../activation/installation_service.dart';
+import '../research/collector_card.dart';
 import '../research/research.dart';
 import '../sync/collect_sync.dart';
 
@@ -482,6 +483,8 @@ class _TesterAccountScreenState extends ConsumerState<TesterAccountScreen> {
                 title: Text(f.title),
                 subtitle: Text(f.projectTitle),
               ),
+            const Divider(height: 32),
+            CollectorCardSection(collectorKey: key),
           ],
           const Divider(height: 32),
           Text(l10n.accountOwnCodeSection, style: text.titleMedium),

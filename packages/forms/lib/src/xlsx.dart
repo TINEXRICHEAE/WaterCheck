@@ -4,8 +4,10 @@ import 'dart:typed_data';
 import 'package:archive/archive.dart';
 import 'package:xml/xml.dart';
 
+import 'zip.dart';
+
 /// A small Excel (.xlsx) writer and reader: plain text and number cells in
-/// named sheets, enough for exports and XLSForm. No styles or formulas.
+/// named sheets, enough for exports and XLSForm. Plain style, no formulas.
 
 String _column(int i) {
   var n = i + 1;
@@ -50,11 +52,8 @@ List<String> _sheetNames(Iterable<String> names) {
 /// numbers, booleans as text, null as empty).
 Uint8List writeXlsx(Map<String, List<List<Object?>>> sheets) {
   final names = _sheetNames(sheets.keys);
-  final a = Archive();
-  void add(String path, String content) {
-    final bytes = utf8.encode(content);
-    a.addFile(ArchiveFile(path, bytes.length, bytes));
-  }
+  final a = <String, List<int>>{};
+  void add(String path, String content) => a[path] = utf8.encode(content);
 
   const xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n';
   add(
@@ -63,6 +62,7 @@ Uint8List writeXlsx(Map<String, List<List<Object?>>> sheets) {
         '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'
         '<Default Extension="xml" ContentType="application/xml"/>'
         '<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>'
+        '<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>'
         '${[for (var i = 1; i <= names.length; i++) '<Override PartName="/xl/worksheets/sheet$i.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>'].join()}'
         '</Types>',
   );
@@ -83,7 +83,21 @@ Uint8List writeXlsx(Map<String, List<List<Object?>>> sheets) {
     'xl/_rels/workbook.xml.rels',
     '$xml<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
         '${[for (var i = 1; i <= names.length; i++) '<Relationship Id="rId$i" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet$i.xml"/>'].join()}'
+        '<Relationship Id="rId${names.length + 1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>'
         '</Relationships>',
+  );
+  // The least Excel expects: one font, fill, border and cell format.
+  add(
+    'xl/styles.xml',
+    '$xml<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
+        '<fonts count="1"><font><sz val="11"/><name val="Calibri"/></font></fonts>'
+        '<fills count="2"><fill><patternFill patternType="none"/></fill>'
+        '<fill><patternFill patternType="gray125"/></fill></fills>'
+        '<borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders>'
+        '<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>'
+        '<cellXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/></cellXfs>'
+        '<cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles>'
+        '</styleSheet>',
   );
   var i = 0;
   for (final rows in sheets.values) {
@@ -112,7 +126,7 @@ Uint8List writeXlsx(Map<String, List<List<Object?>>> sheets) {
     b.write('</sheetData></worksheet>');
     add('xl/worksheets/sheet$i.xml', b.toString());
   }
-  return Uint8List.fromList(ZipEncoder().encode(a));
+  return zipFiles(a);
 }
 
 /// Reads an .xlsx file: each sheet's rows, by sheet name, as text (numbers
