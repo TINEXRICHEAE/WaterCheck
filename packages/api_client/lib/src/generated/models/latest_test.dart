@@ -17,9 +17,10 @@ class LatestTest {
     required this.collectorName,
     required this.customLimits,
   });
-  
-  factory LatestTest.fromJson(Map<String, Object?> json) => _$LatestTestFromJson(json);
-  
+
+  factory LatestTest.fromJson(Map<String, Object?> json) =>
+      _$LatestTestFromJson(json);
+
   @JsonKey(name: 'source_id')
   final String sourceId;
   final String code;

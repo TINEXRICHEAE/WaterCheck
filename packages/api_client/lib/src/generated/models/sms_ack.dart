@@ -8,13 +8,10 @@ part 'sms_ack.g.dart';
 
 @JsonSerializable()
 class SmsAck {
-  const SmsAck({
-    required this.status,
-    this.reason,
-  });
-  
+  const SmsAck({required this.status, this.reason});
+
   factory SmsAck.fromJson(Map<String, Object?> json) => _$SmsAckFromJson(json);
-  
+
   final String status;
   final String? reason;
 

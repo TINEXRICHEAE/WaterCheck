@@ -16,9 +16,10 @@ class PullResponse {
     required this.hasMore,
     required this.serverTime,
   });
-  
-  factory PullResponse.fromJson(Map<String, Object?> json) => _$PullResponseFromJson(json);
-  
+
+  factory PullResponse.fromJson(Map<String, Object?> json) =>
+      _$PullResponseFromJson(json);
+
   final List<PulledChange> changes;
   @JsonKey(name: 'next_cursor')
   final String nextCursor;

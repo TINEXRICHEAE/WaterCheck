@@ -17,9 +17,10 @@ class TilesInfo {
     required this.attribution,
     required this.bytes,
   });
-  
-  factory TilesInfo.fromJson(Map<String, Object?> json) => _$TilesInfoFromJson(json);
-  
+
+  factory TilesInfo.fromJson(Map<String, Object?> json) =>
+      _$TilesInfoFromJson(json);
+
   final String name;
   final String format;
   final int minzoom;

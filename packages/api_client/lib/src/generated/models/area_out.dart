@@ -14,9 +14,10 @@ class AreaOut {
     required this.name,
     required this.level,
   });
-  
-  factory AreaOut.fromJson(Map<String, Object?> json) => _$AreaOutFromJson(json);
-  
+
+  factory AreaOut.fromJson(Map<String, Object?> json) =>
+      _$AreaOutFromJson(json);
+
   final String id;
   final String code;
   final String name;

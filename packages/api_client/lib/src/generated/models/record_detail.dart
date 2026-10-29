@@ -34,9 +34,10 @@ class RecordDetail {
     required this.pictures,
     this.locationSource,
   });
-  
-  factory RecordDetail.fromJson(Map<String, Object?> json) => _$RecordDetailFromJson(json);
-  
+
+  factory RecordDetail.fromJson(Map<String, Object?> json) =>
+      _$RecordDetailFromJson(json);
+
   final String id;
   @JsonKey(name: 'form_id')
   final String formId;

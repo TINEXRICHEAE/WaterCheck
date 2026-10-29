@@ -8,12 +8,11 @@ part 'close_in.g.dart';
 
 @JsonSerializable()
 class CloseIn {
-  const CloseIn({
-    required this.password,
-  });
-  
-  factory CloseIn.fromJson(Map<String, Object?> json) => _$CloseInFromJson(json);
-  
+  const CloseIn({required this.password});
+
+  factory CloseIn.fromJson(Map<String, Object?> json) =>
+      _$CloseInFromJson(json);
+
   final String password;
 
   Map<String, Object?> toJson() => _$CloseInToJson(this);

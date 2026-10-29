@@ -15,9 +15,9 @@ class SignIn {
     required this.via,
     required this.at,
   });
-  
+
   factory SignIn.fromJson(Map<String, Object?> json) => _$SignInFromJson(json);
-  
+
   @JsonKey(name: 'installation_id')
   final String installationId;
   final String? platform;

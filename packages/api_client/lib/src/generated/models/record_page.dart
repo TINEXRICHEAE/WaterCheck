@@ -10,13 +10,11 @@ part 'record_page.g.dart';
 
 @JsonSerializable()
 class RecordPage {
-  const RecordPage({
-    required this.total,
-    required this.items,
-  });
-  
-  factory RecordPage.fromJson(Map<String, Object?> json) => _$RecordPageFromJson(json);
-  
+  const RecordPage({required this.total, required this.items});
+
+  factory RecordPage.fromJson(Map<String, Object?> json) =>
+      _$RecordPageFromJson(json);
+
   final int total;
   final List<RecordRow> items;
 

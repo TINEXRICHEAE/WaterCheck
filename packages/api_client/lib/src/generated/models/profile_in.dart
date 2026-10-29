@@ -8,14 +8,11 @@ part 'profile_in.g.dart';
 
 @JsonSerializable()
 class ProfileIn {
-  const ProfileIn({
-    required this.fullName,
-    this.organisation,
-    this.position,
-  });
-  
-  factory ProfileIn.fromJson(Map<String, Object?> json) => _$ProfileInFromJson(json);
-  
+  const ProfileIn({required this.fullName, this.organisation, this.position});
+
+  factory ProfileIn.fromJson(Map<String, Object?> json) =>
+      _$ProfileInFromJson(json);
+
   @JsonKey(name: 'full_name')
   final String fullName;
   final String? organisation;

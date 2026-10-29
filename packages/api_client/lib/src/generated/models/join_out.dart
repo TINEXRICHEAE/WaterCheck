@@ -8,12 +8,11 @@ part 'join_out.g.dart';
 
 @JsonSerializable()
 class JoinOut {
-  const JoinOut({
-    required this.formId,
-  });
-  
-  factory JoinOut.fromJson(Map<String, Object?> json) => _$JoinOutFromJson(json);
-  
+  const JoinOut({required this.formId});
+
+  factory JoinOut.fromJson(Map<String, Object?> json) =>
+      _$JoinOutFromJson(json);
+
   @JsonKey(name: 'form_id')
   final String formId;
 

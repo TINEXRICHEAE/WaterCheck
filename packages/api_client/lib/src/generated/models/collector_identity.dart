@@ -13,9 +13,10 @@ class CollectorIdentity {
     required this.public,
     required this.shareCode,
   });
-  
-  factory CollectorIdentity.fromJson(Map<String, Object?> json) => _$CollectorIdentityFromJson(json);
-  
+
+  factory CollectorIdentity.fromJson(Map<String, Object?> json) =>
+      _$CollectorIdentityFromJson(json);
+
   final String handle;
   final bool public;
   @JsonKey(name: 'share_code')

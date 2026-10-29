@@ -10,13 +10,10 @@ part 'inbox.g.dart';
 
 @JsonSerializable()
 class Inbox {
-  const Inbox({
-    required this.unread,
-    required this.items,
-  });
-  
+  const Inbox({required this.unread, required this.items});
+
   factory Inbox.fromJson(Map<String, Object?> json) => _$InboxFromJson(json);
-  
+
   final int unread;
   final List<NotificationOut> items;
 

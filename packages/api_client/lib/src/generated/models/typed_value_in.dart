@@ -10,14 +10,11 @@ part 'typed_value_in.g.dart';
 
 @JsonSerializable()
 class TypedValueIn {
-  const TypedValueIn({
-    required this.list,
-    required this.value,
-    this.name,
-  });
-  
-  factory TypedValueIn.fromJson(Map<String, Object?> json) => _$TypedValueInFromJson(json);
-  
+  const TypedValueIn({required this.list, required this.value, this.name});
+
+  factory TypedValueIn.fromJson(Map<String, Object?> json) =>
+      _$TypedValueInFromJson(json);
+
   final TypedValueInList list;
   final String value;
   final String? name;

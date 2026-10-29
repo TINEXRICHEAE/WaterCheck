@@ -35,9 +35,10 @@ class FormDetail {
     this.accessCode,
     this.myCopy,
   });
-  
-  factory FormDetail.fromJson(Map<String, Object?> json) => _$FormDetailFromJson(json);
-  
+
+  factory FormDetail.fromJson(Map<String, Object?> json) =>
+      _$FormDetailFromJson(json);
+
   final String id;
   @JsonKey(name: 'project_id')
   final String projectId;

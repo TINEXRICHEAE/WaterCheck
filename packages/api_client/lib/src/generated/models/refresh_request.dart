@@ -8,12 +8,11 @@ part 'refresh_request.g.dart';
 
 @JsonSerializable()
 class RefreshRequest {
-  const RefreshRequest({
-    this.refreshToken,
-  });
-  
-  factory RefreshRequest.fromJson(Map<String, Object?> json) => _$RefreshRequestFromJson(json);
-  
+  const RefreshRequest({this.refreshToken});
+
+  factory RefreshRequest.fromJson(Map<String, Object?> json) =>
+      _$RefreshRequestFromJson(json);
+
   @JsonKey(name: 'refresh_token')
   final String? refreshToken;
 

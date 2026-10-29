@@ -15,9 +15,10 @@ class AdminUnitOut {
     required this.code,
     required this.parentId,
   });
-  
-  factory AdminUnitOut.fromJson(Map<String, Object?> json) => _$AdminUnitOutFromJson(json);
-  
+
+  factory AdminUnitOut.fromJson(Map<String, Object?> json) =>
+      _$AdminUnitOutFromJson(json);
+
   final String id;
   final String level;
   final String name;

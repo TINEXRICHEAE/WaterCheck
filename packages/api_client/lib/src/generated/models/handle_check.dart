@@ -8,13 +8,11 @@ part 'handle_check.g.dart';
 
 @JsonSerializable()
 class HandleCheck {
-  const HandleCheck({
-    required this.handle,
-    required this.free,
-  });
-  
-  factory HandleCheck.fromJson(Map<String, Object?> json) => _$HandleCheckFromJson(json);
-  
+  const HandleCheck({required this.handle, required this.free});
+
+  factory HandleCheck.fromJson(Map<String, Object?> json) =>
+      _$HandleCheckFromJson(json);
+
   final String handle;
   final bool free;
 

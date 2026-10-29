@@ -17,9 +17,10 @@ class AssignmentOut {
     required this.assignedAt,
     required this.byCode,
   });
-  
-  factory AssignmentOut.fromJson(Map<String, Object?> json) => _$AssignmentOutFromJson(json);
-  
+
+  factory AssignmentOut.fromJson(Map<String, Object?> json) =>
+      _$AssignmentOutFromJson(json);
+
   final String id;
   @JsonKey(name: 'collector_key')
   final String collectorKey;

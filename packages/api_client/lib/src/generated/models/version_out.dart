@@ -16,9 +16,10 @@ class VersionOut {
     this.publishedBy,
     this.publishedById,
   });
-  
-  factory VersionOut.fromJson(Map<String, Object?> json) => _$VersionOutFromJson(json);
-  
+
+  factory VersionOut.fromJson(Map<String, Object?> json) =>
+      _$VersionOutFromJson(json);
+
   final int version;
   @JsonKey(name: 'published_at')
   final DateTime? publishedAt;

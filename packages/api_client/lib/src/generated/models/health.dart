@@ -24,9 +24,9 @@ class Health {
     required this.photoBytes,
     required this.lastBackupAt,
   });
-  
+
   factory Health.fromJson(Map<String, Object?> json) => _$HealthFromJson(json);
-  
+
   final bool database;
   @JsonKey(name: 'worker_last_job_at')
   final DateTime? workerLastJobAt;

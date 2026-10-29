@@ -18,9 +18,10 @@ class FormPatch {
     this.hidden,
     this.status,
   });
-  
-  factory FormPatch.fromJson(Map<String, Object?> json) => _$FormPatchFromJson(json);
-  
+
+  factory FormPatch.fromJson(Map<String, Object?> json) =>
+      _$FormPatchFromJson(json);
+
   final FormPatchVisibility? visibility;
   @JsonKey(name: 'collect_access')
   final FormPatchCollectAccess? collectAccess;

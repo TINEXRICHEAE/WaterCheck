@@ -17,9 +17,10 @@ class ProjectOut {
     required this.forms,
     required this.records,
   });
-  
-  factory ProjectOut.fromJson(Map<String, Object?> json) => _$ProjectOutFromJson(json);
-  
+
+  factory ProjectOut.fromJson(Map<String, Object?> json) =>
+      _$ProjectOutFromJson(json);
+
   final String id;
   final String code;
   final String title;

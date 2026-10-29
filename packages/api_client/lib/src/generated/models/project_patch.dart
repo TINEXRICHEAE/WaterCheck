@@ -8,14 +8,11 @@ part 'project_patch.g.dart';
 
 @JsonSerializable()
 class ProjectPatch {
-  const ProjectPatch({
-    this.title,
-    this.description,
-    this.analysis,
-  });
-  
-  factory ProjectPatch.fromJson(Map<String, Object?> json) => _$ProjectPatchFromJson(json);
-  
+  const ProjectPatch({this.title, this.description, this.analysis});
+
+  factory ProjectPatch.fromJson(Map<String, Object?> json) =>
+      _$ProjectPatchFromJson(json);
+
   final String? title;
   final String? description;
   final dynamic analysis;

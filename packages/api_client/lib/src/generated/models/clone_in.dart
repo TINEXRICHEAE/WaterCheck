@@ -8,13 +8,11 @@ part 'clone_in.g.dart';
 
 @JsonSerializable()
 class CloneIn {
-  const CloneIn({
-    required this.projectId,
-    required this.code,
-  });
-  
-  factory CloneIn.fromJson(Map<String, Object?> json) => _$CloneInFromJson(json);
-  
+  const CloneIn({required this.projectId, required this.code});
+
+  factory CloneIn.fromJson(Map<String, Object?> json) =>
+      _$CloneInFromJson(json);
+
   @JsonKey(name: 'project_id')
   final String projectId;
   final String code;

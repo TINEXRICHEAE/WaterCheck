@@ -8,12 +8,11 @@ part 'editor_in.g.dart';
 
 @JsonSerializable()
 class EditorIn {
-  const EditorIn({
-    required this.username,
-  });
-  
-  factory EditorIn.fromJson(Map<String, Object?> json) => _$EditorInFromJson(json);
-  
+  const EditorIn({required this.username});
+
+  factory EditorIn.fromJson(Map<String, Object?> json) =>
+      _$EditorInFromJson(json);
+
   final String username;
 
   Map<String, Object?> toJson() => _$EditorInToJson(this);

@@ -10,12 +10,11 @@ part 'resolve_in.g.dart';
 
 @JsonSerializable()
 class ResolveIn {
-  const ResolveIn({
-    required this.keep,
-  });
-  
-  factory ResolveIn.fromJson(Map<String, Object?> json) => _$ResolveInFromJson(json);
-  
+  const ResolveIn({required this.keep});
+
+  factory ResolveIn.fromJson(Map<String, Object?> json) =>
+      _$ResolveInFromJson(json);
+
   final ResolveInKeep keep;
 
   Map<String, Object?> toJson() => _$ResolveInToJson(this);

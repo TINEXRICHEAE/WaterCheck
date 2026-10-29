@@ -20,9 +20,10 @@ class SignUpRequest {
     this.organisation,
     this.phone,
   });
-  
-  factory SignUpRequest.fromJson(Map<String, Object?> json) => _$SignUpRequestFromJson(json);
-  
+
+  factory SignUpRequest.fromJson(Map<String, Object?> json) =>
+      _$SignUpRequestFromJson(json);
+
   final SignUpRequestSide side;
   final String username;
   @JsonKey(name: 'full_name')

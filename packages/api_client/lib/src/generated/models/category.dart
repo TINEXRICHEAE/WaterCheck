@@ -13,9 +13,10 @@ class Category {
     required this.name,
     required this.displayOrder,
   });
-  
-  factory Category.fromJson(Map<String, Object?> json) => _$CategoryFromJson(json);
-  
+
+  factory Category.fromJson(Map<String, Object?> json) =>
+      _$CategoryFromJson(json);
+
   final String code;
   final String name;
   @JsonKey(name: 'display_order')

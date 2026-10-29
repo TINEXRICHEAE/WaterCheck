@@ -19,9 +19,10 @@ class ChainOut {
     required this.firstNotice,
     required this.gaps,
   });
-  
-  factory ChainOut.fromJson(Map<String, Object?> json) => _$ChainOutFromJson(json);
-  
+
+  factory ChainOut.fromJson(Map<String, Object?> json) =>
+      _$ChainOutFromJson(json);
+
   final List<ChainLevel> levels;
   @JsonKey(name: 'first_notice')
   final AreaOut? firstNotice;

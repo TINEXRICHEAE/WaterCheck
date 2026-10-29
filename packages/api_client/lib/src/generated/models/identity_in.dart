@@ -8,13 +8,11 @@ part 'identity_in.g.dart';
 
 @JsonSerializable()
 class IdentityIn {
-  const IdentityIn({
-    this.handle,
-    this.public,
-  });
-  
-  factory IdentityIn.fromJson(Map<String, Object?> json) => _$IdentityInFromJson(json);
-  
+  const IdentityIn({this.handle, this.public});
+
+  factory IdentityIn.fromJson(Map<String, Object?> json) =>
+      _$IdentityInFromJson(json);
+
   final String? handle;
   final bool? public;
 

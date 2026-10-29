@@ -11,13 +11,11 @@ part 'credentials_out.g.dart';
 /// Shown once: the admin passes it on (in person, SMS or email).
 @JsonSerializable()
 class CredentialsOut {
-  const CredentialsOut({
-    required this.user,
-    required this.temporaryPassword,
-  });
-  
-  factory CredentialsOut.fromJson(Map<String, Object?> json) => _$CredentialsOutFromJson(json);
-  
+  const CredentialsOut({required this.user, required this.temporaryPassword});
+
+  factory CredentialsOut.fromJson(Map<String, Object?> json) =>
+      _$CredentialsOutFromJson(json);
+
   final UserOut user;
   @JsonKey(name: 'temporary_password')
   final String temporaryPassword;

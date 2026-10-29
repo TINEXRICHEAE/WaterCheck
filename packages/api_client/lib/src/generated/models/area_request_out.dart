@@ -20,9 +20,10 @@ class AreaRequestOut {
     required this.decidedAt,
     required this.approved,
   });
-  
-  factory AreaRequestOut.fromJson(Map<String, Object?> json) => _$AreaRequestOutFromJson(json);
-  
+
+  factory AreaRequestOut.fromJson(Map<String, Object?> json) =>
+      _$AreaRequestOutFromJson(json);
+
   final String id;
   @JsonKey(name: 'user_id')
   final String userId;

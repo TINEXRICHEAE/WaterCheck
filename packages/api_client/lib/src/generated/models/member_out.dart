@@ -13,9 +13,10 @@ class MemberOut {
     required this.name,
     required this.role,
   });
-  
-  factory MemberOut.fromJson(Map<String, Object?> json) => _$MemberOutFromJson(json);
-  
+
+  factory MemberOut.fromJson(Map<String, Object?> json) =>
+      _$MemberOutFromJson(json);
+
   @JsonKey(name: 'user_id')
   final String userId;
   final String? name;

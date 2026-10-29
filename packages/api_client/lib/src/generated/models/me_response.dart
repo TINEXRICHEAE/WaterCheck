@@ -36,9 +36,10 @@ class MeResponse {
     this.legalDue,
     this.linkedSides,
   });
-  
-  factory MeResponse.fromJson(Map<String, Object?> json) => _$MeResponseFromJson(json);
-  
+
+  factory MeResponse.fromJson(Map<String, Object?> json) =>
+      _$MeResponseFromJson(json);
+
   final String id;
   final String username;
   @JsonKey(name: 'full_name')

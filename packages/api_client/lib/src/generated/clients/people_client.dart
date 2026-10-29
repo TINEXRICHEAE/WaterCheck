@@ -29,17 +29,13 @@ abstract class PeopleClient {
 
   /// Set My Identity
   @PUT('/v1/me/identity')
-  Future<Identity> setMyIdentity({
-    @Body() required IdentityIn body,
-  });
+  Future<Identity> setMyIdentity({@Body() required IdentityIn body});
 
   /// Check Handle.
   ///
   /// Whether a username can be had, as it is typed.
   @GET('/v1/people/handle-check')
-  Future<HandleCheck> checkHandle({
-    @Query('handle') required String handle,
-  });
+  Future<HandleCheck> checkHandle({@Query('handle') required String handle});
 
   /// Collector Identity
   @GET('/v1/device/collectors/{collector_key}/identity')
@@ -76,15 +72,11 @@ abstract class PeopleClient {
 
   /// Chats
   @GET('/v1/chats')
-  Future<List<ChatOut>> chats({
-    @Query('side') Side? side,
-  });
+  Future<List<ChatOut>> chats({@Query('side') Side? side});
 
   /// Start Chat
   @POST('/v1/chats')
-  Future<ChatOut> startChat({
-    @Body() required ChatStart body,
-  });
+  Future<ChatOut> startChat({@Body() required ChatStart body});
 
   /// Chat Messages
   @GET('/v1/chats/{chat_id}/messages')

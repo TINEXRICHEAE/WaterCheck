@@ -16,9 +16,10 @@ class TypedValue {
     required this.uses,
     required this.firstSeen,
   });
-  
-  factory TypedValue.fromJson(Map<String, Object?> json) => _$TypedValueFromJson(json);
-  
+
+  factory TypedValue.fromJson(Map<String, Object?> json) =>
+      _$TypedValueFromJson(json);
+
   final TypedValueList list;
   final String value;
   final int uses;

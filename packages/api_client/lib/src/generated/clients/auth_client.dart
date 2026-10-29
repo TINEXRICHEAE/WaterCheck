@@ -87,9 +87,7 @@ abstract class AuthClient {
   /// "Forgot password": asks the IT admin for a new temporary password.
   /// Answers the same for unknown usernames.
   @POST('/v1/auth/password-help')
-  Future<void> passwordHelp({
-    @Body() required PasswordHelpRequest body,
-  });
+  Future<void> passwordHelp({@Body() required PasswordHelpRequest body});
 
   /// Me
   @GET('/v1/me')
@@ -97,13 +95,9 @@ abstract class AuthClient {
 
   /// Set Appearance
   @PUT('/v1/me/appearance')
-  Future<void> setAppearance({
-    @Body() required AppearanceIn body,
-  });
+  Future<void> setAppearance({@Body() required AppearanceIn body});
 
   /// Set Preferences
   @PUT('/v1/me/preferences')
-  Future<void> setPreferences({
-    @Body() required PreferencesIn body,
-  });
+  Future<void> setPreferences({@Body() required PreferencesIn body});
 }

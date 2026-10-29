@@ -8,14 +8,11 @@ part 'project_in.g.dart';
 
 @JsonSerializable()
 class ProjectIn {
-  const ProjectIn({
-    required this.code,
-    required this.title,
-    this.description,
-  });
-  
-  factory ProjectIn.fromJson(Map<String, Object?> json) => _$ProjectInFromJson(json);
-  
+  const ProjectIn({required this.code, required this.title, this.description});
+
+  factory ProjectIn.fromJson(Map<String, Object?> json) =>
+      _$ProjectInFromJson(json);
+
   final String code;
   final String title;
   final String? description;

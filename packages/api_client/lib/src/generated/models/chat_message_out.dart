@@ -15,9 +15,10 @@ class ChatMessageOut {
     required this.sentAt,
     required this.readAt,
   });
-  
-  factory ChatMessageOut.fromJson(Map<String, Object?> json) => _$ChatMessageOutFromJson(json);
-  
+
+  factory ChatMessageOut.fromJson(Map<String, Object?> json) =>
+      _$ChatMessageOutFromJson(json);
+
   final String id;
   final bool mine;
   final String body;

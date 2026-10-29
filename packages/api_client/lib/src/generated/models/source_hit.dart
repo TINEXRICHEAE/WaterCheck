@@ -20,9 +20,10 @@ class SourceHit {
     required this.lon,
     required this.latest,
   });
-  
-  factory SourceHit.fromJson(Map<String, Object?> json) => _$SourceHitFromJson(json);
-  
+
+  factory SourceHit.fromJson(Map<String, Object?> json) =>
+      _$SourceHitFromJson(json);
+
   final String id;
   final String code;
   final String? name;

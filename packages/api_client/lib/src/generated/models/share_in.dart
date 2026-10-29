@@ -8,12 +8,11 @@ part 'share_in.g.dart';
 
 @JsonSerializable()
 class ShareIn {
-  const ShareIn({
-    required this.username,
-  });
-  
-  factory ShareIn.fromJson(Map<String, Object?> json) => _$ShareInFromJson(json);
-  
+  const ShareIn({required this.username});
+
+  factory ShareIn.fromJson(Map<String, Object?> json) =>
+      _$ShareInFromJson(json);
+
   final String username;
 
   Map<String, Object?> toJson() => _$ShareInToJson(this);

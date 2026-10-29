@@ -14,9 +14,10 @@ class ChainPerson {
     required this.responsibilities,
     required this.isActive,
   });
-  
-  factory ChainPerson.fromJson(Map<String, Object?> json) => _$ChainPersonFromJson(json);
-  
+
+  factory ChainPerson.fromJson(Map<String, Object?> json) =>
+      _$ChainPersonFromJson(json);
+
   final String id;
   @JsonKey(name: 'full_name')
   final String fullName;

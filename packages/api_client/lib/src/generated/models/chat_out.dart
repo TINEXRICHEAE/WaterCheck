@@ -19,9 +19,10 @@ class ChatOut {
     required this.lastAt,
     required this.unread,
   });
-  
-  factory ChatOut.fromJson(Map<String, Object?> json) => _$ChatOutFromJson(json);
-  
+
+  factory ChatOut.fromJson(Map<String, Object?> json) =>
+      _$ChatOutFromJson(json);
+
   final String id;
   final ChatOutSide side;
   final Person other;

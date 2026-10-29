@@ -19,9 +19,10 @@ class ActivationCodeOut {
     required this.createdAt,
     required this.revokedAt,
   });
-  
-  factory ActivationCodeOut.fromJson(Map<String, Object?> json) => _$ActivationCodeOutFromJson(json);
-  
+
+  factory ActivationCodeOut.fromJson(Map<String, Object?> json) =>
+      _$ActivationCodeOutFromJson(json);
+
   final String id;
   final AreaOut area;
   @JsonKey(name: 'expires_at')

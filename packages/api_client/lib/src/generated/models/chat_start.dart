@@ -11,14 +11,11 @@ part 'chat_start.g.dart';
 
 @JsonSerializable()
 class ChatStart {
-  const ChatStart({
-    required this.toKind,
-    required this.toId,
-    this.side,
-  });
-  
-  factory ChatStart.fromJson(Map<String, Object?> json) => _$ChatStartFromJson(json);
-  
+  const ChatStart({required this.toKind, required this.toId, this.side});
+
+  factory ChatStart.fromJson(Map<String, Object?> json) =>
+      _$ChatStartFromJson(json);
+
   @JsonKey(name: 'to_kind')
   final ChatStartToKind toKind;
   @JsonKey(name: 'to_id')

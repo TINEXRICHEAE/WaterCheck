@@ -15,9 +15,10 @@ class PushResponse {
     required this.results,
     required this.serverTime,
   });
-  
-  factory PushResponse.fromJson(Map<String, Object?> json) => _$PushResponseFromJson(json);
-  
+
+  factory PushResponse.fromJson(Map<String, Object?> json) =>
+      _$PushResponseFromJson(json);
+
   @JsonKey(name: 'batch_id')
   final String batchId;
   final List<ChangeResult> results;

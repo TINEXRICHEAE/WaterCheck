@@ -8,12 +8,11 @@ part 'password_help_request.g.dart';
 
 @JsonSerializable()
 class PasswordHelpRequest {
-  const PasswordHelpRequest({
-    required this.username,
-  });
-  
-  factory PasswordHelpRequest.fromJson(Map<String, Object?> json) => _$PasswordHelpRequestFromJson(json);
-  
+  const PasswordHelpRequest({required this.username});
+
+  factory PasswordHelpRequest.fromJson(Map<String, Object?> json) =>
+      _$PasswordHelpRequestFromJson(json);
+
   final String username;
 
   Map<String, Object?> toJson() => _$PasswordHelpRequestToJson(this);

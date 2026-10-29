@@ -29,9 +29,10 @@ class RecordWithAnswers {
     required this.pictures,
     this.locationSource,
   });
-  
-  factory RecordWithAnswers.fromJson(Map<String, Object?> json) => _$RecordWithAnswersFromJson(json);
-  
+
+  factory RecordWithAnswers.fromJson(Map<String, Object?> json) =>
+      _$RecordWithAnswersFromJson(json);
+
   final String id;
   @JsonKey(name: 'form_id')
   final String formId;

@@ -16,9 +16,10 @@ class MessageOut {
     required this.mine,
     required this.at,
   });
-  
-  factory MessageOut.fromJson(Map<String, Object?> json) => _$MessageOutFromJson(json);
-  
+
+  factory MessageOut.fromJson(Map<String, Object?> json) =>
+      _$MessageOutFromJson(json);
+
   final String id;
   final String body;
   final String? author;

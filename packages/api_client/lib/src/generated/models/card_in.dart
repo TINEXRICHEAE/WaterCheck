@@ -14,9 +14,9 @@ class CardIn {
     this.reportTo,
     this.reportNote,
   });
-  
+
   factory CardIn.fromJson(Map<String, Object?> json) => _$CardInFromJson(json);
-  
+
   final String title;
   final List<String> actions;
   @JsonKey(name: 'report_to')

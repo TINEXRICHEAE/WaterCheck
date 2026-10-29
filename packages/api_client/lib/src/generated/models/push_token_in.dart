@@ -10,13 +10,11 @@ part 'push_token_in.g.dart';
 
 @JsonSerializable()
 class PushTokenIn {
-  const PushTokenIn({
-    required this.token,
-    required this.platform,
-  });
-  
-  factory PushTokenIn.fromJson(Map<String, Object?> json) => _$PushTokenInFromJson(json);
-  
+  const PushTokenIn({required this.token, required this.platform});
+
+  factory PushTokenIn.fromJson(Map<String, Object?> json) =>
+      _$PushTokenInFromJson(json);
+
   final String token;
   final PushTokenInPlatform platform;
 

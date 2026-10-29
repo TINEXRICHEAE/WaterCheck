@@ -1271,3 +1271,17 @@ Decisions are also recorded in [PLAN.md](PLAN.md) (decisions log and §3a), the 
 - **Working rule (recorded):** diagnose and explain the cause with evidence before building a fix.
 - **Tests:** UI kit 40; Console 51; Collect 72; previews rebuilt.
 
+### 56. CI: the generated API client was not formatted (2026-10-29)
+- **Request (lead):** the GitHub "flutter" check failed on `c04d070`.
+- **Cause:**
+  - `format:check` failed on `api_client` only: 204 generated files were not in `dart format` form;
+  - swagger_parser and build_runner write unformatted code, and the three regenerations in entries 53–54 were not followed by `dart format`.
+- **Outcome:**
+  - the generated client is formatted;
+  - the regeneration note in `packages/api_client/swagger_parser.yaml` now ends with `dart format lib test`.
+- **Checked locally, as CI runs them:**
+  - Flutter job: format check (all packages), `dart analyze --fatal-infos` on the workspace, Dart tests, domain coverage gate;
+  - backend job: `ruff format --check`, `ruff check`, `mypy`;
+  - security job: `pip-audit --strict` (no known vulnerabilities, `maxminddb` included);
+  - all pass.
+

@@ -16,9 +16,10 @@ class IpLocation {
     required this.region,
     required this.country,
   });
-  
-  factory IpLocation.fromJson(Map<String, Object?> json) => _$IpLocationFromJson(json);
-  
+
+  factory IpLocation.fromJson(Map<String, Object?> json) =>
+      _$IpLocationFromJson(json);
+
   final num lat;
   final num lon;
   @JsonKey(name: 'accuracy_m')

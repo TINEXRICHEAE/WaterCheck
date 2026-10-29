@@ -17,9 +17,9 @@ class FormIn {
     this.description,
     this.definition,
   });
-  
+
   factory FormIn.fromJson(Map<String, Object?> json) => _$FormInFromJson(json);
-  
+
   final String code;
   final String title;
   final String? description;

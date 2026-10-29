@@ -1,6 +1,7 @@
 # Regenerate after an API change:
 #   cd backend && uv run python -m app.openapi
 #   cd packages/api_client && dart run swagger_parser && dart run build_runner build
+#   dart format lib test   # the generators write unformatted code; CI checks it
 swagger_parser:
   schema_path: ../../docs/api/openapi.yaml
   output_directory: lib/src/generated

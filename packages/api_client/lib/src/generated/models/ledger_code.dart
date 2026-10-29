@@ -26,9 +26,10 @@ class LedgerCode {
     required this.devices,
     this.testers = const [],
   });
-  
-  factory LedgerCode.fromJson(Map<String, Object?> json) => _$LedgerCodeFromJson(json);
-  
+
+  factory LedgerCode.fromJson(Map<String, Object?> json) =>
+      _$LedgerCodeFromJson(json);
+
   final String id;
   final AreaOut area;
   @JsonKey(name: 'created_by')

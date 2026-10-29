@@ -15,9 +15,10 @@ class PlaceOut {
     required this.level,
     required this.parentId,
   });
-  
-  factory PlaceOut.fromJson(Map<String, Object?> json) => _$PlaceOutFromJson(json);
-  
+
+  factory PlaceOut.fromJson(Map<String, Object?> json) =>
+      _$PlaceOutFromJson(json);
+
   final String id;
   final String code;
   final String name;

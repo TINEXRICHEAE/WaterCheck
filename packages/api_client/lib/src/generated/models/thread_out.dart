@@ -19,9 +19,10 @@ class ThreadOut {
     required this.lastAt,
     required this.count,
   });
-  
-  factory ThreadOut.fromJson(Map<String, Object?> json) => _$ThreadOutFromJson(json);
-  
+
+  factory ThreadOut.fromJson(Map<String, Object?> json) =>
+      _$ThreadOutFromJson(json);
+
   @JsonKey(name: 'record_id')
   final String recordId;
   final String number;

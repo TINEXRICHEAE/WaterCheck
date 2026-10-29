@@ -8,12 +8,11 @@ part 'rename_in.g.dart';
 
 @JsonSerializable()
 class RenameIn {
-  const RenameIn({
-    required this.name,
-  });
-  
-  factory RenameIn.fromJson(Map<String, Object?> json) => _$RenameInFromJson(json);
-  
+  const RenameIn({required this.name});
+
+  factory RenameIn.fromJson(Map<String, Object?> json) =>
+      _$RenameInFromJson(json);
+
   final String name;
 
   Map<String, Object?> toJson() => _$RenameInToJson(this);

@@ -10,13 +10,11 @@ part 'member_in.g.dart';
 
 @JsonSerializable()
 class MemberIn {
-  const MemberIn({
-    required this.username,
-    required this.role,
-  });
-  
-  factory MemberIn.fromJson(Map<String, Object?> json) => _$MemberInFromJson(json);
-  
+  const MemberIn({required this.username, required this.role});
+
+  factory MemberIn.fromJson(Map<String, Object?> json) =>
+      _$MemberInFromJson(json);
+
   final String username;
   final MemberInRole role;
 

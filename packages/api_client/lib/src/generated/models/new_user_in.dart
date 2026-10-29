@@ -23,9 +23,10 @@ class NewUserIn {
     this.role = NewUserInRole.stakeholder,
     this.side = NewUserInSide.water,
   });
-  
-  factory NewUserIn.fromJson(Map<String, Object?> json) => _$NewUserInFromJson(json);
-  
+
+  factory NewUserIn.fromJson(Map<String, Object?> json) =>
+      _$NewUserInFromJson(json);
+
   final String username;
   @JsonKey(name: 'full_name')
   final String fullName;

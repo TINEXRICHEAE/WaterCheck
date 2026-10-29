@@ -8,13 +8,11 @@ part 'collector_identity_in.g.dart';
 
 @JsonSerializable()
 class CollectorIdentityIn {
-  const CollectorIdentityIn({
-    this.handle,
-    this.public,
-  });
-  
-  factory CollectorIdentityIn.fromJson(Map<String, Object?> json) => _$CollectorIdentityInFromJson(json);
-  
+  const CollectorIdentityIn({this.handle, this.public});
+
+  factory CollectorIdentityIn.fromJson(Map<String, Object?> json) =>
+      _$CollectorIdentityInFromJson(json);
+
   final String? handle;
   final bool? public;
 

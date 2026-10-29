@@ -18,9 +18,10 @@ class ArchivedItem {
     required this.archivedAt,
     required this.counts,
   });
-  
-  factory ArchivedItem.fromJson(Map<String, Object?> json) => _$ArchivedItemFromJson(json);
-  
+
+  factory ArchivedItem.fromJson(Map<String, Object?> json) =>
+      _$ArchivedItemFromJson(json);
+
   @JsonKey(name: 'batch_id')
   final String batchId;
   final String entity;

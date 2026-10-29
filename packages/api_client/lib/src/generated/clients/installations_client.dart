@@ -17,21 +17,18 @@ part 'installations_client.g.dart';
 
 @RestApi()
 abstract class InstallationsClient {
-  factory InstallationsClient(Dio dio, {String? baseUrl}) = _InstallationsClient;
+  factory InstallationsClient(Dio dio, {String? baseUrl}) =
+      _InstallationsClient;
 
   /// Activate
   @POST('/v1/installations/activate')
-  Future<ActivateResponse> activate({
-    @Body() required ActivateRequest body,
-  });
+  Future<ActivateResponse> activate({@Body() required ActivateRequest body});
 
   /// Register.
   ///
   /// A device registers itself, no code needed (ADR-024).
   @POST('/v1/installations/register')
-  Future<RegisterResponse> register({
-    @Body() required RegisterRequest body,
-  });
+  Future<RegisterResponse> register({@Body() required RegisterRequest body});
 
   /// Installation Me
   @GET('/v1/installations/me')

@@ -15,9 +15,10 @@ class PendingConfirmation {
     required this.createdAt,
     required this.expiresAt,
   });
-  
-  factory PendingConfirmation.fromJson(Map<String, Object?> json) => _$PendingConfirmationFromJson(json);
-  
+
+  factory PendingConfirmation.fromJson(Map<String, Object?> json) =>
+      _$PendingConfirmationFromJson(json);
+
   final String id;
   final String code;
   final int devices;

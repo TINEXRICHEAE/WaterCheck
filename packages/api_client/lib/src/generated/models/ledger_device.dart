@@ -17,9 +17,10 @@ class LedgerDevice {
     required this.lastSeenAt,
     required this.revokedAt,
   });
-  
-  factory LedgerDevice.fromJson(Map<String, Object?> json) => _$LedgerDeviceFromJson(json);
-  
+
+  factory LedgerDevice.fromJson(Map<String, Object?> json) =>
+      _$LedgerDeviceFromJson(json);
+
   final String id;
   final String? label;
   @JsonKey(name: 'short_code')

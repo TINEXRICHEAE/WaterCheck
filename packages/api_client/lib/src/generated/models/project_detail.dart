@@ -23,9 +23,10 @@ class ProjectDetail {
     required this.createdAt,
     required this.members,
   });
-  
-  factory ProjectDetail.fromJson(Map<String, Object?> json) => _$ProjectDetailFromJson(json);
-  
+
+  factory ProjectDetail.fromJson(Map<String, Object?> json) =>
+      _$ProjectDetailFromJson(json);
+
   final String id;
   final String code;
   final String title;

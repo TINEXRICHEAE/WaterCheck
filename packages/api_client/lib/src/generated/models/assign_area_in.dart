@@ -8,12 +8,11 @@ part 'assign_area_in.g.dart';
 
 @JsonSerializable()
 class AssignAreaIn {
-  const AssignAreaIn({
-    required this.areaId,
-  });
-  
-  factory AssignAreaIn.fromJson(Map<String, Object?> json) => _$AssignAreaInFromJson(json);
-  
+  const AssignAreaIn({required this.areaId});
+
+  factory AssignAreaIn.fromJson(Map<String, Object?> json) =>
+      _$AssignAreaInFromJson(json);
+
   @JsonKey(name: 'area_id')
   final String areaId;
 

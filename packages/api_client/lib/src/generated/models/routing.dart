@@ -16,9 +16,10 @@ class Routing {
     required this.triggers,
     required this.rules,
   });
-  
-  factory Routing.fromJson(Map<String, Object?> json) => _$RoutingFromJson(json);
-  
+
+  factory Routing.fromJson(Map<String, Object?> json) =>
+      _$RoutingFromJson(json);
+
   final List<Responsibility> responsibilities;
   final List<String> triggers;
   final List<RoutingRule> rules;

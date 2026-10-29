@@ -13,9 +13,10 @@ class Identity {
     required this.fullName,
     required this.public,
   });
-  
-  factory Identity.fromJson(Map<String, Object?> json) => _$IdentityFromJson(json);
-  
+
+  factory Identity.fromJson(Map<String, Object?> json) =>
+      _$IdentityFromJson(json);
+
   final String handle;
   @JsonKey(name: 'full_name')
   final String? fullName;

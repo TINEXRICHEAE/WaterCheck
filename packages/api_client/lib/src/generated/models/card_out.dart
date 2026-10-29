@@ -15,9 +15,10 @@ class CardOut {
     required this.version,
     required this.content,
   });
-  
-  factory CardOut.fromJson(Map<String, Object?> json) => _$CardOutFromJson(json);
-  
+
+  factory CardOut.fromJson(Map<String, Object?> json) =>
+      _$CardOutFromJson(json);
+
   final String id;
   @JsonKey(name: 'trigger_rule')
   final String triggerRule;

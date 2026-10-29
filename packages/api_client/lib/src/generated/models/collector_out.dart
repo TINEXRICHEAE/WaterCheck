@@ -19,9 +19,10 @@ class CollectorOut {
     required this.firstAt,
     required this.lastAt,
   });
-  
-  factory CollectorOut.fromJson(Map<String, Object?> json) => _$CollectorOutFromJson(json);
-  
+
+  factory CollectorOut.fromJson(Map<String, Object?> json) =>
+      _$CollectorOutFromJson(json);
+
   @JsonKey(name: 'collector_key')
   final String collectorKey;
   final String? name;

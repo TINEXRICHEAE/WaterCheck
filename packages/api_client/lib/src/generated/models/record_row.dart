@@ -25,9 +25,10 @@ class RecordRow {
     required this.declined,
     this.locationSource,
   });
-  
-  factory RecordRow.fromJson(Map<String, Object?> json) => _$RecordRowFromJson(json);
-  
+
+  factory RecordRow.fromJson(Map<String, Object?> json) =>
+      _$RecordRowFromJson(json);
+
   final String id;
   @JsonKey(name: 'form_id')
   final String formId;

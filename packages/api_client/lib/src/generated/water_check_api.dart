@@ -23,11 +23,7 @@ import 'clients/collectors_client.dart';
 
 /// WaterCheck API `v0.1.0`
 class WaterCheckApi {
-  WaterCheckApi(
-    Dio dio, {
-    String? baseUrl,
-  })  : _dio = dio,
-        _baseUrl = baseUrl;
+  WaterCheckApi(Dio dio, {String? baseUrl}) : _dio = dio, _baseUrl = baseUrl;
 
   final Dio _dio;
   final String? _baseUrl;
@@ -55,31 +51,41 @@ class WaterCheckApi {
 
   AuthClient get auth => _auth ??= AuthClient(_dio, baseUrl: _baseUrl);
 
-  InstallationsClient get installations => _installations ??= InstallationsClient(_dio, baseUrl: _baseUrl);
+  InstallationsClient get installations =>
+      _installations ??= InstallationsClient(_dio, baseUrl: _baseUrl);
 
   AdminClient get admin => _admin ??= AdminClient(_dio, baseUrl: _baseUrl);
 
-  ReferenceClient get reference => _reference ??= ReferenceClient(_dio, baseUrl: _baseUrl);
+  ReferenceClient get reference =>
+      _reference ??= ReferenceClient(_dio, baseUrl: _baseUrl);
 
-  ResearchClient get research => _research ??= ResearchClient(_dio, baseUrl: _baseUrl);
+  ResearchClient get research =>
+      _research ??= ResearchClient(_dio, baseUrl: _baseUrl);
 
   PeopleClient get people => _people ??= PeopleClient(_dio, baseUrl: _baseUrl);
 
   SyncClient get sync => _sync ??= SyncClient(_dio, baseUrl: _baseUrl);
 
-  AttachmentsClient get attachments => _attachments ??= AttachmentsClient(_dio, baseUrl: _baseUrl);
+  AttachmentsClient get attachments =>
+      _attachments ??= AttachmentsClient(_dio, baseUrl: _baseUrl);
 
-  NotificationsClient get notifications => _notifications ??= NotificationsClient(_dio, baseUrl: _baseUrl);
+  NotificationsClient get notifications =>
+      _notifications ??= NotificationsClient(_dio, baseUrl: _baseUrl);
 
   TilesClient get tiles => _tiles ??= TilesClient(_dio, baseUrl: _baseUrl);
 
-  ConflictsClient get conflicts => _conflicts ??= ConflictsClient(_dio, baseUrl: _baseUrl);
+  ConflictsClient get conflicts =>
+      _conflicts ??= ConflictsClient(_dio, baseUrl: _baseUrl);
 
-  DashboardClient get dashboard => _dashboard ??= DashboardClient(_dio, baseUrl: _baseUrl);
+  DashboardClient get dashboard =>
+      _dashboard ??= DashboardClient(_dio, baseUrl: _baseUrl);
 
-  ProfileClient get profile => _profile ??= ProfileClient(_dio, baseUrl: _baseUrl);
+  ProfileClient get profile =>
+      _profile ??= ProfileClient(_dio, baseUrl: _baseUrl);
 
-  TestersClient get testers => _testers ??= TestersClient(_dio, baseUrl: _baseUrl);
+  TestersClient get testers =>
+      _testers ??= TestersClient(_dio, baseUrl: _baseUrl);
 
-  CollectorsClient get collectors => _collectors ??= CollectorsClient(_dio, baseUrl: _baseUrl);
+  CollectorsClient get collectors =>
+      _collectors ??= CollectorsClient(_dio, baseUrl: _baseUrl);
 }

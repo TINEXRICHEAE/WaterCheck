@@ -10,12 +10,11 @@ part 'switch_request.g.dart';
 
 @JsonSerializable()
 class SwitchRequest {
-  const SwitchRequest({
-    required this.side,
-  });
-  
-  factory SwitchRequest.fromJson(Map<String, Object?> json) => _$SwitchRequestFromJson(json);
-  
+  const SwitchRequest({required this.side});
+
+  factory SwitchRequest.fromJson(Map<String, Object?> json) =>
+      _$SwitchRequestFromJson(json);
+
   final SwitchRequestSide side;
 
   Map<String, Object?> toJson() => _$SwitchRequestToJson(this);

@@ -31,7 +31,5 @@ abstract class CollectorsClient {
   ///
   /// Redeems a code on an activated phone; each code works once.
   @POST('/v1/collectors/recover')
-  Future<RecoveredCollector> recover({
-    @Body() required RecoverIn body,
-  });
+  Future<RecoveredCollector> recover({@Body() required RecoverIn body});
 }

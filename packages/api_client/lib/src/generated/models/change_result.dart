@@ -17,9 +17,10 @@ class ChangeResult {
     this.serverVersion,
     this.reason,
   });
-  
-  factory ChangeResult.fromJson(Map<String, Object?> json) => _$ChangeResultFromJson(json);
-  
+
+  factory ChangeResult.fromJson(Map<String, Object?> json) =>
+      _$ChangeResultFromJson(json);
+
   final String id;
   final String entity;
   final ChangeResultStatus status;

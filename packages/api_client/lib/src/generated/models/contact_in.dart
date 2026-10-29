@@ -10,13 +10,11 @@ part 'contact_in.g.dart';
 
 @JsonSerializable()
 class ContactIn {
-  const ContactIn({
-    required this.channel,
-    required this.value,
-  });
-  
-  factory ContactIn.fromJson(Map<String, Object?> json) => _$ContactInFromJson(json);
-  
+  const ContactIn({required this.channel, required this.value});
+
+  factory ContactIn.fromJson(Map<String, Object?> json) =>
+      _$ContactInFromJson(json);
+
   final ContactInChannel channel;
   final String value;
 

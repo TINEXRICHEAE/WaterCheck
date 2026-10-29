@@ -8,12 +8,11 @@ part 'label_in.g.dart';
 
 @JsonSerializable()
 class LabelIn {
-  const LabelIn({
-    this.label,
-  });
-  
-  factory LabelIn.fromJson(Map<String, Object?> json) => _$LabelInFromJson(json);
-  
+  const LabelIn({this.label});
+
+  factory LabelIn.fromJson(Map<String, Object?> json) =>
+      _$LabelInFromJson(json);
+
   final String? label;
 
   Map<String, Object?> toJson() => _$LabelInToJson(this);

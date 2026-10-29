@@ -8,13 +8,11 @@ part 'editor_out.g.dart';
 
 @JsonSerializable()
 class EditorOut {
-  const EditorOut({
-    required this.userId,
-    required this.name,
-  });
-  
-  factory EditorOut.fromJson(Map<String, Object?> json) => _$EditorOutFromJson(json);
-  
+  const EditorOut({required this.userId, required this.name});
+
+  factory EditorOut.fromJson(Map<String, Object?> json) =>
+      _$EditorOutFromJson(json);
+
   @JsonKey(name: 'user_id')
   final String userId;
   final String name;

@@ -17,9 +17,9 @@ class Person {
     required this.fullName,
     required this.public,
   });
-  
+
   factory Person.fromJson(Map<String, Object?> json) => _$PersonFromJson(json);
-  
+
   final PersonKind kind;
   final String id;
   final String handle;

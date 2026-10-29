@@ -8,12 +8,11 @@ part 'collector_assign_in.g.dart';
 
 @JsonSerializable()
 class CollectorAssignIn {
-  const CollectorAssignIn({
-    required this.collectorKey,
-  });
-  
-  factory CollectorAssignIn.fromJson(Map<String, Object?> json) => _$CollectorAssignInFromJson(json);
-  
+  const CollectorAssignIn({required this.collectorKey});
+
+  factory CollectorAssignIn.fromJson(Map<String, Object?> json) =>
+      _$CollectorAssignInFromJson(json);
+
   @JsonKey(name: 'collector_key')
   final String collectorKey;
 

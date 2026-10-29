@@ -17,9 +17,10 @@ class ChangeIn {
     required this.data,
     this.baseVersion,
   });
-  
-  factory ChangeIn.fromJson(Map<String, Object?> json) => _$ChangeInFromJson(json);
-  
+
+  factory ChangeIn.fromJson(Map<String, Object?> json) =>
+      _$ChangeInFromJson(json);
+
   final String entity;
   final ChangeInOp op;
   final String id;

@@ -15,9 +15,10 @@ class LoginRequest {
     required this.password,
     this.side = LoginRequestSide.water,
   });
-  
-  factory LoginRequest.fromJson(Map<String, Object?> json) => _$LoginRequestFromJson(json);
-  
+
+  factory LoginRequest.fromJson(Map<String, Object?> json) =>
+      _$LoginRequestFromJson(json);
+
   final String username;
   final String password;
   final LoginRequestSide side;

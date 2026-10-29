@@ -16,9 +16,10 @@ class PictureOut {
     required this.takenLon,
     required this.takenAt,
   });
-  
-  factory PictureOut.fromJson(Map<String, Object?> json) => _$PictureOutFromJson(json);
-  
+
+  factory PictureOut.fromJson(Map<String, Object?> json) =>
+      _$PictureOutFromJson(json);
+
   final String id;
   @JsonKey(name: 'field_name')
   final String? fieldName;

@@ -40,9 +40,7 @@ abstract class ReferenceClient {
 
   /// Config
   @GET('/v1/reference/config/{key}')
-  Future<dynamic> config({
-    @Path('key') required String key,
-  });
+  Future<dynamic> config({@Path('key') required String key});
 
   /// Admin Units
   @GET('/v1/reference/admin-units')
@@ -103,9 +101,7 @@ abstract class ReferenceClient {
   /// Removes a place someone added from the map (IT admins); devices drop.
   /// it with their next sync.
   @DELETE('/v1/places/{place_id}')
-  Future<void> removePlace({
-    @Path('place_id') required String placeId,
-  });
+  Future<void> removePlace({@Path('place_id') required String placeId});
 
   /// Ip Location.
   ///

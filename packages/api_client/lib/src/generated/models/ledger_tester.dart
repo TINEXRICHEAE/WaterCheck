@@ -15,9 +15,10 @@ class LedgerTester {
     required this.assignedAt,
     required this.endedAt,
   });
-  
-  factory LedgerTester.fromJson(Map<String, Object?> json) => _$LedgerTesterFromJson(json);
-  
+
+  factory LedgerTester.fromJson(Map<String, Object?> json) =>
+      _$LedgerTesterFromJson(json);
+
   @JsonKey(name: 'collector_key')
   final String collectorKey;
   @JsonKey(name: 'full_name')

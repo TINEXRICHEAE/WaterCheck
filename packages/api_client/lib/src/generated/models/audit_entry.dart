@@ -20,9 +20,10 @@ class AuditEntry {
     required this.entityId,
     required this.after,
   });
-  
-  factory AuditEntry.fromJson(Map<String, Object?> json) => _$AuditEntryFromJson(json);
-  
+
+  factory AuditEntry.fromJson(Map<String, Object?> json) =>
+      _$AuditEntryFromJson(json);
+
   final int id;
   final DateTime at;
   @JsonKey(name: 'actor_id')

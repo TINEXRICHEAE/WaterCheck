@@ -23,9 +23,10 @@ class CollectorDetail {
     required this.lastRecordAt,
     required this.canRecover,
   });
-  
-  factory CollectorDetail.fromJson(Map<String, Object?> json) => _$CollectorDetailFromJson(json);
-  
+
+  factory CollectorDetail.fromJson(Map<String, Object?> json) =>
+      _$CollectorDetailFromJson(json);
+
   @JsonKey(name: 'collector_key')
   final String collectorKey;
   final String? name;

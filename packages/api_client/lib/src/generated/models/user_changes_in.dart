@@ -21,9 +21,10 @@ class UserChangesIn {
     this.areaIds,
     this.responsibilities,
   });
-  
-  factory UserChangesIn.fromJson(Map<String, Object?> json) => _$UserChangesInFromJson(json);
-  
+
+  factory UserChangesIn.fromJson(Map<String, Object?> json) =>
+      _$UserChangesInFromJson(json);
+
   @JsonKey(name: 'full_name')
   final String? fullName;
   final String? organisation;

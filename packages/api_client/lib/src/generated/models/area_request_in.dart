@@ -8,13 +8,11 @@ part 'area_request_in.g.dart';
 
 @JsonSerializable()
 class AreaRequestIn {
-  const AreaRequestIn({
-    required this.areaIds,
-    required this.reason,
-  });
-  
-  factory AreaRequestIn.fromJson(Map<String, Object?> json) => _$AreaRequestInFromJson(json);
-  
+  const AreaRequestIn({required this.areaIds, required this.reason});
+
+  factory AreaRequestIn.fromJson(Map<String, Object?> json) =>
+      _$AreaRequestInFromJson(json);
+
   @JsonKey(name: 'area_ids')
   final List<String> areaIds;
   final String reason;

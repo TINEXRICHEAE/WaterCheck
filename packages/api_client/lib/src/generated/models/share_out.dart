@@ -8,13 +8,11 @@ part 'share_out.g.dart';
 
 @JsonSerializable()
 class ShareOut {
-  const ShareOut({
-    required this.userId,
-    required this.name,
-  });
-  
-  factory ShareOut.fromJson(Map<String, Object?> json) => _$ShareOutFromJson(json);
-  
+  const ShareOut({required this.userId, required this.name});
+
+  factory ShareOut.fromJson(Map<String, Object?> json) =>
+      _$ShareOutFromJson(json);
+
   @JsonKey(name: 'user_id')
   final String userId;
   final String? name;
