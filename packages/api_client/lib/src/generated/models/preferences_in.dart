@@ -14,10 +14,9 @@ class PreferencesIn {
     required this.notifyPush,
     required this.notifySms,
   });
-
-  factory PreferencesIn.fromJson(Map<String, Object?> json) =>
-      _$PreferencesInFromJson(json);
-
+  
+  factory PreferencesIn.fromJson(Map<String, Object?> json) => _$PreferencesInFromJson(json);
+  
   @JsonKey(name: 'notify_email')
   final bool notifyEmail;
   @JsonKey(name: 'notify_push')

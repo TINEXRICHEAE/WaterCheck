@@ -3063,7 +3063,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get researchNoCollectorsYet =>
-      'No collectors yet. Give a form to testers, or share its access code.';
+      'No collectors yet. Give a form to collectors, or share its access code.';
 
   @override
   String researchLastAt(String when) {
@@ -3315,19 +3315,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get researchAccessAssignedHint =>
-      'Only testers you give the form to (Collectors).';
+      'Only collectors you give the form to (Collectors).';
 
   @override
   String get researchAccessCodeHint =>
-      'Testers who type the form\'s access code in Collect, and those you give it to.';
+      'Collectors who type the form\'s access code in Collect, and those you give it to. Every research collector sees it with a lock.';
 
   @override
   String get researchAccessOpenHint =>
-      'Any tester on Collect, unless the form is hidden.';
+      'Any research collector on Collect, unless the form is hidden.';
 
   @override
   String get researchCodeHint =>
-      'Testers type this code in Collect › Research to join.';
+      'Collectors type this code in Collect › Research to join.';
 
   @override
   String get researchCopyCode => 'Copy the code';
@@ -3392,7 +3392,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String researchAssignTitle(String code) {
-    return 'Give $code to testers';
+    return 'Give $code to collectors';
   }
 
   @override
@@ -3451,17 +3451,17 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get researchCollectorsHint =>
-      'Testers collecting for this project, the forms each has, and their records.';
+      'Collectors working on this project, the forms each has, and their records.';
 
   @override
-  String get researchGiveForm => 'Give a form to testers';
+  String get researchGiveForm => 'Give a form to collectors';
 
   @override
   String get researchHowCollectorsJoin => 'How collectors get each form';
 
   @override
   String get researchJoinHint =>
-      'Open a form to change who may collect, see its access code, or give it to testers.';
+      'Open a form to change who may collect, see its access code, or give it to collectors.';
 
   @override
   String researchCollectorsCount(int count) {
@@ -3704,7 +3704,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get researchAdminHint =>
-      'IT admins see every research project. People, phones and the system are shared with water testing.';
+      'IT admins see every research project. Research has its own people, phones, codes and security pages.';
 
   @override
   String get researchAdminPeople => 'People and accounts';
@@ -4391,4 +4391,63 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get researchOpenMyCopy => 'Open my copy';
+
+  @override
+  String get researchEditorsTitle => 'Editors';
+
+  @override
+  String get researchEditorsHint =>
+      'People outside this project who may change the questions and publish new versions. Each version shows who published it. Only this project\'s team changes access and sharing.';
+
+  @override
+  String get researchAddEditor => 'Add an editor';
+
+  @override
+  String get researchEmailOrUsername => 'Their email or username';
+
+  @override
+  String researchPublishedBy(String name) {
+    return 'by $name';
+  }
+
+  @override
+  String get phonesHintResearch =>
+      'Devices register themselves when Collect is opened. Each row shows the research collectors who used it and their records. Revoke a lost or stolen device.';
+
+  @override
+  String phonesActivityResearch(int collectors, int records) {
+    String _temp0 = intl.Intl.pluralLogic(
+      collectors,
+      locale: localeName,
+      other: '$collectors collectors',
+      one: '1 collector',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      records,
+      locale: localeName,
+      other: '$records records',
+      one: '1 record',
+    );
+    return '$_temp0, $_temp1';
+  }
+
+  @override
+  String get deviceCollectorsResearch => 'Collectors on this device';
+
+  @override
+  String deviceCollectorRecords(int records) {
+    String _temp0 = intl.Intl.pluralLogic(
+      records,
+      locale: localeName,
+      other: '$records records',
+      one: '1 record',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get researchOpenRecord => 'Open the record';
 }

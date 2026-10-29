@@ -19,7 +19,9 @@ abstract class SyncClient {
   ///
   /// Applies a batch; every record gets its own answer. Safe to resend.
   @POST('/v1/sync/push')
-  Future<PushResponse> push({@Body() required PushRequest body});
+  Future<PushResponse> push({
+    @Body() required PushRequest body,
+  });
 
   /// Pull Changes
   @GET('/v1/sync/pull')

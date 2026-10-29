@@ -155,6 +155,13 @@ def _ts(v: Any, field: str) -> datetime | None:
     return t if t.tzinfo else t.replace(tzinfo=UTC)
 
 
+def _location_source(d: dict[str, Any]) -> str | None:
+    """Where the location came from (2026-10-29); anything unknown counts
+    as measured on the device."""
+    v = d.get("location_source")
+    return v if v in ("internet", "hand") else None
+
+
 def _num(v: Any, field: str) -> Decimal | None:
     if v is None:
         return None
@@ -618,9 +625,9 @@ class PushService:
                 "INSERT INTO research.record (id, form_id, form_version, number, number_clash, "
                 "collector_key, installation_id, collector_snapshot, started_at, finished_at, "
                 "lat, lon, accuracy_m, altitude_m, end_lat, end_lon, end_accuracy_m, answers, "
-                "server_seq) VALUES (:id, :f, :v, :n, :clash, :ck, :inst, CAST(:cs AS jsonb), "
-                ":started, :finished, :lat, :lon, :acc, :alt, :elat, :elon, :eacc, "
-                "CAST(:answers AS jsonb), 0)"
+                "location_source, server_seq) VALUES (:id, :f, :v, :n, :clash, :ck, :inst, "
+                "CAST(:cs AS jsonb), :started, :finished, :lat, :lon, :acc, :alt, :elat, :elon, "
+                ":eacc, CAST(:answers AS jsonb), :src, 0)"
             ),
             {
                 "id": rid,
@@ -641,6 +648,7 @@ class PushService:
                 "elon": end_lon,
                 "eacc": num("end_accuracy_m"),
                 "answers": json.dumps(answers),
+                "src": _location_source(d),
             },
         )
         return Outcome(c.id, c.entity, "applied", reason="number_clash" if clash else None)
@@ -830,9 +838,9 @@ class PushService:
             "collector_snapshot, calibration_id, tester_profile_id, reference_standard_id, "
             "calibrated, location, location_accuracy_m, distance_from_source_m, "
             "distance_override_reason, notes, tested_at_device, clock_flags, "
-            "no_photo_reason, server_seq) "
+            "no_photo_reason, location_source, server_seq) "
             "VALUES (:id, :src, :inst, :ck, CAST(:cs AS jsonb), :cal, :tp, :rs, :calibrated, "
-            f"{_POINT}, :acc, :dist, :why, :notes, :at, :flags, :nophoto, 0) "
+            f"{_POINT}, :acc, :dist, :why, :notes, :at, :flags, :nophoto, :locsrc, 0) "
             "ON CONFLICT (id) DO NOTHING RETURNING 1",
             {
                 "id": _uuid(c.id, "id"),
@@ -848,6 +856,7 @@ class PushService:
                 "why": d.get("distance_override_reason"),
                 "notes": d.get("notes"),
                 "nophoto": d.get("no_photo_reason"),
+                "locsrc": _location_source(d),
                 "at": at,
                 "flags": self._clock_flags(at),
                 **o,

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../app/providers.dart';
 import '../../l10n/app_localizations.dart';
+import '../research/research.dart';
 
 /// Shows who is testing now; tap to change (shared phones, SPEC §2.1).
 class ActiveCollectorChip extends ConsumerWidget {
@@ -14,11 +15,16 @@ class ActiveCollectorChip extends ConsumerWidget {
     final collector = ref.watch(activeCollectorProvider);
     if (collector == null) return const SizedBox.shrink();
     final l10n = AppLocalizations.of(context);
+    // Research collects, it does not test (2026-10-28).
+    final research = ref.watch(appModeProvider) == AppMode.research;
     return Tooltip(
-      message: l10n.whoSwitch,
+      message: research ? l10n.whoSwitchResearch : l10n.whoSwitch,
       child: ActionChip(
         avatar: const Icon(Icons.person_outline),
-        label: Text('${l10n.whoCurrent}: ${collector.fullName}'),
+        label: Text(
+          '${research ? l10n.whoCurrentResearch : l10n.whoCurrent}: '
+          '${collector.fullName}',
+        ),
         onPressed: () => context.push('/who'),
       ),
     );

@@ -33,6 +33,8 @@ from uuid import UUID
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncConnection
 
+from app.services.people import author_labels, collector_labels, relabel, snapshot_key
+
 MAX_LIMIT = 1000
 
 # Each query returns client-shaped columns plus _xid and _seq.
@@ -92,7 +94,8 @@ AREA: dict[str, str] = {
     "test_session": (
         "SELECT id, source_id, calibration_id, tester_profile_id, reference_standard_id, "
         "calibrated, ST_Y(location::geometry) AS lat, ST_X(location::geometry) AS lon, "
-        "location_accuracy_m, distance_from_source_m, distance_override_reason, notes, "
+        "location_accuracy_m, location_source, distance_from_source_m, "
+        "distance_override_reason, notes, "
         "tested_at_device, clock_flags, installation_id, collector_key, collector_snapshot, "
         "no_photo_reason, {cols} FROM test_session x "
         "WHERE {area:" + _SRC.format(col="x.source_id") + "} "
@@ -170,7 +173,10 @@ AREA: dict[str, str] = {
     # gets those of the districts it holds, with places people added and
     # those an admin removed (ADR-028).
     "place_name": (
-        "SELECT id, name, kind, lat, lon, subcounty_id, added_by_name, added_at, "
+        "SELECT id, name, kind, lat, lon, subcounty_id, "
+        "coalesce(wc_user_label(x.added_by_user), wc_collector_label(CAST("
+        "nullif(x.added_collector_snapshot->>'collector_key', '') AS uuid)), '?') "
+        "AS added_by_name, added_at, "
         "removed_at, {cols} "
         "FROM place_name x WHERE {area:x.subcounty_id}"
     ),
@@ -203,6 +209,11 @@ _KEY = {
 }
 
 
+# Raised when what devices already hold must be sent again: 2 since people
+# are named by username (ADR-032).
+EPOCH = 2
+
+
 class StreamError(ValueError):
     pass
 
@@ -216,14 +227,20 @@ class Cursor:
     def parse(cls, raw: str | None) -> Cursor:
         if not raw or raw == "0":
             return cls()
+        epoch, sep, rest = raw.partition(":")
+        if not sep:
+            # A cursor from before the current epoch: read from the start.
+            return cls()
         try:
-            xid, seq = raw.split(".")
+            if int(epoch) != EPOCH:
+                return cls()
+            xid, seq = rest.split(".")
             return cls(int(xid), int(seq))
         except ValueError as e:
             raise StreamError("invalid_cursor") from e
 
     def __str__(self) -> str:
-        return f"{self.xid}.{self.seq}"
+        return f"{EPOCH}:{self.xid}.{self.seq}"
 
 
 RESEARCH: dict[str, str] = {
@@ -239,7 +256,8 @@ RESEARCH: dict[str, str] = {
     "research_record": (
         "SELECT id, form_id, form_version, number, number_clash, collector_key, "
         "installation_id, collector_snapshot, started_at, finished_at, lat, lon, accuracy_m, "
-        "altitude_m, end_lat, end_lon, end_accuracy_m, answers, created_at_server, {cols} "
+        "altitude_m, end_lat, end_lon, end_accuracy_m, location_source, answers, "
+        "created_at_server, {cols} "
         "FROM research.record x"
     ),
     "attachment": (
@@ -284,6 +302,26 @@ JSON_COLUMNS = {
     "parameters",
     "definition",
 }
+
+
+async def _name_people(conn: AsyncConnection, rows: list[dict[str, Any]]) -> None:
+    """Testers and authors by username, real names only where the caller
+    may see them (ADR-032)."""
+    with_snapshot = [d for d in rows if d.get("collector_snapshot")]
+    labels = await collector_labels(
+        conn,
+        [snapshot_key(d["collector_snapshot"], d.get("collector_key")) for d in with_snapshot],
+    )
+    for d in with_snapshot:
+        key = snapshot_key(d["collector_snapshot"], d.get("collector_key"))
+        d["collector_snapshot"] = relabel(d["collector_snapshot"], labels.get(key or ""))
+    authored = [d for d in rows if "author_name" in d]
+    authors = await author_labels(
+        conn, [(d.get("author_user_id"), d.get("collector_key")) for d in authored]
+    )
+    for d in authored:
+        u, k = d.get("author_user_id"), d.get("collector_key")
+        d["author_name"] = authors.get((str(u) if u else None, str(k) if k else None)) or "?"
 
 
 def _plain(column: str, v: Any) -> Any:
@@ -369,6 +407,7 @@ async def pull(
 
     rows.sort(key=lambda t: (t[0], t[1]))
     page, more = rows[:limit], len(rows) > limit
+    await _name_people(conn, [data for _x, _s, _e, data in page])
     changes = []
     for _xid, seq, entity, data in page:
         key = _KEY.get(entity)

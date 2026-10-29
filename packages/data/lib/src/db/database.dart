@@ -54,7 +54,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.executor);
 
   @override
-  int get schemaVersion => 13;
+  int get schemaVersion => 14;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -167,6 +167,17 @@ class AppDatabase extends _$AppDatabase {
             'WHERE collector_key IS NOT NULL UNION SELECT collector_key FROM '
             'research_drafts WHERE collector_key IS NOT NULL)',
           );
+        }
+      }
+      if (from < 14) {
+        // Where a location came from (2026-10-29): measured, the internet
+        // connection's rough guess, or set by hand.
+        await m.addColumn(testSessions, testSessions.locationSource);
+        // Research tables made by an earlier step of this upgrade (v12)
+        // already have it.
+        if (from >= 12) {
+          await m.addColumn(researchRecords, researchRecords.locationSource);
+          await m.addColumn(researchDrafts, researchDrafts.locationSource);
         }
       }
     },

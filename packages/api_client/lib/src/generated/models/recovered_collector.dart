@@ -12,10 +12,9 @@ class RecoveredCollector {
     required this.collectorKey,
     required this.snapshot,
   });
-
-  factory RecoveredCollector.fromJson(Map<String, Object?> json) =>
-      _$RecoveredCollectorFromJson(json);
-
+  
+  factory RecoveredCollector.fromJson(Map<String, Object?> json) => _$RecoveredCollectorFromJson(json);
+  
   @JsonKey(name: 'collector_key')
   final String collectorKey;
   final dynamic snapshot;

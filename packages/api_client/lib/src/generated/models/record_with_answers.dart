@@ -27,11 +27,11 @@ class RecordWithAnswers {
     required this.endLon,
     required this.answers,
     required this.pictures,
+    this.locationSource,
   });
-
-  factory RecordWithAnswers.fromJson(Map<String, Object?> json) =>
-      _$RecordWithAnswersFromJson(json);
-
+  
+  factory RecordWithAnswers.fromJson(Map<String, Object?> json) => _$RecordWithAnswersFromJson(json);
+  
   final String id;
   @JsonKey(name: 'form_id')
   final String formId;
@@ -53,6 +53,8 @@ class RecordWithAnswers {
   final num? lon;
   @JsonKey(name: 'accuracy_m')
   final num? accuracyM;
+  @JsonKey(name: 'location_source')
+  final String? locationSource;
   final bool declined;
   @JsonKey(name: 'end_lat')
   final num? endLat;

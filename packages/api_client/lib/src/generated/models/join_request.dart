@@ -15,10 +15,9 @@ class JoinRequest {
     required this.password,
     required this.acceptedLegal,
   });
-
-  factory JoinRequest.fromJson(Map<String, Object?> json) =>
-      _$JoinRequestFromJson(json);
-
+  
+  factory JoinRequest.fromJson(Map<String, Object?> json) => _$JoinRequestFromJson(json);
+  
   final JoinRequestSide side;
   final String password;
   @JsonKey(name: 'accepted_legal')

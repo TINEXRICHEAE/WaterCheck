@@ -3,7 +3,6 @@ import 'package:data/data.dart' show ResearchFormItem;
 import 'package:dio/dio.dart';
 import 'package:domain/domain.dart' show AppSide;
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -120,6 +119,8 @@ class _TesterAccountScreenState extends ConsumerState<TesterAccountScreen> {
   final _selected = <String>{};
   var _busy = false;
 
+  bool get _research => ref.read(appModeProvider) == AppMode.research;
+
   String _message(AppLocalizations l10n, Object e) {
     final code = e is DioException ? ApiFailure.from(e).code : null;
     return switch (code) {
@@ -223,11 +224,7 @@ class _TesterAccountScreenState extends ConsumerState<TesterAccountScreen> {
             ],
           ),
           actions: [
-            TextButton.icon(
-              icon: const Icon(Icons.copy),
-              label: Text(l10n.accountCopy),
-              onPressed: () => Clipboard.setData(ClipboardData(text: code)),
-            ),
+            CopyButton(text: code, label: l10n.accountCopy),
             FilledButton(
               onPressed: () => Navigator.pop(dialog),
               child: Text(l10n.accountDone),
@@ -302,7 +299,9 @@ class _TesterAccountScreenState extends ConsumerState<TesterAccountScreen> {
     final l10n = AppLocalizations.of(context);
     if (!await _sure(
       l10n.profileDeleteTitle,
-      l10n.profileDeleteBody(name),
+      _research
+          ? l10n.profileDeleteBodyResearch(name)
+          : l10n.profileDeleteBody(name),
       l10n.profileDelete,
     )) {
       return;
@@ -398,6 +397,14 @@ class _TesterAccountScreenState extends ConsumerState<TesterAccountScreen> {
               onPressed: () => context.push('/who/$key/edit'),
             ),
           ),
+          // Username and privacy (ADR-032); on research, the collector code.
+          const Divider(height: 24),
+          CollectorCardSection(
+            collectorKey: key,
+            research: !water,
+            fullName: me.fullName,
+          ),
+          const Divider(height: 24),
           for (final (channel, icon, label, value) in [
             ('phone', Icons.phone_outlined, l10n.profilePhoneLabel, me.phone),
             (
@@ -483,12 +490,12 @@ class _TesterAccountScreenState extends ConsumerState<TesterAccountScreen> {
                 title: Text(f.title),
                 subtitle: Text(f.projectTitle),
               ),
-            const Divider(height: 32),
-            CollectorCardSection(collectorKey: key),
           ],
           const Divider(height: 32),
           Text(l10n.accountOwnCodeSection, style: text.titleMedium),
-          Text(l10n.accountOwnCodeIntro),
+          Text(
+            water ? l10n.accountOwnCodeIntro : l10n.accountOwnCodeIntroResearch,
+          ),
           Align(
             alignment: Alignment.centerLeft,
             child: OutlinedButton.icon(
@@ -569,7 +576,9 @@ class _TesterAccountScreenState extends ConsumerState<TesterAccountScreen> {
             contentPadding: EdgeInsets.zero,
             leading: const Icon(Icons.switch_account_outlined),
             title: Text(l10n.profileSwitch),
-            subtitle: Text(l10n.profileSwitchHint),
+            subtitle: Text(
+              water ? l10n.profileSwitchHint : l10n.profileSwitchHintResearch,
+            ),
             onTap: () => context.go('/who'),
           ),
           ListTile(
@@ -589,7 +598,9 @@ class _TesterAccountScreenState extends ConsumerState<TesterAccountScreen> {
               l10n.profileDelete,
               style: TextStyle(color: Theme.of(context).colorScheme.error),
             ),
-            subtitle: Text(l10n.profileDeleteHint),
+            subtitle: Text(
+              water ? l10n.profileDeleteHint : l10n.profileDeleteHintResearch,
+            ),
             onTap: _busy ? null : () => _delete(key, me.fullName),
           ),
           const Divider(height: 32),

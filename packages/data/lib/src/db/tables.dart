@@ -247,6 +247,10 @@ class TestSessions extends Table with CollectOrigin, ServerSeq {
   RealColumn get lat => real().nullable()();
   RealColumn get lon => real().nullable()();
   RealColumn get locationAccuracyM => real().nullable()();
+
+  /// Where the location came from: null for the device itself, 'internet'
+  /// (a computer's rough guess) or 'hand' (set on the map). Added in v14.
+  TextColumn get locationSource => text().nullable()();
   RealColumn get distanceFromSourceM => real().nullable()();
   TextColumn get distanceOverrideReason => text().nullable()();
   TextColumn get notes => text().nullable()();
@@ -686,6 +690,10 @@ class ResearchRecords extends Table {
   RealColumn get endLon => real().nullable()();
   RealColumn get endAccuracyM => real().nullable()();
 
+  /// Where the location came from: null for the device itself, 'internet'
+  /// (a computer's rough guess) or 'hand' (set on the map). Added in v14.
+  TextColumn get locationSource => text().nullable()();
+
   /// The answers (JSON).
   TextColumn get answers => text()();
   DateTimeColumn get createdAtServer => dateTime().nullable()();
@@ -714,6 +722,10 @@ class ResearchDrafts extends Table {
   RealColumn get lon => real().nullable()();
   RealColumn get accuracyM => real().nullable()();
   RealColumn get altitudeM => real().nullable()();
+
+  /// Where the location came from: null for the device itself, 'internet'
+  /// (a computer's rough guess) or 'hand' (set on the map). Added in v14.
+  TextColumn get locationSource => text().nullable()();
 
   @override
   Set<Column> get primaryKey => {id};

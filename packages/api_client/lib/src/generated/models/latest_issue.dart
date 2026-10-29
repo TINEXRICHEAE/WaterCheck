@@ -18,10 +18,9 @@ class LatestIssue {
     required this.severity,
     required this.at,
   });
-
-  factory LatestIssue.fromJson(Map<String, Object?> json) =>
-      _$LatestIssueFromJson(json);
-
+  
+  factory LatestIssue.fromJson(Map<String, Object?> json) => _$LatestIssueFromJson(json);
+  
   @JsonKey(name: 'source_id')
   final String sourceId;
   final String code;

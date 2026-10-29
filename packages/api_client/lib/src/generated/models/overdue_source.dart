@@ -15,10 +15,9 @@ class OverdueSource {
     required this.dueDate,
     required this.latestOverall,
   });
-
-  factory OverdueSource.fromJson(Map<String, Object?> json) =>
-      _$OverdueSourceFromJson(json);
-
+  
+  factory OverdueSource.fromJson(Map<String, Object?> json) => _$OverdueSourceFromJson(json);
+  
   final String id;
   final String code;
   final String? name;

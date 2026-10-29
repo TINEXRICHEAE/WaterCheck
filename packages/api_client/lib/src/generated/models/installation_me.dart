@@ -15,10 +15,9 @@ class InstallationMe {
     required this.area,
     required this.shortCode,
   });
-
-  factory InstallationMe.fromJson(Map<String, Object?> json) =>
-      _$InstallationMeFromJson(json);
-
+  
+  factory InstallationMe.fromJson(Map<String, Object?> json) => _$InstallationMeFromJson(json);
+  
   @JsonKey(name: 'installation_id')
   final String installationId;
   final AreaOut? area;

@@ -33,7 +33,7 @@ fieldquire.cooptconnect.app, watercheck.fieldquire.cooptconnect.app, research.fi
 		}
 
 		# Road routes (Valhalla, ADR-021): /route/route?json=...; only the two
-		# points are sent, and WaterCheck stores nothing.
+		# points are sent, and FieldQuire stores nothing.
 		handle_path /route/* {
 			reverse_proxy routing:8002
 		}
@@ -85,7 +85,7 @@ api.watercheck.fieldquire.cooptconnect.app, api.watercheck.cooptconnect.app {
 		}
 
 		# Road routes (Valhalla, ADR-021): /route/route?json=...; only the two
-		# points are sent, and WaterCheck stores nothing.
+		# points are sent, and FieldQuire stores nothing.
 		handle_path /route/* {
 			reverse_proxy routing:8002
 		}

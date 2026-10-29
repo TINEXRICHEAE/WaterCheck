@@ -8,11 +8,12 @@ part 'sign_out_in.g.dart';
 
 @JsonSerializable()
 class SignOutIn {
-  const SignOutIn({required this.installationIds});
-
-  factory SignOutIn.fromJson(Map<String, Object?> json) =>
-      _$SignOutInFromJson(json);
-
+  const SignOutIn({
+    required this.installationIds,
+  });
+  
+  factory SignOutIn.fromJson(Map<String, Object?> json) => _$SignOutInFromJson(json);
+  
   @JsonKey(name: 'installation_ids')
   final List<String> installationIds;
 

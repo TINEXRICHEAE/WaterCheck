@@ -13,10 +13,9 @@ class SignOutRequested {
     required this.expiresAt,
     this.resendIn = 0,
   });
-
-  factory SignOutRequested.fromJson(Map<String, Object?> json) =>
-      _$SignOutRequestedFromJson(json);
-
+  
+  factory SignOutRequested.fromJson(Map<String, Object?> json) => _$SignOutRequestedFromJson(json);
+  
   @JsonKey(name: 'request_id')
   final String requestId;
   @JsonKey(name: 'expires_at')

@@ -40,6 +40,8 @@ Thumbs.db
 
 # Map tiles (built by tools/build_tiles.ps1; large, rebuilt from OSM)
 infra/tiles/
+# IP city database (tools/fetch_geoip.py; DB-IP Lite, refreshed monthly)
+infra/geoip/
 
 # Large or machine-specific artefacts
 *.mbtiles

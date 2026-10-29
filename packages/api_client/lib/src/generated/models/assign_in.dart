@@ -8,11 +8,12 @@ part 'assign_in.g.dart';
 
 @JsonSerializable()
 class AssignIn {
-  const AssignIn({required this.code});
-
-  factory AssignIn.fromJson(Map<String, Object?> json) =>
-      _$AssignInFromJson(json);
-
+  const AssignIn({
+    required this.code,
+  });
+  
+  factory AssignIn.fromJson(Map<String, Object?> json) => _$AssignInFromJson(json);
+  
   final String code;
 
   Map<String, Object?> toJson() => _$AssignInToJson(this);

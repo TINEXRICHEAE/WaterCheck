@@ -68,6 +68,11 @@ class Settings(BaseSettings):
     seed_dir: str = "../infra/seed"
     # Raster MBTiles of the pilot area (tools/build_tiles.ps1, ADR-014).
     tiles_path: str = "../infra/tiles/area.mbtiles"
+    # City database for devices without GPS (tools/fetch_geoip.py).
+    geoip_path: str = "../infra/geoip/dbip-city-lite.mmdb"
+    # Where this server learns its own public address (for callers on its
+    # local network); empty: never asked.
+    public_ip_url: str = "https://api.ipify.org"
     # How often an idle worker looks for due jobs (alerts notify ≤ 5 min).
     worker_poll_seconds: float = 5.0
 

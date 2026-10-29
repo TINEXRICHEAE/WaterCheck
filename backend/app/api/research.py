@@ -23,7 +23,6 @@ from sqlalchemy.ext.asyncio import AsyncConnection
 
 from app.api.deps import DbDep, ResearcherDep
 from app.api.installations import InstallationDep
-from app.db.database import Principal
 
 router = APIRouter(prefix="/v1/research", tags=["research"])
 
@@ -63,6 +62,19 @@ class FormDetail(FormOut):
     can_manage: bool = False
     project_title: str
     cloned_from: UUID | None
+    # May change the questions and publish (the team, and editors the
+    # owner chose; ADR-032).
+    can_edit: bool = False
+    # The caller's own copy of this form, if they made one.
+    my_copy: UUID | None = None
+    # For the team: who else may edit it.
+    editors: list[EditorOut] = []
+
+
+class EditorOut(BaseModel):
+    user_id: UUID
+    # Username, with the real name where it may be seen.
+    name: str
 
 
 class RecordRow(BaseModel):
@@ -79,6 +91,9 @@ class RecordRow(BaseModel):
     lat: float | None
     lon: float | None
     accuracy_m: float | None
+    # Where the point came from: None (measured on the device), 'internet'
+    # (a computer's rough guess) or 'hand' (set on the map); 2026-10-29.
+    location_source: str | None = None
     declined: bool
 
 
@@ -112,8 +127,8 @@ def _json(v: Any) -> Any:
 
 _RECORD_COLUMNS = (
     "r.id, r.form_id, f.code AS form_code, r.form_version, r.number, r.number_clash, "
-    "r.collector_snapshot->>'full_name' AS collector, r.collector_key, r.started_at, "
-    "r.finished_at, r.lat, r.lon, r.accuracy_m, "
+    "wc_collector_label(r.collector_key) AS collector, r.collector_key, r.started_at, "
+    "r.finished_at, r.lat, r.lon, r.accuracy_m, r.location_source, "
     "coalesce(r.answers->>'consent' = 'no', false) AS declined"
 )
 
@@ -174,7 +189,11 @@ async def _form_detail(conn: AsyncConnection, form_id: UUID) -> FormDetail:
             text(
                 f"SELECT {_FORM_COLUMNS}, v.definition, f.draft, f.access_code, "  # noqa: S608
                 "f.cloned_from, p.title AS project_title, "
-                "research.can_manage(f.project_id) AS can_manage FROM research.form f "
+                "research.can_manage(f.project_id) AS can_manage, "
+                "research.can_edit_form(f.id) AS can_edit, "
+                "(SELECT c.id FROM research.form c WHERE c.cloned_from = f.id "
+                " AND research.can_manage(c.project_id) AND c.project_id <> f.project_id "
+                " ORDER BY c.created_at LIMIT 1) AS my_copy FROM research.form f "
                 "JOIN research.project p ON p.id = f.project_id "
                 "LEFT JOIN research.form_version v ON v.form_id = f.id "
                 "AND v.version = f.current_version WHERE f.id = :f"
@@ -187,8 +206,19 @@ async def _form_detail(conn: AsyncConnection, form_id: UUID) -> FormDetail:
     data = dict(row._mapping)
     data["definition"] = _json(data["definition"])
     data["draft"] = _json(data["draft"])
+    if not data["can_edit"]:
+        data["draft"] = None
     if not data["can_manage"]:
-        data["draft"] = data["access_code"] = None
+        data["access_code"] = None
+    else:
+        editors = await conn.execute(
+            text(
+                "SELECT e.user_id, coalesce(wc_user_label(e.user_id), '?') AS name "
+                "FROM research.form_editor e WHERE e.form_id = :f ORDER BY e.added_at"
+            ),
+            {"f": form_id},
+        )
+        data["editors"] = [EditorOut(**e._mapping) for e in editors]
     return FormDetail(**data)
 
 
@@ -285,7 +315,7 @@ async def project_points(project_id: UUID, user: ResearcherDep, db: DbDep) -> li
             text(
                 "SELECT r.id, r.number, f.code AS form_code, r.lat, r.lon, "
                 "coalesce(r.started_at, r.created_at_server) AS at, "
-                "r.collector_snapshot->>'full_name' AS collector FROM research.record r "
+                "wc_collector_label(r.collector_key) AS collector FROM research.record r "
                 "JOIN research.form f ON f.id = r.form_id "
                 "WHERE f.project_id = :p AND r.lat IS NOT NULL ORDER BY at"
             ),
@@ -587,6 +617,27 @@ async def _managed_form(conn: AsyncConnection, form_id: UUID) -> Any:
     return form
 
 
+async def _editable_form(conn: AsyncConnection, form_id: UUID) -> Any:
+    """The team, or an editor the owner chose (ADR-032)."""
+    form = (
+        await conn.execute(
+            text(
+                "SELECT id, project_id, code, status, collect_access, access_code, draft, "
+                "current_version, research.can_manage(project_id) AS team, "
+                "research.can_edit_form(id) AS editor FROM research.form WHERE id = :f"
+            ),
+            {"f": form_id},
+        )
+    ).first()
+    if form is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "not_found")
+    if form.team:
+        await _may_edit(conn, form.project_id)
+    elif not form.editor:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "not_editor")
+    return form
+
+
 class DraftIn(BaseModel):
     definition: dict[str, Any]
 
@@ -596,7 +647,7 @@ async def save_draft(form_id: UUID, body: DraftIn, user: ResearcherDep, db: DbDe
     """Saves the form being built. Collectors keep the published version
     until the next publish."""
     async with db.transaction(user) as conn:
-        await _managed_form(conn, form_id)
+        await _editable_form(conn, form_id)
         await conn.execute(
             text(
                 "UPDATE research.form SET draft = CAST(:d AS jsonb), updated_at = now() "
@@ -611,7 +662,7 @@ async def save_draft(form_id: UUID, body: DraftIn, user: ResearcherDep, db: DbDe
 async def discard_draft(form_id: UUID, user: ResearcherDep, db: DbDep) -> FormDetail:
     """Drops unpublished changes (a form never published keeps its draft)."""
     async with db.transaction(user) as conn:
-        form = await _managed_form(conn, form_id)
+        form = await _editable_form(conn, form_id)
         if form.current_version is not None:
             await conn.execute(
                 text("UPDATE research.form SET draft = NULL, updated_at = now() WHERE id = :f"),
@@ -645,7 +696,7 @@ async def publish_form(form_id: UUID, user: ResearcherDep, db: DbDep) -> FormDet
     """The draft becomes the next version; collectors get it with their next
     sync. Records already made keep the version they were filled with."""
     async with db.transaction(user) as conn:
-        form = await _managed_form(conn, form_id)
+        form = await _editable_form(conn, form_id)
         draft = _json(form.draft)
         if draft is None:
             raise HTTPException(status.HTTP_409_CONFLICT, "nothing_to_publish")
@@ -655,7 +706,8 @@ async def publish_form(form_id: UUID, user: ResearcherDep, db: DbDep) -> FormDet
         await conn.execute(
             text(
                 "INSERT INTO research.form_version (form_id, version, definition, published_at, "
-                "server_seq) VALUES (:f, :v, CAST(:d AS jsonb), now(), 0)"
+                "published_by, server_seq) VALUES (:f, :v, CAST(:d AS jsonb), now(), "
+                "wc_user_id(), 0)"
             ),
             {"f": form_id, "v": version, "d": json.dumps(draft)},
         )
@@ -725,6 +777,9 @@ class VersionOut(BaseModel):
     published_at: datetime | None
     fields: int
     records: int
+    # Who published it, by username (ADR-032).
+    published_by: str | None = None
+    published_by_id: UUID | None = None
 
 
 @router.get("/forms/{form_id}/versions")
@@ -732,7 +787,8 @@ async def form_versions(form_id: UUID, user: ResearcherDep, db: DbDep) -> list[V
     async with db.transaction(user) as conn:
         rows = await conn.execute(
             text(
-                "SELECT v.version, v.published_at, "
+                "SELECT v.version, v.published_at, wc_user_label(v.published_by) AS published_by, "
+                "v.published_by AS published_by_id, "
                 "jsonb_array_length(coalesce(v.definition->'fields', '[]'::jsonb)) AS fields, "
                 "(SELECT count(*) FROM research.record r WHERE r.form_id = v.form_id "
                 " AND r.form_version = v.version) AS records "
@@ -741,6 +797,43 @@ async def form_versions(form_id: UUID, user: ResearcherDep, db: DbDep) -> list[V
             {"f": form_id},
         )
         return [VersionOut(**r._mapping) for r in rows]
+
+
+class EditorIn(BaseModel):
+    # Their email or username.
+    username: str = Field(min_length=1, max_length=200)
+
+
+@router.post("/forms/{form_id}/editors")
+async def add_editor(form_id: UUID, body: EditorIn, user: ResearcherDep, db: DbDep) -> FormDetail:
+    """Lets someone outside the team change the questions and publish new
+    versions (ADR-032); access and sharing stay with the team."""
+    async with db.transaction(user) as conn:
+        await _managed_form(conn, form_id)
+        found = (
+            await conn.execute(text("SELECT id FROM research.find_user(:u)"), {"u": body.username})
+        ).first()
+        if found is None:
+            raise HTTPException(status.HTTP_404_NOT_FOUND, "user_not_found")
+        await conn.execute(
+            text(
+                "INSERT INTO research.form_editor (form_id, user_id, added_by) "
+                "VALUES (:f, :u, wc_user_id()) ON CONFLICT DO NOTHING"
+            ),
+            {"f": form_id, "u": found.id},
+        )
+        return await _form_detail(conn, form_id)
+
+
+@router.delete("/forms/{form_id}/editors/{user_id}")
+async def remove_editor(form_id: UUID, user_id: UUID, user: ResearcherDep, db: DbDep) -> FormDetail:
+    async with db.transaction(user) as conn:
+        await _managed_form(conn, form_id)
+        await conn.execute(
+            text("DELETE FROM research.form_editor WHERE form_id = :f AND user_id = :u"),
+            {"f": form_id, "u": user_id},
+        )
+        return await _form_detail(conn, form_id)
 
 
 class CloneIn(BaseModel):
@@ -904,11 +997,13 @@ async def project_collectors(
                 "made AS (SELECT r.collector_key, count(*) AS records, "
                 " min(coalesce(r.started_at, r.created_at_server)) AS first_at, "
                 " max(coalesce(r.finished_at, r.created_at_server)) AS last_at, "
-                " (array_agg(r.collector_snapshot->>'full_name'))[1] AS name "
+                " NULL AS name "
                 " FROM research.record r JOIN research.form f ON f.id = r.form_id "
                 " WHERE f.project_id = :p GROUP BY r.collector_key) "
-                "SELECT k.collector_key, coalesce(cp.snapshot->>'full_name', m.name) AS name, "
-                "cp.snapshot->>'phone' AS phone, coalesce(m.records, 0) AS records, "
+                "SELECT k.collector_key, "
+                "coalesce(wc_collector_label(k.collector_key), '?') AS name, "
+                "CASE WHEN wc_sees_collector(k.collector_key) "
+                "THEN cp.snapshot->>'phone' END AS phone, coalesce(m.records, 0) AS records, "
                 "m.first_at, m.last_at, coalesce((SELECT jsonb_agg(jsonb_build_object("
                 " 'form_id', f.id, 'code', f.code, 'via', c.via) ORDER BY f.code) "
                 " FROM research.form_collector c JOIN research.form f ON f.id = c.form_id "
@@ -948,28 +1043,26 @@ async def find_testers(
     user: ResearcherDep, db: DbDep, q: str = Query(min_length=2, max_length=100)
 ) -> list[TesterOut]:
     """Research collectors on Collect, to give a form to (water testers are
-    other people, ADR-031). By their own collector code, anyone; by name or
-    phone, those who chose to be found, those already working on the
-    caller's projects, and (for IT admins) everyone."""
+    other people, ADR-031). Anyone by their username or collector code; by
+    real name or phone only where the caller may see it (ADR-032). Named by
+    username, with the real name where it may be seen."""
     term = q.strip()
     async with db.transaction(user) as conn:
         rows = await conn.execute(
             text(
-                "SELECT cp.collector_key, cp.snapshot->>'full_name' AS name, "  # noqa: S608
-                "cp.snapshot->>'phone' AS phone FROM collector_profile cp "
+                "SELECT cp.collector_key, wc_collector_label(cp.collector_key) AS name, "  # noqa: S608
+                "CASE WHEN wc_sees_collector(cp.collector_key) THEN cp.snapshot->>'phone' "
+                "END AS phone FROM collector_profile cp "
                 # Research collectors, and profiles made before sides that
                 # never tested water (ADR-031).
-                f"WHERE {_RESEARCH_PROFILE} AND (cp.share_code = upper(:code) OR ("
+                f"WHERE {_RESEARCH_PROFILE} AND (cp.share_code = upper(:code) "
+                "OR cp.handle ILIKE :q OR ("
                 "(cp.snapshot->>'full_name' ILIKE :q OR cp.snapshot->>'phone' ILIKE :q) "
-                "AND (cp.discoverable OR wc_is_admin() OR EXISTS (SELECT 1 FROM "
-                "research.form_collector c JOIN research.form f ON f.id = c.form_id "
-                "WHERE c.collector_key = cp.collector_key AND research.can_manage(f.project_id)) "
-                "OR EXISTS (SELECT 1 FROM research.record r JOIN research.form f "
-                "ON f.id = r.form_id WHERE r.collector_key = cp.collector_key "
-                "AND research.can_manage(f.project_id))))) "
-                "ORDER BY cp.share_code = upper(:code) DESC, cp.last_seen_at DESC LIMIT 20"
+                "AND wc_sees_collector(cp.collector_key))) "
+                "ORDER BY cp.share_code = upper(:code) DESC, lower(cp.handle) = lower(:term) DESC, "
+                "cp.last_seen_at DESC LIMIT 20"
             ),
-            {"q": f"%{term}%", "code": term.replace("-", "").replace(" ", "")},
+            {"q": f"%{term}%", "term": term, "code": term.replace("-", "").replace(" ", "")},
         )
         return [TesterOut(**r._mapping) for r in rows]
 
@@ -1007,57 +1100,6 @@ async def device_forms(device: InstallationDep, db: DbDep) -> DeviceForms:
             allowed=[r.id for r in allowed],
             locked=[LockedForm(**r._mapping) for r in locked],
         )
-
-
-class CollectorCard(BaseModel):
-    # Given to research teams so they can add this collector to forms.
-    share_code: str
-    # Found by name or phone by any research team.
-    discoverable: bool
-
-
-class DiscoverableIn(BaseModel):
-    discoverable: bool
-
-
-async def _research_card(
-    conn: AsyncConnection, key: UUID, installation: UUID | None
-) -> CollectorCard:
-    row = (
-        await conn.execute(
-            text(
-                "SELECT p.share_code, p.discoverable FROM collector_profile p "
-                "JOIN collector_device d ON d.collector_key = p.collector_key "
-                "WHERE p.collector_key = :k AND d.installation_id = :i AND d.signed_out_at IS NULL"
-            ),
-            {"k": key, "i": installation},
-        )
-    ).first()
-    if row is None:
-        # Not on the server from this phone yet: the first sync brings it.
-        raise HTTPException(status.HTTP_409_CONFLICT, "sync_first")
-    return CollectorCard(share_code=row.share_code, discoverable=row.discoverable)
-
-
-@router.get("/collectors/{collector_key}/card")
-async def collector_card(collector_key: UUID, device: InstallationDep, db: DbDep) -> CollectorCard:
-    """A research collector's own code to give research teams, and whether
-    teams may find them by name."""
-    async with db.transaction(Principal.system()) as conn:
-        return await _research_card(conn, collector_key, device.installation_id)
-
-
-@router.put("/collectors/{collector_key}/card")
-async def set_discoverable(
-    collector_key: UUID, body: DiscoverableIn, device: InstallationDep, db: DbDep
-) -> CollectorCard:
-    async with db.transaction(Principal.system()) as conn:
-        await _research_card(conn, collector_key, device.installation_id)
-        await conn.execute(
-            text("UPDATE collector_profile SET discoverable = :d WHERE collector_key = :k"),
-            {"d": body.discoverable, "k": collector_key},
-        )
-        return await _research_card(conn, collector_key, device.installation_id)
 
 
 class CollectorDetail(BaseModel):
@@ -1105,7 +1147,9 @@ async def research_collector(
         profile = (
             await conn.execute(
                 text(
-                    "SELECT snapshot, first_seen_at, last_seen_at "  # noqa: S608 (constant)
+                    "SELECT snapshot, first_seen_at, last_seen_at, "  # noqa: S608 (constant)
+                    "wc_collector_label(collector_key) AS label, "
+                    "wc_sees_collector(collector_key) AS sees "
                     "FROM collector_profile cp "
                     f"WHERE collector_key = :k AND {_RESEARCH_PROFILE}"
                 ),
@@ -1135,10 +1179,10 @@ async def research_collector(
         ).one()
         return CollectorDetail(
             collector_key=collector_key,
-            name=snap.get("full_name"),
-            phone=snap.get("phone"),
-            email=snap.get("email"),
-            organisation=snap.get("organisation"),
+            name=profile.label,
+            phone=snap.get("phone") if profile.sees else None,
+            email=snap.get("email") if profile.sees else None,
+            organisation=snap.get("organisation") if profile.sees else None,
             first_seen_at=profile.first_seen_at,
             last_seen_at=profile.last_seen_at,
             forms=[CollectorForm(**f._mapping) for f in forms],
@@ -1357,7 +1401,9 @@ class MessageIn(BaseModel):
 async def _messages(conn: AsyncConnection, record_id: UUID) -> list[MessageOut]:
     rows = await conn.execute(
         text(
-            "SELECT id, body, author_name AS author, author_user_id IS NOT NULL AS from_team, "
+            "SELECT id, body, "
+            "coalesce(wc_author_label(author_user_id, collector_key), '?') AS author, "
+            "author_user_id IS NOT NULL AS from_team, "
             "coalesce(author_user_id = wc_user_id(), false) AS mine, "
             "coalesce(written_at_device, created_at_server) AS at FROM message "
             "WHERE subject_type = 'research_record' AND subject_id = :r ORDER BY at"
@@ -1423,7 +1469,8 @@ async def research_threads(
             text(
                 "SELECT DISTINCT ON (m.subject_id) m.subject_id AS record_id, r.number, "
                 "f.code AS form_code, f.project_id, m.body AS last_body, "
-                "m.author_name AS last_author, m.author_user_id IS NOT NULL AS last_from_team, "
+                "wc_author_label(m.author_user_id, m.collector_key) AS last_author, "
+                "m.author_user_id IS NOT NULL AS last_from_team, "
                 "coalesce(m.written_at_device, m.created_at_server) AS last_at, "
                 "count(*) OVER (PARTITION BY m.subject_id) AS count "
                 "FROM message m JOIN research.record r ON r.id = m.subject_id "

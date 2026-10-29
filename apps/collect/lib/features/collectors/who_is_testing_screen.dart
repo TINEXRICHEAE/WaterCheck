@@ -1,4 +1,4 @@
-import 'package:domain/domain.dart' show legalVersions;
+import 'package:domain/domain.dart' show AppSide, legalVersions;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ui_kit/ui_kit.dart';
@@ -22,7 +22,11 @@ class WhoIsTestingScreen extends ConsumerWidget {
     final activeKey = ref.watch(appGateProvider).activeCollectorKey;
     final side = ref.watch(appModeProvider).side;
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.whoTitle)),
+      appBar: AppBar(
+        title: Text(
+          side == AppSide.research ? l10n.whoTitleResearch : l10n.whoTitle,
+        ),
+      ),
       body: profiles.when(
         loading: () => const PageLoading(),
         error: (e, _) => ErrorView(

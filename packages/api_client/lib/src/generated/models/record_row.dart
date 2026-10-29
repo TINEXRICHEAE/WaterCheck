@@ -23,11 +23,11 @@ class RecordRow {
     required this.lon,
     required this.accuracyM,
     required this.declined,
+    this.locationSource,
   });
-
-  factory RecordRow.fromJson(Map<String, Object?> json) =>
-      _$RecordRowFromJson(json);
-
+  
+  factory RecordRow.fromJson(Map<String, Object?> json) => _$RecordRowFromJson(json);
+  
   final String id;
   @JsonKey(name: 'form_id')
   final String formId;
@@ -49,6 +49,8 @@ class RecordRow {
   final num? lon;
   @JsonKey(name: 'accuracy_m')
   final num? accuracyM;
+  @JsonKey(name: 'location_source')
+  final String? locationSource;
   final bool declined;
 
   Map<String, Object?> toJson() => _$RecordRowToJson(this);

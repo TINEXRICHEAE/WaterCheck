@@ -16,10 +16,9 @@ class FormRecords {
     required this.definitions,
     required this.rows,
   });
-
-  factory FormRecords.fromJson(Map<String, Object?> json) =>
-      _$FormRecordsFromJson(json);
-
+  
+  factory FormRecords.fromJson(Map<String, Object?> json) => _$FormRecordsFromJson(json);
+  
   final FormDetail form;
   final Map<String, dynamic> definitions;
   final List<RecordWithAnswers> rows;

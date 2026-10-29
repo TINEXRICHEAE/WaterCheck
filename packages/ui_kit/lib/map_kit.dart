@@ -4,7 +4,9 @@
 library;
 
 export 'src/map/add_place.dart';
+export 'src/map/ip_area.dart';
 export 'src/map/live_trip.dart';
+export 'src/map/location_note.dart';
 export 'src/map/map_access.dart';
 export 'src/map/map_controls.dart';
 export 'src/map/map_motion.dart';

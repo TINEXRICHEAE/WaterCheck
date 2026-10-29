@@ -21,10 +21,9 @@ class Parameter {
     required this.isCustom,
     required this.reviewStatus,
   });
-
-  factory Parameter.fromJson(Map<String, Object?> json) =>
-      _$ParameterFromJson(json);
-
+  
+  factory Parameter.fromJson(Map<String, Object?> json) => _$ParameterFromJson(json);
+  
   final String code;
   final String name;
   final String category;

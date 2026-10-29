@@ -29,10 +29,9 @@ class UserOut {
     this.side = 'water',
     this.createdVia = 'admin',
   });
-
-  factory UserOut.fromJson(Map<String, Object?> json) =>
-      _$UserOutFromJson(json);
-
+  
+  factory UserOut.fromJson(Map<String, Object?> json) => _$UserOutFromJson(json);
+  
   final String id;
   final String username;
   @JsonKey(name: 'full_name')

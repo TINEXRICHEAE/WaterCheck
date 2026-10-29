@@ -11,11 +11,13 @@ part 'catalogue.g.dart';
 
 @JsonSerializable()
 class Catalogue {
-  const Catalogue({required this.categories, required this.parameters});
-
-  factory Catalogue.fromJson(Map<String, Object?> json) =>
-      _$CatalogueFromJson(json);
-
+  const Catalogue({
+    required this.categories,
+    required this.parameters,
+  });
+  
+  factory Catalogue.fromJson(Map<String, Object?> json) => _$CatalogueFromJson(json);
+  
   final List<Category> categories;
   final List<Parameter> parameters;
 

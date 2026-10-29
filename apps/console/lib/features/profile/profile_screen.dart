@@ -15,6 +15,7 @@ import '../../app/providers.dart';
 import '../../app/session.dart';
 import '../../l10n/app_localizations.dart';
 import '../admin/area_picker.dart';
+import 'identity.dart';
 import '../research/research_mode.dart';
 
 ProfileClient _profile(WidgetRef ref) =>
@@ -332,6 +333,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             ].join(' · '),
           ),
         ),
+        const Divider(height: 24),
+        const MyIdentity(),
         const Divider(height: 24),
         Row(
           children: [

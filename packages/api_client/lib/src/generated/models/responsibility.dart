@@ -8,11 +8,13 @@ part 'responsibility.g.dart';
 
 @JsonSerializable()
 class Responsibility {
-  const Responsibility({required this.code, required this.name});
-
-  factory Responsibility.fromJson(Map<String, Object?> json) =>
-      _$ResponsibilityFromJson(json);
-
+  const Responsibility({
+    required this.code,
+    required this.name,
+  });
+  
+  factory Responsibility.fromJson(Map<String, Object?> json) => _$ResponsibilityFromJson(json);
+  
   final String code;
   final String name;
 

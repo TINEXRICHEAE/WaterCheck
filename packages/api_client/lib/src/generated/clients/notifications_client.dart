@@ -14,14 +14,15 @@ part 'notifications_client.g.dart';
 
 @RestApi()
 abstract class NotificationsClient {
-  factory NotificationsClient(Dio dio, {String? baseUrl}) =
-      _NotificationsClient;
+  factory NotificationsClient(Dio dio, {String? baseUrl}) = _NotificationsClient;
 
   /// Inbox.
   ///
   /// The signed-in user's in-app notifications, newest first.
   @GET('/v1/notifications')
-  Future<Inbox> inbox({@Query('limit') int? limit = 50});
+  Future<Inbox> inbox({
+    @Query('limit') int? limit = 50,
+  });
 
   /// Mark Read
   @POST('/v1/notifications/{notification_id}/read')
@@ -37,11 +38,15 @@ abstract class NotificationsClient {
   ///
   /// Registers this device for push (FCM; Android and web Console).
   @POST('/v1/push-tokens')
-  Future<void> registerPushToken({@Body() required PushTokenIn body});
+  Future<void> registerPushToken({
+    @Body() required PushTokenIn body,
+  });
 
   /// Remove Push Token
   @DELETE('/v1/push-tokens/{token}')
-  Future<void> removePushToken({@Path('token') required String token});
+  Future<void> removePushToken({
+    @Path('token') required String token,
+  });
 
   /// Sms Inbound.
   ///

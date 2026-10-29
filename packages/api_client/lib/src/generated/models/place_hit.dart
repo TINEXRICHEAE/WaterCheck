@@ -23,10 +23,9 @@ class PlaceHit {
     required this.district,
     this.addedBy,
   });
-
-  factory PlaceHit.fromJson(Map<String, Object?> json) =>
-      _$PlaceHitFromJson(json);
-
+  
+  factory PlaceHit.fromJson(Map<String, Object?> json) => _$PlaceHitFromJson(json);
+  
   final String id;
   final String name;
   final String kind;

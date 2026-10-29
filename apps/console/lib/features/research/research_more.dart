@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:ui_kit/ui_kit.dart';
 
 import '../../l10n/app_localizations.dart';
+import '../messages/chats.dart';
 import 'research_dashboard.dart';
 import 'research_state.dart';
 
@@ -104,6 +105,12 @@ class ResearchMessagesScreen extends ConsumerWidget {
             ],
             _ => [const Center(child: CircularProgressIndicator())],
           },
+          // People to write to directly (ADR-032).
+          const SizedBox(height: 24),
+          PeopleChatsSection(
+            backend: ref.watch(consoleChatsProvider),
+            historyKey: 'console.research.chats',
+          ),
         ],
       ),
     );
@@ -150,6 +157,13 @@ class ResearchAdminScreen extends ConsumerWidget {
                     Icons.key_outlined,
                     l10n.researchAdminLedger,
                     '/research/admin/credentials',
+                  ),
+                  // Codes collectors wait for, such as signing out a
+                  // device (2026-10-28).
+                  (
+                    Icons.pin_outlined,
+                    l10n.adminCodes,
+                    '/research/admin/codes',
                   ),
                   (
                     Icons.lock_outline,

@@ -15,10 +15,9 @@ class NewAreaIn {
     required this.level,
     required this.name,
   });
-
-  factory NewAreaIn.fromJson(Map<String, Object?> json) =>
-      _$NewAreaInFromJson(json);
-
+  
+  factory NewAreaIn.fromJson(Map<String, Object?> json) => _$NewAreaInFromJson(json);
+  
   @JsonKey(name: 'parent_id')
   final String parentId;
   final NewAreaInLevel level;

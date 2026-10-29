@@ -16,10 +16,9 @@ class ContactPending {
     required this.value,
     required this.expiresAt,
   });
-
-  factory ContactPending.fromJson(Map<String, Object?> json) =>
-      _$ContactPendingFromJson(json);
-
+  
+  factory ContactPending.fromJson(Map<String, Object?> json) => _$ContactPendingFromJson(json);
+  
   final String id;
   final ContactPendingChannel channel;
   final String value;

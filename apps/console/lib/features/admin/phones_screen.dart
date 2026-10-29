@@ -1,8 +1,8 @@
 import 'package:api_client/api_client.dart';
 import 'package:data/data.dart';
+import 'package:domain/domain.dart' show AppSide;
 import 'package:flutter/material.dart';
 import 'package:ui_kit/ui_kit.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -26,12 +26,17 @@ class PhonesScreen extends ConsumerWidget {
     final phones = ref.watch(adminInstallationsProvider(side));
     final codes = ref.watch(adminCodesProvider);
     final when = DateFormat('d MMM y, HH:mm');
+    // Area assignment codes are water's; research speaks of collectors
+    // and records (2026-10-28).
+    final research = side == AppSide.research;
     return Scaffold(
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => issueActivationCode(context, ref),
-        icon: const Icon(Icons.qr_code_2),
-        label: Text(l10n.phonesNewCode),
-      ),
+      floatingActionButton: research
+          ? null
+          : FloatingActionButton.extended(
+              onPressed: () => issueActivationCode(context, ref),
+              icon: const Icon(Icons.qr_code_2),
+              label: Text(l10n.phonesNewCode),
+            ),
       body: SearchBuilder(
         label: l10n.searchPhones,
         history: 'console.devices',
@@ -39,7 +44,7 @@ class PhonesScreen extends ConsumerWidget {
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
           children: [
             Text(l10n.phonesTitle, style: text.headlineSmall),
-            Text(l10n.phonesHint),
+            Text(research ? l10n.phonesHintResearch : l10n.phonesHint),
             const SizedBox(height: 8),
             field,
             const SizedBox(height: 8),
@@ -85,7 +90,15 @@ class PhonesScreen extends ConsumerWidget {
                         subtitle: Text(
                           [
                             [?p.platform, ?p.appVersion].join(' '),
-                            l10n.phonesActivity(p.collectorsSeen, p.tests),
+                            research
+                                ? l10n.phonesActivityResearch(
+                                    p.collectorsSeen,
+                                    p.tests,
+                                  )
+                                : l10n.phonesActivity(
+                                    p.collectorsSeen,
+                                    p.tests,
+                                  ),
                             p.lastSeenAt == null
                                 ? l10n.phonesNeverSynced
                                 : l10n.phonesLastSeen(
@@ -153,30 +166,32 @@ class PhonesScreen extends ConsumerWidget {
                     ),
               ],
             ),
-            const SizedBox(height: 16),
-            Text(l10n.phonesCodes, style: text.titleMedium),
-            ...codes.when(
-              loading: () => const [],
-              error: (_, _) => const [],
-              data: (list) => [
-                if (list.isEmpty) Text(l10n.phonesNoCodes),
-                for (final c in list.take(20))
-                  ListTile(
-                    dense: true,
-                    leading: const Icon(Icons.vpn_key_outlined),
-                    title: Text(
-                      '${c.area.name} (${l10n.areaLevel(c.area.level)})',
-                    ),
-                    subtitle: Text(
-                      l10n.phonesCodeLine(
-                        c.usedCount,
-                        c.maxInstallations,
-                        when.format(WcTime.local(c.expiresAt, context)),
+            if (!research) ...[
+              const SizedBox(height: 16),
+              Text(l10n.phonesCodes, style: text.titleMedium),
+              ...codes.when(
+                loading: () => const [],
+                error: (_, _) => const [],
+                data: (list) => [
+                  if (list.isEmpty) Text(l10n.phonesNoCodes),
+                  for (final c in list.take(20))
+                    ListTile(
+                      dense: true,
+                      leading: const Icon(Icons.vpn_key_outlined),
+                      title: Text(
+                        '${c.area.name} (${l10n.areaLevel(c.area.level)})',
+                      ),
+                      subtitle: Text(
+                        l10n.phonesCodeLine(
+                          c.usedCount,
+                          c.maxInstallations,
+                          when.format(WcTime.local(c.expiresAt, context)),
+                        ),
                       ),
                     ),
-                  ),
-              ],
-            ),
+                ],
+              ),
+            ],
           ],
         ),
       ),
@@ -412,11 +427,7 @@ class _CodeShown extends StatelessWidget {
         ],
       ),
       actions: [
-        TextButton.icon(
-          onPressed: () => Clipboard.setData(ClipboardData(text: issued.code)),
-          icon: const Icon(Icons.copy),
-          label: Text(l10n.credentialsCopy),
-        ),
+        CopyButton(text: issued.code, label: l10n.credentialsCopy),
         FilledButton(
           onPressed: () => Navigator.pop(context),
           child: Text(l10n.credentialsDone),

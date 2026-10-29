@@ -25,10 +25,9 @@ class InstallationOut {
     this.registeredVia = 'code',
     this.archived = false,
   });
-
-  factory InstallationOut.fromJson(Map<String, Object?> json) =>
-      _$InstallationOutFromJson(json);
-
+  
+  factory InstallationOut.fromJson(Map<String, Object?> json) => _$InstallationOutFromJson(json);
+  
   final String id;
   final AreaOut? area;
   @JsonKey(name: 'registered_via')

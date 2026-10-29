@@ -24,6 +24,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncConnection
 
+from app.api.admin import SideFilter
 from app.api.deps import AdminDep, DbDep, UserDep
 from app.api.installations import InstallationDep
 from app.api.testers import _holds
@@ -588,29 +589,33 @@ async def tester_close(collector_key: UUID, device: InstallationDep, db: DbDep) 
 
 # ------------------------------------------------------------------ admins
 @router.get("/admin/codes-to-pass")
-async def codes_to_pass(admin: AdminDep, db: DbDep) -> list[CodeToPass]:
-    """Every confirmation code waiting for an IT admin to give by phone."""
+async def codes_to_pass(admin: AdminDep, db: DbDep, side: SideFilter = None) -> list[CodeToPass]:
+    """Every confirmation code waiting for an IT admin to give by phone;
+    with `side`, those of that side's people (ADR-031)."""
     async with db.transaction(Principal.system()) as conn:
         contacts = await conn.execute(
             text(
                 "SELECT c.id, c.user_id, c.collector_key, c.channel, c.value, c.code, "
-                "c.created_at, c.expires_at, coalesce(u.full_name, "
-                "p.snapshot->>'full_name', '?') AS who FROM contact_confirmation c "
+                "c.created_at, c.expires_at, coalesce(wc_user_label(u.id), "
+                "wc_collector_label(p.collector_key), '?') AS who FROM contact_confirmation c "
                 "LEFT JOIN app_user u ON u.id = c.user_id "
                 "LEFT JOIN collector_profile p ON p.collector_key = c.collector_key "
-                "WHERE c.confirmed_at IS NULL AND c.expires_at > now() AND c.attempts < :max"
+                "WHERE c.confirmed_at IS NULL AND c.expires_at > now() AND c.attempts < :max "
+                "AND (CAST(:side AS text) IS NULL OR coalesce(u.side, p.side) IN (:side, 'all'))"
             ),
-            {"max": MAX_ATTEMPTS},
+            {"max": MAX_ATTEMPTS, "side": side},
         )
         devices = await conn.execute(
             text(
                 "SELECT c.id, c.collector_key, c.code, c.created_at, c.expires_at, "
                 "cardinality(c.installation_ids) AS n, "
-                "coalesce(p.snapshot->>'full_name', '?') AS who FROM collector_confirmation c "
+                "coalesce(wc_collector_label(p.collector_key), '?') AS who "
+                "FROM collector_confirmation c "
                 "LEFT JOIN collector_profile p ON p.collector_key = c.collector_key "
-                "WHERE c.confirmed_at IS NULL AND c.expires_at > now() AND c.attempts < :max"
+                "WHERE c.confirmed_at IS NULL AND c.expires_at > now() AND c.attempts < :max "
+                "AND (CAST(:side AS text) IS NULL OR p.side = :side)"
             ),
-            {"max": MAX_ATTEMPTS},
+            {"max": MAX_ATTEMPTS, "side": side},
         )
         out = [
             CodeToPass(

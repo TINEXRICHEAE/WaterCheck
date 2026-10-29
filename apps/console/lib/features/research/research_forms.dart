@@ -17,6 +17,7 @@ import 'form_builder.dart';
 import 'research_dashboard.dart';
 import 'research_mode.dart';
 import 'research_state.dart';
+import '../messages/chats.dart';
 
 String formStatusText(AppLocalizations l10n, String s) => switch (s) {
   'published' => l10n.researchPublished,
@@ -448,7 +449,7 @@ class _ResearchFormScreenState extends ConsumerState<ResearchFormScreen> {
     final text = Theme.of(context).textTheme;
     return switch (ref.watch(formDetailProvider(widget.formId))) {
       AsyncData(value: final form) => DefaultTabController(
-        length: form.canManage ? 4 : 2,
+        length: form.canManage ? 4 : 3,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -476,7 +477,8 @@ class _ResearchFormScreenState extends ConsumerState<ResearchFormScreen> {
                     runSpacing: 8,
                     crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
-                      if (form.canManage) ...[
+                      // The team and the editors it chose (ADR-032).
+                      if (form.canEdit) ...[
                         // Only changes not yet published can be (2026-10-27).
                         if (_edited != null ||
                             form.hasDraft ||
@@ -528,11 +530,21 @@ class _ResearchFormScreenState extends ConsumerState<ResearchFormScreen> {
                             child: Text(l10n.researchDiscard),
                           ),
                       ],
-                      OutlinedButton.icon(
-                        onPressed: () => _copy(context, form),
-                        icon: const Icon(Icons.copy_all_outlined),
-                        label: Text(l10n.researchCopyForm),
-                      ),
+                      // Someone else's form, copied once (2026-10-28).
+                      if (!form.canManage)
+                        if (form.myCopy case final copy?)
+                          OutlinedButton.icon(
+                            onPressed: () =>
+                                context.go('/research/forms/$copy'),
+                            icon: const Icon(Icons.file_open_outlined),
+                            label: Text(l10n.researchOpenMyCopy),
+                          )
+                        else
+                          OutlinedButton.icon(
+                            onPressed: () => _copy(context, form),
+                            icon: const Icon(Icons.copy_all_outlined),
+                            label: Text(l10n.researchCopyForm),
+                          ),
                       OutlinedButton.icon(
                         onPressed: () => _exportXlsForm(form),
                         icon: const Icon(Icons.download_outlined),
@@ -564,7 +576,7 @@ class _ResearchFormScreenState extends ConsumerState<ResearchFormScreen> {
               tabs: [
                 Tab(text: l10n.researchTabQuestions),
                 if (form.canManage) Tab(text: l10n.researchTabAccess),
-                if (form.canManage) Tab(text: l10n.researchTabVersions),
+                Tab(text: l10n.researchTabVersions),
                 Tab(text: l10n.researchTabPreview),
               ],
             ),
@@ -576,13 +588,13 @@ class _ResearchFormScreenState extends ConsumerState<ResearchFormScreen> {
                     children: [
                       FormBuilder(
                         definition: _definitionOf(form),
-                        readOnly: !form.canManage,
+                        readOnly: !form.canEdit,
                         onChanged: (d) => setState(() => _edited = d),
                       ),
                     ],
                   ),
                   if (form.canManage) _AccessTab(form: form),
-                  if (form.canManage) _VersionsTab(form: form),
+                  _VersionsTab(form: form),
                   _PreviewTab(definition: _edited ?? _definitionOf(form)),
                 ],
               ),
@@ -718,12 +730,7 @@ class _AccessTab extends ConsumerWidget {
               subtitle: Text(l10n.researchCodeHint),
               trailing: Wrap(
                 children: [
-                  IconButton(
-                    tooltip: l10n.researchCopyCode,
-                    icon: const Icon(Icons.copy),
-                    onPressed: () =>
-                        Clipboard.setData(ClipboardData(text: code)),
-                  ),
+                  CopyButton(text: code, tooltip: l10n.researchCopyCode),
                   IconButton(
                     tooltip: l10n.researchNewCode,
                     icon: const Icon(Icons.autorenew),
@@ -845,6 +852,88 @@ class _AccessTab extends ConsumerWidget {
           ),
         ),
         if (form.visibility == 'shared') _Shares(form: form),
+        const Divider(height: 32),
+        _Editors(form: form),
+      ],
+    );
+  }
+}
+
+/// People outside the team the owner lets change the questions and
+/// publish new versions (ADR-032). Access and sharing stay with the team.
+class _Editors extends ConsumerWidget {
+  const _Editors({required this.form});
+
+  final FormDetail form;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final text = Theme.of(context).textTheme;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(l10n.researchEditorsTitle, style: text.titleMedium),
+        Text(l10n.researchEditorsHint),
+        for (final e in form.editors)
+          ListTile(
+            leading: const Icon(Icons.edit_note),
+            title: Text(e.name),
+            onTap: () =>
+                openPerson(context, ref, userId: e.userId, label: e.name),
+            trailing: IconButton(
+              tooltip: l10n.researchRemove,
+              icon: const Icon(Icons.close),
+              onPressed: () => researchCall(
+                context,
+                ref,
+                () => ref
+                    .read(researchApiProvider)
+                    .removeEditor(formId: form.id, userId: e.userId),
+              ),
+            ),
+          ),
+        TextButton.icon(
+          onPressed: () async {
+            final who = TextEditingController();
+            final ok = await showDialog<bool>(
+              context: context,
+              builder: (context) => AlertDialog(
+                title: Text(l10n.researchAddEditor),
+                content: TextField(
+                  controller: who,
+                  autofocus: true,
+                  decoration: InputDecoration(
+                    labelText: l10n.researchEmailOrUsername,
+                  ),
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context, false),
+                    child: Text(l10n.cancel),
+                  ),
+                  FilledButton(
+                    onPressed: () => Navigator.pop(context, true),
+                    child: Text(l10n.researchAdd),
+                  ),
+                ],
+              ),
+            );
+            if (ok != true || !context.mounted) return;
+            await researchCall(
+              context,
+              ref,
+              () => ref
+                  .read(researchApiProvider)
+                  .addEditor(
+                    formId: form.id,
+                    body: EditorIn(username: who.text.trim()),
+                  ),
+            );
+          },
+          icon: const Icon(Icons.person_add_alt),
+          label: Text(l10n.researchAddEditor),
+        ),
       ],
     );
   }
@@ -1080,10 +1169,22 @@ class _VersionsTab extends ConsumerWidget {
                 [
                   if (v.publishedAt case final t?)
                     l10n.researchPublishedOn(when.format(t.toLocal())),
+                  if (v.publishedBy case final by?)
+                    l10n.researchPublishedBy(by),
                   l10n.builderQuestions(v.fields),
                   l10n.researchRecordsCount(v.records),
                 ].join(' · '),
               ),
+              // Who published it: their card, and a way to write to them.
+              onTap: switch ((v.publishedById, v.publishedBy)) {
+                (final id?, final by?) => () => openPerson(
+                  context,
+                  ref,
+                  userId: id,
+                  label: by,
+                ),
+                _ => null,
+              },
               trailing: v.version == form.currentVersion
                   ? Chip(label: Text(l10n.researchCurrent))
                   : null,
@@ -1127,55 +1228,69 @@ class _PreviewTabState extends State<_PreviewTab> {
       return Center(child: Text(l10n.researchPreviewBroken));
     }
     final issues = _check ? answers.check() : const <AnswerIssue>[];
-    return ListView(
-      padding: const EdgeInsets.all(16),
+    // The filler scrolls itself; it gets the room left above the buttons
+    // (inside another list it had no height and showed nothing).
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(l10n.researchPreviewHint),
-        const SizedBox(height: 8),
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: FormFiller(
-              answers: answers,
-              showIssues: _check,
-              onChanged: () => setState(() {}),
+        Expanded(
+          child: FormFiller(
+            answers: answers,
+            showIssues: _check,
+            onChanged: () => setState(() {}),
+            header: Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Text(l10n.researchPreviewHint),
             ),
           ),
         ),
-        const SizedBox(height: 8),
-        Wrap(
-          spacing: 8,
-          children: [
-            FilledButton(
-              onPressed: () => setState(() => _check = true),
-              child: Text(l10n.researchPreviewCheck),
-            ),
-            TextButton(
-              onPressed: () => setState(() {
-                _for = null;
-                _check = false;
-              }),
-              child: Text(l10n.researchPreviewReset),
-            ),
-          ],
+        const Divider(height: 1),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Wrap(
+                spacing: 8,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  FilledButton(
+                    onPressed: () => setState(() => _check = true),
+                    child: Text(l10n.researchPreviewCheck),
+                  ),
+                  TextButton(
+                    onPressed: () => setState(() {
+                      _for = null;
+                      _check = false;
+                    }),
+                    child: Text(l10n.researchPreviewReset),
+                  ),
+                  if (_check)
+                    Text(
+                      issues.isEmpty
+                          ? l10n.researchPreviewOk
+                          : l10n.researchPreviewIssues(issues.length),
+                    ),
+                ],
+              ),
+              if (_check && issues.isEmpty)
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxHeight: 160),
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: SelectableText(
+                      const JsonEncoder.withIndent('  ')
+                          .convert(answers.cleaned()),
+                      style: const TextStyle(
+                        fontFamily: 'monospace',
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
         ),
-        if (_check)
-          Padding(
-            padding: const EdgeInsets.only(top: 8),
-            child: Text(
-              issues.isEmpty
-                  ? l10n.researchPreviewOk
-                  : l10n.researchPreviewIssues(issues.length),
-            ),
-          ),
-        if (_check && issues.isEmpty)
-          Padding(
-            padding: const EdgeInsets.only(top: 8),
-            child: SelectableText(
-              const JsonEncoder.withIndent('  ').convert(answers.cleaned()),
-              style: const TextStyle(fontFamily: 'monospace', fontSize: 12),
-            ),
-          ),
       ],
     );
   }

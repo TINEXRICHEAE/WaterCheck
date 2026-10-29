@@ -1162,3 +1162,112 @@ Decisions are also recorded in [PLAN.md](PLAN.md) (decisions log and §3a), the 
   - forms 21 (zip and .xlsx read back, and aggregation);
   - the new zip was also checked in a JavaScript build: openpyxl opens it, while the old library's zip from the same build did not open.
 - **Dev:** rebuilt (migration 0022; existing collector profiles got their codes) and both previews rebuilt; 22.8 GB free.
+
+### 53. People by username, chats, form editors, research map tools, computers without GPS (ADR-032) (2026-10-28)
+- **Request (lead):**
+  - commit entry 52, then:
+    - bring every water map feature to research (navigation to searched places, areas and records), feeding My trips;
+    - make the Collect app lock optional (off until turned on);
+    - fix "Try it";
+    - show a tick on copy;
+    - "Copy to my project" only for others' forms not yet copied;
+    - only owners change access and sharing, while other people may edit and publish versions, credited;
+    - usernames for everyone, generated, editable and unique;
+    - anonymous by default, or public with the real name;
+    - chats between people with a searchable list of people, per side;
+    - find collectors by username;
+    - no "testing" wording on research;
+    - the research admin's code for signing devices out;
+    - better location for computers without GPS.
+- **The lead's answers:**
+  - real names visible to IT admins and the person's own teams;
+  - existing accounts become anonymous too;
+  - editors chosen by the owner;
+  - for computers, an IP-address lookup only when there is no GPS, with the point adjustable only within the lookup's error circle.
+- **Outcome (on dev, not yet committed):**
+  - **Committed first:** entry 52 as `e2fe444`.
+  - **Usernames (migration 0023):**
+    - generated usernames such as "quiet-heron-42" for all accounts and tester profiles;
+    - changeable and checked as typed, unique across both;
+    - everyone anonymous (existing ones too);
+    - names everywhere as the username, with the real name in brackets only for IT admins, the person's teams, or when public;
+    - sync cursors start a new epoch so devices pull names again; changes resend a person's rows;
+    - a "Username and privacy" section on the Console profile and on both Collect profiles (research also shows the collector code).
+  - **Chats:**
+    - direct chats between any two people on a side, accounts and testers alike;
+    - the messages pages (water and research, Console and Collect) list chats, then everyone on the side, searchable from the page's one search box;
+    - a person's card opens from credits, with "Write".
+  - **Forms:**
+    - editors chosen by the owning team may change questions and publish; access and sharing stay with the team;
+    - each version shows who published it;
+    - "Copy to my project" only on others' forms, then "Open my copy";
+    - "Try it" works (the filler had no height inside a list).
+  - **Research maps:**
+    - **Collect:** live position, layers (labels, straight lines, road route by vehicle or on foot), "Go" with live navigation saved to My trips, a target bar, the path of the chosen area, a long press to add a place, and a nearby-records list;
+    - **Console:** location, layers, route and "Go".
+  - **Computers without GPS:**
+    - location comes from the internet connection, using the server's own DB-IP Lite city database (no outside lookup), as an area at least 25 km across;
+    - "Set my location" places the point by hand inside that circle only;
+    - shown on all maps in both apps, credited to DB-IP;
+    - `tools/fetch_geoip.py` fetches the database (mounted read-only at `/data/geoip`).
+  - **FieldQuire Docker names (the lead's follow-up):**
+    - the Compose project, containers and images are `fieldquire-*`;
+    - the API runs as user `fieldquire`; the CI image is `fieldquire-api`;
+    - the data volumes keep their `watercheck_*` names (pinned), so dev moved over with all its data;
+    - the VM needs a one-time `docker compose -p watercheck down` (DEPLOYMENT_GUIDE §17);
+    - database roles and web addresses are unchanged.
+  - **Smaller changes:**
+    - the Collect app lock is off until turned on in Settings;
+    - copy buttons answer with a tick;
+    - the research side says collect, collector and record, not test or tester (Collect and Console, including the shared admin pages);
+    - research admin has "Codes to pass on", showing only research people's codes.
+- **Tests:**
+  - backend: all passing, including new tests for usernames, chats, editors and credits, sync epochs and IP location, with older tests updated for usernames;
+  - Console 51; Collect 72 (the first-run PIN test removed); data 90; UI kit 40; forms 21.
+- **Dev:** migration 0023 applied; moved to the `fieldquire` project with its data (13 accounts, 4 research records); old images removed; IP location answers through the new mount.
+
+### 54. Computers: their own location first, the internet guess only as a fallback, set by hand anywhere and marked (2026-10-29)
+- **Request (lead):**
+  - records taken in Abim were placed right, yet the map still put this computer in Kampala; why?
+  - then: make the three changes proposed:
+    - read the computer's own location fresh, with its age and accuracy;
+    - use the internet guess only when the computer gives none;
+    - allow setting the location by hand anywhere, marked on records;
+  - keep every new control around the map retractable.
+- **Finding:**
+  - the records stored what Windows reported: Kampala (±114 m) on 26–27 Oct and Abim (±90 m) on 28 Oct, so Windows location had been stale, then corrected itself;
+  - since entry 53 the map used the IP lookup instead, which places mobile data in Kampala;
+  - limiting hand placement to that circle locked a field user in Abim out of their real place.
+- **Outcome (on dev, not yet committed):**
+  - **Computer location** (Collect and Console), in this order:
+    1. a point set by hand on the map, anywhere, kept until "Read again";
+    2. the computer's own location, read fresh (no remembered position), with its accuracy and age shown;
+    3. only when the computer gives none, the internet guess, labelled as such, with its circle drawn and the DB-IP credit.
+  - **Marked on records** (migration 0024, device schema 14):
+    - research records and water test sessions keep `location_source`: none for a measured point, `internet` or `hand`;
+    - the Console record and test pages, and Collect's record page, say "Location set by hand" or "guessed from the internet connection".
+  - **Retractable map controls:**
+    - the location note is a small pill (icon, accuracy and age, or "set by hand") that opens to the full note and buttons, and folds back;
+    - the target bars can be closed;
+    - the records list is a pull-up sheet.
+- **Tests:**
+  - backend all passing (a record pushed as set by hand comes back marked);
+  - data 91 (v13 → v14 migration); Console 51; Collect 72; UI kit 40; domain 162.
+
+- **Dev:** migration 0024 applied; previews rebuilt; 30 GB free.
+
+### 55. Why the computer still shows Kampala: Windows Location and the phone hotspot (2026-10-29)
+- **Request (lead):**
+  - in Edge the map still placed the computer in Kampala; explain why the records were right before building anything;
+  - would renaming or reconnecting the hotspot help;
+  - then finish the half-applied change.
+- **Finding (no code at fault):**
+  - Edge passes on Windows Location; asked directly, Windows reported Kampala (0.340, 32.571, ±130 m, last read 28 Oct 22:27 UTC), the same point as the 26–27 Oct records;
+  - the Abim records (28 Oct 16:48 and 16:57 UTC, ±90 m) were made just after the PC used the Wi-Fi "POC" (15:21–16:04 UTC), a fixed access point Microsoft places in Abim;
+  - with only the phone hotspot "Clone" in range, Windows places the PC where Microsoft's database has that hotspot: Kampala;
+  - renaming or reconnecting does not change the hotspot's hardware address that Windows looks up; a new random address would most likely give the internet guess (Kampala) or no location.
+  - Reliable on a computer: the phone's GPS (Collect on the phone) or setting the location by hand (marked on records).
+- **Outcome:** the half-applied change was finished: when a computer gives no location, the location pill says why (blocked, location off, no answer in time, not available in this browser) and what to do. Browsers ask for the location directly, without a separate permission check first.
+- **Working rule (recorded):** diagnose and explain the cause with evidence before building a fix.
+- **Tests:** UI kit 40; Console 51; Collect 72; previews rebuilt.
+

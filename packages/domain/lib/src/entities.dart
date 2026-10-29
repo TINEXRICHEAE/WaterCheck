@@ -86,13 +86,35 @@ class CollectorSnapshot {
   final String? linkedKey;
 }
 
-/// A GPS fix with its accuracy.
+/// A GPS fix with its accuracy, and where it came from.
 class GeoPoint {
-  const GeoPoint({required this.lat, required this.lon, this.accuracyM});
+  const GeoPoint({
+    required this.lat,
+    required this.lon,
+    this.accuracyM,
+    this.source = LocationSource.device,
+  });
 
   final double lat;
   final double lon;
   final double? accuracyM;
+  final LocationSource source;
+}
+
+/// Where a location came from (2026-10-29): the device (GPS, or a
+/// computer's own location), a rough guess from the internet connection,
+/// or set by hand on the map. Kept with records so teams see which points
+/// were not measured.
+enum LocationSource {
+  device,
+  internet,
+  hand;
+
+  /// As stored and sent: null for the device (the usual case).
+  String? get wire => this == device ? null : name;
+
+  static LocationSource parse(String? s) =>
+      values.where((v) => v.name == s).firstOrNull ?? device;
 }
 
 class WaterSource {

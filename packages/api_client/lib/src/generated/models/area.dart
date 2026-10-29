@@ -14,9 +14,9 @@ class Area {
     required this.name,
     required this.code,
   });
-
+  
   factory Area.fromJson(Map<String, Object?> json) => _$AreaFromJson(json);
-
+  
   final String id;
   final String level;
   final String name;

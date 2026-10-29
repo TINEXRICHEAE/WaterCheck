@@ -8,11 +8,14 @@ part 'register_request.g.dart';
 
 @JsonSerializable()
 class RegisterRequest {
-  const RegisterRequest({this.platform, this.appVersion, this.deviceLabel});
-
-  factory RegisterRequest.fromJson(Map<String, Object?> json) =>
-      _$RegisterRequestFromJson(json);
-
+  const RegisterRequest({
+    this.platform,
+    this.appVersion,
+    this.deviceLabel,
+  });
+  
+  factory RegisterRequest.fromJson(Map<String, Object?> json) => _$RegisterRequestFromJson(json);
+  
   final String? platform;
   @JsonKey(name: 'app_version')
   final String? appVersion;

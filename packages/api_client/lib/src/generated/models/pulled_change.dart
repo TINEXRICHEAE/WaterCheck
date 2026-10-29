@@ -17,10 +17,9 @@ class PulledChange {
     required this.serverSeq,
     required this.data,
   });
-
-  factory PulledChange.fromJson(Map<String, Object?> json) =>
-      _$PulledChangeFromJson(json);
-
+  
+  factory PulledChange.fromJson(Map<String, Object?> json) => _$PulledChangeFromJson(json);
+  
   final String entity;
   final PulledChangeOp op;
   final String id;

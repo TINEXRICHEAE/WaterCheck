@@ -8,11 +8,14 @@ part 'activate_request.g.dart';
 
 @JsonSerializable()
 class ActivateRequest {
-  const ActivateRequest({required this.code, this.platform, this.appVersion});
-
-  factory ActivateRequest.fromJson(Map<String, Object?> json) =>
-      _$ActivateRequestFromJson(json);
-
+  const ActivateRequest({
+    required this.code,
+    this.platform,
+    this.appVersion,
+  });
+  
+  factory ActivateRequest.fromJson(Map<String, Object?> json) => _$ActivateRequestFromJson(json);
+  
   final String code;
   final String? platform;
   @JsonKey(name: 'app_version')

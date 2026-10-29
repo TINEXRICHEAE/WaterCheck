@@ -19,10 +19,9 @@ class NewPlace {
     required this.addedBy,
     required this.sources,
   });
-
-  factory NewPlace.fromJson(Map<String, Object?> json) =>
-      _$NewPlaceFromJson(json);
-
+  
+  factory NewPlace.fromJson(Map<String, Object?> json) => _$NewPlaceFromJson(json);
+  
   final String id;
   final String level;
   final String name;

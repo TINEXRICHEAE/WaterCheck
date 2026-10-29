@@ -22,6 +22,7 @@ import '../dashboard/dashboard_state.dart'
     show dataVersionProvider, mapHomeProvider;
 import '../sources/sources_screen.dart' show sourcesQueryProvider;
 import 'device_location.dart';
+import 'ip_location.dart';
 import 'map_tiles.dart';
 
 /// Below this zoom, nearby dots merge into one with a count.
@@ -285,6 +286,9 @@ class _SourcesMapState extends ConsumerState<SourcesMap>
   final _map = MapController();
   late final _motion = MapMotion(_map, this);
   var _layers = const MapLayers();
+
+  /// This computer's location is being set by hand (2026-10-28).
+  var _placing = false;
 
   /// What the search chose (2026-10-22, ADR-021): an area, or a source
   /// (then also the focus).
@@ -695,6 +699,11 @@ class _SourcesMapState extends ConsumerState<SourcesMap>
             backgroundColor: Theme.of(context)
                 .colorScheme
                 .surfaceContainerHighest,
+            onTap: (_, p) {
+              if (!_placing) return;
+              setState(() => _placing = false);
+              placeHere(context, ref, p);
+            },
             // A long press (or right-click) adds a place (ADR-028).
             onLongPress: (_, p) => _addPlace(p, tree),
             onSecondaryTap: (_, p) => _addPlace(p, tree),
@@ -711,6 +720,7 @@ class _SourcesMapState extends ConsumerState<SourcesMap>
                 maxNativeZoom: 18,
                 userAgentPackageName: 'org.watercheck.console',
               ),
+            ?ipAreaLayer(ref),
             if (trip?.route case final r?)
               RouteLayer(route: r)
             else if (_layers.route &&
@@ -800,6 +810,13 @@ class _SourcesMapState extends ConsumerState<SourcesMap>
                 online: (t) => _searchOnline(t, tree),
                 onSelected: (p) => _choose(p, tree),
               ),
+              if (deviceHasNoGps) ...[
+                const SizedBox(height: 6),
+                IpPlaceBar(
+                  placing: _placing,
+                  onPlacing: (v) => setState(() => _placing = v),
+                ),
+              ],
               if (path.isNotEmpty || chosenSource != null) ...[
                 const SizedBox(height: 6),
                 // Folded on phones: the last step; a tap shows the rest.

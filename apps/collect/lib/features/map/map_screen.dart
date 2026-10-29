@@ -15,6 +15,7 @@ import 'package:ui_kit/ui_kit.dart';
 import '../../app/gate.dart';
 import '../../app/providers.dart';
 import '../../l10n/app_localizations.dart';
+import '../location/ip_map.dart';
 import '../location/location_service.dart';
 import '../sources/online_search.dart';
 import '../sources/source_providers.dart';
@@ -88,6 +89,9 @@ class _MapScreenState extends ConsumerState<MapScreen>
   var _locating = false;
   MapRoute? _route;
   String? _routeKey;
+
+  /// A computer's location is being set by hand (2026-10-28).
+  var _placing = false;
 
   /// The name on the map in the address (ADR-023), if any.
   MapName? _place() => widget.placeId == null
@@ -564,6 +568,11 @@ class _MapScreenState extends ConsumerState<MapScreen>
             backgroundColor: Theme.of(context)
                 .colorScheme
                 .surfaceContainerHighest,
+            onTap: (_, p) {
+              if (!_placing) return;
+              setState(() => _placing = false);
+              placeHere(context, ref, p);
+            },
             // A long press (or right-click) adds a place (ADR-028).
             onLongPress: (_, p) => _addPlace(p, tree),
             onSecondaryTap: (_, p) => _addPlace(p, tree),
@@ -579,6 +588,7 @@ class _MapScreenState extends ConsumerState<MapScreen>
                 maxNativeZoom: 18,
                 userAgentPackageName: 'org.watercheck.collect',
               ),
+            ?ipAreaLayer(ref),
             if (trip?.route case final r?)
               RouteLayer(route: r)
             else if (_layers.route && _route != null && trip == null)
@@ -619,7 +629,7 @@ class _MapScreenState extends ConsumerState<MapScreen>
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          _PinLabel(pin.name),
+                          MapPinLabel(pin.name),
                           const Icon(Icons.location_pin, size: 32),
                         ],
                       ),
@@ -673,6 +683,13 @@ class _MapScreenState extends ConsumerState<MapScreen>
                   );
                 },
               ),
+              if (deviceHasNoGps) ...[
+                const SizedBox(height: 6),
+                IpPlaceBar(
+                  placing: _placing,
+                  onPlacing: (v) => setState(() => _placing = v),
+                ),
+              ],
               // The path to what is chosen, folded on phones (2026-10-25).
               if (path.isNotEmpty || chosen != null) ...[
                 const SizedBox(height: 6),
@@ -703,7 +720,7 @@ class _MapScreenState extends ConsumerState<MapScreen>
                 LiveTripPanel(trip: trip, onStop: _stop),
               ] else if (target != null || chosen != null) ...[
                 const SizedBox(height: 6),
-                _TargetBar(
+                MapTargetBar(
                   line: [
                     if (chosen == null && pinned?.addedBy != null)
                       ui.placeAddedBy(pinned!.addedBy!),
@@ -982,12 +999,25 @@ class _Dot extends StatelessWidget {
 
 /// What is chosen, under the search: distance and route, "Go" and the
 /// way into a source (ADR-028).
-class _TargetBar extends StatelessWidget {
-  const _TargetBar({required this.line, this.onGo, this.onOpen});
+/// What is chosen on a map: how far, "Go" (live navigation), and a way to
+/// open it. Shared with the research map (2026-10-28).
+class MapTargetBar extends StatelessWidget {
+  const MapTargetBar({
+    super.key,
+    required this.line,
+    this.onGo,
+    this.onOpen,
+    this.openTooltip,
+    this.onClose,
+  });
 
   final String line;
   final VoidCallback? onGo;
   final VoidCallback? onOpen;
+  final String? openTooltip;
+
+  /// Puts the bar away (and what was chosen), so the map is clear.
+  final VoidCallback? onClose;
 
   @override
   Widget build(BuildContext context) {
@@ -1023,9 +1053,16 @@ class _TargetBar extends StatelessWidget {
             if (onOpen != null)
               IconButton(
                 visualDensity: VisualDensity.compact,
-                tooltip: l10n.mapOpenSource,
+                tooltip: openTooltip ?? l10n.mapOpenSource,
                 icon: const Icon(Icons.open_in_new, size: 18),
                 onPressed: onOpen,
+              ),
+            if (onClose != null)
+              IconButton(
+                visualDensity: VisualDensity.compact,
+                tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
+                icon: const Icon(Icons.close, size: 18),
+                onPressed: onClose,
               ),
           ],
         ),
@@ -1133,8 +1170,8 @@ String statusText(BuildContext context, SourceStatus s) {
 }
 
 /// The name over a searched place's pin.
-class _PinLabel extends StatelessWidget {
-  const _PinLabel(this.name);
+class MapPinLabel extends StatelessWidget {
+  const MapPinLabel(this.name, {super.key});
 
   final String name;
 

@@ -13,10 +13,9 @@ class RecoveryCodeOut {
     required this.expiresAt,
     required this.fullName,
   });
-
-  factory RecoveryCodeOut.fromJson(Map<String, Object?> json) =>
-      _$RecoveryCodeOutFromJson(json);
-
+  
+  factory RecoveryCodeOut.fromJson(Map<String, Object?> json) => _$RecoveryCodeOutFromJson(json);
+  
   final String code;
   @JsonKey(name: 'expires_at')
   final DateTime expiresAt;

@@ -1307,17 +1307,28 @@
   "cardIntro": "Research teams add you to their forms with this code. Give it only to teams you want to work with.",
   "cardCodeHint": "Tell it to the research team, or send it to them.",
   "cardCopy": "Copy the code",
-  "cardCopied": "Code copied.",
-  "cardFindMe": "Let research teams find me by name",
-  "cardPublic": "Any research team can find you by your name or phone and ask you to collect data.",
-  "cardPrivate": "Private: only teams you give your code to can add you.",
-  "cardSyncFirst": "Sync once with the internet on to see your code.",
-  "cardOffline": "Your code shows when you are online.",
+  "cardSyncFirst": "Sync once with the internet on to see your username and code.",
+  "cardOffline": "Your username and code show when you are online.",
   "cardRetry": "Try again",
   "cardFailed": "Could not change this ({code}). Try again online.",
   "@cardFailed": {
     "placeholders": {
       "code": {
+        "type": "String"
+      }
+    }
+  },
+  "whoTitleResearch": "Who is collecting?",
+  "whoCurrentResearch": "Collecting now",
+  "whoSwitchResearch": "Change who is collecting",
+  "messagesNoneResearch": "No messages yet. Messages about your research records, and replies from research teams, appear here.",
+  "accountOwnCodeIntroResearch": "Make a sign-in code here and use it on another device (\"Who is collecting?\" › \"I already have a profile\"). It works once and does not expire until used. You can also ask your IT admin for one.",
+  "profileSwitchHintResearch": "Choose who collects data on this device.",
+  "profileDeleteHintResearch": "For good: every device signs you out and your phone and email are erased. Your records stay.",
+  "profileDeleteBodyResearch": "{name}, every device will sign you out and your phone and email are erased. The research records you sent stay with their projects.",
+  "@profileDeleteBodyResearch": {
+    "placeholders": {
+      "name": {
         "type": "String"
       }
     }

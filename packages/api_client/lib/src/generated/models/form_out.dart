@@ -24,10 +24,9 @@ class FormOut {
     required this.hasDraft,
     required this.updatedAt,
   });
-
-  factory FormOut.fromJson(Map<String, Object?> json) =>
-      _$FormOutFromJson(json);
-
+  
+  factory FormOut.fromJson(Map<String, Object?> json) => _$FormOutFromJson(json);
+  
   final String id;
   @JsonKey(name: 'project_id')
   final String projectId;

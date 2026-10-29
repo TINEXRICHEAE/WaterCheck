@@ -8,11 +8,12 @@ part 'draft_in.g.dart';
 
 @JsonSerializable()
 class DraftIn {
-  const DraftIn({required this.definition});
-
-  factory DraftIn.fromJson(Map<String, Object?> json) =>
-      _$DraftInFromJson(json);
-
+  const DraftIn({
+    required this.definition,
+  });
+  
+  factory DraftIn.fromJson(Map<String, Object?> json) => _$DraftInFromJson(json);
+  
   final dynamic definition;
 
   Map<String, Object?> toJson() => _$DraftInToJson(this);

@@ -32,11 +32,11 @@ class RecordDetail {
     required this.answers,
     required this.definition,
     required this.pictures,
+    this.locationSource,
   });
-
-  factory RecordDetail.fromJson(Map<String, Object?> json) =>
-      _$RecordDetailFromJson(json);
-
+  
+  factory RecordDetail.fromJson(Map<String, Object?> json) => _$RecordDetailFromJson(json);
+  
   final String id;
   @JsonKey(name: 'form_id')
   final String formId;
@@ -58,6 +58,8 @@ class RecordDetail {
   final num? lon;
   @JsonKey(name: 'accuracy_m')
   final num? accuracyM;
+  @JsonKey(name: 'location_source')
+  final String? locationSource;
   final bool declined;
   @JsonKey(name: 'altitude_m')
   final num? altitudeM;

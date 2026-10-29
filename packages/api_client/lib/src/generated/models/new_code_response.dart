@@ -14,10 +14,9 @@ class NewCodeResponse {
     required this.expiresAt,
     required this.maxInstallations,
   });
-
-  factory NewCodeResponse.fromJson(Map<String, Object?> json) =>
-      _$NewCodeResponseFromJson(json);
-
+  
+  factory NewCodeResponse.fromJson(Map<String, Object?> json) => _$NewCodeResponseFromJson(json);
+  
   final String id;
   final String code;
   @JsonKey(name: 'expires_at')

@@ -26,10 +26,9 @@ class LibraryForm {
     required this.projectTitle,
     required this.owner,
   });
-
-  factory LibraryForm.fromJson(Map<String, Object?> json) =>
-      _$LibraryFormFromJson(json);
-
+  
+  factory LibraryForm.fromJson(Map<String, Object?> json) => _$LibraryFormFromJson(json);
+  
   final String id;
   @JsonKey(name: 'project_id')
   final String projectId;

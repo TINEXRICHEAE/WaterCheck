@@ -19,10 +19,9 @@ class TesterAccess {
     required this.signIns,
     required this.pending,
   });
-
-  factory TesterAccess.fromJson(Map<String, Object?> json) =>
-      _$TesterAccessFromJson(json);
-
+  
+  factory TesterAccess.fromJson(Map<String, Object?> json) => _$TesterAccessFromJson(json);
+  
   final List<AssignmentOut> assignments;
   final List<TesterDevice> devices;
   @JsonKey(name: 'sign_ins')

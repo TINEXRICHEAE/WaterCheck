@@ -18,10 +18,9 @@ class CollectorSummary {
     required this.lastSubmission,
     required this.mark,
   });
-
-  factory CollectorSummary.fromJson(Map<String, Object?> json) =>
-      _$CollectorSummaryFromJson(json);
-
+  
+  factory CollectorSummary.fromJson(Map<String, Object?> json) => _$CollectorSummaryFromJson(json);
+  
   @JsonKey(name: 'collector_key')
   final String collectorKey;
   @JsonKey(name: 'full_name')

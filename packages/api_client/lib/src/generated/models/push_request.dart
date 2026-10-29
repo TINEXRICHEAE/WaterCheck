@@ -10,11 +10,13 @@ part 'push_request.g.dart';
 
 @JsonSerializable()
 class PushRequest {
-  const PushRequest({required this.batchId, required this.changes});
-
-  factory PushRequest.fromJson(Map<String, Object?> json) =>
-      _$PushRequestFromJson(json);
-
+  const PushRequest({
+    required this.batchId,
+    required this.changes,
+  });
+  
+  factory PushRequest.fromJson(Map<String, Object?> json) => _$PushRequestFromJson(json);
+  
   @JsonKey(name: 'batch_id')
   final String batchId;
   final List<ChangeIn> changes;

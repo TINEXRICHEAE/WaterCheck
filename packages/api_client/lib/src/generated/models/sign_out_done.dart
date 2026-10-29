@@ -8,11 +8,12 @@ part 'sign_out_done.g.dart';
 
 @JsonSerializable()
 class SignOutDone {
-  const SignOutDone({required this.signedOut});
-
-  factory SignOutDone.fromJson(Map<String, Object?> json) =>
-      _$SignOutDoneFromJson(json);
-
+  const SignOutDone({
+    required this.signedOut,
+  });
+  
+  factory SignOutDone.fromJson(Map<String, Object?> json) => _$SignOutDoneFromJson(json);
+  
   @JsonKey(name: 'signed_out')
   final int signedOut;
 

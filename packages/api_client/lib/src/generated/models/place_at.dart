@@ -14,10 +14,9 @@ class PlaceAt {
     required this.districtId,
     required this.district,
   });
-
-  factory PlaceAt.fromJson(Map<String, Object?> json) =>
-      _$PlaceAtFromJson(json);
-
+  
+  factory PlaceAt.fromJson(Map<String, Object?> json) => _$PlaceAtFromJson(json);
+  
   @JsonKey(name: 'subcounty_id')
   final String subcountyId;
   final String subcounty;

@@ -13,10 +13,9 @@ class TesterOut {
     required this.name,
     required this.phone,
   });
-
-  factory TesterOut.fromJson(Map<String, Object?> json) =>
-      _$TesterOutFromJson(json);
-
+  
+  factory TesterOut.fromJson(Map<String, Object?> json) => _$TesterOutFromJson(json);
+  
   @JsonKey(name: 'collector_key')
   final String collectorKey;
   final String? name;

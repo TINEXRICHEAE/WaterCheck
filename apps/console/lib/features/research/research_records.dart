@@ -366,11 +366,20 @@ class ResearchRecordScreen extends ConsumerWidget {
                   ),
                 ListTile(
                   leading: const Icon(Icons.place_outlined),
+                  // Points not measured on the device say so (2026-10-29).
                   title: Text(switch ((r.lat, r.lon)) {
-                    (final lat?, final lon?) => l10n.researchPointAt(
-                      '${lat.toStringAsFixed(5)}, ${lon.toStringAsFixed(5)}',
-                      '${r.accuracyM?.round() ?? '?'}',
-                    ),
+                    (final lat?, final lon?) =>
+                      l10n.researchPointAt(
+                            '${lat.toStringAsFixed(5)}, ${lon.toStringAsFixed(5)}',
+                            '${r.accuracyM?.round() ?? '?'}',
+                          ) +
+                          switch (r.locationSource) {
+                            'hand' =>
+                              ' · ${UiKitLocalizations.of(context).locSourceHand}',
+                            'internet' =>
+                              ' · ${UiKitLocalizations.of(context).locSourceInternet}',
+                            _ => '',
+                          },
                     _ => l10n.researchNoLocation,
                   }),
                   subtitle: switch ((r.endLat, r.endLon)) {

@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ui_kit/ui_kit.dart';
 
+import 'chats.dart';
+
 import '../../app/console_sync.dart';
 import '../../app/providers.dart';
 import '../../app/session.dart';
@@ -168,6 +170,12 @@ class MessagesScreen extends ConsumerWidget {
                   ),
                 ),
               ),
+          // People to write to directly (ADR-032).
+          const SizedBox(height: 24),
+          PeopleChatsSection(
+            backend: ref.watch(consoleChatsProvider),
+            historyKey: 'console.chats',
+          ),
         ],
       ),
     );

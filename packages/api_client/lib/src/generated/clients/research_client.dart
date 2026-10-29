@@ -7,12 +7,11 @@ import 'package:retrofit/retrofit.dart';
 
 import '../models/clone_in.dart';
 import '../models/collector_assign_in.dart';
-import '../models/collector_card.dart';
 import '../models/collector_detail.dart';
 import '../models/collector_out.dart';
 import '../models/device_forms.dart';
-import '../models/discoverable_in.dart';
 import '../models/draft_in.dart';
+import '../models/editor_in.dart';
 import '../models/form_detail.dart';
 import '../models/form_in.dart';
 import '../models/form_out.dart';
@@ -54,7 +53,9 @@ abstract class ResearchClient {
   /// Anyone with a Console account may start a research project and owns.
   /// it (ADR-030). The code starts its research numbers (ENT-HQ-…).
   @POST('/v1/research/projects')
-  Future<ProjectDetail> createProject({@Body() required ProjectIn body});
+  Future<ProjectDetail> createProject({
+    @Body() required ProjectIn body,
+  });
 
   /// List Forms
   @GET('/v1/research/projects/{project_id}/forms')
@@ -76,7 +77,9 @@ abstract class ResearchClient {
   /// A form with its current definition (also a public or shared one,.
   /// for viewing before cloning).
   @GET('/v1/research/forms/{form_id}')
-  Future<FormDetail> getForm({@Path('form_id') required String formId});
+  Future<FormDetail> getForm({
+    @Path('form_id') required String formId,
+  });
 
   /// Update Form.
   ///
@@ -104,7 +107,9 @@ abstract class ResearchClient {
   /// One record: its answers with the definition it was filled with, its.
   /// points of interview and its pictures.
   @GET('/v1/research/records/{record_id}')
-  Future<RecordDetail> getRecord({@Path('record_id') required String recordId});
+  Future<RecordDetail> getRecord({
+    @Path('record_id') required String recordId,
+  });
 
   /// Project Points.
   ///
@@ -158,26 +163,49 @@ abstract class ResearchClient {
   ///
   /// Drops unpublished changes (a form never published keeps its draft).
   @DELETE('/v1/research/forms/{form_id}/draft')
-  Future<FormDetail> discardDraft({@Path('form_id') required String formId});
+  Future<FormDetail> discardDraft({
+    @Path('form_id') required String formId,
+  });
 
   /// Publish Form.
   ///
   /// The draft becomes the next version; collectors get it with their next.
   /// sync. Records already made keep the version they were filled with.
   @POST('/v1/research/forms/{form_id}/publish')
-  Future<FormDetail> publishForm({@Path('form_id') required String formId});
+  Future<FormDetail> publishForm({
+    @Path('form_id') required String formId,
+  });
 
   /// New Access Code.
   ///
   /// A new access code; the old one stops working. Collectors who joined.
   /// keep the form.
   @POST('/v1/research/forms/{form_id}/code')
-  Future<FormDetail> newAccessCode({@Path('form_id') required String formId});
+  Future<FormDetail> newAccessCode({
+    @Path('form_id') required String formId,
+  });
 
   /// Form Versions
   @GET('/v1/research/forms/{form_id}/versions')
   Future<List<VersionOut>> formVersions({
     @Path('form_id') required String formId,
+  });
+
+  /// Add Editor.
+  ///
+  /// Lets someone outside the team change the questions and publish new.
+  /// versions (ADR-032); access and sharing stay with the team.
+  @POST('/v1/research/forms/{form_id}/editors')
+  Future<FormDetail> addEditor({
+    @Path('form_id') required String formId,
+    @Body() required EditorIn body,
+  });
+
+  /// Remove Editor
+  @DELETE('/v1/research/forms/{form_id}/editors/{user_id}')
+  Future<FormDetail> removeEditor({
+    @Path('form_id') required String formId,
+    @Path('user_id') required String userId,
   });
 
   /// Clone Form.
@@ -201,7 +229,9 @@ abstract class ResearchClient {
   ///
   /// The people a 'shared' form may be cloned by.
   @GET('/v1/research/forms/{form_id}/shares')
-  Future<List<ShareOut>> formShares({@Path('form_id') required String formId});
+  Future<List<ShareOut>> formShares({
+    @Path('form_id') required String formId,
+  });
 
   /// Share Form
   @POST('/v1/research/forms/{form_id}/shares')
@@ -229,11 +259,13 @@ abstract class ResearchClient {
   /// Find Testers.
   ///
   /// Research collectors on Collect, to give a form to (water testers are.
-  /// other people, ADR-031). By their own collector code, anyone; by name or.
-  /// phone, those who chose to be found, those already working on the.
-  /// caller's projects, and (for IT admins) everyone.
+  /// other people, ADR-031). Anyone by their username or collector code; by.
+  /// real name or phone only where the caller may see it (ADR-032). Named by.
+  /// username, with the real name where it may be seen.
   @GET('/v1/research/testers')
-  Future<List<TesterOut>> findTesters({@Query('q') required String q});
+  Future<List<TesterOut>> findTesters({
+    @Query('q') required String q,
+  });
 
   /// Device Forms.
   ///
@@ -241,22 +273,6 @@ abstract class ResearchClient {
   /// use and lists those behind a code (2026-10-27).
   @GET('/v1/research/device/forms')
   Future<DeviceForms> deviceForms();
-
-  /// Collector Card.
-  ///
-  /// A research collector's own code to give research teams, and whether.
-  /// teams may find them by name.
-  @GET('/v1/research/collectors/{collector_key}/card')
-  Future<CollectorCard> collectorCard({
-    @Path('collector_key') required String collectorKey,
-  });
-
-  /// Set Discoverable
-  @PUT('/v1/research/collectors/{collector_key}/card')
-  Future<CollectorCard> setDiscoverable({
-    @Path('collector_key') required String collectorKey,
-    @Body() required DiscoverableIn body,
-  });
 
   /// Research Collector.
   ///
@@ -291,7 +307,9 @@ abstract class ResearchClient {
   /// Collect: a tester signed in on this phone joins a form with its access.
   /// code; the form arrives with the next sync.
   @POST('/v1/research/join')
-  Future<JoinOut> joinWithCode({@Body() required JoinIn body});
+  Future<JoinOut> joinWithCode({
+    @Body() required JoinIn body,
+  });
 
   /// Project Records.
   ///

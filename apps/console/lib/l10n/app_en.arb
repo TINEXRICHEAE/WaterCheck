@@ -1881,7 +1881,7 @@
   "researchLatestRecords": "Latest records",
   "researchSeeAllRecords": "All records",
   "researchNoRecordsYet": "No records yet.",
-  "researchNoCollectorsYet": "No collectors yet. Give a form to testers, or share its access code.",
+  "researchNoCollectorsYet": "No collectors yet. Give a form to collectors, or share its access code.",
   "researchLastAt": "last {when}",
   "@researchLastAt": {
     "placeholders": {
@@ -2017,10 +2017,10 @@
   "researchTabPreview": "Try it",
   "researchNeedProject": "Create a project first.",
   "researchWhoCollects": "Who may collect with this form",
-  "researchAccessAssignedHint": "Only testers you give the form to (Collectors).",
-  "researchAccessCodeHint": "Testers who type the form's access code in Collect, and those you give it to.",
-  "researchAccessOpenHint": "Any tester on Collect, unless the form is hidden.",
-  "researchCodeHint": "Testers type this code in Collect › Research to join.",
+  "researchAccessAssignedHint": "Only collectors you give the form to (Collectors).",
+  "researchAccessCodeHint": "Collectors who type the form's access code in Collect, and those you give it to. Every research collector sees it with a lock.",
+  "researchAccessOpenHint": "Any research collector on Collect, unless the form is hidden.",
+  "researchCodeHint": "Collectors type this code in Collect › Research to join.",
   "researchCopyCode": "Copy the code",
   "researchNewCode": "New code",
   "researchNewCodeBody": "The old code stops working. Collectors who already joined keep the form.",
@@ -2044,7 +2044,7 @@
   "researchSharedHint": "The team, and the people you name below.",
   "researchPublicHint": "Any researcher on FieldQuire (never the records).",
   "researchShareWith": "Share with a person",
-  "researchAssignTitle": "Give {code} to testers",
+  "researchAssignTitle": "Give {code} to collectors",
   "@researchAssignTitle": {
     "placeholders": {
       "code": {
@@ -2079,10 +2079,10 @@
       }
     }
   },
-  "researchCollectorsHint": "Testers collecting for this project, the forms each has, and their records.",
-  "researchGiveForm": "Give a form to testers",
+  "researchCollectorsHint": "Collectors working on this project, the forms each has, and their records.",
+  "researchGiveForm": "Give a form to collectors",
   "researchHowCollectorsJoin": "How collectors get each form",
-  "researchJoinHint": "Open a form to change who may collect, see its access code, or give it to testers.",
+  "researchJoinHint": "Open a form to change who may collect, see its access code, or give it to collectors.",
   "researchCollectorsCount": "{count, plural, =1{1 collector} other{{count} collectors}}",
   "@researchCollectorsCount": {
     "placeholders": {
@@ -2235,7 +2235,7 @@
       }
     }
   },
-  "researchAdminHint": "IT admins see every research project. People, phones and the system are shared with water testing.",
+  "researchAdminHint": "IT admins see every research project. Research has its own people, phones, codes and security pages.",
   "researchAdminPeople": "People and accounts",
   "researchAdminPhones": "Phones",
   "researchAdminSecurity": "Security",
@@ -2655,5 +2655,40 @@
         "type": "int"
       }
     }
-  }
+  },
+  "researchOpenMyCopy": "Open my copy",
+  "researchEditorsTitle": "Editors",
+  "researchEditorsHint": "People outside this project who may change the questions and publish new versions. Each version shows who published it. Only this project's team changes access and sharing.",
+  "researchAddEditor": "Add an editor",
+  "researchEmailOrUsername": "Their email or username",
+  "researchPublishedBy": "by {name}",
+  "@researchPublishedBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "phonesHintResearch": "Devices register themselves when Collect is opened. Each row shows the research collectors who used it and their records. Revoke a lost or stolen device.",
+  "phonesActivityResearch": "{collectors, plural, =1{1 collector} other{{collectors} collectors}}, {records, plural, =1{1 record} other{{records} records}}",
+  "@phonesActivityResearch": {
+    "placeholders": {
+      "collectors": {
+        "type": "int"
+      },
+      "records": {
+        "type": "int"
+      }
+    }
+  },
+  "deviceCollectorsResearch": "Collectors on this device",
+  "deviceCollectorRecords": "{records, plural, =1{1 record} other{{records} records}}",
+  "@deviceCollectorRecords": {
+    "placeholders": {
+      "records": {
+        "type": "int"
+      }
+    }
+  },
+  "researchOpenRecord": "Open the record"
 }

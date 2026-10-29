@@ -45,11 +45,11 @@ import 'gate.dart';
 bool _isOnboarding(String location) => location.startsWith('/who');
 
 /// Screens that only make sense before the app is ready.
-bool _isSetup(String location) =>
-    location == '/lock' || location == '/lock/setup';
+bool _isSetup(String location) => location == '/lock';
 
 /// Where the gate sends someone trying to open [location], or null to allow.
-/// Order: revoked, lock, PIN choice, collector. There is no activation step
+/// Order: revoked, lock, collector. The app lock is off until someone
+/// turns it on in Settings (2026-10-28), so a first run goes straight in. There is no activation step
 /// (ADR-024): the device registers itself, and a tester is assigned to an
 /// area later with a code (Settings). There is no device-wide consent page
 /// either (ADR-031): each person accepts their side's documents when they
@@ -60,9 +60,6 @@ String? gateRedirect(AppGate gate, String location) {
   // it is reachable from the lock screen ("Forgot PIN?").
   if (location == '/reset') return null;
   if (gate.locked) return location == '/lock' ? null : '/lock';
-  if (!gate.lockDecided) {
-    return location == '/lock/setup' ? null : '/lock/setup';
-  }
   if (_isSetup(location)) return '/';
   if (gate.activeCollectorKey == null && !_isOnboarding(location)) {
     return '/who';
@@ -105,13 +102,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (_, _) => const ActivationScreen(),
         routes: [GoRoute(path: 'scan', builder: (_, _) => const ScanScreen())],
       ),
-      GoRoute(
-        path: '/lock',
-        builder: (_, _) => const LockScreen(),
-        routes: [
-          GoRoute(path: 'setup', builder: (_, _) => const LockSetupScreen()),
-        ],
-      ),
+      GoRoute(path: '/lock', builder: (_, _) => const LockScreen(), routes: []),
       GoRoute(path: '/reset', builder: (_, _) => const ResetScreen()),
       GoRoute(path: '/pin', builder: (_, _) => const ChangePinScreen()),
       GoRoute(

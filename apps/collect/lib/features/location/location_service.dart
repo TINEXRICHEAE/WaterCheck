@@ -5,7 +5,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 
+import 'package:ui_kit/map_kit.dart' show deviceHasNoGps;
+
 import '../../l10n/app_localizations.dart';
+import 'ip_location.dart';
 
 /// Why a GPS fix could not be taken; the UI explains each in plain words.
 enum LocationProblem { serviceOff, denied, deniedForever, timeout, unavailable }
@@ -81,8 +84,14 @@ String locationProblemText(AppLocalizations l10n, LocationProblem p) =>
       LocationProblem.unavailable => l10n.locationUnavailable,
     };
 
+/// Computers: their own location read fresh, else the internet
+/// connection's guess, or a point set by hand (2026-10-29).
+///
+/// connection, set more closely by hand (2026-10-28).
 final locationServiceProvider = Provider<LocationService>(
-  (ref) => const GeolocatorLocationService(),
+  (ref) => deviceHasNoGps
+      ? ComputerLocation(ref)
+      : const GeolocatorLocationService(),
 );
 
 /// Fixes while travelling (live navigation) and the full detail of one fix
@@ -166,5 +175,6 @@ class GeolocatorLiveLocation implements LiveLocation {
 }
 
 final liveLocationProvider = Provider<LiveLocation>(
-  (ref) => const GeolocatorLiveLocation(),
+  (ref) =>
+      deviceHasNoGps ? ComputerLocation(ref) : const GeolocatorLiveLocation(),
 );

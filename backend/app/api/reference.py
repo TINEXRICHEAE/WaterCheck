@@ -16,8 +16,10 @@ from pydantic import BaseModel
 from sqlalchemy import text
 
 from app.api.deps import AdminDep, DbDep, SettingsDep, UserDep, current_user
-from app.api.installations import current_installation
+from app.api.installations import client_address, current_installation
 from app.db.database import Principal
+from app.services.ip_location import is_public, lookup, server_public_ip
+from app.services.people import collector_labels, relabel
 
 router = APIRouter(prefix="/v1", tags=["reference"])
 
@@ -288,7 +290,10 @@ async def search_places(
                 " SELECT p.id, p.name, p.kind, "
                 " CASE WHEN p.osm_id IS NULL THEN 'added' ELSE 'map' END AS source, p.lat, p.lon, "
                 " p.subcounty_id, s.name AS subcounty, d.id AS district_id, d.name AS district, "
-                " p.added_by_name AS added_by "
+                # Who added it, by username (ADR-032).
+                " CASE WHEN p.osm_id IS NULL THEN coalesce(wc_user_label(p.added_by_user), "
+                " wc_collector_label(CAST(nullif(p.added_collector_snapshot->>'collector_key', '') "
+                " AS uuid)), '?') END AS added_by "
                 " FROM place_name p JOIN admin_unit s ON s.id = p.subcounty_id "
                 " LEFT JOIN admin_unit d ON d.id = s.parent_id AND d.level = 'district' "
                 " WHERE lower(p.name) LIKE :contains AND p.removed_at IS NULL "
@@ -365,9 +370,11 @@ async def collectors(user: UserDep, db: DbDep) -> list[CollectorSummary]:
                 "ORDER BY s.collector_key, s.tested_at_device DESC"
             )
         )
+        found = list(rows)
+        names = await collector_labels(conn, [r.collector_key for r in found])
         out = []
-        for r in rows:
-            snap = _json(r.collector_snapshot)
+        for r in found:
+            snap = relabel(_json(r.collector_snapshot), names.get(str(r.collector_key))) or {}
             out.append(
                 CollectorSummary(
                     collector_key=r.collector_key,
@@ -439,4 +446,35 @@ async def remove_place(place_id: UUID, admin: AdminDep, db: DbDep) -> None:
         "UPDATE place_name SET removed_at = now() WHERE id = :id",
         {},
         "place_removed",
+    )
+
+
+class IpLocation(BaseModel):
+    lat: float
+    lon: float
+    # The error circle: the point may only be moved within it.
+    accuracy_m: float
+    city: str | None
+    region: str | None
+    country: str | None
+
+
+@router.get("/places/ip-location")
+async def ip_location(request: Request, settings: SettingsDep) -> IpLocation:
+    """Roughly where the caller is, from their public address: for devices
+    without GPS only (2026-10-28). 404 when the address is not known."""
+    address = client_address(request)
+    if not is_public(address):
+        # On the server's own network (the dev stack): its public address.
+        address = await server_public_ip(settings.public_ip_url) if settings.public_ip_url else None
+    found = lookup(settings.geoip_path, address) if address else None
+    if found is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "ip_location_unknown")
+    return IpLocation(
+        lat=found.lat,
+        lon=found.lon,
+        accuracy_m=found.accuracy_m,
+        city=found.city,
+        region=found.region,
+        country=found.country,
     )

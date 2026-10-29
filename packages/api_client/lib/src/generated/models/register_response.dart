@@ -14,10 +14,9 @@ class RegisterResponse {
     required this.serverTime,
     required this.shortCode,
   });
-
-  factory RegisterResponse.fromJson(Map<String, Object?> json) =>
-      _$RegisterResponseFromJson(json);
-
+  
+  factory RegisterResponse.fromJson(Map<String, Object?> json) => _$RegisterResponseFromJson(json);
+  
   @JsonKey(name: 'installation_id')
   final String installationId;
   final String secret;

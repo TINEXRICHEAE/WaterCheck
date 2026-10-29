@@ -19,8 +19,8 @@ COPY app ./app
 COPY alembic.ini ./
 COPY migrations ./migrations
 
-RUN useradd --system --uid 10001 watercheck
-USER watercheck
+RUN useradd --system --uid 10001 fieldquire
+USER fieldquire
 
 EXPOSE 8000
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--proxy-headers", "--forwarded-allow-ips", "*", "--no-access-log"]

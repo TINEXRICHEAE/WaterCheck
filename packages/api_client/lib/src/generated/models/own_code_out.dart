@@ -8,11 +8,13 @@ part 'own_code_out.g.dart';
 
 @JsonSerializable()
 class OwnCodeOut {
-  const OwnCodeOut({required this.code, required this.fullName});
-
-  factory OwnCodeOut.fromJson(Map<String, Object?> json) =>
-      _$OwnCodeOutFromJson(json);
-
+  const OwnCodeOut({
+    required this.code,
+    required this.fullName,
+  });
+  
+  factory OwnCodeOut.fromJson(Map<String, Object?> json) => _$OwnCodeOutFromJson(json);
+  
   final String code;
   @JsonKey(name: 'full_name')
   final String fullName;

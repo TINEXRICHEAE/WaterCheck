@@ -4,6 +4,8 @@
 
 import 'package:json_annotation/json_annotation.dart';
 
+import 'editor_out.dart';
+
 part 'form_detail.g.dart';
 
 @JsonSerializable()
@@ -27,13 +29,15 @@ class FormDetail {
     required this.projectTitle,
     required this.clonedFrom,
     this.canManage = false,
+    this.canEdit = false,
+    this.editors = const [],
     this.draft,
     this.accessCode,
+    this.myCopy,
   });
-
-  factory FormDetail.fromJson(Map<String, Object?> json) =>
-      _$FormDetailFromJson(json);
-
+  
+  factory FormDetail.fromJson(Map<String, Object?> json) => _$FormDetailFromJson(json);
+  
   final String id;
   @JsonKey(name: 'project_id')
   final String projectId;
@@ -63,6 +67,11 @@ class FormDetail {
   final String projectTitle;
   @JsonKey(name: 'cloned_from')
   final String? clonedFrom;
+  @JsonKey(name: 'can_edit')
+  final bool canEdit;
+  @JsonKey(name: 'my_copy')
+  final String? myCopy;
+  final List<EditorOut> editors;
 
   Map<String, Object?> toJson() => _$FormDetailToJson(this);
 }

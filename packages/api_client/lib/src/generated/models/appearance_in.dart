@@ -9,11 +9,13 @@ part 'appearance_in.g.dart';
 /// Theme and time zone; they follow the person to any device.
 @JsonSerializable()
 class AppearanceIn {
-  const AppearanceIn({required this.theme, required this.timeZone});
-
-  factory AppearanceIn.fromJson(Map<String, Object?> json) =>
-      _$AppearanceInFromJson(json);
-
+  const AppearanceIn({
+    required this.theme,
+    required this.timeZone,
+  });
+  
+  factory AppearanceIn.fromJson(Map<String, Object?> json) => _$AppearanceInFromJson(json);
+  
   final String theme;
   @JsonKey(name: 'time_zone')
   final String timeZone;

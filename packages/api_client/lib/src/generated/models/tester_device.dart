@@ -19,10 +19,9 @@ class TesterDevice {
     required this.signedOutAt,
     required this.thisDevice,
   });
-
-  factory TesterDevice.fromJson(Map<String, Object?> json) =>
-      _$TesterDeviceFromJson(json);
-
+  
+  factory TesterDevice.fromJson(Map<String, Object?> json) => _$TesterDeviceFromJson(json);
+  
   @JsonKey(name: 'installation_id')
   final String installationId;
   final String? platform;

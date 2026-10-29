@@ -111,7 +111,7 @@ class Phone:
             "installation_id": self.id,
             "collector_key": self.collector,
             "collector_snapshot": json.dumps(
-                {"full_name": "Example Collector"}
+                {"collector_key": self.collector, "full_name": "Example Collector"}
                 | ({"side": self.side} if self.side != "water" else {})
             ),
         }
@@ -595,7 +595,10 @@ async def test_pull_is_scoped_paged_and_resumable(
     ]
     source = next(c for c in seen if c["entity"] == "water_source")["data"]
     assert source["lat"] == 2.7
-    assert source["collector_snapshot"] == {"full_name": "Example Collector"}
+    # Named by username, the real name after it for its own phone (ADR-032).
+    snapshot = source["collector_snapshot"]
+    assert snapshot["collector_key"] == a.collector
+    assert snapshot["full_name"].endswith(" (Example Collector)")
     reading = next(c for c in seen if c["entity"] == "reading")["data"]
     assert isinstance(reading["value"], str)
     # Nothing new: the cursor is stable.
@@ -875,9 +878,10 @@ async def test_threads_on_a_test_and_a_source_reach_both_sides(
     pulled = (await a.pull(f"area:{a.village}")).json()["changes"]
     got = {c["id"]: c["data"] for c in pulled if c["entity"] == "message"}
     assert got[asked["id"]]["body"] == "The strip looked faded."
-    assert got[asked["id"]]["author_name"] == "Example Collector"
+    assert got[asked["id"]]["author_name"].endswith(" (Example Collector)")
     assert got[reply["id"]]["subject_type"] == "source"
-    assert got[reply["id"]]["author_name"] == "Officer"
+    # The IT admin is anonymous to the phone: by username only (ADR-032).
+    assert "(" not in got[reply["id"]]["author_name"]
     assert got[reply["id"]]["author_user_id"]
 
 
@@ -1003,12 +1007,13 @@ async def test_map_places_are_found_by_name_and_placed_in_their_subcounty(
     again = (await a.push([place(added, lat0 + 0.006, lon0 + 0.006)]))["results"][0]
     assert again["status"] == "duplicate"
     hits = await a.get("/v1/places/search?q=kabojjatest%20market")
-    assert [(h["name"], h["source"], h["added_by"], h["subcounty"]) for h in hits] == [
-        ("Kabojjatest Market", "added", "Example Collector", "Test Sub")
+    assert [(h["name"], h["source"], h["subcounty"]) for h in hits] == [
+        ("Kabojjatest Market", "added", "Test Sub")
     ]
+    assert hits[0]["added_by"].endswith(" (Example Collector)")
     pulled = (await a.pull(f"area:{district['id']}")).json()["changes"]
     mine = next(c for c in pulled if c["id"] == added)
-    assert mine["data"]["added_by_name"] == "Example Collector"
+    assert mine["data"]["added_by_name"].endswith(" (Example Collector)")
     assert mine["data"]["removed_at"] is None
 
     # An IT admin renames or removes an added place; names from the map
@@ -1151,7 +1156,7 @@ async def test_people_manage_their_own_profiles(
     codes = (await client.get("/v1/admin/codes-to-pass", headers=admin)).json()
     code = next(c for c in codes if c["id"] == pending["id"])
     assert code["kind"] == "contact"
-    assert code["who"] == "Grace Atim"
+    assert code["who"].endswith(" (Grace Atim)")
     confirm = f"/v1/me/contacts/{pending['id']}/confirm"
     wrong_code = "000000" if code["code"] != "000000" else "111111"
     assert (await client.post(confirm, json={"code": wrong_code}, headers=me)).status_code == 400
@@ -1250,6 +1255,8 @@ async def test_research_records_sync_with_their_point_and_stay_with_the_team(
         }
 
     first, second = record("H-001"), record(" H-001 ")
+    # Set by hand on a computer (2026-10-29): kept and shown as such.
+    first["data"]["location_source"] = "hand"
     picture = {
         "entity": "attachment",
         "op": "insert",
@@ -1297,11 +1304,11 @@ async def test_research_records_sync_with_their_point_and_stay_with_the_team(
     ).json()
     assert listed["total"] >= 2
     row = next(r for r in listed["items"] if r["id"] == first["id"])
-    assert (row["number"], row["collector"], row["declined"]) == (
-        "H-001",
-        "Example Collector",
-        False,
-    )
+    assert (row["number"], row["declined"]) == ("H-001", False)
+    assert row["collector"].endswith(" (Example Collector)")
+    assert row["location_source"] == "hand"
+    other = next(r for r in listed["items"] if r["id"] == second["id"])
+    assert other["location_source"] is None
     detail = (await client.get(f"/v1/research/records/{first['id']}", headers=admin)).json()
     assert detail["answers"]["B2"] == ["boiling"]
     assert detail["definition"]["title"] == "Household Questionnaire"

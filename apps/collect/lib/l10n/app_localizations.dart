@@ -3892,40 +3892,16 @@ abstract class AppLocalizations {
   /// **'Copy the code'**
   String get cardCopy;
 
-  /// No description provided for @cardCopied.
-  ///
-  /// In en, this message translates to:
-  /// **'Code copied.'**
-  String get cardCopied;
-
-  /// No description provided for @cardFindMe.
-  ///
-  /// In en, this message translates to:
-  /// **'Let research teams find me by name'**
-  String get cardFindMe;
-
-  /// No description provided for @cardPublic.
-  ///
-  /// In en, this message translates to:
-  /// **'Any research team can find you by your name or phone and ask you to collect data.'**
-  String get cardPublic;
-
-  /// No description provided for @cardPrivate.
-  ///
-  /// In en, this message translates to:
-  /// **'Private: only teams you give your code to can add you.'**
-  String get cardPrivate;
-
   /// No description provided for @cardSyncFirst.
   ///
   /// In en, this message translates to:
-  /// **'Sync once with the internet on to see your code.'**
+  /// **'Sync once with the internet on to see your username and code.'**
   String get cardSyncFirst;
 
   /// No description provided for @cardOffline.
   ///
   /// In en, this message translates to:
-  /// **'Your code shows when you are online.'**
+  /// **'Your username and code show when you are online.'**
   String get cardOffline;
 
   /// No description provided for @cardRetry.
@@ -3939,6 +3915,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not change this ({code}). Try again online.'**
   String cardFailed(String code);
+
+  /// No description provided for @whoTitleResearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Who is collecting?'**
+  String get whoTitleResearch;
+
+  /// No description provided for @whoCurrentResearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Collecting now'**
+  String get whoCurrentResearch;
+
+  /// No description provided for @whoSwitchResearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Change who is collecting'**
+  String get whoSwitchResearch;
+
+  /// No description provided for @messagesNoneResearch.
+  ///
+  /// In en, this message translates to:
+  /// **'No messages yet. Messages about your research records, and replies from research teams, appear here.'**
+  String get messagesNoneResearch;
+
+  /// No description provided for @accountOwnCodeIntroResearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Make a sign-in code here and use it on another device (\"Who is collecting?\" › \"I already have a profile\"). It works once and does not expire until used. You can also ask your IT admin for one.'**
+  String get accountOwnCodeIntroResearch;
+
+  /// No description provided for @profileSwitchHintResearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose who collects data on this device.'**
+  String get profileSwitchHintResearch;
+
+  /// No description provided for @profileDeleteHintResearch.
+  ///
+  /// In en, this message translates to:
+  /// **'For good: every device signs you out and your phone and email are erased. Your records stay.'**
+  String get profileDeleteHintResearch;
+
+  /// No description provided for @profileDeleteBodyResearch.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}, every device will sign you out and your phone and email are erased. The research records you sent stay with their projects.'**
+  String profileDeleteBodyResearch(String name);
 }
 
 class _AppLocalizationsDelegate

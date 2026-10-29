@@ -151,4 +151,20 @@ void main() {
     expect(sides, {'w': ('water', 0), 'r': ('research', 0)});
     await db.close();
   });
+
+  test('v13 → v14 keeps drafts and records where a location came from '
+      '(2026-10-29)', () async {
+    final schema = await verifier.schemaAt(13);
+    schema.rawDatabase.execute(
+      "INSERT INTO research_drafts (id, form_id, form_version, answers, "
+      "started_at, updated_at, lat, lon) VALUES ('d', 'f', 1, '{}', "
+      "'2026-10-28T09:00:00Z', '2026-10-28T09:00:00Z', 2.69, 33.65)",
+    );
+    final db = AppDatabase(schema.newConnection());
+    await verifier.migrateAndValidate(db, localSchemaVersion);
+    final draft = await db.select(db.researchDrafts).getSingle();
+    // Kept, and measured on the device (no source given).
+    expect((draft.lat, draft.locationSource), (2.69, null));
+    await db.close();
+  });
 }

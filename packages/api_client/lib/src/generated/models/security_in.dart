@@ -14,10 +14,9 @@ class SecurityIn {
     required this.passwordMinLength,
     required this.consoleIdleMinutes,
   });
-
-  factory SecurityIn.fromJson(Map<String, Object?> json) =>
-      _$SecurityInFromJson(json);
-
+  
+  factory SecurityIn.fromJson(Map<String, Object?> json) => _$SecurityInFromJson(json);
+  
   @JsonKey(name: 'max_failed_logins')
   final int maxFailedLogins;
   @JsonKey(name: 'lockout_minutes')

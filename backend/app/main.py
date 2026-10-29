@@ -21,6 +21,7 @@ from app.api import (
     health,
     installations,
     notifications,
+    people,
     profile,
     recovery,
     reference,
@@ -91,6 +92,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(installations.router)
     app.include_router(reference.router)
     app.include_router(research.router)
+    app.include_router(people.router)
     app.include_router(sync.router)
     app.include_router(attachments.router)
     app.include_router(notifications.router)

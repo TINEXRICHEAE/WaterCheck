@@ -4783,7 +4783,7 @@ abstract class AppLocalizations {
   /// No description provided for @researchNoCollectorsYet.
   ///
   /// In en, this message translates to:
-  /// **'No collectors yet. Give a form to testers, or share its access code.'**
+  /// **'No collectors yet. Give a form to collectors, or share its access code.'**
   String get researchNoCollectorsYet;
 
   /// No description provided for @researchLastAt.
@@ -5179,25 +5179,25 @@ abstract class AppLocalizations {
   /// No description provided for @researchAccessAssignedHint.
   ///
   /// In en, this message translates to:
-  /// **'Only testers you give the form to (Collectors).'**
+  /// **'Only collectors you give the form to (Collectors).'**
   String get researchAccessAssignedHint;
 
   /// No description provided for @researchAccessCodeHint.
   ///
   /// In en, this message translates to:
-  /// **'Testers who type the form\'s access code in Collect, and those you give it to.'**
+  /// **'Collectors who type the form\'s access code in Collect, and those you give it to. Every research collector sees it with a lock.'**
   String get researchAccessCodeHint;
 
   /// No description provided for @researchAccessOpenHint.
   ///
   /// In en, this message translates to:
-  /// **'Any tester on Collect, unless the form is hidden.'**
+  /// **'Any research collector on Collect, unless the form is hidden.'**
   String get researchAccessOpenHint;
 
   /// No description provided for @researchCodeHint.
   ///
   /// In en, this message translates to:
-  /// **'Testers type this code in Collect › Research to join.'**
+  /// **'Collectors type this code in Collect › Research to join.'**
   String get researchCodeHint;
 
   /// No description provided for @researchCopyCode.
@@ -5299,7 +5299,7 @@ abstract class AppLocalizations {
   /// No description provided for @researchAssignTitle.
   ///
   /// In en, this message translates to:
-  /// **'Give {code} to testers'**
+  /// **'Give {code} to collectors'**
   String researchAssignTitle(String code);
 
   /// No description provided for @researchFindTester.
@@ -5383,13 +5383,13 @@ abstract class AppLocalizations {
   /// No description provided for @researchCollectorsHint.
   ///
   /// In en, this message translates to:
-  /// **'Testers collecting for this project, the forms each has, and their records.'**
+  /// **'Collectors working on this project, the forms each has, and their records.'**
   String get researchCollectorsHint;
 
   /// No description provided for @researchGiveForm.
   ///
   /// In en, this message translates to:
-  /// **'Give a form to testers'**
+  /// **'Give a form to collectors'**
   String get researchGiveForm;
 
   /// No description provided for @researchHowCollectorsJoin.
@@ -5401,7 +5401,7 @@ abstract class AppLocalizations {
   /// No description provided for @researchJoinHint.
   ///
   /// In en, this message translates to:
-  /// **'Open a form to change who may collect, see its access code, or give it to testers.'**
+  /// **'Open a form to change who may collect, see its access code, or give it to collectors.'**
   String get researchJoinHint;
 
   /// No description provided for @researchCollectorsCount.
@@ -5785,7 +5785,7 @@ abstract class AppLocalizations {
   /// No description provided for @researchAdminHint.
   ///
   /// In en, this message translates to:
-  /// **'IT admins see every research project. People, phones and the system are shared with water testing.'**
+  /// **'IT admins see every research project. Research has its own people, phones, codes and security pages.'**
   String get researchAdminHint;
 
   /// No description provided for @researchAdminPeople.
@@ -6927,6 +6927,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =1{From 1 record or repeat row} other{From {count} records or repeat rows}}'**
   String researchChartUnits(int count);
+
+  /// No description provided for @researchOpenMyCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'Open my copy'**
+  String get researchOpenMyCopy;
+
+  /// No description provided for @researchEditorsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Editors'**
+  String get researchEditorsTitle;
+
+  /// No description provided for @researchEditorsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'People outside this project who may change the questions and publish new versions. Each version shows who published it. Only this project\'s team changes access and sharing.'**
+  String get researchEditorsHint;
+
+  /// No description provided for @researchAddEditor.
+  ///
+  /// In en, this message translates to:
+  /// **'Add an editor'**
+  String get researchAddEditor;
+
+  /// No description provided for @researchEmailOrUsername.
+  ///
+  /// In en, this message translates to:
+  /// **'Their email or username'**
+  String get researchEmailOrUsername;
+
+  /// No description provided for @researchPublishedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'by {name}'**
+  String researchPublishedBy(String name);
+
+  /// No description provided for @phonesHintResearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Devices register themselves when Collect is opened. Each row shows the research collectors who used it and their records. Revoke a lost or stolen device.'**
+  String get phonesHintResearch;
+
+  /// No description provided for @phonesActivityResearch.
+  ///
+  /// In en, this message translates to:
+  /// **'{collectors, plural, =1{1 collector} other{{collectors} collectors}}, {records, plural, =1{1 record} other{{records} records}}'**
+  String phonesActivityResearch(int collectors, int records);
+
+  /// No description provided for @deviceCollectorsResearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Collectors on this device'**
+  String get deviceCollectorsResearch;
+
+  /// No description provided for @deviceCollectorRecords.
+  ///
+  /// In en, this message translates to:
+  /// **'{records, plural, =1{1 record} other{{records} records}}'**
+  String deviceCollectorRecords(int records);
+
+  /// No description provided for @researchOpenRecord.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the record'**
+  String get researchOpenRecord;
 }
 
 class _AppLocalizationsDelegate

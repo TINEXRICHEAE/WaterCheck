@@ -37,6 +37,7 @@ class GeoFix {
     this.altitudeM,
     this.speedMps,
     this.headingDeg,
+    this.source = LocationSource.device,
   });
 
   final double lat;
@@ -51,5 +52,8 @@ class GeoFix {
   /// Degrees clockwise from north.
   final double? headingDeg;
 
-  GeoPoint get point => GeoPoint(lat: lat, lon: lon, accuracyM: accuracyM);
+  final LocationSource source;
+
+  GeoPoint get point =>
+      GeoPoint(lat: lat, lon: lon, accuracyM: accuracyM, source: source);
 }

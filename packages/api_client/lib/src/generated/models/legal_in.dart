@@ -10,11 +10,13 @@ part 'legal_in.g.dart';
 
 @JsonSerializable()
 class LegalIn {
-  const LegalIn({required this.version, this.side});
-
-  factory LegalIn.fromJson(Map<String, Object?> json) =>
-      _$LegalInFromJson(json);
-
+  const LegalIn({
+    required this.version,
+    this.side,
+  });
+  
+  factory LegalIn.fromJson(Map<String, Object?> json) => _$LegalInFromJson(json);
+  
   final int version;
   final LegalInSide? side;
 

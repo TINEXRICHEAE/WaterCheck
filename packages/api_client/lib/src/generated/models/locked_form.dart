@@ -15,10 +15,9 @@ class LockedForm {
     required this.description,
     required this.projectTitle,
   });
-
-  factory LockedForm.fromJson(Map<String, Object?> json) =>
-      _$LockedFormFromJson(json);
-
+  
+  factory LockedForm.fromJson(Map<String, Object?> json) => _$LockedFormFromJson(json);
+  
   final String id;
   final String code;
   final String title;

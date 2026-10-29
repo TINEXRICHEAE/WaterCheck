@@ -8,11 +8,12 @@ part 'default_profile_in.g.dart';
 
 @JsonSerializable()
 class DefaultProfileIn {
-  const DefaultProfileIn({required this.standardId});
-
-  factory DefaultProfileIn.fromJson(Map<String, Object?> json) =>
-      _$DefaultProfileInFromJson(json);
-
+  const DefaultProfileIn({
+    required this.standardId,
+  });
+  
+  factory DefaultProfileIn.fromJson(Map<String, Object?> json) => _$DefaultProfileInFromJson(json);
+  
   @JsonKey(name: 'standard_id')
   final String? standardId;
 

@@ -31,6 +31,7 @@ from sqlalchemy.ext.asyncio import AsyncConnection
 from app.domain.classification import OverallStatus
 from app.domain.model import DomainRules
 from app.domain.schedule import ScheduleStatus, compute_schedule
+from app.services.people import collector_labels, relabel
 
 
 @dataclass
@@ -145,8 +146,9 @@ async def summary(
             if shown(newest) == "unsafe":
                 out.unsafe_in_period += 1
 
+    # Testers by username (ADR-032).
+    names = await collector_labels(conn, [r.collector_key for r in results])
     for r in results[:10]:
-        snap = _snapshot(r.collector_snapshot)
         src = by_id[r.source_id]
         out.latest_tests.append(
             {
@@ -155,7 +157,7 @@ async def summary(
                 "name": src.name,
                 "tested_at": r.tested_at_device,
                 "overall": shown(r),
-                "collector_name": snap.get("full_name"),
+                "collector_name": (names.get(str(r.collector_key)) or (None, False))[0],
                 "custom_limits": r.is_custom,
             }
         )
@@ -190,8 +192,9 @@ async def _collectors(
         if prev is None or s.tested_at_device > prev.tested_at_device:
             newest[s.collector_key] = s
     out = []
+    names = await collector_labels(conn, newest.keys())
     for key, s in newest.items():
-        snap = _snapshot(s.collector_snapshot)
+        snap = relabel(_snapshot(s.collector_snapshot), names.get(str(key))) or {}
         out.append(
             {
                 "collector_key": key,

@@ -3,6 +3,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:ui_kit/map_kit.dart' show deviceHasNoGps;
+
+import 'ip_location.dart';
 
 /// Where this device is, for "you are here" and distances on the map,
 /// kept current while a page shows it: a fresh, accurate fix (GPS, not a
@@ -12,6 +15,12 @@ import 'package:latlong2/latlong.dart';
 final deviceLocationProvider = StreamProvider.autoDispose<LatLng?>((
   ref,
 ) async* {
+  // A computer: its own location read fresh, else the internet guess, or
+  // a point set by hand (2026-10-29).
+  if (deviceHasNoGps) {
+    yield (await ref.watch(computerPositionProvider.future))?.point;
+    return;
+  }
   try {
     if (!await Geolocator.isLocationServiceEnabled()) {
       yield null;
@@ -56,6 +65,18 @@ final deviceLocationProvider = StreamProvider.autoDispose<LatLng?>((
 /// (it reports 0); those become null.
 final deviceFixesProvider = Provider<Stream<GeoFix> Function()>(
   (ref) => () async* {
+    if (deviceHasNoGps) {
+      final p = await ref.read(computerPositionProvider.future);
+      if (p == null) throw StateError('location_unknown');
+      yield GeoFix(
+        lat: p.point.latitude,
+        lon: p.point.longitude,
+        at: p.at,
+        accuracyM: p.accuracyM,
+        source: p.source,
+      );
+      return;
+    }
     if (!await Geolocator.isLocationServiceEnabled()) {
       throw StateError('location_off');
     }

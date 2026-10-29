@@ -124,9 +124,7 @@ class ResearchRepository {
     await (_db.delete(
       _db.researchDrafts,
     )..where((d) => d.formId.isIn(gone))).go();
-    await (_db.delete(
-      _db.researchForms,
-    )..where((f) => f.id.isIn(gone))).go();
+    await (_db.delete(_db.researchForms)..where((f) => f.id.isIn(gone))).go();
     return gone.length;
   });
 
@@ -165,6 +163,7 @@ class ResearchRepository {
             lon: Value(at?.lon),
             accuracyM: Value(at?.accuracyM),
             altitudeM: Value(at?.altitudeM),
+            locationSource: Value(at?.source.wire),
           ),
         );
     return id;
@@ -202,6 +201,7 @@ class ResearchRepository {
           lon: Value(at.lon),
           accuracyM: Value(at.accuracyM),
           altitudeM: Value(at.altitudeM),
+          locationSource: Value(at.source.wire),
         ),
       );
 
@@ -370,6 +370,7 @@ class ResearchRepository {
               lon: Value(d.lon),
               accuracyM: Value(d.accuracyM),
               altitudeM: Value(d.altitudeM),
+              locationSource: Value(d.locationSource),
               endLat: Value(end?.lat),
               endLon: Value(end?.lon),
               endAccuracyM: Value(end?.accuracyM),

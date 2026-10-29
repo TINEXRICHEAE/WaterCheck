@@ -11,10 +11,13 @@ part 'ledger.g.dart';
 
 @JsonSerializable()
 class Ledger {
-  const Ledger({required this.codes, required this.accounts});
-
+  const Ledger({
+    required this.codes,
+    required this.accounts,
+  });
+  
   factory Ledger.fromJson(Map<String, Object?> json) => _$LedgerFromJson(json);
-
+  
   final List<LedgerCode> codes;
   final List<LedgerAccount> accounts;
 

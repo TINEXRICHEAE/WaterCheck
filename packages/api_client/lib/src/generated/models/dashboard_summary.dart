@@ -24,10 +24,9 @@ class DashboardSummary {
     required this.latestTests,
     required this.latestIssue,
   });
-
-  factory DashboardSummary.fromJson(Map<String, Object?> json) =>
-      _$DashboardSummaryFromJson(json);
-
+  
+  factory DashboardSummary.fromJson(Map<String, Object?> json) => _$DashboardSummaryFromJson(json);
+  
   final int sources;
   @JsonKey(name: 'tested_in_period')
   final int testedInPeriod;

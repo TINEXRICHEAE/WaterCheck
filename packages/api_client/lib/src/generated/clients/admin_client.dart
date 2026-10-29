@@ -55,11 +55,15 @@ abstract class AdminClient {
   /// Console accounts; with `side`, that side's accounts and the IT admins,.
   /// who work on every side (ADR-031).
   @GET('/v1/admin/users')
-  Future<List<UserOut>> users({@Query('side') Side? side});
+  Future<List<UserOut>> users({
+    @Query('side') Side? side,
+  });
 
   /// New User
   @POST('/v1/admin/users')
-  Future<CredentialsOut> newUser({@Body() required NewUserIn body});
+  Future<CredentialsOut> newUser({
+    @Body() required NewUserIn body,
+  });
 
   /// Change User
   @PATCH('/v1/admin/users/{user_id}')
@@ -79,7 +83,9 @@ abstract class AdminClient {
   /// Devices; with `side`, those its testers use. `tests` counts that.
   /// side's records (water tests or research records).
   @GET('/v1/admin/installations')
-  Future<List<InstallationOut>> installations({@Query('side') Side? side});
+  Future<List<InstallationOut>> installations({
+    @Query('side') Side? side,
+  });
 
   /// Installation Collectors.
   ///
@@ -96,18 +102,24 @@ abstract class AdminClient {
   /// area, and their use: devices activated, first and last sign-in.
   /// (ADR-022). The codes and passwords themselves are never stored.
   @GET('/v1/admin/credentials')
-  Future<Ledger> credentials({@Query('side') Side? side});
+  Future<Ledger> credentials({
+    @Query('side') Side? side,
+  });
 
   /// Revoke Code.
   ///
   /// Withdraws an unused or partly used code; devices already activated.
   /// with it keep working (revoke those one by one).
   @POST('/v1/admin/activation-codes/{code_id}/revoke')
-  Future<void> revokeCode({@Path('code_id') required String codeId});
+  Future<void> revokeCode({
+    @Path('code_id') required String codeId,
+  });
 
   /// Chain
   @GET('/v1/admin/areas/{area_id}/chain')
-  Future<ChainOut> chain({@Path('area_id') required String areaId});
+  Future<ChainOut> chain({
+    @Path('area_id') required String areaId,
+  });
 
   /// Legal Acceptances.
   ///
@@ -157,7 +169,9 @@ abstract class AdminClient {
   /// Adds a sub-county, parish or village (the official list stops at.
   /// sub-counties). Its code extends the parent's.
   @POST('/v1/admin/areas')
-  Future<PlaceOut> newArea({@Body() required NewAreaIn body});
+  Future<PlaceOut> newArea({
+    @Body() required NewAreaIn body,
+  });
 
   /// Rename Area
   @PATCH('/v1/admin/areas/{area_id}')
@@ -174,7 +188,9 @@ abstract class AdminClient {
   ///
   /// Accepts a place added from a device into the list.
   @POST('/v1/admin/areas/{area_id}/official')
-  Future<void> markPlaceOfficial({@Path('area_id') required String areaId});
+  Future<void> markPlaceOfficial({
+    @Path('area_id') required String areaId,
+  });
 
   /// Get Default Profile.
   ///
@@ -202,7 +218,9 @@ abstract class AdminClient {
   /// Replaces the routing table: which alert types reach which.
   /// responsibilities (people with none get everything in their areas).
   @PUT('/v1/admin/routing')
-  Future<void> setRouting({@Body() required RoutingIn body});
+  Future<void> setRouting({
+    @Body() required RoutingIn body,
+  });
 
   /// New Responsibility
   @POST('/v1/admin/responsibilities')
@@ -216,7 +234,9 @@ abstract class AdminClient {
 
   /// Set Security
   @PUT('/v1/admin/security')
-  Future<SecurityIn> setSecurity({@Body() required SecurityIn body});
+  Future<SecurityIn> setSecurity({
+    @Body() required SecurityIn body,
+  });
 
   /// Typed Values.
   ///
@@ -229,7 +249,9 @@ abstract class AdminClient {
   /// Adds a typed value to the shared list, before "Other"; devices get.
   /// it with the next sync.
   @POST('/v1/admin/typed-values')
-  Future<void> addTypedValue({@Body() required TypedValueIn body});
+  Future<void> addTypedValue({
+    @Body() required TypedValueIn body,
+  });
 
   /// Pending Parameters
   @GET('/v1/admin/parameters/pending')
@@ -268,14 +290,18 @@ abstract class AdminClient {
   ///
   /// Archives a record and what cascades from it (restorable).
   @POST('/v1/admin/archive')
-  Future<ArchiveOut> archiveRecord({@Body() required ArchiveIn body});
+  Future<ArchiveOut> archiveRecord({
+    @Body() required ArchiveIn body,
+  });
 
   /// Restore.
   ///
   /// Brings back everything one archive action hid. A restored phone stays.
   /// revoked: issue it a new activation code.
   @POST('/v1/admin/archive/{batch_id}/restore')
-  Future<Map<String, int>> restore({@Path('batch_id') required String batchId});
+  Future<Map<String, int>> restore({
+    @Path('batch_id') required String batchId,
+  });
 
   /// Name Installation.
   ///

@@ -18,10 +18,9 @@ class AcceptanceOut {
     required this.ip,
     required this.device,
   });
-
-  factory AcceptanceOut.fromJson(Map<String, Object?> json) =>
-      _$AcceptanceOutFromJson(json);
-
+  
+  factory AcceptanceOut.fromJson(Map<String, Object?> json) => _$AcceptanceOutFromJson(json);
+  
   final String side;
   final int version;
   @JsonKey(name: 'terms_accepted')

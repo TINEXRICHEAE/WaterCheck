@@ -240,6 +240,7 @@ class DriftTestingRepository implements TestingRepository {
               lat: Value(s.location?.lat),
               lon: Value(s.location?.lon),
               locationAccuracyM: Value(s.location?.accuracyM),
+              locationSource: Value(s.location?.source.wire),
               distanceFromSourceM: Value(s.distanceFromSourceM),
               distanceOverrideReason: Value(s.distanceOverrideReason),
               notes: Value(s.notes),
@@ -541,7 +542,12 @@ class DriftTestingRepository implements TestingRepository {
       collectorName: _snapshotName(s.collectorSnapshot),
       location: s.lat == null || s.lon == null
           ? null
-          : GeoPoint(lat: s.lat!, lon: s.lon!, accuracyM: s.locationAccuracyM),
+          : GeoPoint(
+              lat: s.lat!,
+              lon: s.lon!,
+              accuracyM: s.locationAccuracyM,
+              source: LocationSource.parse(s.locationSource),
+            ),
       distanceM: s.distanceFromSourceM,
       farReason: s.distanceOverrideReason,
       noPhotoReason: s.noPhotoReason,

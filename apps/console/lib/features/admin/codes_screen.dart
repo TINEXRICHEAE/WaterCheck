@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:api_client/api_client.dart';
+import 'package:domain/domain.dart' show AppSide;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -12,11 +13,16 @@ import 'admin_api.dart';
 
 /// Fetched again every 20 seconds while open: a new code replaces the one
 /// before it, and stale ones go (2026-10-27).
-final _codesProvider = FutureProvider.autoDispose<List<CodeToPass>>((ref) {
-  final again = Timer(const Duration(seconds: 20), ref.invalidateSelf);
-  ref.onDispose(again.cancel);
-  return ref.watch(adminApiProvider).profile.codesToPass();
-});
+final _codesProvider = FutureProvider.autoDispose
+    .family<List<CodeToPass>, AppSide>((ref, side) {
+      final again = Timer(const Duration(seconds: 20), ref.invalidateSelf);
+      ref.onDispose(again.cancel);
+      // Each side's admin gives that side's codes (ADR-031).
+      return ref
+          .watch(adminApiProvider)
+          .profile
+          .codesToPass(side: sideParam(side));
+    });
 
 /// Confirmation codes people wait for (ADR-024/025): a new email or phone,
 /// or signing other devices out. Until email and SMS are set up an IT
@@ -29,13 +35,16 @@ class CodesScreen extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final text = Theme.of(context).textTheme;
     final when = DateFormat('d MMM, HH:mm');
-    final codes = ref.watch(_codesProvider);
+    final side = adminSide(context);
+    final codes = ref.watch(_codesProvider(side));
     return codes.when(
       loading: () => const PageLoading(),
-      error: (e, _) =>
-          ErrorView(error: e, onRetry: () => ref.invalidate(_codesProvider)),
+      error: (e, _) => ErrorView(
+        error: e,
+        onRetry: () => ref.invalidate(_codesProvider(side)),
+      ),
       data: (list) => RefreshIndicator(
-        onRefresh: () async => ref.invalidate(_codesProvider),
+        onRefresh: () async => ref.invalidate(_codesProvider(side)),
         child: SearchBuilder(
           label: l10n.searchCodes,
           history: 'console.codes',

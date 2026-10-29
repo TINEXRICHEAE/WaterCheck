@@ -15,15 +15,14 @@ deployment and cache versioning.
 
 - [x] Research module and the FieldQuire name (DEVLOG 49; `638a699`).
 - [x] Sides kept apart, consent per side, research admin, acceptances kept (DEVLOG 50–51; `08e9771`).
-- [ ] **On dev, waiting for the lead's check (DEVLOG 52):**
-  - one confirmation code at a time;
-  - research access enforced on phones, with locked forms;
-  - collector codes and opting in to being found;
-  - searches with recent history;
-  - research map search;
-  - exports that open;
-  - the Charts tab;
-  - the sign-up fixes.
+- [x] Research access, codes, searches, charts, exports (DEVLOG 52; `e2fe444`).
+- [x] **Usernames, chats, form editors, research map tools, computer location (DEVLOG 53–55, ADR-032; committed 2026-10-29):**
+  - usernames, anonymous by default;
+  - chats between people;
+  - form editors and credits;
+  - research map tools;
+  - location on computers: their own reading first, the internet guess only as a fallback, set by hand anywhere and marked;
+  - FieldQuire Docker names.
 - [ ] Production upload of the web apps (needs the lead's go-ahead).
 
 ## Round 2: anywhere in Uganda (2026-10-22, ADR-019) 🔄

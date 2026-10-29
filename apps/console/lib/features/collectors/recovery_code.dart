@@ -1,6 +1,5 @@
 import 'package:api_client/api_client.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:ui_kit/ui_kit.dart';
@@ -73,11 +72,7 @@ Future<void> showRecoveryCode(
         ),
       ),
       actions: [
-        TextButton.icon(
-          icon: const Icon(Icons.copy),
-          label: Text(l10n.recoveryCopy),
-          onPressed: () => Clipboard.setData(ClipboardData(text: out.code)),
-        ),
+        CopyButton(text: out.code, label: l10n.recoveryCopy),
         FilledButton(
           onPressed: () => Navigator.pop(dialog),
           child: Text(l10n.kpiListClose),

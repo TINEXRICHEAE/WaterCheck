@@ -11,11 +11,13 @@ part 'chain_level.g.dart';
 
 @JsonSerializable()
 class ChainLevel {
-  const ChainLevel({required this.area, required this.people});
-
-  factory ChainLevel.fromJson(Map<String, Object?> json) =>
-      _$ChainLevelFromJson(json);
-
+  const ChainLevel({
+    required this.area,
+    required this.people,
+  });
+  
+  factory ChainLevel.fromJson(Map<String, Object?> json) => _$ChainLevelFromJson(json);
+  
   final AreaOut area;
   final List<ChainPerson> people;
 

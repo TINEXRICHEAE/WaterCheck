@@ -759,4 +759,183 @@ class UiKitLocalizationsEn extends UiKitLocalizations {
 
   @override
   String get legalContinue => 'Accept and continue';
+
+  @override
+  String get copyDone => 'Copied';
+
+  @override
+  String get identityTitle => 'Username and privacy';
+
+  @override
+  String get identityIntro =>
+      'Everyone sees you by your username. Your real name shows only to IT admins and the teams you work with, unless you make your profile public.';
+
+  @override
+  String get identityChange => 'Change';
+
+  @override
+  String get identityUsername => 'Username';
+
+  @override
+  String get identityRule =>
+      '3 to 30 letters, numbers, dots, dashes or underscores, starting with a letter or number.';
+
+  @override
+  String get identityTaken => 'Someone already has this username.';
+
+  @override
+  String get identityFree => 'This username is free.';
+
+  @override
+  String get identitySave => 'Save';
+
+  @override
+  String get identityAnonymous => 'Anonymous';
+
+  @override
+  String get identityPublic => 'Public';
+
+  @override
+  String get identityAnonymousHint =>
+      'Others see only your username. You can still write to anyone, and anyone can write to you.';
+
+  @override
+  String get identityPublicHint =>
+      'Everyone on this side sees your real name after your username, and can find you by it.';
+
+  @override
+  String identitySeenAs(String name) {
+    return 'Others see you as: $name';
+  }
+
+  @override
+  String get chatsTitle => 'Chats';
+
+  @override
+  String get chatsSearch => 'Search chats and people';
+
+  @override
+  String get chatsNone => 'No chats yet. Pick someone below to write to.';
+
+  @override
+  String get chatsPeople => 'People';
+
+  @override
+  String get chatsPeopleHint =>
+      'Everyone on this side, by username. Public profiles show their real name too.';
+
+  @override
+  String get chatsNobody => 'Nobody matches the search.';
+
+  @override
+  String get chatsWrite => 'Write';
+
+  @override
+  String get chatsStart => 'Say hello. Messages need the internet.';
+
+  @override
+  String get chatsOffline => 'Chats need the internet. Try again when online.';
+
+  @override
+  String get retry => 'Try again';
+
+  @override
+  String get ipAreaSet => 'Set my location';
+
+  @override
+  String get ipAreaCredit => 'IP geolocation by DB-IP';
+
+  @override
+  String locFromComputer(String accuracy, String age) {
+    return 'Your location, from this computer: within $accuracy, read $age.';
+  }
+
+  @override
+  String locFromInternet(String place) {
+    return 'This computer gives no location. A rough guess from your internet connection: around $place. Mobile data often shows Kampala wherever you are; set your location by hand.';
+  }
+
+  @override
+  String locByHand(String age) {
+    return 'Your location was set by hand $age. Records made now are marked \"set by hand\".';
+  }
+
+  @override
+  String get locNone =>
+      'This computer gives no location and the internet connection does not tell. Set your location by hand.';
+
+  @override
+  String get locRefresh => 'Read again';
+
+  @override
+  String get locSetHint => 'Tap the map where you are.';
+
+  @override
+  String get locSetDone => 'Location set by hand.';
+
+  @override
+  String get locAgeNow => 'just now';
+
+  @override
+  String locAgeMinutes(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n minutes ago',
+      one: '1 minute ago',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String locAgeHours(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n hours ago',
+      one: '1 hour ago',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String locAgeDays(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n days ago',
+      one: '1 day ago',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get locSourceHand => 'Location set by hand';
+
+  @override
+  String get locSourceInternet =>
+      'Location guessed from the internet connection';
+
+  @override
+  String get locFold => 'Fold away';
+
+  @override
+  String get locSourceInternetShort =>
+      'Rough guess: no location from this computer';
+
+  @override
+  String get locWhyDenied =>
+      'This browser blocked location for this page. Allow location for this site in the browser, then Read again.';
+
+  @override
+  String get locWhyOff =>
+      'Location is off on this computer (Windows Settings › Privacy & security › Location). Turn it on, then Read again.';
+
+  @override
+  String get locWhyTimeout =>
+      'This computer did not give a location in time. Read again.';
+
+  @override
+  String get locWhyUnavailable =>
+      'This browser gives no location here (some built-in previews never do). Open FieldQuire in Edge or Chrome and allow location.';
 }

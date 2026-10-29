@@ -17,10 +17,9 @@ class ConflictOut {
     required this.fromPhone,
     required this.createdAt,
   });
-
-  factory ConflictOut.fromJson(Map<String, Object?> json) =>
-      _$ConflictOutFromJson(json);
-
+  
+  factory ConflictOut.fromJson(Map<String, Object?> json) => _$ConflictOutFromJson(json);
+  
   final String id;
   @JsonKey(name: 'source_id')
   final String sourceId;

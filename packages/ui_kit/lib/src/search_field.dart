@@ -312,14 +312,33 @@ class _SearchBuilderState extends State<SearchBuilder> {
   }
 
   @override
-  Widget build(BuildContext context) => widget.builder(
-    context,
-    SearchField(
-      value: _query,
-      label: widget.label,
-      history: widget.history,
-      onChanged: (v) => setState(() => _query = v),
+  Widget build(BuildContext context) => SearchQuery(
+    query: _query,
+    child: Builder(
+      builder: (context) => widget.builder(
+        context,
+        SearchField(
+          value: _query,
+          label: widget.label,
+          history: widget.history,
+          onChanged: (v) => setState(() => _query = v),
+        ),
+        _matches,
+      ),
     ),
-    _matches,
   );
+}
+
+/// The search a [SearchBuilder] holds, for parts of its page that search
+/// on their own (people to write to), so one box searches the whole page.
+class SearchQuery extends InheritedWidget {
+  const SearchQuery({super.key, required this.query, required super.child});
+
+  final String query;
+
+  static String? maybeOf(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<SearchQuery>()?.query;
+
+  @override
+  bool updateShouldNotify(SearchQuery old) => old.query != query;
 }

@@ -2335,25 +2335,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cardCopy => 'Copy the code';
 
   @override
-  String get cardCopied => 'Code copied.';
-
-  @override
-  String get cardFindMe => 'Let research teams find me by name';
-
-  @override
-  String get cardPublic =>
-      'Any research team can find you by your name or phone and ask you to collect data.';
-
-  @override
-  String get cardPrivate =>
-      'Private: only teams you give your code to can add you.';
-
-  @override
   String get cardSyncFirst =>
-      'Sync once with the internet on to see your code.';
+      'Sync once with the internet on to see your username and code.';
 
   @override
-  String get cardOffline => 'Your code shows when you are online.';
+  String get cardOffline => 'Your username and code show when you are online.';
 
   @override
   String get cardRetry => 'Try again';
@@ -2361,5 +2347,35 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String cardFailed(String code) {
     return 'Could not change this ($code). Try again online.';
+  }
+
+  @override
+  String get whoTitleResearch => 'Who is collecting?';
+
+  @override
+  String get whoCurrentResearch => 'Collecting now';
+
+  @override
+  String get whoSwitchResearch => 'Change who is collecting';
+
+  @override
+  String get messagesNoneResearch =>
+      'No messages yet. Messages about your research records, and replies from research teams, appear here.';
+
+  @override
+  String get accountOwnCodeIntroResearch =>
+      'Make a sign-in code here and use it on another device (\"Who is collecting?\" › \"I already have a profile\"). It works once and does not expire until used. You can also ask your IT admin for one.';
+
+  @override
+  String get profileSwitchHintResearch =>
+      'Choose who collects data on this device.';
+
+  @override
+  String get profileDeleteHintResearch =>
+      'For good: every device signs you out and your phone and email are erased. Your records stay.';
+
+  @override
+  String profileDeleteBodyResearch(String name) {
+    return '$name, every device will sign you out and your phone and email are erased. The research records you sent stay with their projects.';
   }
 }

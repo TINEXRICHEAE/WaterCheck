@@ -10,11 +10,14 @@ part 'review_in.g.dart';
 
 @JsonSerializable()
 class ReviewIn {
-  const ReviewIn({required this.action, this.name, this.mergeInto});
-
-  factory ReviewIn.fromJson(Map<String, Object?> json) =>
-      _$ReviewInFromJson(json);
-
+  const ReviewIn({
+    required this.action,
+    this.name,
+    this.mergeInto,
+  });
+  
+  factory ReviewIn.fromJson(Map<String, Object?> json) => _$ReviewInFromJson(json);
+  
   final ReviewInAction action;
   final String? name;
   @JsonKey(name: 'merge_into')

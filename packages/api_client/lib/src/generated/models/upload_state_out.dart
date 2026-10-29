@@ -14,10 +14,9 @@ class UploadStateOut {
     required this.status,
     this.reason,
   });
-
-  factory UploadStateOut.fromJson(Map<String, Object?> json) =>
-      _$UploadStateOutFromJson(json);
-
+  
+  factory UploadStateOut.fromJson(Map<String, Object?> json) => _$UploadStateOutFromJson(json);
+  
   @JsonKey(name: 'received_bytes')
   final int receivedBytes;
   final int bytes;

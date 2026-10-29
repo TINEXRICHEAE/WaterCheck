@@ -1251,6 +1251,17 @@ class $TestSessionsTable extends TestSessions
         type: DriftSqlType.double,
         requiredDuringInsert: false,
       );
+  static const VerificationMeta _locationSourceMeta = const VerificationMeta(
+    'locationSource',
+  );
+  @override
+  late final GeneratedColumn<String> locationSource = GeneratedColumn<String>(
+    'location_source',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _distanceFromSourceMMeta =
       const VerificationMeta('distanceFromSourceM');
   @override
@@ -1320,6 +1331,7 @@ class $TestSessionsTable extends TestSessions
     lat,
     lon,
     locationAccuracyM,
+    locationSource,
     distanceFromSourceM,
     distanceOverrideReason,
     notes,
@@ -1442,6 +1454,15 @@ class $TestSessionsTable extends TestSessions
         ),
       );
     }
+    if (data.containsKey('location_source')) {
+      context.handle(
+        _locationSourceMeta,
+        locationSource.isAcceptableOrUnknown(
+          data['location_source']!,
+          _locationSourceMeta,
+        ),
+      );
+    }
     if (data.containsKey('distance_from_source_m')) {
       context.handle(
         _distanceFromSourceMMeta,
@@ -1547,6 +1568,10 @@ class $TestSessionsTable extends TestSessions
         DriftSqlType.double,
         data['${effectivePrefix}location_accuracy_m'],
       ),
+      locationSource: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}location_source'],
+      ),
       distanceFromSourceM: attachedDatabase.typeMapping.read(
         DriftSqlType.double,
         data['${effectivePrefix}distance_from_source_m'],
@@ -1592,6 +1617,10 @@ class TestSessionRow extends DataClass implements Insertable<TestSessionRow> {
   final double? lat;
   final double? lon;
   final double? locationAccuracyM;
+
+  /// Where the location came from: null for the device itself, 'internet'
+  /// (a computer's rough guess) or 'hand' (set on the map). Added in v14.
+  final String? locationSource;
   final double? distanceFromSourceM;
   final String? distanceOverrideReason;
   final String? notes;
@@ -1614,6 +1643,7 @@ class TestSessionRow extends DataClass implements Insertable<TestSessionRow> {
     this.lat,
     this.lon,
     this.locationAccuracyM,
+    this.locationSource,
     this.distanceFromSourceM,
     this.distanceOverrideReason,
     this.notes,
@@ -1653,6 +1683,9 @@ class TestSessionRow extends DataClass implements Insertable<TestSessionRow> {
     }
     if (!nullToAbsent || locationAccuracyM != null) {
       map['location_accuracy_m'] = Variable<double>(locationAccuracyM);
+    }
+    if (!nullToAbsent || locationSource != null) {
+      map['location_source'] = Variable<String>(locationSource);
     }
     if (!nullToAbsent || distanceFromSourceM != null) {
       map['distance_from_source_m'] = Variable<double>(distanceFromSourceM);
@@ -1701,6 +1734,9 @@ class TestSessionRow extends DataClass implements Insertable<TestSessionRow> {
       locationAccuracyM: locationAccuracyM == null && nullToAbsent
           ? const Value.absent()
           : Value(locationAccuracyM),
+      locationSource: locationSource == null && nullToAbsent
+          ? const Value.absent()
+          : Value(locationSource),
       distanceFromSourceM: distanceFromSourceM == null && nullToAbsent
           ? const Value.absent()
           : Value(distanceFromSourceM),
@@ -1742,6 +1778,7 @@ class TestSessionRow extends DataClass implements Insertable<TestSessionRow> {
       locationAccuracyM: serializer.fromJson<double?>(
         json['location_accuracy_m'],
       ),
+      locationSource: serializer.fromJson<String?>(json['location_source']),
       distanceFromSourceM: serializer.fromJson<double?>(
         json['distance_from_source_m'],
       ),
@@ -1770,6 +1807,7 @@ class TestSessionRow extends DataClass implements Insertable<TestSessionRow> {
       'lat': serializer.toJson<double?>(lat),
       'lon': serializer.toJson<double?>(lon),
       'location_accuracy_m': serializer.toJson<double?>(locationAccuracyM),
+      'location_source': serializer.toJson<String?>(locationSource),
       'distance_from_source_m': serializer.toJson<double?>(distanceFromSourceM),
       'distance_override_reason': serializer.toJson<String?>(
         distanceOverrideReason,
@@ -1794,6 +1832,7 @@ class TestSessionRow extends DataClass implements Insertable<TestSessionRow> {
     Value<double?> lat = const Value.absent(),
     Value<double?> lon = const Value.absent(),
     Value<double?> locationAccuracyM = const Value.absent(),
+    Value<String?> locationSource = const Value.absent(),
     Value<double?> distanceFromSourceM = const Value.absent(),
     Value<String?> distanceOverrideReason = const Value.absent(),
     Value<String?> notes = const Value.absent(),
@@ -1823,6 +1862,9 @@ class TestSessionRow extends DataClass implements Insertable<TestSessionRow> {
     locationAccuracyM: locationAccuracyM.present
         ? locationAccuracyM.value
         : this.locationAccuracyM,
+    locationSource: locationSource.present
+        ? locationSource.value
+        : this.locationSource,
     distanceFromSourceM: distanceFromSourceM.present
         ? distanceFromSourceM.value
         : this.distanceFromSourceM,
@@ -1866,6 +1908,9 @@ class TestSessionRow extends DataClass implements Insertable<TestSessionRow> {
       locationAccuracyM: data.locationAccuracyM.present
           ? data.locationAccuracyM.value
           : this.locationAccuracyM,
+      locationSource: data.locationSource.present
+          ? data.locationSource.value
+          : this.locationSource,
       distanceFromSourceM: data.distanceFromSourceM.present
           ? data.distanceFromSourceM.value
           : this.distanceFromSourceM,
@@ -1898,6 +1943,7 @@ class TestSessionRow extends DataClass implements Insertable<TestSessionRow> {
           ..write('lat: $lat, ')
           ..write('lon: $lon, ')
           ..write('locationAccuracyM: $locationAccuracyM, ')
+          ..write('locationSource: $locationSource, ')
           ..write('distanceFromSourceM: $distanceFromSourceM, ')
           ..write('distanceOverrideReason: $distanceOverrideReason, ')
           ..write('notes: $notes, ')
@@ -1922,6 +1968,7 @@ class TestSessionRow extends DataClass implements Insertable<TestSessionRow> {
     lat,
     lon,
     locationAccuracyM,
+    locationSource,
     distanceFromSourceM,
     distanceOverrideReason,
     notes,
@@ -1945,6 +1992,7 @@ class TestSessionRow extends DataClass implements Insertable<TestSessionRow> {
           other.lat == this.lat &&
           other.lon == this.lon &&
           other.locationAccuracyM == this.locationAccuracyM &&
+          other.locationSource == this.locationSource &&
           other.distanceFromSourceM == this.distanceFromSourceM &&
           other.distanceOverrideReason == this.distanceOverrideReason &&
           other.notes == this.notes &&
@@ -1966,6 +2014,7 @@ class TestSessionsCompanion extends UpdateCompanion<TestSessionRow> {
   final Value<double?> lat;
   final Value<double?> lon;
   final Value<double?> locationAccuracyM;
+  final Value<String?> locationSource;
   final Value<double?> distanceFromSourceM;
   final Value<String?> distanceOverrideReason;
   final Value<String?> notes;
@@ -1986,6 +2035,7 @@ class TestSessionsCompanion extends UpdateCompanion<TestSessionRow> {
     this.lat = const Value.absent(),
     this.lon = const Value.absent(),
     this.locationAccuracyM = const Value.absent(),
+    this.locationSource = const Value.absent(),
     this.distanceFromSourceM = const Value.absent(),
     this.distanceOverrideReason = const Value.absent(),
     this.notes = const Value.absent(),
@@ -2007,6 +2057,7 @@ class TestSessionsCompanion extends UpdateCompanion<TestSessionRow> {
     this.lat = const Value.absent(),
     this.lon = const Value.absent(),
     this.locationAccuracyM = const Value.absent(),
+    this.locationSource = const Value.absent(),
     this.distanceFromSourceM = const Value.absent(),
     this.distanceOverrideReason = const Value.absent(),
     this.notes = const Value.absent(),
@@ -2032,6 +2083,7 @@ class TestSessionsCompanion extends UpdateCompanion<TestSessionRow> {
     Expression<double>? lat,
     Expression<double>? lon,
     Expression<double>? locationAccuracyM,
+    Expression<String>? locationSource,
     Expression<double>? distanceFromSourceM,
     Expression<String>? distanceOverrideReason,
     Expression<String>? notes,
@@ -2054,6 +2106,7 @@ class TestSessionsCompanion extends UpdateCompanion<TestSessionRow> {
       if (lat != null) 'lat': lat,
       if (lon != null) 'lon': lon,
       if (locationAccuracyM != null) 'location_accuracy_m': locationAccuracyM,
+      if (locationSource != null) 'location_source': locationSource,
       if (distanceFromSourceM != null)
         'distance_from_source_m': distanceFromSourceM,
       if (distanceOverrideReason != null)
@@ -2079,6 +2132,7 @@ class TestSessionsCompanion extends UpdateCompanion<TestSessionRow> {
     Value<double?>? lat,
     Value<double?>? lon,
     Value<double?>? locationAccuracyM,
+    Value<String?>? locationSource,
     Value<double?>? distanceFromSourceM,
     Value<String?>? distanceOverrideReason,
     Value<String?>? notes,
@@ -2100,6 +2154,7 @@ class TestSessionsCompanion extends UpdateCompanion<TestSessionRow> {
       lat: lat ?? this.lat,
       lon: lon ?? this.lon,
       locationAccuracyM: locationAccuracyM ?? this.locationAccuracyM,
+      locationSource: locationSource ?? this.locationSource,
       distanceFromSourceM: distanceFromSourceM ?? this.distanceFromSourceM,
       distanceOverrideReason:
           distanceOverrideReason ?? this.distanceOverrideReason,
@@ -2154,6 +2209,9 @@ class TestSessionsCompanion extends UpdateCompanion<TestSessionRow> {
     if (locationAccuracyM.present) {
       map['location_accuracy_m'] = Variable<double>(locationAccuracyM.value);
     }
+    if (locationSource.present) {
+      map['location_source'] = Variable<String>(locationSource.value);
+    }
     if (distanceFromSourceM.present) {
       map['distance_from_source_m'] = Variable<double>(
         distanceFromSourceM.value,
@@ -2195,6 +2253,7 @@ class TestSessionsCompanion extends UpdateCompanion<TestSessionRow> {
           ..write('lat: $lat, ')
           ..write('lon: $lon, ')
           ..write('locationAccuracyM: $locationAccuracyM, ')
+          ..write('locationSource: $locationSource, ')
           ..write('distanceFromSourceM: $distanceFromSourceM, ')
           ..write('distanceOverrideReason: $distanceOverrideReason, ')
           ..write('notes: $notes, ')
@@ -21297,6 +21356,17 @@ class $ResearchRecordsTable extends ResearchRecords
     type: DriftSqlType.double,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _locationSourceMeta = const VerificationMeta(
+    'locationSource',
+  );
+  @override
+  late final GeneratedColumn<String> locationSource = GeneratedColumn<String>(
+    'location_source',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _answersMeta = const VerificationMeta(
     'answers',
   );
@@ -21350,6 +21420,7 @@ class $ResearchRecordsTable extends ResearchRecords
     endLat,
     endLon,
     endAccuracyM,
+    locationSource,
     answers,
     createdAtServer,
     serverSeq,
@@ -21491,6 +21562,15 @@ class $ResearchRecordsTable extends ResearchRecords
         ),
       );
     }
+    if (data.containsKey('location_source')) {
+      context.handle(
+        _locationSourceMeta,
+        locationSource.isAcceptableOrUnknown(
+          data['location_source']!,
+          _locationSourceMeta,
+        ),
+      );
+    }
     if (data.containsKey('answers')) {
       context.handle(
         _answersMeta,
@@ -21591,6 +21671,10 @@ class $ResearchRecordsTable extends ResearchRecords
         DriftSqlType.double,
         data['${effectivePrefix}end_accuracy_m'],
       ),
+      locationSource: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}location_source'],
+      ),
       answers: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}answers'],
@@ -21636,6 +21720,10 @@ class ResearchRecordRow extends DataClass
   final double? endLon;
   final double? endAccuracyM;
 
+  /// Where the location came from: null for the device itself, 'internet'
+  /// (a computer's rough guess) or 'hand' (set on the map). Added in v14.
+  final String? locationSource;
+
   /// The answers (JSON).
   final String answers;
   final DateTime? createdAtServer;
@@ -21658,6 +21746,7 @@ class ResearchRecordRow extends DataClass
     this.endLat,
     this.endLon,
     this.endAccuracyM,
+    this.locationSource,
     required this.answers,
     this.createdAtServer,
     this.serverSeq,
@@ -21705,6 +21794,9 @@ class ResearchRecordRow extends DataClass
     }
     if (!nullToAbsent || endAccuracyM != null) {
       map['end_accuracy_m'] = Variable<double>(endAccuracyM);
+    }
+    if (!nullToAbsent || locationSource != null) {
+      map['location_source'] = Variable<String>(locationSource);
     }
     map['answers'] = Variable<String>(answers);
     if (!nullToAbsent || createdAtServer != null) {
@@ -21755,6 +21847,9 @@ class ResearchRecordRow extends DataClass
       endAccuracyM: endAccuracyM == null && nullToAbsent
           ? const Value.absent()
           : Value(endAccuracyM),
+      locationSource: locationSource == null && nullToAbsent
+          ? const Value.absent()
+          : Value(locationSource),
       answers: Value(answers),
       createdAtServer: createdAtServer == null && nullToAbsent
           ? const Value.absent()
@@ -21790,6 +21885,7 @@ class ResearchRecordRow extends DataClass
       endLat: serializer.fromJson<double?>(json['end_lat']),
       endLon: serializer.fromJson<double?>(json['end_lon']),
       endAccuracyM: serializer.fromJson<double?>(json['end_accuracy_m']),
+      locationSource: serializer.fromJson<String?>(json['location_source']),
       answers: serializer.fromJson<String>(json['answers']),
       createdAtServer: serializer.fromJson<DateTime?>(
         json['created_at_server'],
@@ -21818,6 +21914,7 @@ class ResearchRecordRow extends DataClass
       'end_lat': serializer.toJson<double?>(endLat),
       'end_lon': serializer.toJson<double?>(endLon),
       'end_accuracy_m': serializer.toJson<double?>(endAccuracyM),
+      'location_source': serializer.toJson<String?>(locationSource),
       'answers': serializer.toJson<String>(answers),
       'created_at_server': serializer.toJson<DateTime?>(createdAtServer),
       'server_seq': serializer.toJson<int?>(serverSeq),
@@ -21842,6 +21939,7 @@ class ResearchRecordRow extends DataClass
     Value<double?> endLat = const Value.absent(),
     Value<double?> endLon = const Value.absent(),
     Value<double?> endAccuracyM = const Value.absent(),
+    Value<String?> locationSource = const Value.absent(),
     String? answers,
     Value<DateTime?> createdAtServer = const Value.absent(),
     Value<int?> serverSeq = const Value.absent(),
@@ -21867,6 +21965,9 @@ class ResearchRecordRow extends DataClass
     endLat: endLat.present ? endLat.value : this.endLat,
     endLon: endLon.present ? endLon.value : this.endLon,
     endAccuracyM: endAccuracyM.present ? endAccuracyM.value : this.endAccuracyM,
+    locationSource: locationSource.present
+        ? locationSource.value
+        : this.locationSource,
     answers: answers ?? this.answers,
     createdAtServer: createdAtServer.present
         ? createdAtServer.value
@@ -21906,6 +22007,9 @@ class ResearchRecordRow extends DataClass
       endAccuracyM: data.endAccuracyM.present
           ? data.endAccuracyM.value
           : this.endAccuracyM,
+      locationSource: data.locationSource.present
+          ? data.locationSource.value
+          : this.locationSource,
       answers: data.answers.present ? data.answers.value : this.answers,
       createdAtServer: data.createdAtServer.present
           ? data.createdAtServer.value
@@ -21934,6 +22038,7 @@ class ResearchRecordRow extends DataClass
           ..write('endLat: $endLat, ')
           ..write('endLon: $endLon, ')
           ..write('endAccuracyM: $endAccuracyM, ')
+          ..write('locationSource: $locationSource, ')
           ..write('answers: $answers, ')
           ..write('createdAtServer: $createdAtServer, ')
           ..write('serverSeq: $serverSeq')
@@ -21942,7 +22047,7 @@ class ResearchRecordRow extends DataClass
   }
 
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     id,
     formId,
     formVersion,
@@ -21960,10 +22065,11 @@ class ResearchRecordRow extends DataClass
     endLat,
     endLon,
     endAccuracyM,
+    locationSource,
     answers,
     createdAtServer,
     serverSeq,
-  );
+  ]);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -21985,6 +22091,7 @@ class ResearchRecordRow extends DataClass
           other.endLat == this.endLat &&
           other.endLon == this.endLon &&
           other.endAccuracyM == this.endAccuracyM &&
+          other.locationSource == this.locationSource &&
           other.answers == this.answers &&
           other.createdAtServer == this.createdAtServer &&
           other.serverSeq == this.serverSeq);
@@ -22008,6 +22115,7 @@ class ResearchRecordsCompanion extends UpdateCompanion<ResearchRecordRow> {
   final Value<double?> endLat;
   final Value<double?> endLon;
   final Value<double?> endAccuracyM;
+  final Value<String?> locationSource;
   final Value<String> answers;
   final Value<DateTime?> createdAtServer;
   final Value<int?> serverSeq;
@@ -22030,6 +22138,7 @@ class ResearchRecordsCompanion extends UpdateCompanion<ResearchRecordRow> {
     this.endLat = const Value.absent(),
     this.endLon = const Value.absent(),
     this.endAccuracyM = const Value.absent(),
+    this.locationSource = const Value.absent(),
     this.answers = const Value.absent(),
     this.createdAtServer = const Value.absent(),
     this.serverSeq = const Value.absent(),
@@ -22053,6 +22162,7 @@ class ResearchRecordsCompanion extends UpdateCompanion<ResearchRecordRow> {
     this.endLat = const Value.absent(),
     this.endLon = const Value.absent(),
     this.endAccuracyM = const Value.absent(),
+    this.locationSource = const Value.absent(),
     required String answers,
     this.createdAtServer = const Value.absent(),
     this.serverSeq = const Value.absent(),
@@ -22080,6 +22190,7 @@ class ResearchRecordsCompanion extends UpdateCompanion<ResearchRecordRow> {
     Expression<double>? endLat,
     Expression<double>? endLon,
     Expression<double>? endAccuracyM,
+    Expression<String>? locationSource,
     Expression<String>? answers,
     Expression<DateTime>? createdAtServer,
     Expression<int>? serverSeq,
@@ -22103,6 +22214,7 @@ class ResearchRecordsCompanion extends UpdateCompanion<ResearchRecordRow> {
       if (endLat != null) 'end_lat': endLat,
       if (endLon != null) 'end_lon': endLon,
       if (endAccuracyM != null) 'end_accuracy_m': endAccuracyM,
+      if (locationSource != null) 'location_source': locationSource,
       if (answers != null) 'answers': answers,
       if (createdAtServer != null) 'created_at_server': createdAtServer,
       if (serverSeq != null) 'server_seq': serverSeq,
@@ -22128,6 +22240,7 @@ class ResearchRecordsCompanion extends UpdateCompanion<ResearchRecordRow> {
     Value<double?>? endLat,
     Value<double?>? endLon,
     Value<double?>? endAccuracyM,
+    Value<String?>? locationSource,
     Value<String>? answers,
     Value<DateTime?>? createdAtServer,
     Value<int?>? serverSeq,
@@ -22151,6 +22264,7 @@ class ResearchRecordsCompanion extends UpdateCompanion<ResearchRecordRow> {
       endLat: endLat ?? this.endLat,
       endLon: endLon ?? this.endLon,
       endAccuracyM: endAccuracyM ?? this.endAccuracyM,
+      locationSource: locationSource ?? this.locationSource,
       answers: answers ?? this.answers,
       createdAtServer: createdAtServer ?? this.createdAtServer,
       serverSeq: serverSeq ?? this.serverSeq,
@@ -22212,6 +22326,9 @@ class ResearchRecordsCompanion extends UpdateCompanion<ResearchRecordRow> {
     if (endAccuracyM.present) {
       map['end_accuracy_m'] = Variable<double>(endAccuracyM.value);
     }
+    if (locationSource.present) {
+      map['location_source'] = Variable<String>(locationSource.value);
+    }
     if (answers.present) {
       map['answers'] = Variable<String>(answers.value);
     }
@@ -22247,6 +22364,7 @@ class ResearchRecordsCompanion extends UpdateCompanion<ResearchRecordRow> {
           ..write('endLat: $endLat, ')
           ..write('endLon: $endLon, ')
           ..write('endAccuracyM: $endAccuracyM, ')
+          ..write('locationSource: $locationSource, ')
           ..write('answers: $answers, ')
           ..write('createdAtServer: $createdAtServer, ')
           ..write('serverSeq: $serverSeq, ')
@@ -22394,6 +22512,17 @@ class $ResearchDraftsTable extends ResearchDrafts
     type: DriftSqlType.double,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _locationSourceMeta = const VerificationMeta(
+    'locationSource',
+  );
+  @override
+  late final GeneratedColumn<String> locationSource = GeneratedColumn<String>(
+    'location_source',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -22409,6 +22538,7 @@ class $ResearchDraftsTable extends ResearchDrafts
     lon,
     accuracyM,
     altitudeM,
+    locationSource,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -22515,6 +22645,15 @@ class $ResearchDraftsTable extends ResearchDrafts
         altitudeM.isAcceptableOrUnknown(data['altitude_m']!, _altitudeMMeta),
       );
     }
+    if (data.containsKey('location_source')) {
+      context.handle(
+        _locationSourceMeta,
+        locationSource.isAcceptableOrUnknown(
+          data['location_source']!,
+          _locationSourceMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -22576,6 +22715,10 @@ class $ResearchDraftsTable extends ResearchDrafts
         DriftSqlType.double,
         data['${effectivePrefix}altitude_m'],
       ),
+      locationSource: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}location_source'],
+      ),
     );
   }
 
@@ -22602,6 +22745,10 @@ class ResearchDraftRow extends DataClass
   final double? lon;
   final double? accuracyM;
   final double? altitudeM;
+
+  /// Where the location came from: null for the device itself, 'internet'
+  /// (a computer's rough guess) or 'hand' (set on the map). Added in v14.
+  final String? locationSource;
   const ResearchDraftRow({
     required this.id,
     required this.formId,
@@ -22616,6 +22763,7 @@ class ResearchDraftRow extends DataClass
     this.lon,
     this.accuracyM,
     this.altitudeM,
+    this.locationSource,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -22645,6 +22793,9 @@ class ResearchDraftRow extends DataClass
     if (!nullToAbsent || altitudeM != null) {
       map['altitude_m'] = Variable<double>(altitudeM);
     }
+    if (!nullToAbsent || locationSource != null) {
+      map['location_source'] = Variable<String>(locationSource);
+    }
     return map;
   }
 
@@ -22671,6 +22822,9 @@ class ResearchDraftRow extends DataClass
       altitudeM: altitudeM == null && nullToAbsent
           ? const Value.absent()
           : Value(altitudeM),
+      locationSource: locationSource == null && nullToAbsent
+          ? const Value.absent()
+          : Value(locationSource),
     );
   }
 
@@ -22693,6 +22847,7 @@ class ResearchDraftRow extends DataClass
       lon: serializer.fromJson<double?>(json['lon']),
       accuracyM: serializer.fromJson<double?>(json['accuracy_m']),
       altitudeM: serializer.fromJson<double?>(json['altitude_m']),
+      locationSource: serializer.fromJson<String?>(json['location_source']),
     );
   }
   @override
@@ -22712,6 +22867,7 @@ class ResearchDraftRow extends DataClass
       'lon': serializer.toJson<double?>(lon),
       'accuracy_m': serializer.toJson<double?>(accuracyM),
       'altitude_m': serializer.toJson<double?>(altitudeM),
+      'location_source': serializer.toJson<String?>(locationSource),
     };
   }
 
@@ -22729,6 +22885,7 @@ class ResearchDraftRow extends DataClass
     Value<double?> lon = const Value.absent(),
     Value<double?> accuracyM = const Value.absent(),
     Value<double?> altitudeM = const Value.absent(),
+    Value<String?> locationSource = const Value.absent(),
   }) => ResearchDraftRow(
     id: id ?? this.id,
     formId: formId ?? this.formId,
@@ -22743,6 +22900,9 @@ class ResearchDraftRow extends DataClass
     lon: lon.present ? lon.value : this.lon,
     accuracyM: accuracyM.present ? accuracyM.value : this.accuracyM,
     altitudeM: altitudeM.present ? altitudeM.value : this.altitudeM,
+    locationSource: locationSource.present
+        ? locationSource.value
+        : this.locationSource,
   );
   ResearchDraftRow copyWithCompanion(ResearchDraftsCompanion data) {
     return ResearchDraftRow(
@@ -22763,6 +22923,9 @@ class ResearchDraftRow extends DataClass
       lon: data.lon.present ? data.lon.value : this.lon,
       accuracyM: data.accuracyM.present ? data.accuracyM.value : this.accuracyM,
       altitudeM: data.altitudeM.present ? data.altitudeM.value : this.altitudeM,
+      locationSource: data.locationSource.present
+          ? data.locationSource.value
+          : this.locationSource,
     );
   }
 
@@ -22781,7 +22944,8 @@ class ResearchDraftRow extends DataClass
           ..write('lat: $lat, ')
           ..write('lon: $lon, ')
           ..write('accuracyM: $accuracyM, ')
-          ..write('altitudeM: $altitudeM')
+          ..write('altitudeM: $altitudeM, ')
+          ..write('locationSource: $locationSource')
           ..write(')'))
         .toString();
   }
@@ -22801,6 +22965,7 @@ class ResearchDraftRow extends DataClass
     lon,
     accuracyM,
     altitudeM,
+    locationSource,
   );
   @override
   bool operator ==(Object other) =>
@@ -22818,7 +22983,8 @@ class ResearchDraftRow extends DataClass
           other.lat == this.lat &&
           other.lon == this.lon &&
           other.accuracyM == this.accuracyM &&
-          other.altitudeM == this.altitudeM);
+          other.altitudeM == this.altitudeM &&
+          other.locationSource == this.locationSource);
 }
 
 class ResearchDraftsCompanion extends UpdateCompanion<ResearchDraftRow> {
@@ -22835,6 +23001,7 @@ class ResearchDraftsCompanion extends UpdateCompanion<ResearchDraftRow> {
   final Value<double?> lon;
   final Value<double?> accuracyM;
   final Value<double?> altitudeM;
+  final Value<String?> locationSource;
   final Value<int> rowid;
   const ResearchDraftsCompanion({
     this.id = const Value.absent(),
@@ -22850,6 +23017,7 @@ class ResearchDraftsCompanion extends UpdateCompanion<ResearchDraftRow> {
     this.lon = const Value.absent(),
     this.accuracyM = const Value.absent(),
     this.altitudeM = const Value.absent(),
+    this.locationSource = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   ResearchDraftsCompanion.insert({
@@ -22866,6 +23034,7 @@ class ResearchDraftsCompanion extends UpdateCompanion<ResearchDraftRow> {
     this.lon = const Value.absent(),
     this.accuracyM = const Value.absent(),
     this.altitudeM = const Value.absent(),
+    this.locationSource = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        formId = Value(formId),
@@ -22887,6 +23056,7 @@ class ResearchDraftsCompanion extends UpdateCompanion<ResearchDraftRow> {
     Expression<double>? lon,
     Expression<double>? accuracyM,
     Expression<double>? altitudeM,
+    Expression<String>? locationSource,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -22903,6 +23073,7 @@ class ResearchDraftsCompanion extends UpdateCompanion<ResearchDraftRow> {
       if (lon != null) 'lon': lon,
       if (accuracyM != null) 'accuracy_m': accuracyM,
       if (altitudeM != null) 'altitude_m': altitudeM,
+      if (locationSource != null) 'location_source': locationSource,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -22921,6 +23092,7 @@ class ResearchDraftsCompanion extends UpdateCompanion<ResearchDraftRow> {
     Value<double?>? lon,
     Value<double?>? accuracyM,
     Value<double?>? altitudeM,
+    Value<String?>? locationSource,
     Value<int>? rowid,
   }) {
     return ResearchDraftsCompanion(
@@ -22937,6 +23109,7 @@ class ResearchDraftsCompanion extends UpdateCompanion<ResearchDraftRow> {
       lon: lon ?? this.lon,
       accuracyM: accuracyM ?? this.accuracyM,
       altitudeM: altitudeM ?? this.altitudeM,
+      locationSource: locationSource ?? this.locationSource,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -22983,6 +23156,9 @@ class ResearchDraftsCompanion extends UpdateCompanion<ResearchDraftRow> {
     if (altitudeM.present) {
       map['altitude_m'] = Variable<double>(altitudeM.value);
     }
+    if (locationSource.present) {
+      map['location_source'] = Variable<String>(locationSource.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -23005,6 +23181,7 @@ class ResearchDraftsCompanion extends UpdateCompanion<ResearchDraftRow> {
           ..write('lon: $lon, ')
           ..write('accuracyM: $accuracyM, ')
           ..write('altitudeM: $altitudeM, ')
+          ..write('locationSource: $locationSource, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -24090,6 +24267,7 @@ typedef $$TestSessionsTableCreateCompanionBuilder =
       Value<double?> lat,
       Value<double?> lon,
       Value<double?> locationAccuracyM,
+      Value<String?> locationSource,
       Value<double?> distanceFromSourceM,
       Value<String?> distanceOverrideReason,
       Value<String?> notes,
@@ -24112,6 +24290,7 @@ typedef $$TestSessionsTableUpdateCompanionBuilder =
       Value<double?> lat,
       Value<double?> lon,
       Value<double?> locationAccuracyM,
+      Value<String?> locationSource,
       Value<double?> distanceFromSourceM,
       Value<String?> distanceOverrideReason,
       Value<String?> notes,
@@ -24244,6 +24423,11 @@ class $$TestSessionsTableFilterComposer
 
   ColumnFilters<double> get locationAccuracyM => $composableBuilder(
     column: $table.locationAccuracyM,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get locationSource => $composableBuilder(
+    column: $table.locationSource,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -24415,6 +24599,11 @@ class $$TestSessionsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get locationSource => $composableBuilder(
+    column: $table.locationSource,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<double> get distanceFromSourceM => $composableBuilder(
     column: $table.distanceFromSourceM,
     builder: (column) => ColumnOrderings(column),
@@ -24522,6 +24711,11 @@ class $$TestSessionsTableAnnotationComposer
 
   GeneratedColumn<double> get locationAccuracyM => $composableBuilder(
     column: $table.locationAccuracyM,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get locationSource => $composableBuilder(
+    column: $table.locationSource,
     builder: (column) => column,
   );
 
@@ -24667,6 +24861,7 @@ class $$TestSessionsTableTableManager
                 Value<double?> lat = const Value.absent(),
                 Value<double?> lon = const Value.absent(),
                 Value<double?> locationAccuracyM = const Value.absent(),
+                Value<String?> locationSource = const Value.absent(),
                 Value<double?> distanceFromSourceM = const Value.absent(),
                 Value<String?> distanceOverrideReason = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
@@ -24687,6 +24882,7 @@ class $$TestSessionsTableTableManager
                 lat: lat,
                 lon: lon,
                 locationAccuracyM: locationAccuracyM,
+                locationSource: locationSource,
                 distanceFromSourceM: distanceFromSourceM,
                 distanceOverrideReason: distanceOverrideReason,
                 notes: notes,
@@ -24709,6 +24905,7 @@ class $$TestSessionsTableTableManager
                 Value<double?> lat = const Value.absent(),
                 Value<double?> lon = const Value.absent(),
                 Value<double?> locationAccuracyM = const Value.absent(),
+                Value<String?> locationSource = const Value.absent(),
                 Value<double?> distanceFromSourceM = const Value.absent(),
                 Value<String?> distanceOverrideReason = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
@@ -24729,6 +24926,7 @@ class $$TestSessionsTableTableManager
                 lat: lat,
                 lon: lon,
                 locationAccuracyM: locationAccuracyM,
+                locationSource: locationSource,
                 distanceFromSourceM: distanceFromSourceM,
                 distanceOverrideReason: distanceOverrideReason,
                 notes: notes,
@@ -35832,6 +36030,7 @@ typedef $$ResearchRecordsTableCreateCompanionBuilder =
       Value<double?> endLat,
       Value<double?> endLon,
       Value<double?> endAccuracyM,
+      Value<String?> locationSource,
       required String answers,
       Value<DateTime?> createdAtServer,
       Value<int?> serverSeq,
@@ -35856,6 +36055,7 @@ typedef $$ResearchRecordsTableUpdateCompanionBuilder =
       Value<double?> endLat,
       Value<double?> endLon,
       Value<double?> endAccuracyM,
+      Value<String?> locationSource,
       Value<String> answers,
       Value<DateTime?> createdAtServer,
       Value<int?> serverSeq,
@@ -35953,6 +36153,11 @@ class $$ResearchRecordsTableFilterComposer
 
   ColumnFilters<double> get endAccuracyM => $composableBuilder(
     column: $table.endAccuracyM,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get locationSource => $composableBuilder(
+    column: $table.locationSource,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -36066,6 +36271,11 @@ class $$ResearchRecordsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get locationSource => $composableBuilder(
+    column: $table.locationSource,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get answers => $composableBuilder(
     column: $table.answers,
     builder: (column) => ColumnOrderings(column),
@@ -36156,6 +36366,11 @@ class $$ResearchRecordsTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<String> get locationSource => $composableBuilder(
+    column: $table.locationSource,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<String> get answers =>
       $composableBuilder(column: $table.answers, builder: (column) => column);
 
@@ -36222,6 +36437,7 @@ class $$ResearchRecordsTableTableManager
                 Value<double?> endLat = const Value.absent(),
                 Value<double?> endLon = const Value.absent(),
                 Value<double?> endAccuracyM = const Value.absent(),
+                Value<String?> locationSource = const Value.absent(),
                 Value<String> answers = const Value.absent(),
                 Value<DateTime?> createdAtServer = const Value.absent(),
                 Value<int?> serverSeq = const Value.absent(),
@@ -36244,6 +36460,7 @@ class $$ResearchRecordsTableTableManager
                 endLat: endLat,
                 endLon: endLon,
                 endAccuracyM: endAccuracyM,
+                locationSource: locationSource,
                 answers: answers,
                 createdAtServer: createdAtServer,
                 serverSeq: serverSeq,
@@ -36268,6 +36485,7 @@ class $$ResearchRecordsTableTableManager
                 Value<double?> endLat = const Value.absent(),
                 Value<double?> endLon = const Value.absent(),
                 Value<double?> endAccuracyM = const Value.absent(),
+                Value<String?> locationSource = const Value.absent(),
                 required String answers,
                 Value<DateTime?> createdAtServer = const Value.absent(),
                 Value<int?> serverSeq = const Value.absent(),
@@ -36290,6 +36508,7 @@ class $$ResearchRecordsTableTableManager
                 endLat: endLat,
                 endLon: endLon,
                 endAccuracyM: endAccuracyM,
+                locationSource: locationSource,
                 answers: answers,
                 createdAtServer: createdAtServer,
                 serverSeq: serverSeq,
@@ -36344,6 +36563,7 @@ typedef $$ResearchDraftsTableCreateCompanionBuilder =
       Value<double?> lon,
       Value<double?> accuracyM,
       Value<double?> altitudeM,
+      Value<String?> locationSource,
       Value<int> rowid,
     });
 typedef $$ResearchDraftsTableUpdateCompanionBuilder =
@@ -36361,6 +36581,7 @@ typedef $$ResearchDraftsTableUpdateCompanionBuilder =
       Value<double?> lon,
       Value<double?> accuracyM,
       Value<double?> altitudeM,
+      Value<String?> locationSource,
       Value<int> rowid,
     });
 
@@ -36435,6 +36656,11 @@ class $$ResearchDraftsTableFilterComposer
 
   ColumnFilters<double> get altitudeM => $composableBuilder(
     column: $table.altitudeM,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get locationSource => $composableBuilder(
+    column: $table.locationSource,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -36512,6 +36738,11 @@ class $$ResearchDraftsTableOrderingComposer
     column: $table.altitudeM,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get locationSource => $composableBuilder(
+    column: $table.locationSource,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$ResearchDraftsTableAnnotationComposer
@@ -36565,6 +36796,11 @@ class $$ResearchDraftsTableAnnotationComposer
 
   GeneratedColumn<double> get altitudeM =>
       $composableBuilder(column: $table.altitudeM, builder: (column) => column);
+
+  GeneratedColumn<String> get locationSource => $composableBuilder(
+    column: $table.locationSource,
+    builder: (column) => column,
+  );
 }
 
 class $$ResearchDraftsTableTableManager
@@ -36617,6 +36853,7 @@ class $$ResearchDraftsTableTableManager
                 Value<double?> lon = const Value.absent(),
                 Value<double?> accuracyM = const Value.absent(),
                 Value<double?> altitudeM = const Value.absent(),
+                Value<String?> locationSource = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ResearchDraftsCompanion(
                 id: id,
@@ -36632,6 +36869,7 @@ class $$ResearchDraftsTableTableManager
                 lon: lon,
                 accuracyM: accuracyM,
                 altitudeM: altitudeM,
+                locationSource: locationSource,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -36649,6 +36887,7 @@ class $$ResearchDraftsTableTableManager
                 Value<double?> lon = const Value.absent(),
                 Value<double?> accuracyM = const Value.absent(),
                 Value<double?> altitudeM = const Value.absent(),
+                Value<String?> locationSource = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ResearchDraftsCompanion.insert(
                 id: id,
@@ -36664,6 +36903,7 @@ class $$ResearchDraftsTableTableManager
                 lon: lon,
                 accuracyM: accuracyM,
                 altitudeM: altitudeM,
+                locationSource: locationSource,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

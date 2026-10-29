@@ -8,11 +8,13 @@ part 'archive_out.g.dart';
 
 @JsonSerializable()
 class ArchiveOut {
-  const ArchiveOut({required this.batchId, required this.counts});
-
-  factory ArchiveOut.fromJson(Map<String, Object?> json) =>
-      _$ArchiveOutFromJson(json);
-
+  const ArchiveOut({
+    required this.batchId,
+    required this.counts,
+  });
+  
+  factory ArchiveOut.fromJson(Map<String, Object?> json) => _$ArchiveOutFromJson(json);
+  
   @JsonKey(name: 'batch_id')
   final String batchId;
   final Map<String, int> counts;

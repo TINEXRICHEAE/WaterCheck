@@ -1341,6 +1341,276 @@ abstract class UiKitLocalizations {
   /// In en, this message translates to:
   /// **'Accept and continue'**
   String get legalContinue;
+
+  /// No description provided for @copyDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied'**
+  String get copyDone;
+
+  /// No description provided for @identityTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Username and privacy'**
+  String get identityTitle;
+
+  /// No description provided for @identityIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Everyone sees you by your username. Your real name shows only to IT admins and the teams you work with, unless you make your profile public.'**
+  String get identityIntro;
+
+  /// No description provided for @identityChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Change'**
+  String get identityChange;
+
+  /// No description provided for @identityUsername.
+  ///
+  /// In en, this message translates to:
+  /// **'Username'**
+  String get identityUsername;
+
+  /// No description provided for @identityRule.
+  ///
+  /// In en, this message translates to:
+  /// **'3 to 30 letters, numbers, dots, dashes or underscores, starting with a letter or number.'**
+  String get identityRule;
+
+  /// No description provided for @identityTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'Someone already has this username.'**
+  String get identityTaken;
+
+  /// No description provided for @identityFree.
+  ///
+  /// In en, this message translates to:
+  /// **'This username is free.'**
+  String get identityFree;
+
+  /// No description provided for @identitySave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get identitySave;
+
+  /// No description provided for @identityAnonymous.
+  ///
+  /// In en, this message translates to:
+  /// **'Anonymous'**
+  String get identityAnonymous;
+
+  /// No description provided for @identityPublic.
+  ///
+  /// In en, this message translates to:
+  /// **'Public'**
+  String get identityPublic;
+
+  /// No description provided for @identityAnonymousHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Others see only your username. You can still write to anyone, and anyone can write to you.'**
+  String get identityAnonymousHint;
+
+  /// No description provided for @identityPublicHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Everyone on this side sees your real name after your username, and can find you by it.'**
+  String get identityPublicHint;
+
+  /// No description provided for @identitySeenAs.
+  ///
+  /// In en, this message translates to:
+  /// **'Others see you as: {name}'**
+  String identitySeenAs(String name);
+
+  /// No description provided for @chatsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Chats'**
+  String get chatsTitle;
+
+  /// No description provided for @chatsSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Search chats and people'**
+  String get chatsSearch;
+
+  /// No description provided for @chatsNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No chats yet. Pick someone below to write to.'**
+  String get chatsNone;
+
+  /// No description provided for @chatsPeople.
+  ///
+  /// In en, this message translates to:
+  /// **'People'**
+  String get chatsPeople;
+
+  /// No description provided for @chatsPeopleHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Everyone on this side, by username. Public profiles show their real name too.'**
+  String get chatsPeopleHint;
+
+  /// No description provided for @chatsNobody.
+  ///
+  /// In en, this message translates to:
+  /// **'Nobody matches the search.'**
+  String get chatsNobody;
+
+  /// No description provided for @chatsWrite.
+  ///
+  /// In en, this message translates to:
+  /// **'Write'**
+  String get chatsWrite;
+
+  /// No description provided for @chatsStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Say hello. Messages need the internet.'**
+  String get chatsStart;
+
+  /// No description provided for @chatsOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Chats need the internet. Try again when online.'**
+  String get chatsOffline;
+
+  /// No description provided for @retry.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get retry;
+
+  /// No description provided for @ipAreaSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Set my location'**
+  String get ipAreaSet;
+
+  /// No description provided for @ipAreaCredit.
+  ///
+  /// In en, this message translates to:
+  /// **'IP geolocation by DB-IP'**
+  String get ipAreaCredit;
+
+  /// No description provided for @locFromComputer.
+  ///
+  /// In en, this message translates to:
+  /// **'Your location, from this computer: within {accuracy}, read {age}.'**
+  String locFromComputer(String accuracy, String age);
+
+  /// No description provided for @locFromInternet.
+  ///
+  /// In en, this message translates to:
+  /// **'This computer gives no location. A rough guess from your internet connection: around {place}. Mobile data often shows Kampala wherever you are; set your location by hand.'**
+  String locFromInternet(String place);
+
+  /// No description provided for @locByHand.
+  ///
+  /// In en, this message translates to:
+  /// **'Your location was set by hand {age}. Records made now are marked \"set by hand\".'**
+  String locByHand(String age);
+
+  /// No description provided for @locNone.
+  ///
+  /// In en, this message translates to:
+  /// **'This computer gives no location and the internet connection does not tell. Set your location by hand.'**
+  String get locNone;
+
+  /// No description provided for @locRefresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Read again'**
+  String get locRefresh;
+
+  /// No description provided for @locSetHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the map where you are.'**
+  String get locSetHint;
+
+  /// No description provided for @locSetDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Location set by hand.'**
+  String get locSetDone;
+
+  /// No description provided for @locAgeNow.
+  ///
+  /// In en, this message translates to:
+  /// **'just now'**
+  String get locAgeNow;
+
+  /// No description provided for @locAgeMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{1 minute ago} other{{n} minutes ago}}'**
+  String locAgeMinutes(int n);
+
+  /// No description provided for @locAgeHours.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{1 hour ago} other{{n} hours ago}}'**
+  String locAgeHours(int n);
+
+  /// No description provided for @locAgeDays.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{1 day ago} other{{n} days ago}}'**
+  String locAgeDays(int n);
+
+  /// No description provided for @locSourceHand.
+  ///
+  /// In en, this message translates to:
+  /// **'Location set by hand'**
+  String get locSourceHand;
+
+  /// No description provided for @locSourceInternet.
+  ///
+  /// In en, this message translates to:
+  /// **'Location guessed from the internet connection'**
+  String get locSourceInternet;
+
+  /// No description provided for @locFold.
+  ///
+  /// In en, this message translates to:
+  /// **'Fold away'**
+  String get locFold;
+
+  /// No description provided for @locSourceInternetShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Rough guess: no location from this computer'**
+  String get locSourceInternetShort;
+
+  /// No description provided for @locWhyDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'This browser blocked location for this page. Allow location for this site in the browser, then Read again.'**
+  String get locWhyDenied;
+
+  /// No description provided for @locWhyOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Location is off on this computer (Windows Settings › Privacy & security › Location). Turn it on, then Read again.'**
+  String get locWhyOff;
+
+  /// No description provided for @locWhyTimeout.
+  ///
+  /// In en, this message translates to:
+  /// **'This computer did not give a location in time. Read again.'**
+  String get locWhyTimeout;
+
+  /// No description provided for @locWhyUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'This browser gives no location here (some built-in previews never do). Open FieldQuire in Edge or Chrome and allow location.'**
+  String get locWhyUnavailable;
 }
 
 class _UiKitLocalizationsDelegate

@@ -15,10 +15,9 @@ class ArchiveIn {
     required this.recordId,
     required this.reason,
   });
-
-  factory ArchiveIn.fromJson(Map<String, Object?> json) =>
-      _$ArchiveInFromJson(json);
-
+  
+  factory ArchiveIn.fromJson(Map<String, Object?> json) => _$ArchiveInFromJson(json);
+  
   final ArchiveInEntity entity;
   @JsonKey(name: 'record_id')
   final String recordId;

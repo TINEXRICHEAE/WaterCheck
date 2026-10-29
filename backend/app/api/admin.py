@@ -315,6 +315,9 @@ async def installation_collectors(
                     "SELECT k.collector_key, p.snapshot, "
                     "(SELECT count(*) FROM test_session s WHERE s.collector_key = k.collector_key"
                     " AND s.installation_id = :i AND NOT wc_archived('test_session', s.id))"
+                    # Research records count on the research side (ADR-031).
+                    " + (SELECT count(*) FROM research.record r"
+                    "  WHERE r.collector_key = k.collector_key AND r.installation_id = :i)"
                     " AS tests,"
                     " (SELECT count(*) FROM water_source w WHERE w.collector_key = k.collector_key"
                     " AND w.installation_id = :i) AS sources,"

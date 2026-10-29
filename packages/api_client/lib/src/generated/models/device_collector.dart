@@ -21,10 +21,9 @@ class DeviceCollector {
     required this.lastAt,
     required this.recoveredHere,
   });
-
-  factory DeviceCollector.fromJson(Map<String, Object?> json) =>
-      _$DeviceCollectorFromJson(json);
-
+  
+  factory DeviceCollector.fromJson(Map<String, Object?> json) => _$DeviceCollectorFromJson(json);
+  
   @JsonKey(name: 'collector_key')
   final String collectorKey;
   @JsonKey(name: 'full_name')

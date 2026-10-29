@@ -205,6 +205,11 @@ class TestDetailScreen extends ConsumerWidget {
                 [
                   if (where?.accuracyM case final a?)
                     l10n.testAccuracy(a.round()),
+                  // Not measured on the device (2026-10-29).
+                  if (where?.source == LocationSource.hand)
+                    UiKitLocalizations.of(context).locSourceHand,
+                  if (where?.source == LocationSource.internet)
+                    UiKitLocalizations.of(context).locSourceInternet,
                   if (d.distanceM case final m?) l10n.testDistance(m.round()),
                   if (d.farReason case final why?) l10n.testFarReason(why),
                 ].join(' · '),

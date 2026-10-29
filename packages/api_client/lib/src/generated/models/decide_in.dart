@@ -8,11 +8,12 @@ part 'decide_in.g.dart';
 
 @JsonSerializable()
 class DecideIn {
-  const DecideIn({required this.approve});
-
-  factory DecideIn.fromJson(Map<String, Object?> json) =>
-      _$DecideInFromJson(json);
-
+  const DecideIn({
+    required this.approve,
+  });
+  
+  factory DecideIn.fromJson(Map<String, Object?> json) => _$DecideInFromJson(json);
+  
   final bool approve;
 
   Map<String, Object?> toJson() => _$DecideInToJson(this);

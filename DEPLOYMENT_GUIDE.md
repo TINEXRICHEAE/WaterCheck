@@ -882,6 +882,39 @@ docker compose up -d --build migrate api worker
 docker compose logs --tail=5 migrate   # "places: 1520 sub-county shapes, 64110 map places"
 ```
 
+### FieldQuire names, usernames and IP location (2026-10-28, DEVLOG 53, ADR-032)
+
+**One-time switch to the `fieldquire` Compose project.** Containers and images
+are now named `fieldquire-*`. The data volumes keep their `watercheck_*` names
+(pinned in `docker-compose.yml`), so nothing is copied or lost. Stop the old
+project once, **without `-v`**, then start the new one:
+
+```bash
+cd ~/WaterCheck/infra
+git pull
+docker compose -p watercheck --profile routing down   # never add -v
+docker compose up -d --build                          # runs migration 0023
+docker compose --profile routing up -d routing
+docker compose ps                                     # fieldquire-*-1, healthy
+docker image rm watercheck-api watercheck-worker watercheck-migrate
+```
+
+Migration 0023 gives every account and tester profile a username. Everyone
+becomes anonymous, and devices pull once more.
+
+**City database for computers without GPS.** About 130 MB, git-ignored, and
+refreshed monthly. Fetch it on the VM; the API reads it from `/data/geoip`:
+
+```bash
+cd ~/WaterCheck
+python3 tools/fetch_geoip.py        # into infra/geoip/dbip-city-lite.mmdb
+docker compose -f infra/docker-compose.yml restart api
+curl -s https://api.watercheck.fieldquire.cooptconnect.app/v1/places/ip-location
+```
+
+The apps credit "IP geolocation by DB-IP" (CC BY 4.0) where such a location
+shows.
+
 ## 17a. Releasing a client version
 
 The 0.1.1 release (2026-10-21) followed this procedure.

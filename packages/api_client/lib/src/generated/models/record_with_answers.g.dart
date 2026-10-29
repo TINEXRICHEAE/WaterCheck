@@ -30,6 +30,7 @@ RecordWithAnswers _$RecordWithAnswersFromJson(Map<String, dynamic> json) =>
       endLon: json['end_lon'] as num?,
       answers: json['answers'],
       pictures: (json['pictures'] as num).toInt(),
+      locationSource: json['location_source'] as String?,
     );
 
 Map<String, dynamic> _$RecordWithAnswersToJson(RecordWithAnswers instance) =>
@@ -47,6 +48,7 @@ Map<String, dynamic> _$RecordWithAnswersToJson(RecordWithAnswers instance) =>
       'lat': instance.lat,
       'lon': instance.lon,
       'accuracy_m': instance.accuracyM,
+      'location_source': instance.locationSource,
       'declined': instance.declined,
       'end_lat': instance.endLat,
       'end_lon': instance.endLon,

@@ -12,10 +12,9 @@ class RoutingRule {
     required this.triggerRule,
     required this.responsibilityCode,
   });
-
-  factory RoutingRule.fromJson(Map<String, Object?> json) =>
-      _$RoutingRuleFromJson(json);
-
+  
+  factory RoutingRule.fromJson(Map<String, Object?> json) => _$RoutingRuleFromJson(json);
+  
   @JsonKey(name: 'trigger_rule')
   final String triggerRule;
   @JsonKey(name: 'responsibility_code')

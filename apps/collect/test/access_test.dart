@@ -58,10 +58,9 @@ void main() {
       expect(gateRedirect(ready, '/lock'), '/');
     });
 
-    test('a new installation is asked to choose a PIN', () {
+    test('a new installation is not asked for a PIN (2026-10-28)', () {
       final g = ready.copyWith(lockDecided: false);
-      expect(gateRedirect(g, '/'), '/lock/setup');
-      expect(gateRedirect(ready, '/lock/setup'), '/');
+      expect(gateRedirect(g, '/'), isNull);
     });
   });
 
@@ -103,9 +102,8 @@ void main() {
           DriftLocalSettingsRepository(db).write(lockDeclinedSetting, null),
     );
     expect(find.text('Activate this device'), findsNothing);
-    expect(find.text('Choose a PIN to protect FieldQuire'), findsOneWidget);
-    await enterPin(tester, '1357');
-    await enterPin(tester, '1357');
+    // The app lock is optional: off until turned on in Settings.
+    expect(find.text('Choose a PIN to protect FieldQuire'), findsNothing);
     expect(find.byType(NavigationBar), findsOneWidget);
     await tapAndSettle(tester, find.text('Sync'));
     await tapAndSettle(tester, find.text('Sync now'));
@@ -127,21 +125,6 @@ void main() {
       )..where((t) => t.key.equals('rules'))).getSingle(),
     );
     expect(rules!.version, svc.server.rulesVersion);
-    await disposeApp(tester, db);
-  });
-
-  testWidgets('the lock can be turned off at setup', (tester) async {
-    final svc = TestServices();
-    final db = await pumpCollect(
-      tester,
-      services: svc,
-      prepare: (db) =>
-          DriftLocalSettingsRepository(db).write(lockDeclinedSetting, null),
-    );
-    expect(find.text('Choose a PIN to protect FieldQuire'), findsOneWidget);
-    await tapAndSettle(tester, find.text('Turn off app lock'));
-    await tapAndSettle(tester, find.text('Turn off app lock').last);
-    expect(find.byType(NavigationBar), findsOneWidget);
     await disposeApp(tester, db);
   });
 

@@ -13,10 +13,9 @@ class NewCodeRequest {
     this.expiresInDays,
     this.maxInstallations = 5,
   });
-
-  factory NewCodeRequest.fromJson(Map<String, Object?> json) =>
-      _$NewCodeRequestFromJson(json);
-
+  
+  factory NewCodeRequest.fromJson(Map<String, Object?> json) => _$NewCodeRequestFromJson(json);
+  
   @JsonKey(name: 'area_code')
   final String areaCode;
   @JsonKey(name: 'max_installations')

@@ -1,8 +1,9 @@
-# WaterCheck local dev stack. Usage (from infra/):
+# FieldQuire stack (water testing and research). Usage (from infra/):
 #   cp .env.example .env    # then edit values
 #   docker compose up -d --build
 #   curl http://localhost/health
-name: watercheck
+# Containers and images are named fieldquire-* (2026-10-28).
+name: fieldquire
 
 services:
   db:
@@ -81,15 +82,18 @@ services:
       # Notifications (ADR-013): Mailpit in dev; SMS keys only when set.
       WC_SMTP_HOST: ${WC_SMTP_HOST:-mailpit}
       WC_SMTP_PORT: ${WC_SMTP_PORT:-1025}
-      WC_SMTP_FROM: ${WC_SMTP_FROM:-WaterCheck <no-reply@watercheck.local>}
+      WC_SMTP_FROM: ${WC_SMTP_FROM:-FieldQuire <no-reply@fieldquire.local>}
       WC_SMS_PROVIDER: ${WC_SMS_PROVIDER:-}
       WC_SMS_USERNAME: ${WC_SMS_USERNAME:-}
       WC_SMS_API_KEY: ${WC_SMS_API_KEY:-}
       WC_SMS_WEBHOOK_TOKEN: ${WC_SMS_WEBHOOK_TOKEN}
       # Map background (ADR-014), built by tools/build_tiles.ps1.
       WC_TILES_PATH: /data/tiles/area.mbtiles
+      # Devices without GPS: their public address (tools/fetch_geoip.py).
+      WC_GEOIP_PATH: /data/geoip/dbip-city-lite.mmdb
     volumes:
       - ./tiles:/data/tiles:ro
+      - ./geoip:/data/geoip:ro
     depends_on:
       migrate:
         condition: service_completed_successfully
@@ -180,7 +184,12 @@ services:
     depends_on:
       - caddy
 
+# The data volumes keep the names they were created with (watercheck_*),
+# so renaming the project kept every database, file and certificate.
 volumes:
   db-data:
+    name: watercheck_db-data
   storage-data:
+    name: watercheck_storage-data
   caddy-data:
+    name: watercheck_caddy-data

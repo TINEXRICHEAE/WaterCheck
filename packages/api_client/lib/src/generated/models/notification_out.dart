@@ -17,10 +17,9 @@ class NotificationOut {
     required this.createdAt,
     required this.readAt,
   });
-
-  factory NotificationOut.fromJson(Map<String, Object?> json) =>
-      _$NotificationOutFromJson(json);
-
+  
+  factory NotificationOut.fromJson(Map<String, Object?> json) => _$NotificationOutFromJson(json);
+  
   final String id;
   @JsonKey(name: 'alert_id')
   final String? alertId;

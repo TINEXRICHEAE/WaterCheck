@@ -1,4 +1,5 @@
 import 'package:api_client/api_client.dart';
+import 'package:domain/domain.dart' show AppSide;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -83,7 +84,12 @@ class DeviceScreen extends ConsumerWidget {
           ),
         ],
         const Divider(height: 32),
-        Text(l10n.deviceCollectors, style: text.titleMedium),
+        Text(
+          adminSide(context) == AppSide.research
+              ? l10n.deviceCollectorsResearch
+              : l10n.deviceCollectors,
+          style: text.titleMedium,
+        ),
         Text(l10n.deviceCollectorsHint, style: text.bodySmall),
         ...people.when(
           loading: () => [const LinearProgressIndicator()],
@@ -106,7 +112,10 @@ class DeviceScreen extends ConsumerWidget {
                   [
                     ?c.phone,
                     ?c.village,
-                    l10n.deviceCollectorWork(c.tests, c.sources),
+                    if (adminSide(context) == AppSide.research)
+                      l10n.deviceCollectorRecords(c.tests)
+                    else
+                      l10n.deviceCollectorWork(c.tests, c.sources),
                     if (c.lastAt != null) l10n.phonesLastSeen(at(c.lastAt!)),
                     if (c.recoveredHere) l10n.deviceRecoveredHere,
                   ].join(' · '),

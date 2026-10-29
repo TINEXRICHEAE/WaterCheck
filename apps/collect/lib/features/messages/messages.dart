@@ -7,6 +7,7 @@ import 'package:ui_kit/ui_kit.dart';
 import '../../app/providers.dart';
 import '../../l10n/app_localizations.dart';
 import '../research/research.dart';
+import 'chats.dart';
 
 final messageRepositoryProvider = Provider<MessageRepository>(
   (ref) => MessageRepository(ref.watch(databaseProvider)),
@@ -129,11 +130,6 @@ class InboxScreen extends ConsumerWidget {
       appBar: AppBar(title: Text(l10n.messagesTitle)),
       body: threads == null
           ? const PageLoading()
-          : threads.isEmpty
-          ? Padding(
-              padding: const EdgeInsets.all(16),
-              child: Text(l10n.messagesNone),
-            )
           : SearchBuilder(
               label: l10n.searchMessages,
               history: research
@@ -145,6 +141,15 @@ class InboxScreen extends ConsumerWidget {
                     padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
                     child: field,
                   ),
+                  if (threads.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Text(
+                        research
+                            ? l10n.messagesNoneResearch
+                            : l10n.messagesNone,
+                      ),
+                    ),
                   for (final t in threads)
                     if (matches([t.title, t.lastAuthor, t.lastBody]))
                       ListTile(
@@ -168,6 +173,16 @@ class InboxScreen extends ConsumerWidget {
                           ),
                         ),
                       ),
+                  // People to write to directly (ADR-032).
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 24, 16, 24),
+                    child: PeopleChatsSection(
+                      backend: ref.watch(collectChatsProvider),
+                      historyKey: research
+                          ? 'collect.research.chats'
+                          : 'collect.chats',
+                    ),
+                  ),
                 ],
               ),
             ),

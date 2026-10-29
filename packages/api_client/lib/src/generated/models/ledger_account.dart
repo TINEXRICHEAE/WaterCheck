@@ -21,10 +21,9 @@ class LedgerAccount {
     required this.isActive,
     required this.areas,
   });
-
-  factory LedgerAccount.fromJson(Map<String, Object?> json) =>
-      _$LedgerAccountFromJson(json);
-
+  
+  factory LedgerAccount.fromJson(Map<String, Object?> json) => _$LedgerAccountFromJson(json);
+  
   final String id;
   final String username;
   @JsonKey(name: 'full_name')

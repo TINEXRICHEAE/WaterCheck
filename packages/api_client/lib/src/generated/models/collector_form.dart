@@ -13,10 +13,9 @@ class CollectorForm {
     required this.code,
     required this.via,
   });
-
-  factory CollectorForm.fromJson(Map<String, Object?> json) =>
-      _$CollectorFormFromJson(json);
-
+  
+  factory CollectorForm.fromJson(Map<String, Object?> json) => _$CollectorFormFromJson(json);
+  
   @JsonKey(name: 'form_id')
   final String formId;
   final String code;

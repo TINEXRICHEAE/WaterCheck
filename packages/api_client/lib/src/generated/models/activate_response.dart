@@ -17,10 +17,9 @@ class ActivateResponse {
     required this.serverTime,
     required this.shortCode,
   });
-
-  factory ActivateResponse.fromJson(Map<String, Object?> json) =>
-      _$ActivateResponseFromJson(json);
-
+  
+  factory ActivateResponse.fromJson(Map<String, Object?> json) => _$ActivateResponseFromJson(json);
+  
   @JsonKey(name: 'installation_id')
   final String installationId;
   final String secret;

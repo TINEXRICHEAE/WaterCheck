@@ -99,7 +99,8 @@ async def client(db: Database) -> AsyncIterator[AsyncClient]:
     from app.core.config import Settings
     from app.main import create_app
 
-    app = create_app(Settings(environment="test"))
+    # No IP city database and no outside calls in tests.
+    app = create_app(Settings(environment="test", geoip_path="", public_ip_url=""))
     app.state.db = db
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as c:
         yield c

@@ -116,38 +116,6 @@ Future<void> offerBiometric(BuildContext context, WidgetRef ref) async {
   await ref.read(appLockProvider).setBiometric(yes ?? false);
 }
 
-/// After activation: the lock is on by default, so choose a PIN; it can be
-/// turned off here or later in Settings.
-class LockSetupScreen extends ConsumerWidget {
-  const LockSetupScreen({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context);
-    return PinSetupScreen(
-      title: l10n.lockSetupTitle,
-      onDone: (pin) async {
-        await ref.read(appLockProvider).setPin(pin);
-        if (context.mounted) await offerBiometric(context, ref);
-        await ref.read(appGateProvider.notifier).lockDecided(declined: false);
-      },
-      actions: [
-        TextButton(
-          onPressed: () async {
-            final off = await confirmLockOff(context);
-            if (off) {
-              await ref
-                  .read(appGateProvider.notifier)
-                  .lockDecided(declined: true);
-            }
-          },
-          child: Text(l10n.lockTurnOff),
-        ),
-      ],
-    );
-  }
-}
-
 Future<bool> confirmLockOff(BuildContext context) async {
   final l10n = AppLocalizations.of(context);
   return await showDialog<bool>(

@@ -538,5 +538,102 @@
       }
     }
   },
-  "legalContinue": "Accept and continue"
+  "legalContinue": "Accept and continue",
+  "copyDone": "Copied",
+  "identityTitle": "Username and privacy",
+  "identityIntro": "Everyone sees you by your username. Your real name shows only to IT admins and the teams you work with, unless you make your profile public.",
+  "identityChange": "Change",
+  "identityUsername": "Username",
+  "identityRule": "3 to 30 letters, numbers, dots, dashes or underscores, starting with a letter or number.",
+  "identityTaken": "Someone already has this username.",
+  "identityFree": "This username is free.",
+  "identitySave": "Save",
+  "identityAnonymous": "Anonymous",
+  "identityPublic": "Public",
+  "identityAnonymousHint": "Others see only your username. You can still write to anyone, and anyone can write to you.",
+  "identityPublicHint": "Everyone on this side sees your real name after your username, and can find you by it.",
+  "identitySeenAs": "Others see you as: {name}",
+  "@identitySeenAs": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "chatsTitle": "Chats",
+  "chatsSearch": "Search chats and people",
+  "chatsNone": "No chats yet. Pick someone below to write to.",
+  "chatsPeople": "People",
+  "chatsPeopleHint": "Everyone on this side, by username. Public profiles show their real name too.",
+  "chatsNobody": "Nobody matches the search.",
+  "chatsWrite": "Write",
+  "chatsStart": "Say hello. Messages need the internet.",
+  "chatsOffline": "Chats need the internet. Try again when online.",
+  "retry": "Try again",
+  "ipAreaSet": "Set my location",
+  "ipAreaCredit": "IP geolocation by DB-IP",
+  "locFromComputer": "Your location, from this computer: within {accuracy}, read {age}.",
+  "@locFromComputer": {
+    "placeholders": {
+      "accuracy": {
+        "type": "String"
+      },
+      "age": {
+        "type": "String"
+      }
+    }
+  },
+  "locFromInternet": "This computer gives no location. A rough guess from your internet connection: around {place}. Mobile data often shows Kampala wherever you are; set your location by hand.",
+  "@locFromInternet": {
+    "placeholders": {
+      "place": {
+        "type": "String"
+      }
+    }
+  },
+  "locByHand": "Your location was set by hand {age}. Records made now are marked \"set by hand\".",
+  "@locByHand": {
+    "placeholders": {
+      "age": {
+        "type": "String"
+      }
+    }
+  },
+  "locNone": "This computer gives no location and the internet connection does not tell. Set your location by hand.",
+  "locRefresh": "Read again",
+  "locSetHint": "Tap the map where you are.",
+  "locSetDone": "Location set by hand.",
+  "locAgeNow": "just now",
+  "locAgeMinutes": "{n, plural, =1{1 minute ago} other{{n} minutes ago}}",
+  "@locAgeMinutes": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "locAgeHours": "{n, plural, =1{1 hour ago} other{{n} hours ago}}",
+  "@locAgeHours": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "locAgeDays": "{n, plural, =1{1 day ago} other{{n} days ago}}",
+  "@locAgeDays": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "locSourceHand": "Location set by hand",
+  "locSourceInternet": "Location guessed from the internet connection",
+  "locFold": "Fold away",
+  "locSourceInternetShort": "Rough guess: no location from this computer",
+  "locWhyDenied": "This browser blocked location for this page. Allow location for this site in the browser, then Read again.",
+  "locWhyOff": "Location is off on this computer (Windows Settings › Privacy & security › Location). Turn it on, then Read again.",
+  "locWhyTimeout": "This computer did not give a location in time. Read again.",
+  "locWhyUnavailable": "This browser gives no location here (some built-in previews never do). Open FieldQuire in Edge or Chrome and allow location."
 }

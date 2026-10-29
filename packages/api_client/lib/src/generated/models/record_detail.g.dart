@@ -34,6 +34,7 @@ RecordDetail _$RecordDetailFromJson(Map<String, dynamic> json) => RecordDetail(
   pictures: (json['pictures'] as List<dynamic>)
       .map((e) => PictureOut.fromJson(e as Map<String, dynamic>))
       .toList(),
+  locationSource: json['location_source'] as String?,
 );
 
 Map<String, dynamic> _$RecordDetailToJson(RecordDetail instance) =>
@@ -51,6 +52,7 @@ Map<String, dynamic> _$RecordDetailToJson(RecordDetail instance) =>
       'lat': instance.lat,
       'lon': instance.lon,
       'accuracy_m': instance.accuracyM,
+      'location_source': instance.locationSource,
       'declined': instance.declined,
       'altitude_m': instance.altitudeM,
       'end_lat': instance.endLat,

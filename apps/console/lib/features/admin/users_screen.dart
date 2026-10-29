@@ -3,7 +3,6 @@ import 'package:data/data.dart';
 import 'package:domain/domain.dart' show AppSide;
 import 'package:flutter/material.dart';
 import 'package:ui_kit/ui_kit.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
@@ -248,12 +247,7 @@ Future<void> showCredentials(
         ],
       ),
       actions: [
-        TextButton.icon(
-          onPressed: () =>
-              Clipboard.setData(ClipboardData(text: '$username\n$password')),
-          icon: const Icon(Icons.copy),
-          label: Text(l10n.credentialsCopy),
-        ),
+        CopyButton(text: '$username\n$password', label: l10n.credentialsCopy),
         FilledButton(
           onPressed: () => Navigator.pop(context),
           child: Text(l10n.credentialsDone),

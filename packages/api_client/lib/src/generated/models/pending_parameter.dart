@@ -22,10 +22,9 @@ class PendingParameter {
     this.sessionId,
     this.firstValue,
   });
-
-  factory PendingParameter.fromJson(Map<String, Object?> json) =>
-      _$PendingParameterFromJson(json);
-
+  
+  factory PendingParameter.fromJson(Map<String, Object?> json) => _$PendingParameterFromJson(json);
+  
   final String code;
   final String name;
   @JsonKey(name: 'category_code')

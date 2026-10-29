@@ -22,10 +22,9 @@ class CodeToPass {
     required this.createdAt,
     required this.expiresAt,
   });
-
-  factory CodeToPass.fromJson(Map<String, Object?> json) =>
-      _$CodeToPassFromJson(json);
-
+  
+  factory CodeToPass.fromJson(Map<String, Object?> json) => _$CodeToPassFromJson(json);
+  
   final String id;
   final CodeToPassKind kind;
   final String who;

@@ -15,10 +15,9 @@ class CollectorLine {
     required this.lastSubmission,
     required this.mark,
   });
-
-  factory CollectorLine.fromJson(Map<String, Object?> json) =>
-      _$CollectorLineFromJson(json);
-
+  
+  factory CollectorLine.fromJson(Map<String, Object?> json) => _$CollectorLineFromJson(json);
+  
   @JsonKey(name: 'collector_key')
   final String collectorKey;
   final String name;

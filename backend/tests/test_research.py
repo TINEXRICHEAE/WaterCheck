@@ -323,23 +323,25 @@ async def test_researcher_builds_publishes_and_collects(
     mine = await a.get("/v1/research/device/forms")
     assert form["id"] not in mine["allowed"]
 
-    # Collectors are private unless they choose otherwise; their own code
-    # always finds them.
-    card = await a.get(f"/v1/research/collectors/{a.collector}/card")
-    assert card["discoverable"] is False and len(card["share_code"]) == 8
+    # Collectors are anonymous unless they choose public (ADR-032): anyone
+    # finds them by username or code, named by username only.
+    card = await a.get(f"/v1/device/collectors/{a.collector}/identity")
+    assert card["public"] is False and len(card["share_code"]) == 8 and card["handle"]
     stranger = (await _person(client, owner_db))[1]
     by_name = (
         await client.get("/v1/research/testers", params={"q": "Example"}, headers=stranger)
     ).json()
     assert a.collector not in {t["collector_key"] for t in by_name}
-    by_code = (
-        await client.get(
-            "/v1/research/testers", params={"q": card["share_code"].lower()}, headers=stranger
-        )
-    ).json()
-    assert [t["collector_key"] for t in by_code] == [a.collector]
-    body = json.dumps({"discoverable": True}).encode()
-    path = f"/v1/research/collectors/{a.collector}/card"
+    for q in (card["share_code"].lower(), card["handle"]):
+        found = (await client.get("/v1/research/testers", params={"q": q}, headers=stranger)).json()
+        assert [(t["collector_key"], t["name"], t["phone"]) for t in found] == [
+            (a.collector, card["handle"], None)
+        ]
+    # The team they collect for sees the real name after the username.
+    team = (await client.get(f"/v1/research/collectors/{a.collector}", headers=owner)).json()
+    assert team["name"].startswith(card["handle"] + " (")
+    body = json.dumps({"public": True}).encode()
+    path = f"/v1/device/collectors/{a.collector}/identity"
     r = await client.put(
         path,
         content=body,
@@ -348,8 +350,11 @@ async def test_researcher_builds_publishes_and_collects(
             **signed_headers(a.id, a.secret, "PUT", path, body, nonce=uuid.uuid4().hex),
         },
     )
-    assert r.json()["discoverable"] is True
+    assert r.json()["public"] is True
     by_name = (
         await client.get("/v1/research/testers", params={"q": "Example"}, headers=stranger)
     ).json()
     assert a.collector in {t["collector_key"] for t in by_name}
+    assert next(t for t in by_name if t["collector_key"] == a.collector)["name"].startswith(
+        card["handle"] + " ("
+    )

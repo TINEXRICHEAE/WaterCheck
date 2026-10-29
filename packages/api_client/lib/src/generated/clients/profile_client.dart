@@ -15,6 +15,7 @@ import '../models/contact_pending.dart';
 import '../models/decide_in.dart';
 import '../models/legal_in.dart';
 import '../models/profile_in.dart';
+import '../models/side.dart';
 
 part 'profile_client.g.dart';
 
@@ -24,13 +25,17 @@ abstract class ProfileClient {
 
   /// Edit Profile
   @PUT('/v1/me/profile')
-  Future<void> editProfile({@Body() required ProfileIn body});
+  Future<void> editProfile({
+    @Body() required ProfileIn body,
+  });
 
   /// Change Contact.
   ///
   /// Saves a new email or phone as not confirmed and makes a code.
   @POST('/v1/me/contacts')
-  Future<ContactPending> changeContact({@Body() required ContactIn body});
+  Future<ContactPending> changeContact({
+    @Body() required ContactIn body,
+  });
 
   /// Confirm Contact
   @POST('/v1/me/contacts/{request_id}/confirm')
@@ -60,14 +65,18 @@ abstract class ProfileClient {
   /// Records that the person accepted this version of the Privacy Policy.
   /// and Terms of Use (the version only goes up).
   @POST('/v1/me/legal')
-  Future<void> acceptLegal({@Body() required LegalIn body});
+  Future<void> acceptLegal({
+    @Body() required LegalIn body,
+  });
 
   /// Close Account.
   ///
   /// Closes the account for good: no more sign-in, contact details erased,.
   /// every session ended. Records already made stay, under the name.
   @POST('/v1/me/close')
-  Future<void> closeAccount({@Body() required CloseIn body});
+  Future<void> closeAccount({
+    @Body() required CloseIn body,
+  });
 
   /// Tester Contact
   @POST('/v1/collectors/{collector_key}/contacts')
@@ -109,9 +118,12 @@ abstract class ProfileClient {
 
   /// Codes To Pass.
   ///
-  /// Every confirmation code waiting for an IT admin to give by phone.
+  /// Every confirmation code waiting for an IT admin to give by phone;.
+  /// with `side`, those of that side's people (ADR-031).
   @GET('/v1/admin/codes-to-pass')
-  Future<List<CodeToPass>> codesToPass();
+  Future<List<CodeToPass>> codesToPass({
+    @Query('side') Side? side,
+  });
 
   /// Area Requests
   @GET('/v1/admin/area-requests')

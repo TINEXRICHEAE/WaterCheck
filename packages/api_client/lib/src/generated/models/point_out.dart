@@ -17,10 +17,9 @@ class PointOut {
     required this.at,
     required this.collector,
   });
-
-  factory PointOut.fromJson(Map<String, Object?> json) =>
-      _$PointOutFromJson(json);
-
+  
+  factory PointOut.fromJson(Map<String, Object?> json) => _$PointOutFromJson(json);
+  
   final String id;
   final String number;
   @JsonKey(name: 'form_code')

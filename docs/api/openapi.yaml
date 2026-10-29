@@ -855,6 +855,22 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
+  /v1/places/ip-location:
+    get:
+      tags:
+      - reference
+      summary: Ip Location
+      description: 'Roughly where the caller is, from their public address: for devices
+
+        without GPS only (2026-10-28). 404 when the address is not known.'
+      operationId: ip_location
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IpLocation'
   /v1/research/projects:
     get:
       tags:
@@ -1463,6 +1479,81 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
+  /v1/research/forms/{form_id}/editors:
+    post:
+      tags:
+      - research
+      summary: Add Editor
+      description: 'Lets someone outside the team change the questions and publish
+        new
+
+        versions (ADR-032); access and sharing stay with the team.'
+      operationId: add_editor
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: form_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Form Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditorIn'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FormDetail'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/research/forms/{form_id}/editors/{user_id}:
+    delete:
+      tags:
+      - research
+      summary: Remove Editor
+      operationId: remove_editor
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: form_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Form Id
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: User Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FormDetail'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
   /v1/research/forms/{form_id}/clone:
     post:
       tags:
@@ -1677,11 +1768,11 @@ paths:
       description: 'Research collectors on Collect, to give a form to (water testers
         are
 
-        other people, ADR-031). By their own collector code, anyone; by name or
+        other people, ADR-031). Anyone by their username or collector code; by
 
-        phone, those who chose to be found, those already working on the
+        real name or phone only where the caller may see it (ADR-032). Named by
 
-        caller''s projects, and (for IT admins) everyone.'
+        username, with the real name where it may be seen.'
       operationId: find_testers
       security:
       - HTTPBearer: []
@@ -1727,68 +1818,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DeviceForms'
-  /v1/research/collectors/{collector_key}/card:
-    get:
-      tags:
-      - research
-      summary: Collector Card
-      description: 'A research collector''s own code to give research teams, and whether
-
-        teams may find them by name.'
-      operationId: collector_card
-      parameters:
-      - name: collector_key
-        in: path
-        required: true
-        schema:
-          type: string
-          format: uuid
-          title: Collector Key
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CollectorCard'
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-    put:
-      tags:
-      - research
-      summary: Set Discoverable
-      operationId: set_discoverable
-      parameters:
-      - name: collector_key
-        in: path
-        required: true
-        schema:
-          type: string
-          format: uuid
-          title: Collector Key
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/DiscoverableIn'
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CollectorCard'
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
   /v1/research/collectors/{collector_key}:
     get:
       tags:
@@ -2167,6 +2196,523 @@ paths:
                 items:
                   $ref: '#/components/schemas/ThreadOut'
                 title: Response Research Threads
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/me/identity:
+    get:
+      tags:
+      - people
+      summary: My Identity
+      operationId: my_identity
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Identity'
+      security:
+      - HTTPBearer: []
+    put:
+      tags:
+      - people
+      summary: Set My Identity
+      operationId: set_my_identity
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IdentityIn'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Identity'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - HTTPBearer: []
+  /v1/people/handle-check:
+    get:
+      tags:
+      - people
+      summary: Check Handle
+      description: Whether a username can be had, as it is typed.
+      operationId: check_handle
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: handle
+        in: query
+        required: true
+        schema:
+          type: string
+          maxLength: 40
+          title: Handle
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HandleCheck'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/device/collectors/{collector_key}/identity:
+    get:
+      tags:
+      - people
+      summary: Collector Identity
+      operationId: collector_identity
+      parameters:
+      - name: collector_key
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Collector Key
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CollectorIdentity'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    put:
+      tags:
+      - people
+      summary: Set Collector Identity
+      operationId: set_collector_identity
+      parameters:
+      - name: collector_key
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Collector Key
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CollectorIdentityIn'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CollectorIdentity'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/people:
+    get:
+      tags:
+      - people
+      summary: People
+      description: 'People on this side to write to: anonymous ones by username, public
+
+        ones (and those this account may see) with their names too.'
+      operationId: people
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: q
+        in: query
+        required: false
+        schema:
+          type: string
+          maxLength: 80
+          default: ''
+          title: Q
+      - name: side
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - enum:
+            - water
+            - research
+            type: string
+          - type: 'null'
+          title: Side
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 200
+          minimum: 1
+          default: 100
+          title: Limit
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Person'
+                title: Response People
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/device/people:
+    get:
+      tags:
+      - people
+      summary: Device People
+      operationId: device_people
+      parameters:
+      - name: side
+        in: query
+        required: true
+        schema:
+          enum:
+          - water
+          - research
+          type: string
+          title: Side
+      - name: collector_key
+        in: query
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Collector Key
+      - name: q
+        in: query
+        required: false
+        schema:
+          type: string
+          maxLength: 80
+          default: ''
+          title: Q
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 200
+          minimum: 1
+          default: 100
+          title: Limit
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Person'
+                title: Response Device People
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/chats:
+    get:
+      tags:
+      - people
+      summary: Chats
+      operationId: chats
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: side
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - enum:
+            - water
+            - research
+            type: string
+          - type: 'null'
+          title: Side
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ChatOut'
+                title: Response Chats
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - people
+      summary: Start Chat
+      operationId: start_chat
+      security:
+      - HTTPBearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatStart'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatOut'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/chats/{chat_id}/messages:
+    get:
+      tags:
+      - people
+      summary: Chat Messages
+      operationId: chat_messages
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: chat_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Chat Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ChatMessageOut'
+                title: Response Chat Messages
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - people
+      summary: Send Chat Message
+      operationId: send_chat_message
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: chat_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Chat Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatMessageIn'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatMessageOut'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/device/chats:
+    get:
+      tags:
+      - people
+      summary: Device Chats
+      operationId: device_chats
+      parameters:
+      - name: side
+        in: query
+        required: true
+        schema:
+          enum:
+          - water
+          - research
+          type: string
+          title: Side
+      - name: collector_key
+        in: query
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Collector Key
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ChatOut'
+                title: Response Device Chats
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - people
+      summary: Device Start Chat
+      operationId: device_start_chat
+      parameters:
+      - name: collector_key
+        in: query
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Collector Key
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatStart'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatOut'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/device/chats/{chat_id}/messages:
+    get:
+      tags:
+      - people
+      summary: Device Chat Messages
+      operationId: device_chat_messages
+      parameters:
+      - name: chat_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Chat Id
+      - name: collector_key
+        in: query
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Collector Key
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ChatMessageOut'
+                title: Response Device Chat Messages
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - people
+      summary: Device Send Chat Message
+      operationId: device_send_chat_message
+      parameters:
+      - name: chat_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Chat Id
+      - name: collector_key
+        in: query
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Collector Key
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatMessageIn'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatMessageOut'
         '422':
           description: Validation Error
           content:
@@ -4135,20 +4681,40 @@ paths:
       tags:
       - profile
       summary: Codes To Pass
-      description: Every confirmation code waiting for an IT admin to give by phone.
+      description: 'Every confirmation code waiting for an IT admin to give by phone;
+
+        with `side`, those of that side''s people (ADR-031).'
       operationId: codes_to_pass
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: side
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - enum:
+            - water
+            - research
+            type: string
+          - type: 'null'
+          title: Side
       responses:
         '200':
           description: Successful Response
           content:
             application/json:
               schema:
+                type: array
                 items:
                   $ref: '#/components/schemas/CodeToPass'
-                type: array
                 title: Response Codes To Pass
-      security:
-      - HTTPBearer: []
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
   /v1/admin/area-requests:
     get:
       tags:
@@ -5352,6 +5918,107 @@ components:
       - entity
       - status
       title: ChangeResult
+    ChatMessageIn:
+      properties:
+        body:
+          type: string
+          maxLength: 2000
+          minLength: 1
+          title: Body
+      type: object
+      required:
+      - body
+      title: ChatMessageIn
+    ChatMessageOut:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        mine:
+          type: boolean
+          title: Mine
+        body:
+          type: string
+          title: Body
+        sent_at:
+          type: string
+          format: date-time
+          title: Sent At
+        read_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Read At
+      type: object
+      required:
+      - id
+      - mine
+      - body
+      - sent_at
+      - read_at
+      title: ChatMessageOut
+    ChatOut:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        side:
+          type: string
+          enum:
+          - water
+          - research
+          title: Side
+        other:
+          $ref: '#/components/schemas/Person'
+        last_body:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Body
+        last_at:
+          type: string
+          format: date-time
+          title: Last At
+        unread:
+          type: integer
+          title: Unread
+      type: object
+      required:
+      - id
+      - side
+      - other
+      - last_body
+      - last_at
+      - unread
+      title: ChatOut
+    ChatStart:
+      properties:
+        to_kind:
+          type: string
+          enum:
+          - user
+          - collector
+          title: To Kind
+        to_id:
+          type: string
+          format: uuid
+          title: To Id
+        side:
+          anyOf:
+          - type: string
+            enum:
+            - water
+            - research
+          - type: 'null'
+          title: Side
+      type: object
+      required:
+      - to_kind
+      - to_id
+      title: ChatStart
     CloneIn:
       properties:
         project_id:
@@ -5442,19 +6109,6 @@ components:
       required:
       - collector_key
       title: CollectorAssignIn
-    CollectorCard:
-      properties:
-        share_code:
-          type: string
-          title: Share Code
-        discoverable:
-          type: boolean
-          title: Discoverable
-      type: object
-      required:
-      - share_code
-      - discoverable
-      title: CollectorCard
     CollectorDetail:
       properties:
         collector_key:
@@ -5542,6 +6196,38 @@ components:
       - code
       - via
       title: CollectorForm
+    CollectorIdentity:
+      properties:
+        handle:
+          type: string
+          title: Handle
+        public:
+          type: boolean
+          title: Public
+        share_code:
+          type: string
+          title: Share Code
+      type: object
+      required:
+      - handle
+      - public
+      - share_code
+      title: CollectorIdentity
+    CollectorIdentityIn:
+      properties:
+        handle:
+          anyOf:
+          - type: string
+            maxLength: 40
+          - type: 'null'
+          title: Handle
+        public:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Public
+      type: object
+      title: CollectorIdentityIn
     CollectorLine:
       properties:
         collector_key:
@@ -5903,15 +6589,6 @@ components:
       - allowed
       - locked
       title: DeviceForms
-    DiscoverableIn:
-      properties:
-        discoverable:
-          type: boolean
-          title: Discoverable
-      type: object
-      required:
-      - discoverable
-      title: DiscoverableIn
     DraftIn:
       properties:
         definition:
@@ -5922,6 +6599,31 @@ components:
       required:
       - definition
       title: DraftIn
+    EditorIn:
+      properties:
+        username:
+          type: string
+          maxLength: 200
+          minLength: 1
+          title: Username
+      type: object
+      required:
+      - username
+      title: EditorIn
+    EditorOut:
+      properties:
+        user_id:
+          type: string
+          format: uuid
+          title: User Id
+        name:
+          type: string
+          title: Name
+      type: object
+      required:
+      - user_id
+      - name
+      title: EditorOut
     FormDetail:
       properties:
         id:
@@ -6003,6 +6705,22 @@ components:
             format: uuid
           - type: 'null'
           title: Cloned From
+        can_edit:
+          type: boolean
+          title: Can Edit
+          default: false
+        my_copy:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: My Copy
+        editors:
+          items:
+            $ref: '#/components/schemas/EditorOut'
+          type: array
+          title: Editors
+          default: []
       type: object
       required:
       - id
@@ -6191,6 +6909,19 @@ components:
           title: Detail
       type: object
       title: HTTPValidationError
+    HandleCheck:
+      properties:
+        handle:
+          type: string
+          title: Handle
+        free:
+          type: boolean
+          title: Free
+      type: object
+      required:
+      - handle
+      - free
+      title: HandleCheck
     Health:
       properties:
         database:
@@ -6260,6 +6991,40 @@ components:
       - photo_bytes
       - last_backup_at
       title: Health
+    Identity:
+      properties:
+        handle:
+          type: string
+          title: Handle
+        full_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Full Name
+        public:
+          type: boolean
+          title: Public
+      type: object
+      required:
+      - handle
+      - full_name
+      - public
+      title: Identity
+    IdentityIn:
+      properties:
+        handle:
+          anyOf:
+          - type: string
+            maxLength: 40
+          - type: 'null'
+          title: Handle
+        public:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Public
+      type: object
+      title: IdentityIn
     Inbox:
       properties:
         unread:
@@ -6367,6 +7132,41 @@ components:
       - collectors_seen
       - tests
       title: InstallationOut
+    IpLocation:
+      properties:
+        lat:
+          type: number
+          title: Lat
+        lon:
+          type: number
+          title: Lon
+        accuracy_m:
+          type: number
+          title: Accuracy M
+        city:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: City
+        region:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Region
+        country:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Country
+      type: object
+      required:
+      - lat
+      - lon
+      - accuracy_m
+      - city
+      - region
+      - country
+      title: IpLocation
     JoinIn:
       properties:
         code:
@@ -7480,6 +8280,37 @@ components:
       - collector_name
       - readings
       title: PendingParameter
+    Person:
+      properties:
+        kind:
+          type: string
+          enum:
+          - user
+          - collector
+          title: Kind
+        id:
+          type: string
+          format: uuid
+          title: Id
+        handle:
+          type: string
+          title: Handle
+        full_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Full Name
+        public:
+          type: boolean
+          title: Public
+      type: object
+      required:
+      - kind
+      - id
+      - handle
+      - full_name
+      - public
+      title: Person
     PictureOut:
       properties:
         id:
@@ -8045,6 +8876,11 @@ components:
           - type: number
           - type: 'null'
           title: Accuracy M
+        location_source:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Location Source
         declined:
           type: boolean
           title: Declined
@@ -8180,6 +9016,11 @@ components:
           - type: number
           - type: 'null'
           title: Accuracy M
+        location_source:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Location Source
         declined:
           type: boolean
           title: Declined
@@ -8260,6 +9101,11 @@ components:
           - type: number
           - type: 'null'
           title: Accuracy M
+        location_source:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Location Source
         declined:
           type: boolean
           title: Declined
@@ -9251,6 +10097,17 @@ components:
         records:
           type: integer
           title: Records
+        published_by:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Published By
+        published_by_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Published By Id
       type: object
       required:
       - version

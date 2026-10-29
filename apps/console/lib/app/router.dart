@@ -308,6 +308,10 @@ final routerProvider = Provider<GoRouter>((ref) {
                     builder: (_, _) => const CredentialsScreen(),
                   ),
                   GoRoute(
+                    path: 'codes',
+                    builder: (_, _) => const CodesScreen(),
+                  ),
+                  GoRoute(
                     path: 'security',
                     builder: (_, _) => const SecurityScreen(),
                   ),

@@ -8,11 +8,12 @@ part 'confirm_in.g.dart';
 
 @JsonSerializable()
 class ConfirmIn {
-  const ConfirmIn({required this.code});
-
-  factory ConfirmIn.fromJson(Map<String, Object?> json) =>
-      _$ConfirmInFromJson(json);
-
+  const ConfirmIn({
+    required this.code,
+  });
+  
+  factory ConfirmIn.fromJson(Map<String, Object?> json) => _$ConfirmInFromJson(json);
+  
   final String code;
 
   Map<String, Object?> toJson() => _$ConfirmInToJson(this);
