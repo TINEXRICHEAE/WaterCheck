@@ -1399,3 +1399,8 @@ Decisions are also recorded in [PLAN.md](PLAN.md) (decisions log and §3a), the 
   - data 25 in the repositories test (new: profiles are queued, once each), Collect 72, Console 51;
   - CI format check and `dart analyze --fatal-infos` clean.
 - **Production (read-only queries):** the CHS4102 forms, joins by device and access changes were looked at; nothing was changed.
+
+### 61. CI: new advisories against pyasn1 (2026-10-31)
+- **Request (lead):** the security checks failed on `86338a8` (osv-scanner and pip-audit).
+- **Cause:** four High advisories published against `pyasn1` 0.6.4 (pulled in by google-auth through pyasn1-modules); not from the round's changes. Fixed in 0.6.5.
+- **Outcome:** `uv lock --upgrade-package pyasn1` (0.6.4 → 0.6.5); pip-audit as CI runs it finds nothing; backend tests all passing.
