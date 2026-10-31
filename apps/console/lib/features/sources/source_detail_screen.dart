@@ -122,7 +122,7 @@ class SourceDetailScreen extends ConsumerWidget {
                 label: Text(l10n.showOnMap),
               ),
             if (admin)
-              IconButton(
+              BusyIconButton(
                 tooltip: l10n.archiveSource,
                 icon: const Icon(Icons.archive_outlined),
                 onPressed: () async {
@@ -183,7 +183,7 @@ class SourceDetailScreen extends ConsumerWidget {
                     child: const Icon(Icons.flag),
                   )
                 else
-                  IconButton(
+                  BusyIconButton(
                     tooltip: l10n.flagSubmission,
                     icon: const Icon(Icons.outlined_flag),
                     onPressed: () => _flag(context, ref, h),
@@ -354,11 +354,13 @@ class _ConflictCard extends ConsumerWidget {
               spacing: 8,
               runSpacing: 8,
               children: [
-                OutlinedButton(
+                BusyButton(
+                  kind: BusyButtonKind.outlined,
                   onPressed: () => _resolve(ref, ResolveInKeep.server),
                   child: Text(l10n.conflictKeep),
                 ),
-                FilledButton.tonal(
+                BusyButton(
+                  kind: BusyButtonKind.tonal,
                   onPressed: () => _resolve(ref, ResolveInKeep.client),
                   child: Text(l10n.conflictUsePhone),
                 ),

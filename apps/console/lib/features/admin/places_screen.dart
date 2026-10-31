@@ -319,7 +319,7 @@ class _NewPlaces extends ConsumerWidget {
                       icon: const Icon(Icons.edit_outlined),
                       onPressed: () => onRename(p),
                     ),
-                    IconButton(
+                    BusyIconButton(
                       tooltip: l10n.placesAccept,
                       icon: const Icon(Icons.check_circle_outline),
                       onPressed: () async {

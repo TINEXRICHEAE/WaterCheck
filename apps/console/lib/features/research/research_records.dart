@@ -110,14 +110,26 @@ class _ResearchRecordsScreenState extends ConsumerState<ResearchRecordsScreen> {
               forms.any((f) => f.id == _form && f.code == p.formCode))
             p,
       ];
-      return PointsMap(
-        points: points,
-        overlay: Material(
-          elevation: 3,
-          borderRadius: BorderRadius.circular(24),
-          color: Theme.of(context).colorScheme.surface,
-          child: toggle,
-        ),
+      return Stack(
+        children: [
+          PointsMap(
+            points: points,
+            overlay: Material(
+              elevation: 3,
+              borderRadius: BorderRadius.circular(24),
+              color: Theme.of(context).colorScheme.surface,
+              child: toggle,
+            ),
+          ),
+          // Points still on their way (2026-10-31).
+          if (ref.watch(projectPointsProvider).isLoading)
+            const Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: LinearProgressIndicator(),
+            ),
+        ],
       );
     }
     final when = DateFormat('d MMM y, HH:mm');

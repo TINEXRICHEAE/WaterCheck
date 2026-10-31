@@ -54,6 +54,8 @@ class ResearchAnalysisScreen extends ConsumerWidget {
       const SizedBox(height: 12),
       const ProjectPicker(),
       const SizedBox(height: 8),
+      if (ref.watch(projectFormsProvider).isLoading)
+        const LinearProgressIndicator(),
       DropdownButtonFormField<String>(
         key: ValueKey(form?.id),
         initialValue: form?.id,
@@ -571,7 +573,7 @@ class _Indicators extends ConsumerWidget {
                               ? Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    IconButton(
+                                    BusyIconButton(
                                       tooltip: l10n.builderEditQuestion,
                                       icon: const Icon(Icons.edit_outlined),
                                       onPressed: () async {
@@ -594,7 +596,7 @@ class _Indicators extends ConsumerWidget {
                                         );
                                       },
                                     ),
-                                    IconButton(
+                                    BusyIconButton(
                                       tooltip: l10n.builderDelete,
                                       icon: const Icon(Icons.delete_outline),
                                       onPressed: () => _save(

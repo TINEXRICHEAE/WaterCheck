@@ -127,7 +127,8 @@ class ResearchAdminScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final text = Theme.of(context).textTheme;
-    final projects = ref.watch(researchProjectsProvider).value ?? const [];
+    final loaded = ref.watch(researchProjectsProvider);
+    final projects = loaded.value ?? const [];
     return SearchBuilder(
       label: l10n.searchProjects,
       history: 'console.research.projects',
@@ -137,6 +138,7 @@ class ResearchAdminScreen extends ConsumerWidget {
           Text(l10n.navAdmin, style: text.headlineSmall),
           Text(l10n.researchAdminHint),
           const SizedBox(height: 12),
+          if (loaded.isLoading) const LinearProgressIndicator(),
           Card(
             child: Column(
               children: [

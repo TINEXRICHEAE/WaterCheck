@@ -22,6 +22,7 @@ export 'src/placeholder_home.dart';
 export 'src/preferences.dart';
 export 'src/pwa/install_app_tile.dart';
 export 'src/reference_data_view.dart';
+export 'src/request_activity.dart';
 export 'src/search_field.dart';
 export 'src/status_badge.dart';
 export 'src/sync_indicator.dart';

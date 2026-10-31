@@ -111,3 +111,106 @@ class BusyLabel extends StatelessWidget {
     );
   }
 }
+
+/// An icon button for an action that waits (2026-10-31): a spinner in place
+/// of the icon while [onPressed] runs, and further taps ignored.
+class BusyIconButton extends StatefulWidget {
+  const BusyIconButton({
+    super.key,
+    required this.onPressed,
+    required this.icon,
+    this.tooltip,
+    this.visualDensity,
+  });
+
+  /// Null disables the button.
+  final Future<void> Function()? onPressed;
+  final Widget icon;
+  final String? tooltip;
+  final VisualDensity? visualDensity;
+
+  @override
+  State<BusyIconButton> createState() => _BusyIconButtonState();
+}
+
+class _BusyIconButtonState extends State<BusyIconButton> {
+  var _busy = false;
+
+  Future<void> _run() async {
+    setState(() => _busy = true);
+    try {
+      await widget.onPressed!();
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) => IconButton(
+    tooltip: widget.tooltip,
+    visualDensity: widget.visualDensity,
+    onPressed: widget.onPressed == null || _busy ? null : _run,
+    icon: _busy
+        ? const SizedBox.square(
+            dimension: 20,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          )
+        : widget.icon,
+  );
+}
+
+/// A list row for an action that waits: a spinner at the end while [onTap]
+/// runs, and further taps ignored.
+class BusyListTile extends StatefulWidget {
+  const BusyListTile({
+    super.key,
+    required this.onTap,
+    this.leading,
+    this.title,
+    this.subtitle,
+    this.trailing,
+    this.contentPadding,
+    this.dense,
+  });
+
+  final Future<void> Function()? onTap;
+  final Widget? leading;
+  final Widget? title;
+  final Widget? subtitle;
+  final Widget? trailing;
+  final EdgeInsetsGeometry? contentPadding;
+  final bool? dense;
+
+  @override
+  State<BusyListTile> createState() => _BusyListTileState();
+}
+
+class _BusyListTileState extends State<BusyListTile> {
+  var _busy = false;
+
+  Future<void> _run() async {
+    setState(() => _busy = true);
+    try {
+      await widget.onTap!();
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) => ListTile(
+    leading: widget.leading,
+    title: widget.title,
+    subtitle: widget.subtitle,
+    contentPadding: widget.contentPadding,
+    dense: widget.dense,
+    enabled: widget.onTap != null,
+    onTap: widget.onTap == null || _busy ? null : _run,
+    trailing: _busy
+        ? const SizedBox.square(
+            dimension: 20,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          )
+        : widget.trailing,
+  );
+}

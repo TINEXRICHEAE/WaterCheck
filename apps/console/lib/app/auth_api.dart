@@ -1,6 +1,7 @@
 import 'package:api_client/api_client.dart';
 import 'package:dio/dio.dart';
 import 'package:domain/domain.dart' show AppSide, legalVersions;
+import 'package:ui_kit/ui_kit.dart' show RequestActivityInterceptor;
 
 import 'cookie_reader.dart'
     if (dart.library.js_interop) 'cookie_reader_web.dart';
@@ -95,7 +96,7 @@ class HttpConsoleAuthApi implements ConsoleAuthApi {
       connectTimeout: const Duration(seconds: 15),
       receiveTimeout: const Duration(seconds: 30),
     ),
-  );
+  )..interceptors.add(RequestActivityInterceptor());
 
   String? get _transport => cookieMode ? 'cookie' : null;
 

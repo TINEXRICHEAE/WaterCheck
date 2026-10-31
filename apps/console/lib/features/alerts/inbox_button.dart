@@ -38,7 +38,8 @@ class _InboxSheet extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final inbox = ref.watch(inboxProvider).value;
+    final loaded = ref.watch(inboxProvider);
+    final inbox = loaded.value;
     final when = DateFormat('d MMM, HH:mm');
     final items = inbox?.items ?? const [];
     return SafeArea(
@@ -51,7 +52,8 @@ class _InboxSheet extends ConsumerWidget {
                 l10n.inboxTitle,
                 style: Theme.of(context).textTheme.titleLarge,
               ),
-              trailing: TextButton(
+              trailing: BusyButton(
+                kind: BusyButtonKind.text,
                 onPressed: items.isEmpty
                     ? null
                     : () async {
@@ -61,12 +63,14 @@ class _InboxSheet extends ConsumerWidget {
                 child: Text(l10n.inboxMarkAll),
               ),
             ),
-            if (inbox == null)
+            // Loading is shown as loading, not as "offline" (2026-10-31).
+            if (loaded.isLoading) const LinearProgressIndicator(),
+            if (inbox == null && !loaded.isLoading)
               Padding(
                 padding: const EdgeInsets.all(24),
                 child: Text(l10n.inboxOffline),
               )
-            else if (items.isEmpty)
+            else if (inbox != null && items.isEmpty)
               Padding(
                 padding: const EdgeInsets.all(24),
                 child: Text(l10n.inboxEmpty),

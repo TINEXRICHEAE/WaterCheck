@@ -891,7 +891,7 @@ class _SourcesMapState extends ConsumerState<SourcesMap>
                             icon: const Icon(Icons.edit_outlined, size: 18),
                             onPressed: () => _renamePin(pin!),
                           ),
-                          IconButton(
+                          BusyIconButton(
                             visualDensity: VisualDensity.compact,
                             tooltip: l10n.mapPlaceRemove,
                             icon: const Icon(Icons.delete_outline, size: 18),

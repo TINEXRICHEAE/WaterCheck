@@ -7,6 +7,8 @@ import 'package:domain/domain.dart' show CollectorSnapshot;
 import 'package:dio/dio.dart';
 import 'package:drift/drift.dart' show BooleanExpressionOperators;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ui_kit/ui_kit.dart'
+    show RequestActivityInterceptor, showingActivity;
 
 import '../../app/gate.dart';
 import '../../app/providers.dart';
@@ -94,6 +96,7 @@ Dio collectSyncDio(
       // After the signer: the signature covers the uncompressed JSON.
       GzipRequestInterceptor(),
       if (onOffset != null) DateHeaderInterceptor(onOffset),
+      RequestActivityInterceptor(),
     ]);
 }
 
@@ -229,7 +232,8 @@ class SyncController extends Notifier<SyncUiState> {
     state = SyncUiState(running: true, last: state.last);
     try {
       await _sendProfilesOnce();
-      final report = await sync.run(force: force);
+      // Shown at the top while it runs (2026-10-31).
+      final report = await showingActivity(() => sync.run(force: force));
       if (report.failure?.code == 'installation_revoked') {
         await ref.read(installationStoreProvider).markRevoked();
         ref.read(appGateProvider.notifier).revoked();

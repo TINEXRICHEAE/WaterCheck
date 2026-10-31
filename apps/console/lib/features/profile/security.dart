@@ -81,9 +81,10 @@ class _Sessions extends ConsumerWidget {
                 child: Text(l10n.securitySessions, style: text.titleSmall),
               ),
               if (value.where((s) => !s.current).isNotEmpty)
-                TextButton.icon(
+                BusyButton(
+                  kind: BusyButtonKind.text,
                   icon: const Icon(Icons.logout, size: 18),
-                  label: Text(l10n.securitySignOutOthers),
+                  child: Text(l10n.securitySignOutOthers),
                   onPressed: () async {
                     if (!await confirmAction(
                       context,
@@ -137,7 +138,7 @@ class _Sessions extends ConsumerWidget {
               ),
               trailing: s.current
                   ? null
-                  : IconButton(
+                  : BusyIconButton(
                       tooltip: l10n.securitySignOutThis,
                       icon: const Icon(Icons.logout),
                       onPressed: () async {

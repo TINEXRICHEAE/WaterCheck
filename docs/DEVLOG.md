@@ -1404,3 +1404,17 @@ Decisions are also recorded in [PLAN.md](PLAN.md) (decisions log and §3a), the 
 - **Request (lead):** the security checks failed on `86338a8` (osv-scanner and pip-audit).
 - **Cause:** four High advisories published against `pyasn1` 0.6.4 (pulled in by google-auth through pyasn1-modules); not from the round's changes. Fixed in 0.6.5.
 - **Outcome:** `uv lock --upgrade-package pyasn1` (0.6.4 → 0.6.5); pip-audit as CI runs it finds nothing; backend tests all passing.
+
+### 62. Loading shown everywhere: a bar for the whole app, spinners on buttons, loaders on pages (2026-10-31)
+- **Request (lead):** there are no local or global loading states; every action, button and page that waits on data needs a loader or progress bar, because network speeds vary.
+- **Audit before building:**
+  - the Console had a top bar for changes being sent only, not for pages loading or sign-in; Collect had none;
+  - about 40 actions waited on the server with no sign on the button and could be pressed twice;
+  - several research pages and the inbox showed empty or "offline" while still loading;
+  - the Console's water pages fill from sync, which showed only on the dashboard.
+- **Outcome (on dev, not yet committed):**
+  - **One bar for both apps** (`RequestActivityBar`, shared): a thin line at the top whenever any request takes longer than 0.3 s (page loads, changes, sign-in, joins, downloads) and while a sync runs; the chats' own refreshes are left out;
+  - **Buttons:** new `BusyIconButton` (and `BusyListTile`); removing people and collectors, signing out sessions, new access codes, withdrawing codes, approving areas, flagging, resolving conflicts, copying and exporting forms, removing map places, assigning collectors and adding a district now spin and take no second tap;
+  - **Access tab:** while a setting saves, a progress line shows and the settings wait;
+  - **Pages:** the project picker spins while projects load; the research dashboard, analysis, project list and records map show a progress line while their data loads; the inbox shows loading instead of "offline".
+- **Tests:** ui_kit 42 (new: the bar waits 0.3 s and goes when done; a busy icon button spins and takes one tap), Console 51, Collect 72; `dart analyze --fatal-infos` and the format check clean.

@@ -20,7 +20,8 @@ class ProjectPicker extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final projects = ref.watch(researchProjectsProvider).value ?? const [];
+    final loaded = ref.watch(researchProjectsProvider);
+    final projects = loaded.value ?? const [];
     final current = ref.watch(currentProjectIdProvider);
     return Row(
       children: [
@@ -32,6 +33,16 @@ class ProjectPicker extends ConsumerWidget {
             decoration: InputDecoration(
               labelText: l10n.researchProject,
               prefixIcon: const Icon(Icons.folder_outlined),
+              // Projects still on their way (2026-10-31).
+              suffixIcon: loaded.isLoading
+                  ? const Padding(
+                      padding: EdgeInsets.all(12),
+                      child: SizedBox.square(
+                        dimension: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                    )
+                  : null,
               isDense: true,
             ),
             hint: Text(l10n.researchNoProjectYet),
@@ -194,6 +205,12 @@ class ResearchDashboardScreen extends ConsumerWidget {
   List<Widget> _content(BuildContext context, WidgetRef ref, ProjectDetail p) {
     final l10n = AppLocalizations.of(context);
     final text = Theme.of(context).textTheme;
+    final sections = [
+      ref.watch(projectFormsProvider),
+      ref.watch(projectPointsProvider),
+      ref.watch(projectCollectorsProvider),
+      ref.watch(latestRecordsProvider),
+    ];
     final forms = ref.watch(projectFormsProvider).value ?? const [];
     final points = ref.watch(projectPointsProvider).value ?? const [];
     final collectors = ref.watch(projectCollectorsProvider).value ?? const [];
@@ -207,6 +224,8 @@ class ResearchDashboardScreen extends ConsumerWidget {
         )
         .length;
     return [
+      // Counts and lists still loading show as such, not as zero.
+      if (sections.any((a) => a.isLoading)) const LinearProgressIndicator(),
       Card(
         child: ListTile(
           title: Text(p.title, style: text.titleMedium),
@@ -535,7 +554,7 @@ class ResearchTeamScreen extends ConsumerWidget {
                   title: Text(m.name ?? '?'),
                   subtitle: Text(_role(l10n, m.role)),
                   trailing: p.canChangeTeam && m.role != 'owner'
-                      ? IconButton(
+                      ? BusyIconButton(
                           tooltip: l10n.researchRemove,
                           icon: const Icon(Icons.person_remove_outlined),
                           onPressed: () async {

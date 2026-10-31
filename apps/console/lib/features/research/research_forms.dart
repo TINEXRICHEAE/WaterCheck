@@ -506,7 +506,8 @@ class _ResearchFormScreenState extends ConsumerState<ResearchFormScreen> {
                           ),
                         ),
                         if (form.hasDraft && form.currentVersion != null)
-                          TextButton(
+                          BusyButton(
+                            kind: BusyButtonKind.text,
                             onPressed: () async {
                               if (!await confirmAction(
                                 context,
@@ -540,15 +541,17 @@ class _ResearchFormScreenState extends ConsumerState<ResearchFormScreen> {
                             label: Text(l10n.researchOpenMyCopy),
                           )
                         else
-                          OutlinedButton.icon(
+                          BusyButton(
+                            kind: BusyButtonKind.outlined,
                             onPressed: () => _copy(context, form),
                             icon: const Icon(Icons.copy_all_outlined),
-                            label: Text(l10n.researchCopyForm),
+                            child: Text(l10n.researchCopyForm),
                           ),
-                      OutlinedButton.icon(
+                      BusyButton(
+                        kind: BusyButtonKind.outlined,
                         onPressed: () => _exportXlsForm(form),
                         icon: const Icon(Icons.download_outlined),
-                        label: Text(l10n.researchExportXlsForm),
+                        child: Text(l10n.researchExportXlsForm),
                       ),
                       if (form.records > 0 && form.canManage)
                         TextButton.icon(
@@ -660,25 +663,61 @@ class _ResearchFormScreenState extends ConsumerState<ResearchFormScreen> {
 
 /// Who may collect with the form, who may see and copy it, and whether it
 /// is open for collection.
-class _AccessTab extends ConsumerWidget {
+class _AccessTab extends ConsumerStatefulWidget {
   const _AccessTab({required this.form});
 
   final FormDetail form;
 
-  Future<void> _patch(BuildContext context, WidgetRef ref, FormPatch p) =>
-      researchCall(
+  @override
+  ConsumerState<_AccessTab> createState() => _AccessTabState();
+}
+
+class _AccessTabState extends ConsumerState<_AccessTab> {
+  /// A setting being saved: shown, and the settings held until it is
+  /// (2026-10-31), so a slow connection never gets a second change on top.
+  var _saving = false;
+
+  FormDetail get form => widget.form;
+
+  Future<void> _patch(BuildContext context, WidgetRef ref, FormPatch p) async {
+    setState(() => _saving = true);
+    try {
+      await researchCall(
         context,
         ref,
         () =>
             ref.read(researchApiProvider).updateForm(formId: form.id, body: p),
       );
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
+  }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final text = Theme.of(context).textTheme;
-    final collectors =
-        ref.watch(projectCollectorsProvider).value ?? const <CollectorOut>[];
+    final loaded = ref.watch(projectCollectorsProvider);
+    final collectors = loaded.value ?? const <CollectorOut>[];
+    return Column(
+      children: [
+        if (_saving || loaded.isLoading) const LinearProgressIndicator(),
+        Expanded(
+          child: AbsorbPointer(
+            absorbing: _saving,
+            child: _settings(context, l10n, text, collectors),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _settings(
+    BuildContext context,
+    AppLocalizations l10n,
+    TextTheme text,
+    List<CollectorOut> collectors,
+  ) {
     final mine = [
       for (final c in collectors)
         if (c.forms.any((f) => f.formId == form.id)) c,
@@ -731,7 +770,7 @@ class _AccessTab extends ConsumerWidget {
               trailing: Wrap(
                 children: [
                   CopyButton(text: code, tooltip: l10n.researchCopyCode),
-                  IconButton(
+                  BusyIconButton(
                     tooltip: l10n.researchNewCode,
                     icon: const Icon(Icons.autorenew),
                     onPressed: () async {
@@ -782,7 +821,7 @@ class _AccessTab extends ConsumerWidget {
                   ? l10n.researchJoinedWithCode
                   : l10n.researchAssignedByTeam,
             ),
-            trailing: IconButton(
+            trailing: BusyIconButton(
               tooltip: l10n.researchRemove,
               icon: const Icon(Icons.person_remove_outlined),
               onPressed: () => researchCall(
@@ -881,7 +920,7 @@ class _Editors extends ConsumerWidget {
             title: Text(e.name),
             onTap: () =>
                 openPerson(context, ref, userId: e.userId, label: e.name),
-            trailing: IconButton(
+            trailing: BusyIconButton(
               tooltip: l10n.researchRemove,
               icon: const Icon(Icons.close),
               onPressed: () => researchCall(
@@ -961,7 +1000,7 @@ class _Shares extends ConsumerWidget {
           ListTile(
             leading: const Icon(Icons.person_outline),
             title: Text(s.name ?? '?'),
-            trailing: IconButton(
+            trailing: BusyIconButton(
               tooltip: l10n.researchRemove,
               icon: const Icon(Icons.close),
               onPressed: () => researchCall(
@@ -1095,7 +1134,8 @@ class _AssignDialogState extends ConsumerState<_AssignDialog> {
                       subtitle: t.phone == null ? null : Text(t.phone!),
                       trailing: _given.contains(t.collectorKey)
                           ? const Icon(Icons.check)
-                          : TextButton(
+                          : BusyButton(
+                              kind: BusyButtonKind.text,
                               onPressed: () async {
                                 try {
                                   await ref

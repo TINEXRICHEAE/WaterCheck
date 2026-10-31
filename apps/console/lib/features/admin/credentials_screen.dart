@@ -123,9 +123,10 @@ class CredentialsScreen extends ConsumerWidget {
                           alignment: Alignment.centerRight,
                           child: Padding(
                             padding: const EdgeInsets.all(8),
-                            child: TextButton.icon(
+                            child: BusyButton(
+                              kind: BusyButtonKind.text,
                               icon: const Icon(Icons.block),
-                              label: Text(l10n.ledgerWithdraw),
+                              child: Text(l10n.ledgerWithdraw),
                               onPressed: () async {
                                 final messenger = ScaffoldMessenger.of(context);
                                 try {

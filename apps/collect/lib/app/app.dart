@@ -45,7 +45,7 @@ class CollectApp extends ConsumerWidget {
                 child: RelativeWidth(
                   tablet: 1,
                   desktop: 0.9,
-                  child: child ?? const SizedBox(),
+                  child: RequestActivityBar(child: child ?? const SizedBox()),
                 ),
               ),
             ),

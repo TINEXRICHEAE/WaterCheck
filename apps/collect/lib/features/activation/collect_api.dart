@@ -4,6 +4,7 @@ import 'package:api_client/api_client.dart';
 import 'package:data/data.dart';
 import 'package:dio/dio.dart';
 import 'package:domain/domain.dart';
+import 'package:ui_kit/ui_kit.dart' show RequestActivityInterceptor;
 
 /// What activation returns (F-AUTH-7).
 class Activation {
@@ -91,7 +92,7 @@ class HttpCollectApi implements CollectApi {
       connectTimeout: const Duration(seconds: 15),
       receiveTimeout: const Duration(seconds: 30),
     ),
-  );
+  )..interceptors.add(RequestActivityInterceptor());
 
   Dio _signed(InstallationCredentials c, Duration offset) {
     var prefix = Uri.parse(c.apiUrl).path;

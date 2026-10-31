@@ -258,7 +258,8 @@ class _SourceBrowserState extends ConsumerState<SourceBrowser> {
                 ),
                 trailing: h.districtId == null
                     ? null
-                    : TextButton(
+                    : BusyButton(
+                        kind: BusyButtonKind.text,
                         onPressed: () async {
                           final messenger = ScaffoldMessenger.of(context);
                           final msg = l10n.searchOnlineAdded(h.district ?? '');

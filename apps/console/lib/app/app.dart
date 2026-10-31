@@ -5,7 +5,6 @@ import 'package:ui_kit/ui_kit.dart';
 
 import '../l10n/app_localizations.dart';
 import 'idle_watcher.dart';
-import 'request_activity.dart';
 import 'router.dart';
 import 'session.dart';
 import 'sync_watcher.dart';

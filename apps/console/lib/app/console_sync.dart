@@ -4,11 +4,12 @@ import 'package:api_client/api_client.dart';
 import 'package:data/data.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ui_kit/ui_kit.dart'
+    show RequestActivityInterceptor, showingActivity;
 
 import '../features/dashboard/dashboard_state.dart';
 import 'perf.dart';
 import 'providers.dart';
-import 'request_activity.dart';
 import 'session.dart';
 
 /// Adds the signed-in user's access token, refreshing it when needed, and
@@ -112,7 +113,10 @@ class ConsoleSyncController extends Notifier<ConsoleSyncState> {
   Future<SyncReport?> run({bool force = false}) async {
     if (ref.read(sessionProvider).phase != SessionPhase.signedIn) return null;
     state = ConsoleSyncState(running: true, last: state.last);
-    final report = await ref.read(consoleSyncServiceProvider).run(force: force);
+    // The water pages fill from this: shown at the top while it runs.
+    final report = await showingActivity(
+      () => ref.read(consoleSyncServiceProvider).run(force: force),
+    );
     perfMark('sync', {'pulled': report.pulled, 'ok': report.ok});
     if (ref.mounted) {
       state = ConsoleSyncState(last: report);

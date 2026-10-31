@@ -99,11 +99,13 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
                       trailing: Wrap(
                         spacing: 4,
                         children: [
-                          TextButton(
+                          BusyButton(
+                            kind: BusyButtonKind.text,
                             onPressed: () => _decide(r.id, false),
                             child: Text(l10n.areaRequestDecline),
                           ),
-                          FilledButton.tonal(
+                          BusyButton(
+                            kind: BusyButtonKind.tonal,
                             onPressed: () => _decide(r.id, true),
                             child: Text(l10n.areaRequestApprove),
                           ),
