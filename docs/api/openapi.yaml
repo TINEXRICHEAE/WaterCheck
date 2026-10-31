@@ -3730,6 +3730,48 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
+  /v1/admin/collectors:
+    get:
+      tags:
+      - admin
+      summary: Collectors
+      description: 'Every collector of a side, most recently seen first: reachable
+        from
+
+        the admin''s People page without going through a project or a device
+
+        (2026-10-31). Only people a phone has sent are known to the server.'
+      operationId: collectors
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: side
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - enum:
+            - water
+            - research
+            type: string
+          - type: 'null'
+          title: Side
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AdminCollector'
+                title: Response Collectors
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
   /v1/admin/audit:
     get:
       tags:
@@ -5476,6 +5518,105 @@ components:
       - ip
       - place
       title: ActivityOut
+    AdminCollector:
+      properties:
+        collector_key:
+          type: string
+          format: uuid
+          title: Collector Key
+        username:
+          type: string
+          title: Username
+        full_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Full Name
+        phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Phone
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Email
+        organisation:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Organisation
+        collector_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Collector Type
+        village:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Village
+        district:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: District
+        share_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Share Code
+        first_seen_at:
+          type: string
+          format: date-time
+          title: First Seen At
+        last_seen_at:
+          type: string
+          format: date-time
+          title: Last Seen At
+        closed:
+          type: boolean
+          title: Closed
+        archived:
+          type: boolean
+          title: Archived
+        records:
+          type: integer
+          title: Records
+        forms:
+          items:
+            type: string
+          type: array
+          title: Forms
+        devices:
+          items:
+            $ref: '#/components/schemas/CollectorDeviceOut'
+          type: array
+          title: Devices
+      type: object
+      required:
+      - collector_key
+      - username
+      - full_name
+      - phone
+      - email
+      - organisation
+      - collector_type
+      - village
+      - district
+      - share_code
+      - first_seen_at
+      - last_seen_at
+      - closed
+      - archived
+      - records
+      - forms
+      - devices
+      title: AdminCollector
+      description: 'A collector as the server knows them, whether or not they have
+
+        collected yet or joined a project (2026-10-31).'
     AdminUnitOut:
       properties:
         id:
@@ -6343,6 +6484,32 @@ components:
       - last_record_at
       - can_recover
       title: CollectorDetail
+    CollectorDeviceOut:
+      properties:
+        installation_id:
+          type: string
+          format: uuid
+          title: Installation Id
+        short_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Short Code
+        label:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Label
+        signed_out:
+          type: boolean
+          title: Signed Out
+      type: object
+      required:
+      - installation_id
+      - short_code
+      - label
+      - signed_out
+      title: CollectorDeviceOut
     CollectorForm:
       properties:
         form_id:
@@ -6691,6 +6858,11 @@ components:
         full_name:
           type: string
           title: Full Name
+        username:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Username
         phone:
           anyOf:
           - type: string
@@ -7297,6 +7469,12 @@ components:
           type: boolean
           title: Archived
           default: false
+        people:
+          items:
+            type: string
+          type: array
+          title: People
+          default: []
       type: object
       required:
       - id
@@ -7652,6 +7830,12 @@ components:
             format: date-time
           - type: 'null'
           title: Revoked At
+        people:
+          items:
+            type: string
+          type: array
+          title: People
+          default: []
       type: object
       required:
       - id

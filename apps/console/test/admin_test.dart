@@ -66,7 +66,41 @@ class _AdminServer implements HttpClientAdapter {
             'tests': 14,
             'label': null,
             'archived': archived,
+            'people': ['amina.k (Amina Kato)'],
           },
+        ];
+      case ('GET', '/v1/admin/collectors'):
+        return [
+          for (final (key, user, name, phone) in [
+            ('c-1', 'amina.k', 'Amina Kato', '+256700000001'),
+            ('c-2', 'okello.j', 'James Okello', '+256700000002'),
+          ])
+            {
+              'collector_key': key,
+              'username': user,
+              'full_name': name,
+              'phone': phone,
+              'email': null,
+              'organisation': null,
+              'collector_type': 'vht',
+              'village': 'Entebbe',
+              'district': 'Abim',
+              'share_code': 'AB12CD34',
+              'first_seen_at': '2026-10-10T08:00:00Z',
+              'last_seen_at': '2026-10-12T07:00:00Z',
+              'closed': false,
+              'archived': false,
+              'records': 0,
+              'forms': <String>[],
+              'devices': [
+                {
+                  'installation_id': 'i-1',
+                  'short_code': 'K7QM',
+                  'label': null,
+                  'signed_out': false,
+                },
+              ],
+            },
         ];
       case ('GET', '/v1/admin/activation-codes'):
         return <Object>[];
@@ -189,12 +223,28 @@ void main() {
     expect(find.text('District Officer'), findsOneWidget);
     expect(find.text('Not signed in yet'), findsOneWidget);
 
+    // Collectors on the same page, told apart and searchable (2026-10-31).
+    await tester.tap(find.text('Collectors (2)'));
+    await settle(tester);
+    expect(find.text('amina.k (Amina Kato)'), findsOneWidget);
+    expect(find.text('Collector'), findsNWidgets(2));
+    await tester.enterText(find.byType(TextField).first, '0002');
+    await settle(tester);
+    expect(find.text('amina.k (Amina Kato)'), findsNothing);
+    expect(find.text('okello.j (James Okello)'), findsOneWidget);
+    await tester.enterText(find.byType(TextField).first, '');
+    await settle(tester);
+
     // Phones: revoke one.
     await tester.tap(find.text('Admin').last);
     await settle(tester);
     await tester.tap(find.text('Collect devices'));
     await settle(tester);
     expect(find.textContaining('2 collectors, 14 tests'), findsOneWidget);
+    expect(
+      find.textContaining('Signed in: amina.k (Amina Kato)'),
+      findsOneWidget,
+    );
     await tester.tap(find.byTooltip('More actions'));
     await settle(tester);
     await tester.tap(find.text('Revoke').last);

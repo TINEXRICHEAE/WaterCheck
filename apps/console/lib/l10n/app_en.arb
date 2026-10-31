@@ -2753,5 +2753,79 @@
   "resetWrongCode": "That code is not right or has expired.",
   "resetDone": "Password changed. Sign in with your new password.",
   "accountSecurityTitle": "Password and sign-ins",
-  "accountPasswordSave": "Change password"
+  "accountPasswordSave": "Change password",
+  "peopleAdminAccounts": "Console accounts ({count})",
+  "@peopleAdminAccounts": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "peopleAdminCollectors": "Collectors ({count})",
+  "@peopleAdminCollectors": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "peopleAdminAccountsHint": "People who sign in to the Console.",
+  "peopleAdminCollectorsHint": "People who collect with the app, whether or not they have joined a project or sent anything yet. Open one for their codes, devices and access.",
+  "peopleAdminSearchCollectors": "Search by username, name, phone, email, organisation, place, device, form or collector code",
+  "peopleAdminNoCollectors": "No collectors yet. A collector appears here once their phone has synced after they were added.",
+  "peopleAdminNoMatch": "Nobody matches this search.",
+  "peopleAdminCollectorTag": "Collector",
+  "peopleAdminAccountTag": "Console",
+  "peopleAdminClosed": "Closed",
+  "peopleAdminDevices": "Devices: {list}",
+  "@peopleAdminDevices": {
+    "placeholders": {
+      "list": {
+        "type": "String"
+      }
+    }
+  },
+  "peopleAdminNoDevice": "No device signed in",
+  "peopleAdminForms": "Forms: {list}",
+  "@peopleAdminForms": {
+    "placeholders": {
+      "list": {
+        "type": "String"
+      }
+    }
+  },
+  "peopleAdminRecords": "{count, plural, =0{No records yet} =1{1 record} other{{count} records}}",
+  "@peopleAdminRecords": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "peopleAdminSeen": "Last seen {when}",
+  "@peopleAdminSeen": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "peopleAdminCode": "Collector code {code}",
+  "@peopleAdminCode": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "peopleAdminOnDevice": "Signed in: {people}",
+  "@peopleAdminOnDevice": {
+    "placeholders": {
+      "people": {
+        "type": "String"
+      }
+    }
+  },
+  "peopleAdminNobodyOnDevice": "Nobody signed in"
 }

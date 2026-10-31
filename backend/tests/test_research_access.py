@@ -4,6 +4,7 @@ from it (2026-10-31, the CHS4102 forms that "disappeared")."""
 
 from __future__ import annotations
 
+import json
 import uuid
 from typing import Any
 
@@ -241,3 +242,54 @@ async def test_access_and_sharing_stay_with_the_team(
     assert (await client.get(f"/v1/research/forms/{fid}", headers=owner)).json()[
         "collect_access"
     ] == "code"
+
+
+@pytest.mark.usefixtures("seeded")
+async def test_admins_reach_every_collector_and_see_who_is_on_a_device(
+    client: AsyncClient, owner_db: Database
+) -> None:
+    """A collector who never collected or joined a project is listed for IT
+    admins, with their username, details and devices; devices name who is
+    signed in on them (2026-10-31)."""
+    _, admin = await _person(client, owner_db, "it_admin")
+    district = await make_area(owner_db, "district")
+    p = await phone(client, owner_db, district)
+    p.side = "research"
+    snapshot = json.dumps(
+        {
+            "collector_key": p.collector,
+            "full_name": "Newly Added",
+            "phone": "+256700000099",
+            "side": "research",
+        }
+    )
+    profile = {
+        "entity": "collector_profile",
+        "op": "insert",
+        "id": p.collector,
+        "data": {"collector_key": p.collector, "collector_snapshot": snapshot},
+    }
+    assert (await p.push([profile]))["results"][0]["status"] == "applied"
+
+    listed = (
+        await client.get("/v1/admin/collectors", params={"side": "research"}, headers=admin)
+    ).json()
+    me = next(c for c in listed if c["collector_key"] == p.collector)
+    assert me["full_name"] == "Newly Added"
+    assert me["phone"] == "+256700000099"
+    assert me["records"] == 0 and me["forms"] == []
+    assert [d["installation_id"] for d in me["devices"]] == [p.id]
+    water = (
+        await client.get("/v1/admin/collectors", params={"side": "water"}, headers=admin)
+    ).json()
+    assert p.collector not in {c["collector_key"] for c in water}
+
+    devices = (
+        await client.get("/v1/admin/installations", params={"side": "research"}, headers=admin)
+    ).json()
+    device = next(d for d in devices if d["id"] == p.id)
+    assert device["people"] == [f"{me['username']} (Newly Added)"]
+
+    # Not for other Console users.
+    _, other = await _person(client, owner_db)
+    assert (await client.get("/v1/admin/collectors", headers=other)).status_code == 403

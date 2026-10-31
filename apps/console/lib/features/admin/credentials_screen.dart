@@ -52,7 +52,16 @@ class CredentialsScreen extends ConsumerWidget {
             const SizedBox(height: 8),
             Text(l10n.ledgerCodes(d.codes.length), style: text.titleMedium),
             for (final c in d.codes)
-              if (matches([c.area.name, c.createdBy]))
+              if (matches([
+                c.area.name,
+                c.createdBy,
+                for (final t in c.testers) t.fullName,
+                for (final d in c.devices) ...[
+                  d.shortCode,
+                  d.label,
+                  ...d.people,
+                ],
+              ]))
                 Card(
                   child: ExpansionTile(
                     leading: Icon(
@@ -107,6 +116,8 @@ class CredentialsScreen extends ConsumerWidget {
                           ),
                           subtitle: Text(
                             [
+                              if (dev.people.isNotEmpty)
+                                l10n.peopleAdminOnDevice(dev.people.join(', ')),
                               l10n.deviceActivated(at(dev.activatedAt)),
                               if (dev.lastSeenAt != null)
                                 l10n.phonesLastSeen(at(dev.lastSeenAt!)),

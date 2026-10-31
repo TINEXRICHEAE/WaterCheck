@@ -1418,3 +1418,55 @@ Decisions are also recorded in [PLAN.md](PLAN.md) (decisions log and §3a), the 
   - **Access tab:** while a setting saves, a progress line shows and the settings wait;
   - **Pages:** the project picker spins while projects load; the research dashboard, analysis, project list and records map show a progress line while their data loads; the inbox shows loading instead of "offline".
 - **Tests:** ui_kit 42 (new: the bar waits 0.3 s and goes when done; a busy icon button spins and takes one tap), Console 51, Collect 72; `dart analyze --fatal-infos` and the format check clean.
+
+### 63. How to read dev and production logs, in the README (2026-10-31)
+- **Request (lead):** how to read the local development and production logs; then: document it in the README.
+- **Outcome:** a "Reading logs" section in the README:
+  - local `docker compose logs` commands and Mailpit for development email;
+  - production over SSH, as a session or in one command;
+  - how to read the API's JSON lines (`request_id`, 4xx refused, 5xx faults);
+  - logs are lost when a deploy recreates a container; the audit log keeps sign-ins and account changes.
+- **Public repository:** the server's address and key path are written as placeholders, as in the deployment guide.
+
+### 64. Deployed to production: account security, research fixes, loading states (2026-10-31)
+- **Request (lead):** the GitHub checks passed; deploy.
+- **Deployed `4099ed4`** (production had been at `047c2dd`):
+  - **Database:**
+    - backed up first (`~/backups/watercheck-20261031-1949-before-0026.dump`, 6.6 MB, readable);
+    - migrations 0025 and 0026 applied;
+    - counts the same before and after: 6 users, 5 collectors, 12 devices, 3 projects, 7 forms, 7 joins, 4 records, 7 tests, 90 sessions;
+    - all 3 projects re-sent, so the colleagues' phones get the CHS4102 project at their next sync.
+  - **API and worker:** new images built while the old ones served, then switched; healthy, no server errors after the switch; the new account endpoints answer.
+  - **Web apps:** the Console (`/`) and Collect (`/collect/`) built for production, uploaded with matching checksums, swapped in (previous builds kept as `web.old`), Caddy recreated; the live files match the builds.
+  - **Live:** `fieldquire.cooptconnect.app`, `watercheck.fieldquire.cooptconnect.app` (with `/collect/` and `/api/health`), `research.fieldquire.cooptconnect.app`.
+- **Cleaned:**
+  - VM: build cache, the uploaded archives; 19 GB free of 29 GB;
+  - local: the production builds and archives, then `tools/cleanup.ps1`.
+- **Still for the lead on the VM:** `sudo apt-get clean`, `sudo journalctl --vacuum-size=100M`, and the old small backups from 23–25 Oct if no longer wanted.
+
+### 65. Admins reach every collector; people named on devices and lists (2026-10-31)
+- **Request (lead):**
+  - collectors' accounts are hard to reach as an admin: only through their projects or a device, so those who joined no project, or whose device is unknown, cannot be reached for their codes and other admin actions;
+  - show collectors and Console users on the admin People page, told apart;
+  - put usernames (with full names) on devices and sessions listed, to tell them apart before opening;
+  - make it all searchable, as the lists grow; and make the other admin lists easy to tie to real people.
+- **Audit before building:**
+  - Admin › People listed Console accounts only;
+  - water collectors were listed only after their first test, research collectors only through a project;
+  - device rows named no people;
+  - a device's page left out people known only from signing in on it;
+  - the codes ledger named devices by code only and its makers by full name;
+  - a water collector with no tests or sources opened as "unknown".
+- **Outcome (on dev, not yet committed):**
+  - **People page:** a switch between "Console accounts (n)" and "Collectors (n)", each row marked "Console" or "Collector":
+    - collectors show username (full name), contact, organisation and place, the devices they are signed in on, forms joined, records, last seen and their collector code;
+    - closed and archived collectors are marked;
+    - each opens the collector's own page (recovery code, devices, access);
+    - search covers username, name, phone, email, organisation, place, device, form and collector code; account search adds the role and matches every word.
+  - **New `GET /v1/admin/collectors`** (IT admins): every collector of a side the server knows, joined a project or not.
+  - **Devices:** each row says who is signed in, as "username (Full Name)", and is found by it; a device's page lists everyone signed in on it, by username.
+  - **Codes ledger:** devices show who is signed in on them; testers and makers named "username (Full Name)"; searchable by them.
+  - **Water collector page:** someone with no tests or sources yet shows their details from the server.
+  - All of these use the same label as "Codes to pass on" (`wc_collector_label`, `wc_user_label`).
+- **Tests:** backend all passing (new: a collector who never collected is listed with details and device, devices name who is on them, only for IT admins); Console 51 (the admin test now switches to collectors, searches by phone, and sees who is on a device); ruff, mypy, analyze and format clean.
+- **Note:** a collector added on a phone appears once that phone syncs (DEVLOG 60 sends people on their own).

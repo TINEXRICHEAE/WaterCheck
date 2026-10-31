@@ -27,6 +27,11 @@ InstallationOut _$InstallationOutFromJson(Map<String, dynamic> json) =>
       label: json['label'] as String?,
       registeredVia: json['registered_via'] as String? ?? 'code',
       archived: json['archived'] as bool? ?? false,
+      people:
+          (json['people'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          const [],
     );
 
 Map<String, dynamic> _$InstallationOutToJson(InstallationOut instance) =>
@@ -44,4 +49,5 @@ Map<String, dynamic> _$InstallationOutToJson(InstallationOut instance) =>
       'tests': instance.tests,
       'label': instance.label,
       'archived': instance.archived,
+      'people': instance.people,
     };

@@ -20,6 +20,7 @@ class DeviceCollector {
     required this.sources,
     required this.lastAt,
     required this.recoveredHere,
+    this.username,
   });
 
   factory DeviceCollector.fromJson(Map<String, Object?> json) =>
@@ -29,6 +30,7 @@ class DeviceCollector {
   final String collectorKey;
   @JsonKey(name: 'full_name')
   final String fullName;
+  final String? username;
   final String? phone;
   @JsonKey(name: 'collector_type')
   final String? collectorType;

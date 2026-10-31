@@ -7,6 +7,7 @@ import 'package:retrofit/retrofit.dart';
 
 import '../models/acceptance_out.dart';
 import '../models/activation_code_out.dart';
+import '../models/admin_collector.dart';
 import '../models/archive_in.dart';
 import '../models/archive_out.dart';
 import '../models/archived_item.dart';
@@ -118,6 +119,14 @@ abstract class AdminClient {
     @Query('user_id') String? userId,
     @Query('collector_key') String? collectorKey,
   });
+
+  /// Collectors.
+  ///
+  /// Every collector of a side, most recently seen first: reachable from.
+  /// the admin's People page without going through a project or a device.
+  /// (2026-10-31). Only people a phone has sent are known to the server.
+  @GET('/v1/admin/collectors')
+  Future<List<AdminCollector>> collectors({@Query('side') Side? side});
 
   /// Audit
   @GET('/v1/admin/audit')

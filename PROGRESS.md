@@ -24,12 +24,13 @@ deployment and cache versioning.
   - location on computers: their own reading first, the internet guess only as a fallback, set by hand anywhere and marked;
   - FieldQuire Docker names.
 - [x] Deployed to production `047c2dd` (DEVLOG 57, 2026-10-29): migrations to 0024, `fieldquire` Docker project, new web apps.
-- [x] Password and sign-in security in the Console profile (DEVLOG 59, migration 0025; `5fb485c`, not yet deployed).
-- [ ] **Production fixes from the first collection day (DEVLOG 60, migration 0026; `86338a8`, not yet deployed):**
+- [x] Deployed to production `4099ed4` (DEVLOG 64, 2026-10-31): migrations 0025–0026, data unchanged.
+- [x] Password and sign-in security in the Console profile (DEVLOG 59, migration 0025; `5fb485c`, deployed 2026-10-31).
+- [x] **Production fixes from the first collection day (DEVLOG 60, migration 0026; `86338a8`, deployed 2026-10-31):**
   - forms joined with a code vanished on phones set up earlier: a changed form now re-sends its project;
   - people added on a phone reach the server at the next sync, so codes work at once;
   - access and sharing only for the form's own team; IT admins outside it can look but not change.
-- [ ] **Loading shown everywhere (DEVLOG 62; on dev, not committed):** a top bar for any wait in both apps, spinners on buttons that wait, loaders on pages.
+- [x] **Loading shown everywhere (DEVLOG 62; `4099ed4`, deployed 2026-10-31):** a top bar for any wait in both apps, spinners on buttons that wait, loaders on pages.
 
 ## Round 2: anywhere in Uganda (2026-10-22, ADR-019) 🔄
 

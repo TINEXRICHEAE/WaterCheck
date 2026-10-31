@@ -24,6 +24,7 @@ class InstallationOut {
     this.label,
     this.registeredVia = 'code',
     this.archived = false,
+    this.people = const [],
   });
 
   factory InstallationOut.fromJson(Map<String, Object?> json) =>
@@ -49,6 +50,7 @@ class InstallationOut {
   final int tests;
   final String? label;
   final bool archived;
+  final List<String> people;
 
   Map<String, Object?> toJson() => _$InstallationOutToJson(this);
 }

@@ -4592,4 +4592,84 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get accountPasswordSave => 'Change password';
+
+  @override
+  String peopleAdminAccounts(int count) {
+    return 'Console accounts ($count)';
+  }
+
+  @override
+  String peopleAdminCollectors(int count) {
+    return 'Collectors ($count)';
+  }
+
+  @override
+  String get peopleAdminAccountsHint => 'People who sign in to the Console.';
+
+  @override
+  String get peopleAdminCollectorsHint =>
+      'People who collect with the app, whether or not they have joined a project or sent anything yet. Open one for their codes, devices and access.';
+
+  @override
+  String get peopleAdminSearchCollectors =>
+      'Search by username, name, phone, email, organisation, place, device, form or collector code';
+
+  @override
+  String get peopleAdminNoCollectors =>
+      'No collectors yet. A collector appears here once their phone has synced after they were added.';
+
+  @override
+  String get peopleAdminNoMatch => 'Nobody matches this search.';
+
+  @override
+  String get peopleAdminCollectorTag => 'Collector';
+
+  @override
+  String get peopleAdminAccountTag => 'Console';
+
+  @override
+  String get peopleAdminClosed => 'Closed';
+
+  @override
+  String peopleAdminDevices(String list) {
+    return 'Devices: $list';
+  }
+
+  @override
+  String get peopleAdminNoDevice => 'No device signed in';
+
+  @override
+  String peopleAdminForms(String list) {
+    return 'Forms: $list';
+  }
+
+  @override
+  String peopleAdminRecords(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count records',
+      one: '1 record',
+      zero: 'No records yet',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String peopleAdminSeen(String when) {
+    return 'Last seen $when';
+  }
+
+  @override
+  String peopleAdminCode(String code) {
+    return 'Collector code $code';
+  }
+
+  @override
+  String peopleAdminOnDevice(String people) {
+    return 'Signed in: $people';
+  }
+
+  @override
+  String get peopleAdminNobodyOnDevice => 'Nobody signed in';
 }

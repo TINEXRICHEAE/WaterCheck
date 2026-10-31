@@ -422,6 +422,69 @@ cost controls are intentionally covered in
 [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md). Use that guide rather than
 inventing production values from this README.
 
+## Reading logs
+
+Every service runs under Docker Compose, so logs are read with
+`docker compose logs` from the `infra` directory: on this computer for local
+development, and on the VPS over SSH for production.
+
+### Local development
+
+Run from `./WaterCheck/infra`:
+
+```bash
+docker compose logs -f api              # follow the API live (Ctrl+C stops)
+docker compose logs --tail=200 api      # the last 200 lines
+docker compose logs --since 30m api worker
+docker compose logs migrate             # what the last migration run did
+```
+
+Other services are read the same way: `worker`, `caddy` (web traffic), `db`,
+`routing`, `tiles`, `storage` and `migrate`. Email sent in development stays
+on this computer: read it at http://localhost:8025 (Mailpit).
+
+### Production
+
+From your own computer (Git Bash on Windows), with the VM's SSH key:
+
+```bash
+ssh -i <path-to-vm-key.pem> azureuser@<VM_PUBLIC_IP>
+cd ~/WaterCheck/infra
+docker compose logs -f api
+docker compose logs --since 2h api | grep '"status": 5'         # server errors
+docker compose logs --since 24h api | grep '/v1/research/join'  # code joins
+```
+
+Or in one command, without staying signed in:
+
+```bash
+ssh -i <path-to-vm-key.pem> azureuser@<VM_PUBLIC_IP>   "cd ~/WaterCheck/infra && docker compose logs --since 1h api"
+```
+
+Never paste production `.env` values or `docker compose config` output into
+issues, chats or screenshots.
+
+### Reading API lines
+
+Each API line is one JSON record:
+
+- **What it holds:** method, path, status, time taken (`ms`) and a
+  `request_id`. Search for the `request_id` to follow one request through the
+  log.
+- **4xx statuses:** the request was refused, for example a wrong access code
+  (404) or an action the person may not take (403).
+- **5xx statuses:** a server fault. Look for these first when something
+  breaks.
+
+### What is kept
+
+- **Logs are lost on redeploy.** Docker keeps a container's logs only until
+  the container is recreated, and every deploy recreates the API. Save what
+  you need before deploying.
+- **Lasting history:** sign-ins and account changes stay in the database's
+  audit log. Each person sees their own under Profile › Password and sign-ins
+  › Recent account activity.
+
 ## Platform build and production API options
 
 The same backend can serve the web, Windows and Android clients. The

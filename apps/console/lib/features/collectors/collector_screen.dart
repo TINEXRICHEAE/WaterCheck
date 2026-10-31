@@ -14,6 +14,7 @@ import '../../app/providers.dart';
 import '../../app/session.dart';
 import '../../l10n/app_localizations.dart';
 import '../sources/type_labels.dart';
+import '../admin/admin_api.dart' show adminCollectorsProvider;
 import '../admin/archive_actions.dart';
 import '../dashboard/dashboard_state.dart';
 import '../map/sources_map.dart' show showAreaOnMap;
@@ -80,11 +81,35 @@ final _collectorProvider = FutureProvider.autoDispose
         }
       }
 
-      final profile = tests.isNotEmpty
+      var profile = tests.isNotEmpty
           ? snapshot(tests.first)
           : sources.isNotEmpty
           ? snapshot(sources.first)
           : const <String, Object?>{};
+      // Someone who has not tested or added a source yet, opened from the
+      // admin People page: their details as the server has them
+      // (2026-10-31).
+      if (profile.isEmpty && ref.read(sessionProvider).isAdmin) {
+        try {
+          final all = await ref.read(
+            adminCollectorsProvider(AppSide.water).future,
+          );
+          if (all.where((c) => c.collectorKey == key).firstOrNull
+              case final c?) {
+            profile = {
+              'full_name': personLabel(c.username, c.fullName),
+              'phone': ?c.phone,
+              'collector_type': ?c.collectorType,
+              'village': ?c.village,
+              'district': ?c.district,
+              'organisation': ?c.organisation,
+              'email': ?c.email,
+            };
+          }
+        } on Object {
+          // Offline: the page shows what this computer has.
+        }
+      }
       return (
         profile: profile,
         sources: [

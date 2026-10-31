@@ -18,6 +18,9 @@ LedgerDevice _$LedgerDeviceFromJson(Map<String, dynamic> json) => LedgerDevice(
   revokedAt: json['revoked_at'] == null
       ? null
       : DateTime.parse(json['revoked_at'] as String),
+  people:
+      (json['people'] as List<dynamic>?)?.map((e) => e as String).toList() ??
+      const [],
 );
 
 Map<String, dynamic> _$LedgerDeviceToJson(LedgerDevice instance) =>
@@ -29,4 +32,5 @@ Map<String, dynamic> _$LedgerDeviceToJson(LedgerDevice instance) =>
       'activated_at': instance.activatedAt.toIso8601String(),
       'last_seen_at': instance.lastSeenAt?.toIso8601String(),
       'revoked_at': instance.revokedAt?.toIso8601String(),
+      'people': instance.people,
     };

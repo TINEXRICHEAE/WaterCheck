@@ -107,7 +107,11 @@ class DeviceScreen extends ConsumerWidget {
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 leading: const Icon(Icons.person_outline),
-                title: Text(c.fullName),
+                title: Text(
+                  c.username == null
+                      ? c.fullName
+                      : personLabel(c.username!, c.fullName),
+                ),
                 subtitle: Text(
                   [
                     ?c.phone,

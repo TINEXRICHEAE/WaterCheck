@@ -10,6 +10,7 @@ import '../../l10n/app_localizations.dart';
 import '../collectors/tester_access.dart';
 import 'admin_api.dart';
 import 'area_picker.dart';
+import 'people_collectors.dart';
 
 /// People (F-ADM-1): every Console user, at any level from village to
 /// national. Online only.
@@ -33,6 +34,9 @@ class UsersScreen extends ConsumerStatefulWidget {
 class _UsersScreenState extends ConsumerState<UsersScreen> {
   var _query = '';
   var _raw = '';
+
+  /// Collectors instead of Console accounts (2026-10-31).
+  var _collectors = false;
 
   Future<void> _decide(String requestId, bool approve) async {
     final l10n = AppLocalizations.of(context);
@@ -60,13 +64,16 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
     final l10n = AppLocalizations.of(context);
     final side = adminSide(context);
     final users = ref.watch(adminUsersProvider(side));
+    final collectors = ref.watch(adminCollectorsProvider(side));
     final when = DateFormat('d MMM y, HH:mm');
     return Scaffold(
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _edit(null),
-        icon: const Icon(Icons.person_add_alt_1),
-        label: Text(l10n.usersNew),
-      ),
+      floatingActionButton: _collectors
+          ? null
+          : FloatingActionButton.extended(
+              onPressed: () => _edit(null),
+              icon: const Icon(Icons.person_add_alt_1),
+              label: Text(l10n.usersNew),
+            ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
         children: [
@@ -114,10 +121,39 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
                     ),
                   ),
                 ),
+          const SizedBox(height: 12),
+          // Both kinds of people, told apart (2026-10-31).
+          SegmentedButton<bool>(
+            segments: [
+              ButtonSegment(
+                value: false,
+                icon: const Icon(Icons.manage_accounts_outlined),
+                label: Text(l10n.peopleAdminAccounts(users.value?.length ?? 0)),
+              ),
+              ButtonSegment(
+                value: true,
+                icon: const Icon(Icons.badge_outlined),
+                label: Text(
+                  l10n.peopleAdminCollectors(collectors.value?.length ?? 0),
+                ),
+              ),
+            ],
+            selected: {_collectors},
+            onSelectionChanged: (v) => setState(() => _collectors = v.first),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            _collectors
+                ? l10n.peopleAdminCollectorsHint
+                : l10n.peopleAdminAccountsHint,
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
           const SizedBox(height: 8),
           SearchField(
             value: _raw,
-            label: l10n.usersSearch,
+            label: _collectors
+                ? l10n.peopleAdminSearchCollectors
+                : l10n.usersSearch,
             history: 'console.users',
             onChanged: (v) => setState(() {
               _raw = v;
@@ -125,64 +161,75 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
             }),
           ),
           const SizedBox(height: 8),
-          ...users.when(
-            loading: () => [const Center(child: CircularProgressIndicator())],
-            error: (e, _) => [
-              ErrorView(
-                error: e,
-                compact: true,
-                onRetry: () => ref.invalidate(adminUsersProvider),
-              ),
-            ],
-            data: (list) => [
-              for (final u in list)
-                if (_query.isEmpty ||
-                    u.fullName.toLowerCase().contains(_query) ||
-                    u.username.toLowerCase().contains(_query) ||
-                    u.areas.any((a) => a.name.toLowerCase().contains(_query)))
-                  Card(
-                    child: ListTile(
-                      leading: Icon(
-                        u.role == 'it_admin'
-                            ? Icons.admin_panel_settings_outlined
-                            : Icons.person_outline,
-                      ),
-                      title: Text(u.fullName),
-                      subtitle: Text(
-                        [
-                          u.username,
-                          if (u.areas.isNotEmpty)
-                            u.areas
-                                .map(
-                                  (a) =>
-                                      '${a.name} (${l10n.areaLevel(a.level)})',
-                                )
-                                .join(', '),
-                          u.lastSignInAt == null
-                              ? l10n.usersNeverSignedIn
-                              : l10n.usersLastSignIn(
-                                  when.format(
-                                    WcTime.local(u.lastSignInAt!, context),
+          if (_collectors)
+            CollectorRows(side: side, query: _query)
+          else
+            ...users.when(
+              loading: () => [const Center(child: CircularProgressIndicator())],
+              error: (e, _) => [
+                ErrorView(
+                  error: e,
+                  compact: true,
+                  onRetry: () => ref.invalidate(adminUsersProvider),
+                ),
+              ],
+              data: (list) => [
+                for (final u in list)
+                  if (_query.isEmpty ||
+                      _query
+                          .split(RegExp(r'\s+'))
+                          .every(
+                            [
+                              u.fullName,
+                              u.username,
+                              u.role,
+                              for (final a in u.areas) a.name,
+                            ].join(' ').toLowerCase().contains,
+                          ))
+                    Card(
+                      child: ListTile(
+                        leading: Icon(
+                          u.role == 'it_admin'
+                              ? Icons.admin_panel_settings_outlined
+                              : Icons.person_outline,
+                        ),
+                        title: Text(u.fullName),
+                        subtitle: Text(
+                          [
+                            u.username,
+                            if (u.areas.isNotEmpty)
+                              u.areas
+                                  .map(
+                                    (a) =>
+                                        '${a.name} (${l10n.areaLevel(a.level)})',
+                                  )
+                                  .join(', '),
+                            u.lastSignInAt == null
+                                ? l10n.usersNeverSignedIn
+                                : l10n.usersLastSignIn(
+                                    when.format(
+                                      WcTime.local(u.lastSignInAt!, context),
+                                    ),
                                   ),
-                                ),
-                        ].join('\n'),
+                          ].join('\n'),
+                        ),
+                        isThreeLine: true,
+                        trailing: Wrap(
+                          spacing: 4,
+                          children: [
+                            Chip(label: Text(l10n.peopleAdminAccountTag)),
+                            if (!u.isActive)
+                              Chip(label: Text(l10n.usersDisabled)),
+                            if (u.locked) Chip(label: Text(l10n.usersLocked)),
+                            if (u.mustChangePassword && u.isActive)
+                              Chip(label: Text(l10n.usersFirstSignIn)),
+                          ],
+                        ),
+                        onTap: () => _edit(u),
                       ),
-                      isThreeLine: true,
-                      trailing: Wrap(
-                        spacing: 4,
-                        children: [
-                          if (!u.isActive)
-                            Chip(label: Text(l10n.usersDisabled)),
-                          if (u.locked) Chip(label: Text(l10n.usersLocked)),
-                          if (u.mustChangePassword && u.isActive)
-                            Chip(label: Text(l10n.usersFirstSignIn)),
-                        ],
-                      ),
-                      onTap: () => _edit(u),
                     ),
-                  ),
-            ],
-          ),
+              ],
+            ),
         ],
       ),
     );

@@ -68,6 +68,7 @@ class PhonesScreen extends ConsumerWidget {
                     p.shortCode,
                     p.platform,
                     p.appVersion,
+                    ...p.people,
                   ]))
                     Card(
                       child: ListTile(
@@ -89,6 +90,10 @@ class PhonesScreen extends ConsumerWidget {
                         ),
                         subtitle: Text(
                           [
+                            // Who uses it, before opening it (2026-10-31).
+                            p.people.isEmpty
+                                ? l10n.peopleAdminNobodyOnDevice
+                                : l10n.peopleAdminOnDevice(p.people.join(', ')),
                             [?p.platform, ?p.appVersion].join(' '),
                             research
                                 ? l10n.phonesActivityResearch(

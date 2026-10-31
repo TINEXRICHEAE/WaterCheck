@@ -35,6 +35,12 @@ final adminInstallationsProvider = FutureProvider.autoDispose
       (ref, side) => _api(ref).admin.installations(side: sideParam(side)),
     );
 
+/// Every collector of a side, joined a project or not (2026-10-31).
+final adminCollectorsProvider = FutureProvider.autoDispose
+    .family<List<AdminCollector>, AppSide>(
+      (ref, side) => _api(ref).admin.collectors(side: sideParam(side)),
+    );
+
 /// The side as the API names it.
 Side sideParam(AppSide side) => Side.values.byName(side.name);
 

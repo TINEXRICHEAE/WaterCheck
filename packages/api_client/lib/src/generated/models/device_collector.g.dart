@@ -19,12 +19,14 @@ DeviceCollector _$DeviceCollectorFromJson(Map<String, dynamic> json) =>
           ? null
           : DateTime.parse(json['last_at'] as String),
       recoveredHere: json['recovered_here'] as bool,
+      username: json['username'] as String?,
     );
 
 Map<String, dynamic> _$DeviceCollectorToJson(DeviceCollector instance) =>
     <String, dynamic>{
       'collector_key': instance.collectorKey,
       'full_name': instance.fullName,
+      'username': instance.username,
       'phone': instance.phone,
       'collector_type': instance.collectorType,
       'village': instance.village,

@@ -7245,6 +7245,114 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Change password'**
   String get accountPasswordSave;
+
+  /// No description provided for @peopleAdminAccounts.
+  ///
+  /// In en, this message translates to:
+  /// **'Console accounts ({count})'**
+  String peopleAdminAccounts(int count);
+
+  /// No description provided for @peopleAdminCollectors.
+  ///
+  /// In en, this message translates to:
+  /// **'Collectors ({count})'**
+  String peopleAdminCollectors(int count);
+
+  /// No description provided for @peopleAdminAccountsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'People who sign in to the Console.'**
+  String get peopleAdminAccountsHint;
+
+  /// No description provided for @peopleAdminCollectorsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'People who collect with the app, whether or not they have joined a project or sent anything yet. Open one for their codes, devices and access.'**
+  String get peopleAdminCollectorsHint;
+
+  /// No description provided for @peopleAdminSearchCollectors.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by username, name, phone, email, organisation, place, device, form or collector code'**
+  String get peopleAdminSearchCollectors;
+
+  /// No description provided for @peopleAdminNoCollectors.
+  ///
+  /// In en, this message translates to:
+  /// **'No collectors yet. A collector appears here once their phone has synced after they were added.'**
+  String get peopleAdminNoCollectors;
+
+  /// No description provided for @peopleAdminNoMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Nobody matches this search.'**
+  String get peopleAdminNoMatch;
+
+  /// No description provided for @peopleAdminCollectorTag.
+  ///
+  /// In en, this message translates to:
+  /// **'Collector'**
+  String get peopleAdminCollectorTag;
+
+  /// No description provided for @peopleAdminAccountTag.
+  ///
+  /// In en, this message translates to:
+  /// **'Console'**
+  String get peopleAdminAccountTag;
+
+  /// No description provided for @peopleAdminClosed.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed'**
+  String get peopleAdminClosed;
+
+  /// No description provided for @peopleAdminDevices.
+  ///
+  /// In en, this message translates to:
+  /// **'Devices: {list}'**
+  String peopleAdminDevices(String list);
+
+  /// No description provided for @peopleAdminNoDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'No device signed in'**
+  String get peopleAdminNoDevice;
+
+  /// No description provided for @peopleAdminForms.
+  ///
+  /// In en, this message translates to:
+  /// **'Forms: {list}'**
+  String peopleAdminForms(String list);
+
+  /// No description provided for @peopleAdminRecords.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No records yet} =1{1 record} other{{count} records}}'**
+  String peopleAdminRecords(int count);
+
+  /// No description provided for @peopleAdminSeen.
+  ///
+  /// In en, this message translates to:
+  /// **'Last seen {when}'**
+  String peopleAdminSeen(String when);
+
+  /// No description provided for @peopleAdminCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Collector code {code}'**
+  String peopleAdminCode(String code);
+
+  /// No description provided for @peopleAdminOnDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed in: {people}'**
+  String peopleAdminOnDevice(String people);
+
+  /// No description provided for @peopleAdminNobodyOnDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'Nobody signed in'**
+  String get peopleAdminNobodyOnDevice;
 }
 
 class _AppLocalizationsDelegate

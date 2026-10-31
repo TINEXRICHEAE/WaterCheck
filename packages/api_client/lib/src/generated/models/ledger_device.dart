@@ -16,6 +16,7 @@ class LedgerDevice {
     required this.activatedAt,
     required this.lastSeenAt,
     required this.revokedAt,
+    this.people = const [],
   });
 
   factory LedgerDevice.fromJson(Map<String, Object?> json) =>
@@ -32,6 +33,7 @@ class LedgerDevice {
   final DateTime? lastSeenAt;
   @JsonKey(name: 'revoked_at')
   final DateTime? revokedAt;
+  final List<String> people;
 
   Map<String, Object?> toJson() => _$LedgerDeviceToJson(this);
 }

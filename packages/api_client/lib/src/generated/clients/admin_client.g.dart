@@ -344,6 +344,38 @@ class _AdminClient implements AdminClient {
   }
 
   @override
+  Future<List<AdminCollector>> collectors({Side? side}) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{r'side': side?.toJson()};
+    queryParameters.removeWhere((k, v) => v == null);
+    final _headers = <String, dynamic>{};
+    const Map<String, dynamic>? _data = null;
+    final _options = _setStreamType<List<AdminCollector>>(
+      Options(method: 'GET', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/v1/admin/collectors',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<List<dynamic>>(_options);
+    late List<AdminCollector> _value;
+    try {
+      _value = _result.data!
+          .map(
+            (dynamic i) => AdminCollector.fromJson(i as Map<String, dynamic>),
+          )
+          .toList();
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
   Future<List<AuditEntry>> audit({
     int? limit = 200,
     String? action,

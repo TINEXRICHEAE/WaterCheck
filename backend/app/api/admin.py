@@ -110,6 +110,9 @@ class InstallationOut(BaseModel):
     # they can be restored (ADR-018).
     label: str | None = None
     archived: bool = False
+    # Who is signed in on it, as "username (Full Name)", so a device can be
+    # told apart before opening it (2026-10-31).
+    people: list[str] = []
 
 
 class ActivationCodeOut(BaseModel):
@@ -218,6 +221,14 @@ async def reset_password(user_id: UUID, admin: AdminDep, db: DbDep) -> Credentia
 
 # Devices of a side (ADR-031): used by one of its testers, or (water) by
 # nobody yet.
+# The people signed in on device `i`, newest first, as "username (Full Name)".
+_PEOPLE_ON = (
+    "ARRAY(SELECT wc_collector_label(p.collector_key) "
+    "FROM collector_device d JOIN collector_profile p ON p.collector_key = d.collector_key "
+    "WHERE d.installation_id = i.id AND d.signed_out_at IS NULL "
+    "ORDER BY d.last_seen_at DESC) AS people"
+)
+
 _DEVICE_SIDE = (
     "(CAST(:side AS text) IS NULL OR EXISTS (SELECT 1 FROM collector_device d "
     "JOIN collector_profile p ON p.collector_key = d.collector_key "
@@ -240,6 +251,7 @@ async def installations(
                     "i.last_seen_at, i.revoked_at, coalesce(i.label, i.device_label) AS label, "
                     "i.registered_via, "
                     "wc_archived('installation', i.id) AS archived, "
+                    f"{_PEOPLE_ON}, "
                     "a.id AS area_id, a.code, a.name, a.level, "
                     "CASE WHEN :side = 'research' THEN (SELECT count(DISTINCT d.collector_key) "
                     " FROM collector_device d JOIN collector_profile p "
@@ -275,6 +287,7 @@ async def installations(
             tests=r.tests,
             label=r.label,
             archived=r.archived,
+            people=list(r.people),
         )
         for r in rows
     ]
@@ -286,6 +299,8 @@ class DeviceCollector(BaseModel):
 
     collector_key: UUID
     full_name: str
+    # Their username, to tell people apart at a glance (2026-10-31).
+    username: str | None = None
     phone: str | None
     collector_type: str | None
     village: str | None
@@ -310,9 +325,11 @@ async def installation_collectors(
                     " UNION SELECT collector_key FROM water_source"
                     "  WHERE installation_id = :i AND collector_key IS NOT NULL"
                     " UNION SELECT collector_key FROM collector_profile WHERE installation_id = :i"
+                    # Everyone signed in on it, even before their first record.
+                    " UNION SELECT collector_key FROM collector_device WHERE installation_id = :i"
                     " UNION SELECT collector_key FROM collector_recovery_code"
                     "  WHERE used_by_installation = :i) "
-                    "SELECT k.collector_key, p.snapshot, "
+                    "SELECT k.collector_key, p.snapshot, p.handle, "
                     "(SELECT count(*) FROM test_session s WHERE s.collector_key = k.collector_key"
                     " AND s.installation_id = :i AND NOT wc_archived('test_session', s.id))"
                     # Research records count on the research side (ADR-031).
@@ -343,6 +360,7 @@ async def installation_collectors(
             DeviceCollector(
                 collector_key=r.collector_key,
                 full_name=snap.get("full_name") or "?",
+                username=r.handle,
                 phone=snap.get("phone"),
                 collector_type=snap.get("collector_type"),
                 village=snap.get("village"),
@@ -391,6 +409,8 @@ class LedgerDevice(BaseModel):
     activated_at: datetime
     last_seen_at: datetime | None
     revoked_at: datetime | None
+    # "username (Full Name)" of who is signed in on it.
+    people: list[str] = []
 
 
 class LedgerTester(BaseModel):
@@ -448,7 +468,7 @@ async def credentials(admin: AdminDep, db: DbDep, side: SideFilter = None) -> Le
             await conn.execute(
                 text(
                     "SELECT c.id, c.created_at, c.expires_at, c.max_installations, "
-                    "c.used_count, c.revoked_at, u.full_name AS created_by, "
+                    "c.used_count, c.revoked_at, wc_user_label(u.id) AS created_by, "
                     "a.id AS area_id, a.code, a.name, a.level "
                     "FROM activation_code c JOIN admin_unit a ON a.id = c.admin_unit_id "
                     "LEFT JOIN app_user u ON u.id = c.created_by "
@@ -459,8 +479,8 @@ async def credentials(admin: AdminDep, db: DbDep, side: SideFilter = None) -> Le
         devices = (
             await conn.execute(
                 text(
-                    "SELECT activation_code_id, id, label, short_code, platform, "
-                    "activated_at, last_seen_at, revoked_at FROM installation "
+                    "SELECT activation_code_id, id, label, short_code, platform, "  # noqa: S608
+                    f"activated_at, last_seen_at, revoked_at, {_PEOPLE_ON} FROM installation i "
                     "WHERE activation_code_id IS NOT NULL ORDER BY activated_at"
                 )
             )
@@ -469,7 +489,7 @@ async def credentials(admin: AdminDep, db: DbDep, side: SideFilter = None) -> Le
             await conn.execute(
                 text(
                     "SELECT s.activation_code_id, s.collector_key, "
-                    "p.snapshot->>'full_name' AS full_name, s.assigned_at, s.ended_at "
+                    "wc_collector_label(s.collector_key) AS full_name, s.assigned_at, s.ended_at "
                     "FROM collector_assignment s "
                     "LEFT JOIN collector_profile p ON p.collector_key = s.collector_key "
                     "WHERE s.activation_code_id IS NOT NULL ORDER BY s.assigned_at"
@@ -481,7 +501,7 @@ async def credentials(admin: AdminDep, db: DbDep, side: SideFilter = None) -> Le
                 text(
                     "SELECT u.id, u.username, u.full_name, u.role, u.created_at, "
                     "NOT u.must_change_password AS first_sign_in_done, u.last_sign_in_at, "
-                    "u.is_active, m.full_name AS created_by, "
+                    "u.is_active, wc_user_label(m.id) AS created_by, "
                     "coalesce((SELECT array_agg(a.name ORDER BY a.name) FROM user_scope s "
                     " JOIN admin_unit a ON a.id = s.admin_unit_id WHERE s.user_id = u.id),"
                     " '{}') AS areas "
@@ -667,3 +687,100 @@ async def legal_acceptances(
             {"u": user_id, "k": collector_key},
         )
         return [AcceptanceOut(**r._mapping) for r in rows]
+
+
+class CollectorDeviceOut(BaseModel):
+    installation_id: UUID
+    short_code: str | None
+    label: str | None
+    signed_out: bool
+
+
+class AdminCollector(BaseModel):
+    """A collector as the server knows them, whether or not they have
+    collected yet or joined a project (2026-10-31)."""
+
+    collector_key: UUID
+    username: str
+    full_name: str | None
+    phone: str | None
+    email: str | None
+    organisation: str | None
+    collector_type: str | None
+    village: str | None
+    district: str | None
+    # Their own collector code, for adding them to a form.
+    share_code: str | None
+    first_seen_at: datetime
+    last_seen_at: datetime
+    closed: bool
+    archived: bool
+    # Water tests, or research records.
+    records: int
+    # Research forms they collect for, as "PROJECT/FORM".
+    forms: list[str]
+    devices: list[CollectorDeviceOut]
+
+
+@router.get("/collectors")
+async def collectors(admin: AdminDep, db: DbDep, side: SideFilter = None) -> list[AdminCollector]:
+    """Every collector of a side, most recently seen first: reachable from
+    the admin's People page without going through a project or a device
+    (2026-10-31). Only people a phone has sent are known to the server."""
+    async with db.transaction(admin) as conn:
+        rows = (
+            await conn.execute(
+                text(
+                    "SELECT p.collector_key, p.handle AS username, p.snapshot, p.share_code, "
+                    "p.first_seen_at, p.last_seen_at, p.closed_at IS NOT NULL AS closed, "
+                    "wc_archived('collector', p.collector_key) AS archived, "
+                    "CASE WHEN p.side = 'research' THEN (SELECT count(*) FROM research.record r "
+                    " WHERE r.collector_key = p.collector_key) ELSE (SELECT count(*) "
+                    " FROM test_session s WHERE s.collector_key = p.collector_key) END AS records, "
+                    "ARRAY(SELECT pr.code || '/' || f.code FROM research.form_collector c "
+                    " JOIN research.form f ON f.id = c.form_id "
+                    " JOIN research.project pr ON pr.id = f.project_id "
+                    " WHERE c.collector_key = p.collector_key ORDER BY pr.code, f.code) AS forms, "
+                    "coalesce((SELECT json_agg(json_build_object('installation_id', i.id, "
+                    " 'short_code', i.short_code, 'label', coalesce(i.label, i.device_label), "
+                    " 'signed_out', d.signed_out_at IS NOT NULL) ORDER BY d.last_seen_at DESC) "
+                    " FROM collector_device d JOIN installation i ON i.id = d.installation_id "
+                    " WHERE d.collector_key = p.collector_key), '[]') AS devices "
+                    "FROM collector_profile p "
+                    "WHERE CAST(:side AS text) IS NULL OR p.side = :side "
+                    "ORDER BY p.last_seen_at DESC"
+                ),
+                {"side": side},
+            )
+        ).all()
+    out = []
+    for r in rows:
+        snap = r.snapshot if isinstance(r.snapshot, dict) else json.loads(r.snapshot)
+        devices = r.devices if isinstance(r.devices, list) else json.loads(r.devices)
+
+        def field(k: str, snap: dict[str, object] = snap) -> str | None:
+            v = snap.get(k)
+            return str(v) if v not in (None, "") else None
+
+        out.append(
+            AdminCollector(
+                collector_key=r.collector_key,
+                username=r.username,
+                full_name=field("full_name"),
+                phone=field("phone"),
+                email=field("email"),
+                organisation=field("organisation"),
+                collector_type=field("collector_type"),
+                village=field("village"),
+                district=field("district"),
+                share_code=r.share_code,
+                first_seen_at=r.first_seen_at,
+                last_seen_at=r.last_seen_at,
+                closed=r.closed,
+                archived=r.archived,
+                records=r.records,
+                forms=list(r.forms),
+                devices=[CollectorDeviceOut(**d) for d in devices],
+            )
+        )
+    return out
