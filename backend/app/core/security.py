@@ -66,6 +66,9 @@ class AccessClaims:
     must_change_password: bool
     # The account's side (ADR-031); tokens from before sides were water.
     side: str = "water"
+    # The sign-in (refresh-token family) this token belongs to, so a person
+    # can see and end their other sessions (2026-10-29).
+    session_id: UUID | None = None
 
 
 def issue_access_token(settings: Settings, claims: AccessClaims, now: datetime) -> str:
@@ -75,6 +78,7 @@ def issue_access_token(settings: Settings, claims: AccessClaims, now: datetime) 
         "scope": [str(u) for u in claims.scope_units],
         "mcp": claims.must_change_password,
         "side": claims.side,
+        **({"sid": str(claims.session_id)} if claims.session_id else {}),
         "typ": "access",
         "iat": int(now.timestamp()),
         "exp": int((now + timedelta(minutes=settings.access_token_minutes)).timestamp()),
@@ -98,6 +102,7 @@ def read_access_token(settings: Settings, token: str) -> AccessClaims:
         scope_units=tuple(UUID(u) for u in data.get("scope", [])),
         must_change_password=bool(data.get("mcp", False)),
         side=str(data.get("side") or ("all" if data["role"] == "it_admin" else "water")),
+        session_id=UUID(data["sid"]) if data.get("sid") else None,
     )
 
 

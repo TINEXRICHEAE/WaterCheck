@@ -678,6 +678,212 @@
         ]
       }
     },
+    "/v1/me/sessions": {
+      "get": {
+        "tags": [
+          "account"
+        ],
+        "summary": "My Sessions",
+        "description": "Where this account is signed in: one row per sign-in, newest use\nfirst. The one making the request is marked current.",
+        "operationId": "my_sessions",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/SessionOut"
+                  },
+                  "type": "array",
+                  "title": "Response My Sessions"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/v1/me/sessions/{session_id}/sign-out": {
+      "post": {
+        "tags": [
+          "account"
+        ],
+        "summary": "End Session",
+        "description": "Signs one sign-in out (its page asks to sign in again within 15\nminutes, when its access runs out).",
+        "operationId": "end_session",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Session Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/me/sessions/sign-out-others": {
+      "post": {
+        "tags": [
+          "account"
+        ],
+        "summary": "End Other Sessions",
+        "description": "Signs out every sign-in but this one.",
+        "operationId": "end_other_sessions",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ended"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/v1/me/activity": {
+      "get": {
+        "tags": [
+          "account"
+        ],
+        "summary": "My Activity",
+        "description": "This account's recent sign-ins and security changes, newest first.",
+        "operationId": "my_activity",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ActivityOut"
+                  },
+                  "type": "array",
+                  "title": "Response My Activity"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/v1/auth/password-reset": {
+      "post": {
+        "tags": [
+          "account"
+        ],
+        "summary": "Request Password Reset",
+        "description": "Sends a reset code (or shows it to IT admins until email is set up).\nAnswers the same whether or not the account exists. A second request\nwithin a minute keeps the same code.",
+        "operationId": "request_password_reset",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/auth/password-reset/confirm": {
+      "post": {
+        "tags": [
+          "account"
+        ],
+        "summary": "Confirm Password Reset",
+        "description": "Sets a new password with a reset code; every sign-in of the account\nends, and the person signs in with the new password.",
+        "operationId": "confirm_password_reset",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetConfirm"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/installations/activate": {
       "post": {
         "tags": [
@@ -8445,6 +8651,49 @@
         ],
         "title": "ActivationCodeOut"
       },
+      "ActivityOut": {
+        "properties": {
+          "at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "At"
+          },
+          "action": {
+            "type": "string",
+            "title": "Action"
+          },
+          "ip": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ip"
+          },
+          "place": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Place"
+          }
+        },
+        "type": "object",
+        "required": [
+          "at",
+          "action",
+          "ip",
+          "place"
+        ],
+        "title": "ActivityOut"
+      },
       "AdminUnitOut": {
         "properties": {
           "id": {
@@ -9489,7 +9738,8 @@
             "type": "string",
             "enum": [
               "contact",
-              "sign_out_devices"
+              "sign_out_devices",
+              "password_reset"
             ],
             "title": "Kind"
           },
@@ -10340,6 +10590,19 @@
           "name"
         ],
         "title": "EditorOut"
+      },
+      "Ended": {
+        "properties": {
+          "ended": {
+            "type": "integer",
+            "title": "Ended"
+          }
+        },
+        "type": "object",
+        "required": [
+          "ended"
+        ],
+        "title": "Ended"
       },
       "FormDetail": {
         "properties": {
@@ -14363,6 +14626,68 @@
         ],
         "title": "RenameIn"
       },
+      "ResetConfirm": {
+        "properties": {
+          "username": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Username"
+          },
+          "side": {
+            "type": "string",
+            "enum": [
+              "water",
+              "research"
+            ],
+            "title": "Side",
+            "default": "water"
+          },
+          "code": {
+            "type": "string",
+            "maxLength": 12,
+            "minLength": 4,
+            "title": "Code"
+          },
+          "new_password": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "New Password"
+          }
+        },
+        "type": "object",
+        "required": [
+          "username",
+          "code",
+          "new_password"
+        ],
+        "title": "ResetConfirm"
+      },
+      "ResetRequest": {
+        "properties": {
+          "username": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Username"
+          },
+          "side": {
+            "type": "string",
+            "enum": [
+              "water",
+              "research"
+            ],
+            "title": "Side",
+            "default": "water"
+          }
+        },
+        "type": "object",
+        "required": [
+          "username"
+        ],
+        "title": "ResetRequest"
+      },
       "ResolveIn": {
         "properties": {
           "keep": {
@@ -14535,6 +14860,78 @@
           "console_idle_minutes"
         ],
         "title": "SecurityIn"
+      },
+      "SessionOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "device": {
+            "type": "string",
+            "title": "Device"
+          },
+          "client": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Client"
+          },
+          "ip": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ip"
+          },
+          "place": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Place"
+          },
+          "started_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Started At"
+          },
+          "last_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Last At"
+          },
+          "current": {
+            "type": "boolean",
+            "title": "Current"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "device",
+          "client",
+          "ip",
+          "place",
+          "started_at",
+          "last_at",
+          "current"
+        ],
+        "title": "SessionOut"
       },
       "ShareIn": {
         "properties": {

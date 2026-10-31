@@ -358,22 +358,34 @@ void main() {
     await disposeConsole(tester, db);
   });
 
-  testWidgets('forgot password asks the IT admin', (tester) async {
+  testWidgets('forgot password: a code, then a new password (2026-10-29)', (
+    tester,
+  ) async {
     final env = ConsoleTestEnv(cookieMode: true);
     final db = await pumpConsole(tester, env: env);
     await tester.tap(find.text('Forgot password?'));
     await settle(tester);
-    await tester.enterText(
-      find.descendant(
-        of: find.byType(AlertDialog),
-        matching: find.byType(TextField),
-      ),
-      'officer@example.org',
-    );
-    await tester.tap(find.text('Send request'));
+    Finder field(int i) => find
+        .descendant(
+          of: find.byType(AlertDialog),
+          matching: find.byType(TextField),
+        )
+        .at(i);
+    await tester.enterText(field(0), 'officer@example.org');
+    // The button wakes once the email is there.
+    await tester.pump();
+    await tester.tap(find.text('Send code'));
     await settle(tester);
     expect(env.api.helpRequests, ['officer@example.org']);
-    expect(find.textContaining('Request sent'), findsOneWidget);
+    // The code and the new password twice; the button waits for all three.
+    await tester.enterText(field(1), '123456');
+    await tester.enterText(field(2), 'Fresh-Pass-2026');
+    await tester.enterText(field(3), 'Fresh-Pass-2026');
+    await settle(tester);
+    await tester.tap(find.text('Set new password'));
+    await settle(tester);
+    expect(find.byType(AlertDialog), findsNothing);
+    expect(find.textContaining('Password changed'), findsOneWidget);
     await disposeConsole(tester, db);
   });
 

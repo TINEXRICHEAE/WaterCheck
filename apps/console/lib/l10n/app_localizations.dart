@@ -6993,6 +6993,258 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Open the record'**
   String get researchOpenRecord;
+
+  /// No description provided for @securityChangePassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Change password'**
+  String get securityChangePassword;
+
+  /// No description provided for @securityChangePasswordHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Your other sign-ins end; this one stays.'**
+  String get securityChangePasswordHint;
+
+  /// No description provided for @securityPasswordChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Password changed. Other sign-ins were signed out.'**
+  String get securityPasswordChanged;
+
+  /// No description provided for @securitySessions.
+  ///
+  /// In en, this message translates to:
+  /// **'Where you\'re signed in'**
+  String get securitySessions;
+
+  /// No description provided for @securitySessionsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Each browser or app signed in to this account. Sign out any you don\'t recognise, then change your password.'**
+  String get securitySessionsHint;
+
+  /// No description provided for @securitySignOutOthers.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out everywhere else'**
+  String get securitySignOutOthers;
+
+  /// No description provided for @securitySignOutOthersBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Every other browser and app signed in to this account will be signed out. They can sign in again with your password.'**
+  String get securitySignOutOthersBody;
+
+  /// No description provided for @securitySignOutThis.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out this one'**
+  String get securitySignOutThis;
+
+  /// No description provided for @securitySignInAgainFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out and in again once, then try this.'**
+  String get securitySignInAgainFirst;
+
+  /// No description provided for @securityThisOne.
+  ///
+  /// In en, this message translates to:
+  /// **'this one'**
+  String get securityThisOne;
+
+  /// No description provided for @securityLastUsed.
+  ///
+  /// In en, this message translates to:
+  /// **'last used {when}'**
+  String securityLastUsed(String when);
+
+  /// No description provided for @securitySince.
+  ///
+  /// In en, this message translates to:
+  /// **'signed in {when}'**
+  String securitySince(String when);
+
+  /// No description provided for @securityActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent account activity'**
+  String get securityActivity;
+
+  /// No description provided for @securityActivityHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign-ins and password changes, newest first.'**
+  String get securityActivityHint;
+
+  /// No description provided for @securityActivityNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing yet.'**
+  String get securityActivityNone;
+
+  /// No description provided for @securityCurrentPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Current password'**
+  String get securityCurrentPassword;
+
+  /// No description provided for @securityNewPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'New password'**
+  String get securityNewPassword;
+
+  /// No description provided for @securityCurrentNeeded.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your current password.'**
+  String get securityCurrentNeeded;
+
+  /// No description provided for @securityCurrentWrong.
+  ///
+  /// In en, this message translates to:
+  /// **'The current password is not right.'**
+  String get securityCurrentWrong;
+
+  /// No description provided for @securitySamePassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a password different from the current one.'**
+  String get securitySamePassword;
+
+  /// No description provided for @securityOthersSignedOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Other browsers and apps signed in to this account will be signed out.'**
+  String get securityOthersSignedOut;
+
+  /// No description provided for @securityChangeFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not change the password ({code}).'**
+  String securityChangeFailed(String code);
+
+  /// No description provided for @activitySignedIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed in'**
+  String get activitySignedIn;
+
+  /// No description provided for @activitySignInFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed sign-in'**
+  String get activitySignInFailed;
+
+  /// No description provided for @activityLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign-in blocked (too many tries)'**
+  String get activityLocked;
+
+  /// No description provided for @activityPasswordChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Password changed'**
+  String get activityPasswordChanged;
+
+  /// No description provided for @activityResetAsked.
+  ///
+  /// In en, this message translates to:
+  /// **'Password reset code asked for'**
+  String get activityResetAsked;
+
+  /// No description provided for @activityReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Password reset with a code'**
+  String get activityReset;
+
+  /// No description provided for @activitySessionEnded.
+  ///
+  /// In en, this message translates to:
+  /// **'A sign-in was signed out'**
+  String get activitySessionEnded;
+
+  /// No description provided for @activitySessionsEnded.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed out everywhere else'**
+  String get activitySessionsEnded;
+
+  /// No description provided for @activityTokenReuse.
+  ///
+  /// In en, this message translates to:
+  /// **'An old sign-in was reused and stopped'**
+  String get activityTokenReuse;
+
+  /// No description provided for @activitySwitched.
+  ///
+  /// In en, this message translates to:
+  /// **'Switched side'**
+  String get activitySwitched;
+
+  /// No description provided for @resetIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the email you sign in with. We send a 6-digit code to set a new password. Until email is set up, your IT admin sees the code and gives it to you.'**
+  String get resetIntro;
+
+  /// No description provided for @resetCodeSent.
+  ///
+  /// In en, this message translates to:
+  /// **'If this account exists, a code is on its way (or with your IT admin). It works for 15 minutes.'**
+  String get resetCodeSent;
+
+  /// No description provided for @resetCode.
+  ///
+  /// In en, this message translates to:
+  /// **'6-digit code'**
+  String get resetCode;
+
+  /// No description provided for @resetSendCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Send code'**
+  String get resetSendCode;
+
+  /// No description provided for @resetSendAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Send again'**
+  String get resetSendAgain;
+
+  /// No description provided for @resetSetPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Set new password'**
+  String get resetSetPassword;
+
+  /// No description provided for @resetWrongCode.
+  ///
+  /// In en, this message translates to:
+  /// **'That code is not right or has expired.'**
+  String get resetWrongCode;
+
+  /// No description provided for @resetDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Password changed. Sign in with your new password.'**
+  String get resetDone;
+
+  /// No description provided for @accountSecurityTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Password and sign-ins'**
+  String get accountSecurityTitle;
+
+  /// No description provided for @accountPasswordSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Change password'**
+  String get accountPasswordSave;
 }
 
 class _AppLocalizationsDelegate

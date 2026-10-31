@@ -275,6 +275,23 @@ class FakeAuthApi implements ConsoleAuthApi {
   }
 
   @override
+  Future<void> requestReset(String username, AppSide side) async {
+    _online();
+    helpRequests.add(username);
+  }
+
+  @override
+  Future<void> confirmReset(
+    String username,
+    AppSide side,
+    String code,
+    String newPassword,
+  ) async {
+    _online();
+    if (code != '123456') throw const ApiFailure('invalid_code');
+  }
+
+  @override
   Future<void> setPreferences(
     String accessToken, {
     required bool email,

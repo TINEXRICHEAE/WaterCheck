@@ -19,9 +19,10 @@ from pydantic import BaseModel, Field
 from sqlalchemy import text
 
 from app.api.deps import AnyUserDep, DbDep, SettingsDep, UserDep
+from app.api.installations import client_address
 from app.core.config import Settings
 from app.core.sides import LEGAL_VERSIONS, sides_of
-from app.services.auth import AuthError, AuthService, Registration, TokenPair
+from app.services.auth import AuthError, AuthService, Device, Registration, TokenPair
 from app.services.policy import security_policy
 
 router = APIRouter(prefix="/v1", tags=["auth"])
@@ -177,6 +178,15 @@ def _fail(e: AuthError) -> HTTPException:
     return HTTPException(_STATUS.get(e.code, status.HTTP_400_BAD_REQUEST), e.code)
 
 
+def _device(request: Request, transport: str | None) -> Device:
+    """The browser or app signing in, and from where (2026-10-29)."""
+    return Device(
+        user_agent=request.headers.get("user-agent"),
+        ip=client_address(request),
+        client="web" if _wants_cookie(transport) else "app",
+    )
+
+
 def _wants_cookie(transport: str | None) -> bool:
     return (transport or "").lower() == "cookie"
 
@@ -244,10 +254,14 @@ async def login(
     settings: SettingsDep,
     transport: TransportHeader = None,
 ) -> TokenResponse:
-    ip = request.client.host if request.client else None
+    ip = client_address(request)
     try:
         pair = await AuthService(db, settings).login(
-            body.username, body.password, side=body.side, ip=ip
+            body.username,
+            body.password,
+            side=body.side,
+            ip=ip,
+            device=_device(request, transport),
         )
     except AuthError as e:
         raise _fail(e) from e
@@ -264,7 +278,7 @@ async def register(
     transport: TransportHeader = None,
 ) -> TokenResponse:
     """Anyone may make an account on a side; it works at once (ADR-031)."""
-    ip = request.client.host if request.client else None
+    ip = client_address(request)
     try:
         pair = await AuthService(db, settings).register(
             Registration(
@@ -277,6 +291,7 @@ async def register(
                 phone=body.phone,
             ),
             ip=ip,
+            device=_device(request, transport),
         )
     except AuthError as e:
         raise _fail(e) from e
@@ -295,12 +310,17 @@ async def join_side(
 ) -> TokenResponse:
     """Opens this person's account on another side (or signs in to it if it
     exists) and returns its tokens: the app switches to that side."""
-    ip = request.client.host if request.client else None
+    ip = client_address(request)
     if user.user_id is None:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "not_signed_in")
     try:
         pair = await AuthService(db, settings).join(
-            user.user_id, body.side, body.password, body.accepted_legal, ip=ip
+            user.user_id,
+            body.side,
+            body.password,
+            body.accepted_legal,
+            ip=ip,
+            device=_device(request, transport),
         )
     except AuthError as e:
         raise _fail(e) from e
@@ -318,11 +338,13 @@ async def switch_side(
     transport: TransportHeader = None,
 ) -> TokenResponse:
     """Signs in to this person's linked account on another side."""
-    ip = request.client.host if request.client else None
+    ip = client_address(request)
     if user.user_id is None:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "not_signed_in")
     try:
-        pair = await AuthService(db, settings).switch(user.user_id, body.side, ip=ip)
+        pair = await AuthService(db, settings).switch(
+            user.user_id, body.side, ip=ip, device=_device(request, transport)
+        )
     except AuthError as e:
         raise _fail(e) from e
     return _respond(pair, response, settings, cookie=_wants_cookie(transport))
@@ -330,6 +352,7 @@ async def switch_side(
 
 @router.post("/auth/refresh")
 async def refresh(
+    request: Request,
     response: Response,
     db: DbDep,
     settings: SettingsDep,
@@ -344,7 +367,9 @@ async def refresh(
     from_cookie = in_body is None
     token = _cookie_token(refresh_cookie, csrf_cookie, csrf_header) if in_body is None else in_body
     try:
-        pair = await AuthService(db, settings).refresh(token)
+        pair = await AuthService(db, settings).refresh(
+            token, _device(request, "cookie" if from_cookie else None)
+        )
     except AuthError as e:
         if from_cookie:
             _clear_cookies(response, settings)
@@ -355,6 +380,7 @@ async def refresh(
 @router.post("/auth/change-password")
 async def change_password(
     body: ChangePasswordRequest,
+    request: Request,
     response: Response,
     user: AnyUserDep,
     db: DbDep,
@@ -365,7 +391,10 @@ async def change_password(
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "not_signed_in")
     try:
         pair = await AuthService(db, settings).change_password(
-            user.user_id, body.current_password, body.new_password
+            user.user_id,
+            body.current_password,
+            body.new_password,
+            _device(request, transport),
         )
     except AuthError as e:
         raise _fail(e) from e
@@ -397,7 +426,7 @@ async def password_help(
 ) -> None:
     """ "Forgot password": asks the IT admin for a new temporary password.
     Answers the same for unknown usernames."""
-    ip = request.client.host if request.client else None
+    ip = client_address(request)
     await AuthService(db, settings).request_password_help(body.username, ip=ip)
 
 

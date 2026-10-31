@@ -2690,5 +2690,68 @@
       }
     }
   },
-  "researchOpenRecord": "Open the record"
+  "researchOpenRecord": "Open the record",
+  "securityChangePassword": "Change password",
+  "securityChangePasswordHint": "Your other sign-ins end; this one stays.",
+  "securityPasswordChanged": "Password changed. Other sign-ins were signed out.",
+  "securitySessions": "Where you're signed in",
+  "securitySessionsHint": "Each browser or app signed in to this account. Sign out any you don't recognise, then change your password.",
+  "securitySignOutOthers": "Sign out everywhere else",
+  "securitySignOutOthersBody": "Every other browser and app signed in to this account will be signed out. They can sign in again with your password.",
+  "securitySignOutThis": "Sign out this one",
+  "securitySignInAgainFirst": "Sign out and in again once, then try this.",
+  "securityThisOne": "this one",
+  "securityLastUsed": "last used {when}",
+  "@securityLastUsed": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "securitySince": "signed in {when}",
+  "@securitySince": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "securityActivity": "Recent account activity",
+  "securityActivityHint": "Sign-ins and password changes, newest first.",
+  "securityActivityNone": "Nothing yet.",
+  "securityCurrentPassword": "Current password",
+  "securityNewPassword": "New password",
+  "securityCurrentNeeded": "Enter your current password.",
+  "securityCurrentWrong": "The current password is not right.",
+  "securitySamePassword": "Choose a password different from the current one.",
+  "securityOthersSignedOut": "Other browsers and apps signed in to this account will be signed out.",
+  "securityChangeFailed": "Could not change the password ({code}).",
+  "@securityChangeFailed": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "activitySignedIn": "Signed in",
+  "activitySignInFailed": "Failed sign-in",
+  "activityLocked": "Sign-in blocked (too many tries)",
+  "activityPasswordChanged": "Password changed",
+  "activityResetAsked": "Password reset code asked for",
+  "activityReset": "Password reset with a code",
+  "activitySessionEnded": "A sign-in was signed out",
+  "activitySessionsEnded": "Signed out everywhere else",
+  "activityTokenReuse": "An old sign-in was reused and stopped",
+  "activitySwitched": "Switched side",
+  "resetIntro": "Enter the email you sign in with. We send a 6-digit code to set a new password. Until email is set up, your IT admin sees the code and gives it to you.",
+  "resetCodeSent": "If this account exists, a code is on its way (or with your IT admin). It works for 15 minutes.",
+  "resetCode": "6-digit code",
+  "resetSendCode": "Send code",
+  "resetSendAgain": "Send again",
+  "resetSetPassword": "Set new password",
+  "resetWrongCode": "That code is not right or has expired.",
+  "resetDone": "Password changed. Sign in with your new password.",
+  "accountSecurityTitle": "Password and sign-ins",
+  "accountPasswordSave": "Change password"
 }

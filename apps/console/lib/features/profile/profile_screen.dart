@@ -16,6 +16,7 @@ import '../../app/session.dart';
 import '../../l10n/app_localizations.dart';
 import '../admin/area_picker.dart';
 import 'identity.dart';
+import 'security.dart';
 import '../research/research_mode.dart';
 
 ProfileClient _profile(WidgetRef ref) =>
@@ -444,6 +445,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     child: Text(l10n.joinMenu(sideName(names, side.other))),
                   ),
           ),
+        // Password, where you are signed in, recent activity (2026-10-29).
+        const Divider(height: 24),
+        const AccountSecurity(),
         const Divider(height: 24),
         Text(l10n.profileAccount, style: text.titleMedium),
         ListTile(

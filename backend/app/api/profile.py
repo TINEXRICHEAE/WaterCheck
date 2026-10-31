@@ -104,7 +104,7 @@ class CodeToPass(BaseModel):
     """A confirmation code an IT admin passes on (ADR-024/025)."""
 
     id: UUID
-    kind: Literal["contact", "sign_out_devices"]
+    kind: Literal["contact", "sign_out_devices", "password_reset"]
     who: str
     user_id: UUID | None
     collector_key: UUID | None
@@ -643,6 +643,31 @@ async def codes_to_pass(admin: AdminDep, db: DbDep, side: SideFilter = None) -> 
                 expires_at=r.expires_at,
             )
             for r in devices
+        ]
+        # Forgotten passwords (2026-10-29), until codes are emailed.
+        resets = await conn.execute(
+            text(
+                "SELECT r.id, r.user_id, r.code, r.created_at, r.expires_at, "
+                "coalesce(wc_user_label(r.user_id), '?') AS who, u.username "
+                "FROM password_reset r JOIN app_user u ON u.id = r.user_id "
+                "WHERE r.used_at IS NULL AND r.expires_at > now() AND r.attempts < :max "
+                "AND (CAST(:side AS text) IS NULL OR u.side IN (:side, 'all'))"
+            ),
+            {"max": MAX_ATTEMPTS, "side": side},
+        )
+        out += [
+            CodeToPass(
+                id=r.id,
+                kind="password_reset",
+                who=r.who,
+                user_id=r.user_id,
+                collector_key=None,
+                detail=f"new password for {r.username}",
+                code=r.code,
+                created_at=r.created_at,
+                expires_at=r.expires_at,
+            )
+            for r in resets
         ]
     return sorted(out, key=lambda c: c.created_at, reverse=True)
 

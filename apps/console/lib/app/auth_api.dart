@@ -50,6 +50,17 @@ abstract interface class ConsoleAuthApi {
   Future<void> logout(String? refreshToken);
   Future<void> passwordHelp(String username);
 
+  /// A code to set a new password without the old one (2026-10-29).
+  Future<void> requestReset(String username, AppSide side);
+
+  /// Sets the new password with the code; the person then signs in.
+  Future<void> confirmReset(
+    String username,
+    AppSide side,
+    String code,
+    String newPassword,
+  );
+
   /// Which channels may reach this user (in-app is always on).
   Future<void> setPreferences(
     String accessToken, {
@@ -215,6 +226,36 @@ class HttpConsoleAuthApi implements ConsoleAuthApi {
   @override
   Future<void> passwordHelp(String username) => _call(
     () => _client().passwordHelp(body: PasswordHelpRequest(username: username)),
+  );
+
+  AccountClient get _account => WaterCheckApi(_dioFor(baseUrl)).account;
+
+  static ResetRequestSide _resetSide(AppSide side) => side == AppSide.research
+      ? ResetRequestSide.research
+      : ResetRequestSide.water;
+
+  @override
+  Future<void> requestReset(String username, AppSide side) => _call(
+    () => _account.requestPasswordReset(
+      body: ResetRequest(username: username, side: _resetSide(side)),
+    ),
+  );
+
+  @override
+  Future<void> confirmReset(
+    String username,
+    AppSide side,
+    String code,
+    String newPassword,
+  ) => _call(
+    () => _account.confirmPasswordReset(
+      body: ResetConfirm(
+        username: username,
+        side: ResetConfirmSide.values.byName(_resetSide(side).name),
+        code: code,
+        newPassword: newPassword,
+      ),
+    ),
   );
 
   @override

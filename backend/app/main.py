@@ -11,6 +11,7 @@ from starlette.middleware.gzip import GZipMiddleware
 
 from app import __version__
 from app.api import (
+    account,
     admin,
     admin_archive,
     admin_config,
@@ -89,6 +90,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.state.store = None
     app.include_router(health.router)
     app.include_router(auth.router)
+    app.include_router(account.router)
     app.include_router(installations.router)
     app.include_router(reference.router)
     app.include_router(research.router)

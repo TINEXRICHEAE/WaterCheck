@@ -41,6 +41,16 @@ class AuthError(Exception):
 
 
 @dataclass(frozen=True)
+class Device:
+    """Where a sign-in comes from, kept with its session (2026-10-29)."""
+
+    user_agent: str | None = None
+    ip: str | None = None
+    # 'web' (the browser Console) or 'app' (Windows, Android).
+    client: str | None = None
+
+
+@dataclass(frozen=True)
 class TokenPair:
     access_token: str
     refresh_token: str
@@ -54,17 +64,23 @@ class AuthService:
         self.settings = settings
 
     async def login(
-        self, username: str, password: str, *, side: str = "water", ip: str | None = None
+        self,
+        username: str,
+        password: str,
+        *,
+        side: str = "water",
+        ip: str | None = None,
+        device: Device | None = None,
     ) -> TokenPair:
         # Failures are recorded (attempt counts, audit) and committed before
         # the error is raised; raising inside the transaction would roll back.
-        outcome = await self._login(username, password, side, ip)
+        outcome = await self._login(username, password, side, ip, device)
         if isinstance(outcome, str):
             raise AuthError(outcome)
         return outcome
 
     async def _login(
-        self, username: str, password: str, side: str, ip: str | None
+        self, username: str, password: str, side: str, ip: str | None, device: Device | None
     ) -> TokenPair | str:
         now = utcnow()
         async with self.db.transaction(Principal.auth()) as conn:
@@ -111,21 +127,22 @@ class AuthService:
                 {"now": now, "id": user.id},
             )
             await _audit(conn, user.id, "auth.login", ip)
-            return await self._issue(conn, user.id, family_id=uuid4(), now=now)
+            return await self._issue(conn, user.id, family_id=uuid4(), now=now, device=device)
 
-    async def refresh(self, refresh_token: str) -> TokenPair:
-        outcome = await self._refresh(refresh_token)
+    async def refresh(self, refresh_token: str, device: Device | None = None) -> TokenPair:
+        outcome = await self._refresh(refresh_token, device)
         if isinstance(outcome, str):
             raise AuthError(outcome)
         return outcome
 
-    async def _refresh(self, refresh_token: str) -> TokenPair | str:
+    async def _refresh(self, refresh_token: str, device: Device | None) -> TokenPair | str:
         now = utcnow()
         async with self.db.transaction(Principal.auth()) as conn:
             row = (
                 await conn.execute(
                     text(
-                        "SELECT id, user_id, family_id, expires_at, used_at, revoked_at "
+                        "SELECT id, user_id, family_id, expires_at, used_at, revoked_at, "
+                        "user_agent, host(ip) AS ip, client "
                         "FROM refresh_token WHERE token_hash = :h"
                     ),
                     {"h": token_hash(refresh_token)},
@@ -150,9 +167,19 @@ class AuthService:
                 text("UPDATE refresh_token SET used_at = :now WHERE id = :id"),
                 {"now": now, "id": row.id},
             )
-            return await self._issue(conn, row.user_id, family_id=row.family_id, now=now)
+            # The session keeps its device; the address is the latest one.
+            kept = Device(
+                user_agent=(device and device.user_agent) or row.user_agent,
+                ip=(device and device.ip) or row.ip,
+                client=(device and device.client) or row.client,
+            )
+            return await self._issue(
+                conn, row.user_id, family_id=row.family_id, now=now, device=kept
+            )
 
-    async def change_password(self, user_id: UUID, current: str, new: str) -> TokenPair:
+    async def change_password(
+        self, user_id: UUID, current: str, new: str, device: Device | None = None
+    ) -> TokenPair:
         async with self.db.transaction(Principal.auth()) as conn:
             policy = await security_policy(conn, self.settings)
         problem = password_problem(new, policy.password_min_length)
@@ -185,8 +212,8 @@ class AuthService:
                 ),
                 {"now": now, "id": user_id},
             )
-            await _audit(conn, user_id, "auth.password_changed", None)
-            return await self._issue(conn, user_id, family_id=uuid4(), now=now)
+            await _audit(conn, user_id, "auth.password_changed", device.ip if device else None)
+            return await self._issue(conn, user_id, family_id=uuid4(), now=now, device=device)
 
     async def logout(self, refresh_token: str) -> None:
         async with self.db.transaction(Principal.auth()) as conn:
@@ -211,7 +238,9 @@ class AuthService:
             if user_id is not None:
                 await _audit(conn, user_id, "auth.password_help_requested", ip)
 
-    async def register(self, new: Registration, *, ip: str | None = None) -> TokenPair:
+    async def register(
+        self, new: Registration, *, ip: str | None = None, device: Device | None = None
+    ) -> TokenPair:
         """Open sign-up on a side (ADR-031): the account works at once, with
         that side's Privacy Policy and Terms accepted."""
         async with self.db.transaction(Principal.auth()) as conn:
@@ -254,10 +283,17 @@ class AuthService:
                 how="signup",
                 ip=ip,
             )
-            return await self._issue(conn, user_id, family_id=uuid4(), now=now)
+            return await self._issue(conn, user_id, family_id=uuid4(), now=now, device=device)
 
     async def join(
-        self, user_id: UUID, side: str, password: str, accepted_legal: int, *, ip: str | None = None
+        self,
+        user_id: UUID,
+        side: str,
+        password: str,
+        accepted_legal: int,
+        *,
+        ip: str | None = None,
+        device: Device | None = None,
     ) -> TokenPair:
         """A person signed in on one side opens an account on another with the
         same email and password (confirmed again), after accepting that
@@ -324,9 +360,11 @@ class AuthService:
                 await record_acceptance(
                     conn, user_id=linked, side=side, version=accepted_legal, how="join", ip=ip
                 )
-            return await self._issue(conn, linked, family_id=uuid4(), now=now)
+            return await self._issue(conn, linked, family_id=uuid4(), now=now, device=device)
 
-    async def switch(self, user_id: UUID, side: str, *, ip: str | None = None) -> TokenPair:
+    async def switch(
+        self, user_id: UUID, side: str, *, ip: str | None = None, device: Device | None = None
+    ) -> TokenPair:
         """Signs in to the same person's linked account on another side."""
         now = utcnow()
         async with self.db.transaction(Principal.auth()) as conn:
@@ -343,10 +381,16 @@ class AuthService:
             if target is None:
                 raise AuthError("not_on_side")
             await _audit(conn, target, f"auth.switched.{side}", ip)
-            return await self._issue(conn, target, family_id=uuid4(), now=now)
+            return await self._issue(conn, target, family_id=uuid4(), now=now, device=device)
 
     async def _issue(
-        self, conn: AsyncConnection, user_id: UUID, *, family_id: UUID, now: datetime
+        self,
+        conn: AsyncConnection,
+        user_id: UUID,
+        *,
+        family_id: UUID,
+        now: datetime,
+        device: Device | None = None,
     ) -> TokenPair:
         user = (
             await conn.execute(
@@ -363,8 +407,8 @@ class AuthService:
         refresh = new_token()
         await conn.execute(
             text(
-                "INSERT INTO refresh_token (id, user_id, family_id, token_hash, expires_at) "
-                "VALUES (:id, :u, :f, :h, :e)"
+                "INSERT INTO refresh_token (id, user_id, family_id, token_hash, expires_at, "
+                "user_agent, ip, client) VALUES (:id, :u, :f, :h, :e, :ua, CAST(:ip AS inet), :cl)"
             ),
             {
                 "id": uuid4(),
@@ -372,6 +416,9 @@ class AuthService:
                 "f": family_id,
                 "h": token_hash(refresh),
                 "e": now + timedelta(days=self.settings.refresh_token_days),
+                "ua": (device.user_agent or "")[:300] or None if device else None,
+                "ip": _valid_ip(device.ip) if device else None,
+                "cl": device.client if device else None,
             },
         )
         access = issue_access_token(
@@ -382,6 +429,7 @@ class AuthService:
                 scope_units=scope,
                 must_change_password=user.must_change_password,
                 side=user.side,
+                session_id=family_id,
             ),
             now,
         )
@@ -434,11 +482,20 @@ async def record_acceptance(
     )
 
 
+def _valid_ip(ip: str | None) -> str | None:
+    import ipaddress
+
+    try:
+        return str(ipaddress.ip_address(ip)) if ip else None
+    except ValueError:
+        return None
+
+
 async def _audit(conn: AsyncConnection, user_id: UUID | None, action: str, ip: str | None) -> None:
     await conn.execute(
         text(
             "INSERT INTO audit_log (actor_id, platform, action, entity, entity_id, ip) "
             "VALUES (:u, 'console', :a, 'app_user', :u, CAST(:ip AS inet))"
         ),
-        {"u": user_id, "a": action, "ip": ip},
+        {"u": user_id, "a": action, "ip": _valid_ip(ip)},
     )

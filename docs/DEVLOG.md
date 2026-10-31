@@ -1285,3 +1285,81 @@ Decisions are also recorded in [PLAN.md](PLAN.md) (decisions log and §3a), the 
   - security job: `pip-audit --strict` (no known vulnerabilities, `maxminddb` included);
   - all pass.
 
+### 57. Deployed to production, old artifacts cleaned (2026-10-29)
+- **Request (lead):** the GitHub checks passed; deploy, and clean up artifacts no longer used, the low-cost VM included.
+- **Deployed `047c2dd`** (production had been at `e0d6aef`, DEVLOG 44–45):
+  - **Database:** backed up first (`~/backups/watercheck-20261029-0707-before-0024.dump`); migrations 0018–0024 applied, with all data kept (3 accounts, 7 tests) and the research samples loaded.
+  - **Docker names:** moved from the `watercheck` Compose project to `fieldquire`. The new images were built while the old stack kept serving, then switched over; the volumes keep their names and data.
+  - **City database:** DB-IP Lite fetched on the VM; `/v1/places/ip-location` answers.
+  - **Web apps:**
+    - the Console (`/`) and Collect (`/collect/`) were built for production, uploaded with matching checksums, and swapped in, keeping the previous build as `web.old`;
+    - Caddy was recreated;
+    - the live `main.dart.js` files match the builds.
+  - **Live and answering:**
+    - `fieldquire.cooptconnect.app`;
+    - `watercheck.fieldquire.cooptconnect.app` (with `/collect/` and `/api/health`);
+    - `research.fieldquire.cooptconnect.app`;
+    - `api.watercheck.fieldquire.cooptconnect.app`.
+- **Old names:** `watercheck.cooptconnect.app` and `api.watercheck.cooptconnect.app` no longer point to the VM in DNS. They resolve to a private address, so they do not answer; this was not caused by the deploy. Apps using the new names are unaffected.
+- **Cleaned:**
+  - **VM:**
+    - the old `watercheck-*` images, `hello-world` and the Docker build cache (about 1.8 GB);
+    - the Oct 25 `web.old` folders, and the uploaded archives;
+    - VM disk: 19 GB free of 29 GB.
+  - **Local:** the production build copies and archives (including the older blocked-upload packages), then `tools/cleanup.ps1`.
+- **Left for the lead (blocked by the permission check):**
+  - the VM's apt cache (112 MB) and system journal (178 MB, to trim to 100 MB);
+  - the three oldest small database backups (23–24 Oct), superseded by today's full dump.
+
+### 58. The project's household forms in production, under the lead's account (2026-10-29)
+- **Request (lead):**
+  - create the household forms made for the CHS4102 proposal in production, under the lead's new Console account (tinexnox@gmail.com) as creator, named after the proposal;
+  - the lead starts using the app for the project and will add colleagues as collectors.
+- **Outcome**, through the production API, signed in as that account:
+  - **The project:**
+    - code `CHS4102` (`ENT` is the samples' project);
+    - titled after the proposal ("Clear Water Is Not Always Safe Water: Promoting Water Treatment to Prevent Diarrheal Illnesses in Entebbe Village, Abim District");
+    - described by its scope;
+    - the account is its owner.
+  - **Forms:** HQ Household Questionnaire, LOG Household Demonstration and Supply Log, OC Observation Checklist.
+    - Made from the proposal's definitions (`backend/app/research/samples/`).
+    - Each published as version 1, credited to the account; numbering typed.
+    - Private, open to assigned collectors only.
+  - **Password:** the account's password was used for the one sign-in only and not stored; the lead will change it.
+
+### 59. Production IT admin; password and sign-in security in the Console profile (2026-10-29)
+- **Request (lead):**
+  - a production Console IT admin account for ocenrichard34@gmail.com;
+  - the profiles have no way to change the password: start the dev-test-prod cycle for it and for the account features conventionally expected;
+  - the lead chose four: change password, where you're signed in, forgot password with a code, and recent account activity.
+- **Production account:**
+  - made with the admin CLI;
+  - its one-time password was used once (never printed) to set the lead's chosen password, as the first sign-in requires;
+  - it now signs in normally (IT admin, both sides).
+- **Audit before building:**
+  - the server could already change a password (signing out every other session), but the screen was only reached after a temporary password;
+  - "forgot password" only asked an IT admin;
+  - sign-ins recorded no device;
+  - sign-ins logged Caddy's address instead of the caller's;
+  - production email still goes to the internal catcher (mailpit), with no SMS.
+- **Outcome (on dev, not yet committed):**
+  - **Sessions (migration 0025):**
+    - each sign-in keeps the browser or app it came from and its latest address;
+    - access tokens name their session (`sid`);
+    - the caller's real address (X-Forwarded-For) is used for sign-ins and the audit log.
+  - **Profile › Password and sign-ins:**
+    - "Change password": the current password, then the new one twice, with the rule shown and the button active only when valid; other sign-ins end and this one carries on;
+    - "Where you're signed in": each session with its device, place, address and times; sign out one, or "Sign out everywhere else";
+    - "Recent account activity" (folded): sign-ins, failed or blocked sign-ins, password changes and resets, sessions ended.
+  - **Forgot password with a code:**
+    - the email first;
+    - a 6-digit code (one at a time, 15 minutes, a fresh one only after 60 seconds, 5 tries) goes to the email when email is set up, and shows to IT admins on "Codes to pass on" meanwhile;
+    - then the code and the new password twice;
+    - every sign-in of the account ends;
+    - unknown accounts get the same answer.
+  - **Fixed along the way:** new string keys briefly overwrote the IT admin "Sign-in security" page's title and Save button; restored, and new strings now use their own names.
+- **Tests:**
+  - backend all passing (new: sessions with their device, signing out one and all others, activity, reset by code), with ruff, ruff format and mypy over app and tests clean;
+  - Console 51 (the forgot-password test now goes through the code flow);
+  - CI format check and `dart analyze --fatal-infos` clean.
+

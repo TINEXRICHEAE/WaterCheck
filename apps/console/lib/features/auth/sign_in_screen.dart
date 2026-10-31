@@ -7,6 +7,7 @@ import 'package:ui_kit/ui_kit.dart';
 import '../../app/session.dart';
 import '../../l10n/app_localizations.dart';
 import '../research/research_mode.dart';
+import 'reset_password.dart';
 
 String signInError(AppLocalizations l10n, ApiFailure f) => switch (f.code) {
   'invalid_credentials' => l10n.signInWrong,
@@ -147,23 +148,21 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
     }
   }
 
+  /// Forgotten password (2026-10-29): a code to the person (or to IT
+  /// admins to pass on, until email is set up), then a new password.
   Future<void> _forgot() async {
     final l10n = AppLocalizations.of(context);
-    final username = await showDialog<String>(
+    final done = await showDialog<bool>(
       context: context,
-      builder: (_) => _ForgotDialog(initial: _username.text),
+      barrierDismissible: false,
+      builder: (_) => ResetPasswordDialog(
+        initial: _username.text,
+        side: ref.read(consoleModeProvider).side,
+      ),
     );
-    if (username == null || username.isEmpty || !mounted) return;
-    String message;
-    try {
-      await ref.read(sessionProvider.notifier).requestPasswordHelp(username);
-      message = l10n.forgotSent;
-    } on ApiFailure catch (e) {
-      message = e.isOffline ? l10n.signInOffline : l10n.forgotFailed;
-    }
-    if (mounted) {
+    if (done == true && mounted) {
       ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(message)));
+          .showSnackBar(SnackBar(content: Text(l10n.resetDone)));
     }
   }
 
@@ -233,54 +232,6 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
 }
 
 /// Asks for the username to send to the IT admin; returns it, or null.
-class _ForgotDialog extends StatefulWidget {
-  const _ForgotDialog({required this.initial});
-
-  final String initial;
-
-  @override
-  State<_ForgotDialog> createState() => _ForgotDialogState();
-}
-
-class _ForgotDialogState extends State<_ForgotDialog> {
-  late final _name = TextEditingController(text: widget.initial);
-
-  @override
-  void dispose() {
-    _name.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    return AlertDialog(
-      title: Text(l10n.forgotTitle),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(l10n.forgotBody),
-          const SizedBox(height: 12),
-          TextField(
-            controller: _name,
-            decoration: InputDecoration(labelText: l10n.signInUsername),
-          ),
-        ],
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text(l10n.cancel),
-        ),
-        FilledButton(
-          onPressed: () => Navigator.pop(context, _name.text.trim()),
-          child: Text(l10n.forgotSend),
-        ),
-      ],
-    );
-  }
-}
-
 /// First sign-in with a temporary password: choose a new one (F-AUTH-1).
 class ChangePasswordScreen extends ConsumerStatefulWidget {
   const ChangePasswordScreen({super.key});

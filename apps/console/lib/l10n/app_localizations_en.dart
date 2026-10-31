@@ -4450,4 +4450,146 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get researchOpenRecord => 'Open the record';
+
+  @override
+  String get securityChangePassword => 'Change password';
+
+  @override
+  String get securityChangePasswordHint =>
+      'Your other sign-ins end; this one stays.';
+
+  @override
+  String get securityPasswordChanged =>
+      'Password changed. Other sign-ins were signed out.';
+
+  @override
+  String get securitySessions => 'Where you\'re signed in';
+
+  @override
+  String get securitySessionsHint =>
+      'Each browser or app signed in to this account. Sign out any you don\'t recognise, then change your password.';
+
+  @override
+  String get securitySignOutOthers => 'Sign out everywhere else';
+
+  @override
+  String get securitySignOutOthersBody =>
+      'Every other browser and app signed in to this account will be signed out. They can sign in again with your password.';
+
+  @override
+  String get securitySignOutThis => 'Sign out this one';
+
+  @override
+  String get securitySignInAgainFirst =>
+      'Sign out and in again once, then try this.';
+
+  @override
+  String get securityThisOne => 'this one';
+
+  @override
+  String securityLastUsed(String when) {
+    return 'last used $when';
+  }
+
+  @override
+  String securitySince(String when) {
+    return 'signed in $when';
+  }
+
+  @override
+  String get securityActivity => 'Recent account activity';
+
+  @override
+  String get securityActivityHint =>
+      'Sign-ins and password changes, newest first.';
+
+  @override
+  String get securityActivityNone => 'Nothing yet.';
+
+  @override
+  String get securityCurrentPassword => 'Current password';
+
+  @override
+  String get securityNewPassword => 'New password';
+
+  @override
+  String get securityCurrentNeeded => 'Enter your current password.';
+
+  @override
+  String get securityCurrentWrong => 'The current password is not right.';
+
+  @override
+  String get securitySamePassword =>
+      'Choose a password different from the current one.';
+
+  @override
+  String get securityOthersSignedOut =>
+      'Other browsers and apps signed in to this account will be signed out.';
+
+  @override
+  String securityChangeFailed(String code) {
+    return 'Could not change the password ($code).';
+  }
+
+  @override
+  String get activitySignedIn => 'Signed in';
+
+  @override
+  String get activitySignInFailed => 'Failed sign-in';
+
+  @override
+  String get activityLocked => 'Sign-in blocked (too many tries)';
+
+  @override
+  String get activityPasswordChanged => 'Password changed';
+
+  @override
+  String get activityResetAsked => 'Password reset code asked for';
+
+  @override
+  String get activityReset => 'Password reset with a code';
+
+  @override
+  String get activitySessionEnded => 'A sign-in was signed out';
+
+  @override
+  String get activitySessionsEnded => 'Signed out everywhere else';
+
+  @override
+  String get activityTokenReuse => 'An old sign-in was reused and stopped';
+
+  @override
+  String get activitySwitched => 'Switched side';
+
+  @override
+  String get resetIntro =>
+      'Enter the email you sign in with. We send a 6-digit code to set a new password. Until email is set up, your IT admin sees the code and gives it to you.';
+
+  @override
+  String get resetCodeSent =>
+      'If this account exists, a code is on its way (or with your IT admin). It works for 15 minutes.';
+
+  @override
+  String get resetCode => '6-digit code';
+
+  @override
+  String get resetSendCode => 'Send code';
+
+  @override
+  String get resetSendAgain => 'Send again';
+
+  @override
+  String get resetSetPassword => 'Set new password';
+
+  @override
+  String get resetWrongCode => 'That code is not right or has expired.';
+
+  @override
+  String get resetDone => 'Password changed. Sign in with your new password.';
+
+  @override
+  String get accountSecurityTitle => 'Password and sign-ins';
+
+  @override
+  String get accountPasswordSave => 'Change password';
 }

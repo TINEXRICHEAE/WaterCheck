@@ -34,4 +34,5 @@ Map<String, dynamic> _$CodeToPassToJson(CodeToPass instance) =>
 const _$CodeToPassKindEnumMap = {
   CodeToPassKind.contact: 'contact',
   CodeToPassKind.signOutDevices: 'sign_out_devices',
+  CodeToPassKind.passwordReset: 'password_reset',
 };

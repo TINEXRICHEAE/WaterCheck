@@ -29,6 +29,8 @@ class Principal:
     scope_units: tuple[UUID, ...] = field(default_factory=tuple)
     # The Console account's side (ADR-031): 'water', 'research' or 'all'.
     side: str | None = None
+    # The account's current sign-in (2026-10-29).
+    session_id: UUID | None = None
 
     @property
     def is_admin(self) -> bool:

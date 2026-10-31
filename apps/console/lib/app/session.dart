@@ -284,6 +284,19 @@ class SessionController extends Notifier<ConsoleSession> {
     await _finishSignIn();
   }
 
+  /// Changes the password from the profile (2026-10-29): every other
+  /// sign-in ends; this one carries on with fresh tokens. Throws
+  /// [ApiFailure] ('invalid_credentials' for a wrong current password).
+  Future<void> changeMyPassword(String current, String replacement) async {
+    final access = await accessToken();
+    if (access == null) throw const ApiFailure(ApiFailure.offline);
+    final t = await _api.changePassword(access, current, replacement);
+    _tokens.accept(t, clock());
+    if (_native && _tokens.refresh != null && state.me != null) {
+      await _store.save(_tokens.refresh!, state.me!);
+    }
+  }
+
   Future<void> _finishSignIn() async {
     final me = await _api.me(_tokens.access!);
     if (!_native) {
@@ -507,6 +520,17 @@ class SessionController extends Notifier<ConsoleSession> {
   /// "Forgot password": asks the IT admin. Throws [ApiFailure] if offline.
   Future<void> requestPasswordHelp(String username) =>
       _api.passwordHelp(username.trim());
+
+  /// Forgotten password: a reset code, then the new password with it.
+  Future<void> requestReset(String username, AppSide side) =>
+      _api.requestReset(username.trim(), side);
+
+  Future<void> confirmReset(
+    String username,
+    AppSide side,
+    String code,
+    String newPassword,
+  ) => _api.confirmReset(username.trim(), side, code.trim(), newPassword);
 }
 
 const consoleLockKey = 'watercheck.console.lock.v1';

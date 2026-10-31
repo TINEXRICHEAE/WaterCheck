@@ -51,6 +51,7 @@ def _user_principal(
         role=claims.role,
         scope_units=claims.scope_units,
         side=claims.side,
+        session_id=claims.session_id,
     )
 
 

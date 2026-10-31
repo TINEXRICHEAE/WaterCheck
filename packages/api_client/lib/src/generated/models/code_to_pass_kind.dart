@@ -9,7 +9,9 @@ enum CodeToPassKind {
   @JsonValue('contact')
   contact('contact'),
   @JsonValue('sign_out_devices')
-  signOutDevices('sign_out_devices');
+  signOutDevices('sign_out_devices'),
+  @JsonValue('password_reset')
+  passwordReset('password_reset');
 
   const CodeToPassKind(this.json);
 

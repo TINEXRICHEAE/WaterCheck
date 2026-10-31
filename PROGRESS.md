@@ -23,7 +23,7 @@ deployment and cache versioning.
   - research map tools;
   - location on computers: their own reading first, the internet guess only as a fallback, set by hand anywhere and marked;
   - FieldQuire Docker names.
-- [ ] Production upload of the web apps (needs the lead's go-ahead).
+- [x] Deployed to production `047c2dd` (DEVLOG 57, 2026-10-29): migrations to 0024, `fieldquire` Docker project, new web apps.
 
 ## Round 2: anywhere in Uganda (2026-10-22, ADR-019) 🔄
 
