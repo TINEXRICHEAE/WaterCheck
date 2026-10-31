@@ -662,6 +662,40 @@ void main() {
       await repo.deactivate(first.collectorKey);
       expect(await repo.watchActive().first, isEmpty);
     });
+
+    test('saves are queued for the server with their details', () async {
+      final repo = DriftCollectorProfileRepository(db, clock: fixedClock);
+      const input = CollectorProfileInput(
+        fullName: 'New Person',
+        phone: '+256700000001',
+        collectorType: 'vht',
+        village: 'V',
+        parish: 'P',
+        subcounty: 'S',
+        district: 'Abim',
+        side: AppSide.research,
+      );
+      final made = await repo.save(input);
+      await repo.save(input, key: made.collectorKey);
+      await repo.send(made.collectorKey);
+      final queued = await (db.select(
+        db.outbox,
+      )..where((o) => o.entity.equals('collector_profile'))).get();
+      expect(queued.map((o) => o.op), ['insert', 'update', 'update']);
+      final payload = jsonDecode(queued.first.payload) as Map;
+      expect(payload['collector_key'], made.collectorKey);
+      final snapshot = jsonDecode(payload['collector_snapshot'] as String);
+      expect((snapshot as Map)['side'], 'research');
+      expect(queued.map((o) => o.entityId).toSet(), {made.collectorKey});
+      // Only profiles never queued are caught up.
+      await repo.sendNeverSent();
+      expect(
+        await (db.select(
+          db.outbox,
+        )..where((o) => o.entity.equals('collector_profile'))).get(),
+        hasLength(3),
+      );
+    });
   });
 
   group('local settings', () {

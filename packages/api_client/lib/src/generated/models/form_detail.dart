@@ -29,6 +29,7 @@ class FormDetail {
     required this.projectTitle,
     required this.clonedFrom,
     this.canManage = false,
+    this.canShare = false,
     this.canEdit = false,
     this.editors = const [],
     this.draft,
@@ -64,6 +65,8 @@ class FormDetail {
   final String? accessCode;
   @JsonKey(name: 'can_manage')
   final bool canManage;
+  @JsonKey(name: 'can_share')
+  final bool canShare;
   @JsonKey(name: 'project_title')
   final String projectTitle;
   @JsonKey(name: 'cloned_from')

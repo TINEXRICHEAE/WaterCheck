@@ -449,7 +449,7 @@ class _ResearchFormScreenState extends ConsumerState<ResearchFormScreen> {
     final text = Theme.of(context).textTheme;
     return switch (ref.watch(formDetailProvider(widget.formId))) {
       AsyncData(value: final form) => DefaultTabController(
-        length: form.canManage ? 4 : 3,
+        length: form.canShare ? 4 : 3,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -575,7 +575,7 @@ class _ResearchFormScreenState extends ConsumerState<ResearchFormScreen> {
               isScrollable: true,
               tabs: [
                 Tab(text: l10n.researchTabQuestions),
-                if (form.canManage) Tab(text: l10n.researchTabAccess),
+                if (form.canShare) Tab(text: l10n.researchTabAccess),
                 Tab(text: l10n.researchTabVersions),
                 Tab(text: l10n.researchTabPreview),
               ],
@@ -593,7 +593,7 @@ class _ResearchFormScreenState extends ConsumerState<ResearchFormScreen> {
                       ),
                     ],
                   ),
-                  if (form.canManage) _AccessTab(form: form),
+                  if (form.canShare) _AccessTab(form: form),
                   _VersionsTab(form: form),
                   _PreviewTab(definition: _edited ?? _definitionOf(form)),
                 ],

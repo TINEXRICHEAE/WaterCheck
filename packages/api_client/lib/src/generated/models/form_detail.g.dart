@@ -25,6 +25,7 @@ FormDetail _$FormDetailFromJson(Map<String, dynamic> json) => FormDetail(
   projectTitle: json['project_title'] as String,
   clonedFrom: json['cloned_from'] as String?,
   canManage: json['can_manage'] as bool? ?? false,
+  canShare: json['can_share'] as bool? ?? false,
   canEdit: json['can_edit'] as bool? ?? false,
   editors:
       (json['editors'] as List<dynamic>?)
@@ -56,6 +57,7 @@ Map<String, dynamic> _$FormDetailToJson(FormDetail instance) =>
       'draft': instance.draft,
       'access_code': instance.accessCode,
       'can_manage': instance.canManage,
+      'can_share': instance.canShare,
       'project_title': instance.projectTitle,
       'cloned_from': instance.clonedFrom,
       'can_edit': instance.canEdit,

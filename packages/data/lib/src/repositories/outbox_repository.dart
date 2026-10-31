@@ -52,6 +52,10 @@ Map<String, Object?> unsyncedExportContent({
   ],
 };
 
+/// Sent like records but not records: a tester's details (2026-10-31) go
+/// again with each record, so they are not counted, listed or exported.
+const _notRecords = ['collector_profile'];
+
 class DriftOutboxRepository implements OutboxRepository {
   DriftOutboxRepository(this._db);
 
@@ -62,6 +66,7 @@ class DriftOutboxRepository implements OutboxRepository {
     final count = _db.outbox.id.count();
     final query = _db.selectOnly(_db.outbox)
       ..addColumns([_db.outbox.status, count])
+      ..where(_db.outbox.entity.isNotIn(_notRecords))
       ..groupBy([_db.outbox.status]);
     final last = _db.syncState.lastSuccessAt.max();
     final lastQuery = _db.selectOnly(_db.syncState)..addColumns([last]);
@@ -89,7 +94,10 @@ class DriftOutboxRepository implements OutboxRepository {
   @override
   Stream<List<OutboxRow>> watchRejected() =>
       (_db.select(_db.outbox)
-            ..where((t) => t.status.equals('rejected'))
+            ..where(
+              (t) =>
+                  t.status.equals('rejected') & t.entity.isNotIn(_notRecords),
+            )
             ..orderBy([(t) => OrderingTerm.desc(t.id)]))
           .watch();
 
@@ -112,7 +120,11 @@ class DriftOutboxRepository implements OutboxRepository {
   @override
   Future<List<OutboxRow>> unsynced() =>
       (_db.select(_db.outbox)
-            ..where((t) => t.status.isNotIn(const ['sent']))
+            ..where(
+              (t) =>
+                  t.status.isNotIn(const ['sent']) &
+                  t.entity.isNotIn(_notRecords),
+            )
             ..orderBy([(t) => OrderingTerm(expression: t.id)]))
           .get();
 }

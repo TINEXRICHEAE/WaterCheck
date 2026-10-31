@@ -228,6 +228,7 @@ class SyncController extends Notifier<SyncUiState> {
     if (sync == null) return null;
     state = SyncUiState(running: true, last: state.last);
     try {
+      await _sendProfilesOnce();
       final report = await sync.run(force: force);
       if (report.failure?.code == 'installation_revoked') {
         await ref.read(installationStoreProvider).markRevoked();
@@ -245,6 +246,16 @@ class SyncController extends Notifier<SyncUiState> {
       if (ref.mounted) state = SyncUiState(last: state.last);
       rethrow;
     }
+  }
+
+  /// Testers added before profiles were sent on their own (2026-10-31)
+  /// reach the server once, without waiting for their first record.
+  Future<void> _sendProfilesOnce() async {
+    const done = 'sync.profiles_sent';
+    final settings = ref.read(localSettingsRepositoryProvider);
+    if (await settings.read(done) != null) return;
+    await ref.read(collectorProfileRepositoryProvider).sendNeverSent();
+    await settings.write(done, '1');
   }
 
   /// Research access as it is now on the server (2026-10-27): forms this

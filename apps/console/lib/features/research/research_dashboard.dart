@@ -534,7 +534,7 @@ class ResearchTeamScreen extends ConsumerWidget {
                   ),
                   title: Text(m.name ?? '?'),
                   subtitle: Text(_role(l10n, m.role)),
-                  trailing: p.canLead && m.role != 'owner'
+                  trailing: p.canChangeTeam && m.role != 'owner'
                       ? IconButton(
                           tooltip: l10n.researchRemove,
                           icon: const Icon(Icons.person_remove_outlined),
@@ -568,7 +568,7 @@ class ResearchTeamScreen extends ConsumerWidget {
             ],
           ),
         ),
-        if (p.canLead) ...[
+        if (p.canChangeTeam) ...[
           const SizedBox(height: 8),
           Align(
             alignment: Alignment.centerLeft,

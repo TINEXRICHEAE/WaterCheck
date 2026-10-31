@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:domain/domain.dart';
 import 'package:drift/drift.dart';
 
@@ -28,6 +30,15 @@ abstract interface class CollectorProfileRepository {
   Future<void> link(String a, String b);
 
   Future<CollectorSnapshot?> byKey(String collectorKey);
+
+  /// Queues [collectorKey]'s details for the server (2026-10-31): saves and
+  /// accepted documents do it themselves; this re-sends, for profiles made
+  /// before profiles were sent on their own.
+  Future<void> send(String collectorKey);
+
+  /// Queues the active profiles never queued before (made before profiles
+  /// were sent on their own).
+  Future<void> sendNeverSent();
 }
 
 class CollectorProfileInput {
@@ -120,39 +131,78 @@ class DriftCollectorProfileRepository implements CollectorProfileRepository {
           .map((rows) => rows.map(_snapshot).toList());
 
   @override
-  Future<CollectorSnapshot> save(CollectorProfileInput input, {String? key}) =>
-      _db.transaction(() async {
-        final existing = key == null ? null : await _row(key);
-        if (key != null && existing == null) {
-          throw ArgumentError.value(key, 'key', 'Unknown collector profile');
-        }
-        final row = CollectorProfilesCompanion.insert(
-          collectorKey: key ?? ids.next(),
-          profileVersion: (existing?.profileVersion ?? 0) + 1,
-          fullName: input.fullName.trim(),
-          phone: input.phone.trim(),
-          collectorType: input.collectorType,
-          village: input.village.trim(),
-          parish: input.parish.trim(),
-          subcounty: input.subcounty.trim(),
-          district: input.district.trim(),
-          organisation: Value(input.organisation?.trim()),
-          email: Value(
-            (input.email?.trim().isEmpty ?? true) ? null : input.email!.trim(),
-          ),
-          side: Value(existing?.side ?? input.side.wire),
-          legalVersion: Value(
-            input.legalVersion ?? existing?.legalVersion ?? 0,
-          ),
-          linkedKey: Value(existing?.linkedKey ?? input.linkedKey),
-          updatedAt: clock(),
-        );
-        await _db.into(_db.collectorProfiles).insertOnConflictUpdate(row);
-        if (existing == null && input.linkedKey != null) {
-          await _setLink(input.linkedKey!, row.collectorKey.value);
-        }
-        return _snapshot((await _row(row.collectorKey.value))!);
-      });
+  Future<CollectorSnapshot> save(
+    CollectorProfileInput input, {
+    String? key,
+  }) => _db.transaction(() async {
+    final existing = key == null ? null : await _row(key);
+    if (key != null && existing == null) {
+      throw ArgumentError.value(key, 'key', 'Unknown collector profile');
+    }
+    final row = CollectorProfilesCompanion.insert(
+      collectorKey: key ?? ids.next(),
+      profileVersion: (existing?.profileVersion ?? 0) + 1,
+      fullName: input.fullName.trim(),
+      phone: input.phone.trim(),
+      collectorType: input.collectorType,
+      village: input.village.trim(),
+      parish: input.parish.trim(),
+      subcounty: input.subcounty.trim(),
+      district: input.district.trim(),
+      organisation: Value(input.organisation?.trim()),
+      email: Value(
+        (input.email?.trim().isEmpty ?? true) ? null : input.email!.trim(),
+      ),
+      side: Value(existing?.side ?? input.side.wire),
+      legalVersion: Value(input.legalVersion ?? existing?.legalVersion ?? 0),
+      linkedKey: Value(existing?.linkedKey ?? input.linkedKey),
+      updatedAt: clock(),
+    );
+    await _db.into(_db.collectorProfiles).insertOnConflictUpdate(row);
+    if (existing == null && input.linkedKey != null) {
+      await _setLink(input.linkedKey!, row.collectorKey.value);
+    }
+    final saved = _snapshot((await _row(row.collectorKey.value))!);
+    await _queue(saved, existing == null ? OutboxOp.insert : OutboxOp.update);
+    return saved;
+  });
+
+  @override
+  Future<void> send(String collectorKey) => _db.transaction(() async {
+    final r = await _row(collectorKey);
+    if (r != null) await _queue(_snapshot(r), OutboxOp.update);
+  });
+
+  @override
+  Future<void> sendNeverSent() => _db.transaction(() async {
+    final queued = {
+      for (final o in await (_db.select(
+        _db.outbox,
+      )..where((o) => o.entity.equals('collector_profile'))).get())
+        o.entityId,
+    };
+    for (final r in await (_db.select(
+      _db.collectorProfiles,
+    )..where((t) => t.isActive.equals(true))).get()) {
+      if (!queued.contains(r.collectorKey)) {
+        await _queue(_snapshot(r), OutboxOp.update);
+      }
+    }
+  });
+
+  /// The server learns of a tester with the next sync, not only with their
+  /// first record: a research code needs them known (2026-10-31).
+  Future<void> _queue(CollectorSnapshot s, OutboxOp op) => enqueueOutbox(
+    _db,
+    entity: 'collector_profile',
+    entityId: s.collectorKey,
+    op: op,
+    payload: {
+      'collector_key': s.collectorKey,
+      'collector_snapshot': jsonEncode(s.toJson()),
+    },
+    at: clock(),
+  );
 
   @override
   Future<CollectorSnapshot> restore(CollectorSnapshot snapshot) =>
@@ -199,7 +249,7 @@ class DriftCollectorProfileRepository implements CollectorProfileRepository {
           .write(const CollectorProfilesCompanion(isActive: Value(false)));
 
   /// Accepting the documents is a change of the profile: its version goes
-  /// up, so the server learns of it with the next record.
+  /// up, and the server learns of it with the next sync.
   @override
   Future<CollectorSnapshot> acceptLegal(String collectorKey, int version) =>
       _db.transaction(() async {
@@ -214,7 +264,9 @@ class DriftCollectorProfileRepository implements CollectorProfileRepository {
             updatedAt: Value(clock()),
           ),
         );
-        return _snapshot((await _row(collectorKey))!);
+        final accepted = _snapshot((await _row(collectorKey))!);
+        await _queue(accepted, OutboxOp.update);
+        return accepted;
       });
 
   @override

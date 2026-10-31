@@ -60,6 +60,10 @@ class FormDetail(FormOut):
     draft: dict[str, Any] | None = None
     access_code: str | None = None
     can_manage: bool = False
+    # Who may collect, the access code, sharing and editors: the project's
+    # owner and supervisors only, not IT admins outside the team; research
+    # may be confidential (2026-10-31).
+    can_share: bool = False
     project_title: str
     cloned_from: UUID | None
     # May change the questions and publish (the team, and editors the
@@ -190,6 +194,9 @@ async def _form_detail(conn: AsyncConnection, form_id: UUID) -> FormDetail:
                 f"SELECT {_FORM_COLUMNS}, v.definition, f.draft, f.access_code, "  # noqa: S608
                 "f.cloned_from, p.title AS project_title, "
                 "research.can_manage(f.project_id) AS can_manage, "
+                "(p.owner_user_id = wc_user_id() OR EXISTS (SELECT 1 FROM "
+                " research.project_member m WHERE m.project_id = p.id "
+                " AND m.user_id = wc_user_id() AND m.role = 'supervisor')) AS can_share, "
                 "research.can_edit_form(f.id) AS can_edit, "
                 "(SELECT c.id FROM research.form c WHERE c.cloned_from = f.id "
                 " AND research.can_manage(c.project_id) AND c.project_id <> f.project_id "
@@ -208,9 +215,9 @@ async def _form_detail(conn: AsyncConnection, form_id: UUID) -> FormDetail:
     data["draft"] = _json(data["draft"])
     if not data["can_edit"]:
         data["draft"] = None
-    if not data["can_manage"]:
+    if not data["can_share"]:
         data["access_code"] = None
-    else:
+    if data["can_manage"]:
         editors = await conn.execute(
             text(
                 "SELECT e.user_id, coalesce(wc_user_label(e.user_id), '?') AS name "
@@ -354,9 +361,11 @@ async def _may_edit(conn: AsyncConnection, project_id: UUID) -> str:
     return role
 
 
-async def _may_lead(conn: AsyncConnection, project_id: UUID) -> None:
-    """The project itself and its team: the owner or an IT admin."""
-    if await _role(conn, project_id) not in ("owner", "admin"):
+async def _may_lead(conn: AsyncConnection, project_id: UUID, *, team: bool = False) -> None:
+    """The project itself: the owner or an IT admin. Its [team]: the owner
+    only, or an IT admin could join it to reach its forms' access
+    (2026-10-31)."""
+    if await _role(conn, project_id) not in (("owner",) if team else ("owner", "admin")):
         raise HTTPException(status.HTTP_403_FORBIDDEN, "owner_only")
 
 
@@ -497,7 +506,7 @@ async def add_member(
     """Supervisors build forms and manage collectors; analysts read and
     analyse. Both see all the project's records."""
     async with db.transaction(user) as conn:
-        await _may_lead(conn, project_id)
+        await _may_lead(conn, project_id, team=True)
         person = (
             await conn.execute(text("SELECT id FROM research.find_user(:u)"), {"u": body.username})
         ).scalar_one_or_none()
@@ -520,7 +529,7 @@ async def remove_member(
     project_id: UUID, user_id: UUID, user: ResearcherDep, db: DbDep
 ) -> ProjectDetail:
     async with db.transaction(user) as conn:
-        await _may_lead(conn, project_id)
+        await _may_lead(conn, project_id, team=True)
         await conn.execute(
             text("DELETE FROM research.project_member WHERE project_id = :p AND user_id = :u"),
             {"p": project_id, "u": user_id},
@@ -601,7 +610,9 @@ async def create_form(project_id: UUID, body: FormIn, user: ResearcherDep, db: D
         return await _form_detail(conn, form_id)
 
 
-async def _managed_form(conn: AsyncConnection, form_id: UUID) -> Any:
+async def _managed_form(conn: AsyncConnection, form_id: UUID, *, team_only: bool = False) -> Any:
+    """[team_only]: access and sharing, refused to IT admins outside the
+    project's team (2026-10-31)."""
     form = (
         await conn.execute(
             text(
@@ -613,7 +624,8 @@ async def _managed_form(conn: AsyncConnection, form_id: UUID) -> Any:
     ).first()
     if form is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "not_found")
-    await _may_edit(conn, form.project_id)
+    if await _may_edit(conn, form.project_id) == "admin" and team_only:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "team_only")
     return form
 
 
@@ -744,7 +756,7 @@ async def update_form(form_id: UUID, body: FormPatch, user: ResearcherDep, db: D
     """Who may see and clone the form, who may collect with it, whether it
     is listed, and whether it is open for collection."""
     async with db.transaction(user) as conn:
-        form = await _managed_form(conn, form_id)
+        form = await _managed_form(conn, form_id, team_only=True)
         sent = body.model_dump(exclude_unset=True, exclude_none=True)
         if sent.get("status") == "published" and form.current_version is None:
             raise HTTPException(status.HTTP_409_CONFLICT, "nothing_to_publish")
@@ -767,7 +779,7 @@ async def new_access_code(form_id: UUID, user: ResearcherDep, db: DbDep) -> Form
     """A new access code; the old one stops working. Collectors who joined
     keep the form."""
     async with db.transaction(user) as conn:
-        await _managed_form(conn, form_id)
+        await _managed_form(conn, form_id, team_only=True)
         await _set_code(conn, form_id)
         return await _form_detail(conn, form_id)
 
@@ -809,7 +821,7 @@ async def add_editor(form_id: UUID, body: EditorIn, user: ResearcherDep, db: DbD
     """Lets someone outside the team change the questions and publish new
     versions (ADR-032); access and sharing stay with the team."""
     async with db.transaction(user) as conn:
-        await _managed_form(conn, form_id)
+        await _managed_form(conn, form_id, team_only=True)
         found = (
             await conn.execute(text("SELECT id FROM research.find_user(:u)"), {"u": body.username})
         ).first()
@@ -828,7 +840,7 @@ async def add_editor(form_id: UUID, body: EditorIn, user: ResearcherDep, db: DbD
 @router.delete("/forms/{form_id}/editors/{user_id}")
 async def remove_editor(form_id: UUID, user_id: UUID, user: ResearcherDep, db: DbDep) -> FormDetail:
     async with db.transaction(user) as conn:
-        await _managed_form(conn, form_id)
+        await _managed_form(conn, form_id, team_only=True)
         await conn.execute(
             text("DELETE FROM research.form_editor WHERE form_id = :f AND user_id = :u"),
             {"f": form_id, "u": user_id},
@@ -931,7 +943,7 @@ async def share_form(
     form_id: UUID, body: ShareIn, user: ResearcherDep, db: DbDep
 ) -> list[ShareOut]:
     async with db.transaction(user) as conn:
-        await _managed_form(conn, form_id)
+        await _managed_form(conn, form_id, team_only=True)
         person = (
             await conn.execute(text("SELECT id FROM research.find_user(:u)"), {"u": body.username})
         ).scalar_one_or_none()
@@ -952,7 +964,7 @@ async def unshare_form(
     form_id: UUID, user_id: UUID, user: ResearcherDep, db: DbDep
 ) -> list[ShareOut]:
     async with db.transaction(user) as conn:
-        await _managed_form(conn, form_id)
+        await _managed_form(conn, form_id, team_only=True)
         await conn.execute(
             text("DELETE FROM research.form_share WHERE form_id = :f AND user_id = :u"),
             {"f": form_id, "u": user_id},
@@ -1218,7 +1230,7 @@ async def assign_collector(
     """Gives a form to a tester: once published it reaches their phone with
     the next sync, whatever the form's access."""
     async with db.transaction(user) as conn:
-        await _managed_form(conn, form_id)
+        await _managed_form(conn, form_id, team_only=True)
         await conn.execute(
             text(
                 "INSERT INTO research.form_collector (form_id, collector_key, via) "
@@ -1237,7 +1249,7 @@ async def unassign_collector(
 ) -> FormDetail:
     """Takes the form back (records already made stay)."""
     async with db.transaction(user) as conn:
-        await _managed_form(conn, form_id)
+        await _managed_form(conn, form_id, team_only=True)
         await conn.execute(
             text("DELETE FROM research.form_collector WHERE form_id = :f AND collector_key = :k"),
             {"f": form_id, "k": collector_key},

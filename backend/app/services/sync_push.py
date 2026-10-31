@@ -37,6 +37,8 @@ Status = Literal["applied", "duplicate", "conflict", "rejected"]
 
 # Parents first; within an entity, the order the client queued them.
 ORDER = [
+    # A tester's details before anything they made (2026-10-31).
+    "collector_profile",
     "admin_unit",
     "place_name",
     "parameter_definition",
@@ -70,6 +72,8 @@ USER_ENTITIES = {
 }
 # Marks and flags are stakeholder judgements, never sent by phones.
 USER_ONLY = {"collector_mark", "submission_flag"}
+# Sent by phones only.
+DEVICE_ONLY = {"collector_profile"}
 
 # The area a thread belongs to, from its subject (ADR-022).
 _THREAD_AREA = {
@@ -406,6 +410,8 @@ class PushService:
         if self.p.kind == "user" and c.entity not in USER_ENTITIES:
             return Outcome(c.id, c.entity, "rejected", reason="not_allowed")
         if self.p.kind != "user" and c.entity in USER_ONLY:
+            return Outcome(c.id, c.entity, "rejected", reason="not_allowed")
+        if self.p.kind != "installation" and c.entity in DEVICE_ONLY:
             return Outcome(c.id, c.entity, "rejected", reason="not_allowed")
         try:
             async with self.conn.begin_nested():
@@ -1190,6 +1196,16 @@ class PushService:
             },
         )
 
+    async def collector_profile_upsert(self, c: Change) -> Outcome:
+        """A tester added or edited on a phone, sent on its own so the server
+        knows them before their first record: research codes need it
+        (2026-10-31). [_note_collector] has already kept the details."""
+        if _uuid(_req(c.data, "collector_key"), "collector_key") != _uuid(c.id, "id"):
+            raise Rejected("invalid:collector_key")
+        if not _json(_req(c.data, "collector_snapshot")):
+            raise Rejected("invalid:collector_snapshot")
+        return Outcome(c.id, c.entity, "applied")
+
     async def message_insert(self, c: Change) -> Outcome:
         """A message in a thread on a test, source, collector or area
         (ADR-022), from a collector or a Console user."""
@@ -1393,6 +1409,8 @@ _HANDLERS: dict[tuple[str, str], _Handler] = {
     ("alert_event", "insert"): PushService.alert_event_insert,
     ("sanitary_inspection", "insert"): PushService.sanitary_inspection_insert,
     ("message", "insert"): PushService.message_insert,
+    ("collector_profile", "insert"): PushService.collector_profile_upsert,
+    ("collector_profile", "update"): PushService.collector_profile_upsert,
     ("parameter_definition", "insert"): PushService.parameter_definition_insert,
     ("reference_standard", "insert"): PushService.reference_standard_insert,
     ("attachment", "insert"): PushService.attachment_insert,

@@ -51,6 +51,8 @@
 ### Form editors and credits
 
 - **Changing what is shared.** Only the owning project's team changes a form's access and sharing.
+  - The team here is the owner and supervisors. IT admins outside the team may see the form and its records but not change who collects, the code, sharing or editors, and do not see the code (2026-10-31): research may be confidential.
+  - Only the owner changes who is on the team, so an IT admin cannot join a team to get around this.
 - **Editors.** The owner may add editors (by email or username). Editors can change the questions and publish new versions.
 - **Credits.** Each version records who published it, shown by username. Tapping the name opens the person's card, with a way to write to them.
 - **Copying.** "Copy to my project" shows only on someone else's form. Once copied, it opens the copy instead of copying again.

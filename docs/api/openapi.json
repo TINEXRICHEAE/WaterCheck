@@ -10719,6 +10719,11 @@
             "title": "Can Manage",
             "default": false
           },
+          "can_share": {
+            "type": "boolean",
+            "title": "Can Share",
+            "default": false
+          },
           "project_title": {
             "type": "string",
             "title": "Project Title"

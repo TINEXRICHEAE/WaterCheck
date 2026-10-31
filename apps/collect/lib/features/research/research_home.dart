@@ -389,9 +389,12 @@ class _ResearchHomeState extends ConsumerState<ResearchHome> {
 /// form arrives with the sync that follows.
 Future<void> joinResearchForm(WidgetRef ref, String code) async {
   await ref.read(installationServiceProvider).ensureRegistered();
+  final key = ref.read(submissionOriginProvider)?.collectorKey;
+  if (key != null) {
+    await ref.read(collectorProfileRepositoryProvider).send(key);
+  }
   await ref.read(syncControllerProvider.notifier).run(force: true);
   final dio = ref.read(collectApiDioProvider);
-  final key = ref.read(submissionOriginProvider)?.collectorKey;
   if (dio == null || key == null) {
     throw const ApiFailure(ApiFailure.offline);
   }

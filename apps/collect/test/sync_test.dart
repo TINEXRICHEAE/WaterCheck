@@ -28,7 +28,11 @@ void main() {
       services: svc,
       prepare: (db) => addSource(db, 'ABIM-ENT-001'),
     );
-    expect(svc.server.pushed.single['entity'], 'water_source');
+    // The tester's details go first (2026-10-31), then the record.
+    expect(svc.server.pushed.map((c) => c['entity']), [
+      'collector_profile',
+      'water_source',
+    ]);
     await tapAndSettle(tester, find.text('Sync'));
     expect(find.text('Everything is sent'), findsOneWidget);
     expect(find.textContaining('Last sent'), findsOneWidget);
@@ -64,8 +68,11 @@ void main() {
       services: svc,
       prepare: (db) => addSource(db, 'ABIM-ENT-001'),
     );
-    final id = (await tester.runAsync(() => db.select(db.outbox).getSingle()))!
-        .entityId;
+    final id = (await tester.runAsync(
+      () => (db.select(
+        db.outbox,
+      )..where((o) => o.entity.equals('water_source'))).getSingle(),
+    ))!.entityId;
     svc.server
       ..offline = false
       ..reject[id] = 'out_of_scope';
@@ -75,7 +82,9 @@ void main() {
     expect(find.text('Not accepted by the server'), findsOneWidget);
     expect(find.textContaining("outside this device's area"), findsOneWidget);
     final row = (await tester.runAsync(
-      () => db.select(db.outbox).getSingle(),
+      () => (db.select(
+        db.outbox,
+      )..where((o) => o.entity.equals('water_source'))).getSingle(),
     ))!;
     expect(row.status, 'rejected');
     await disposeApp(tester, db);

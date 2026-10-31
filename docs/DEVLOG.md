@@ -1363,3 +1363,39 @@ Decisions are also recorded in [PLAN.md](PLAN.md) (decisions log and §3a), the 
   - Console 51 (the forgot-password test now goes through the code flow);
   - CI format check and `dart analyze --fatal-infos` clean.
 
+
+### 60. First collection day: forms that vanished after a code, people not on the server, admins changing others' access (2026-10-31)
+- **Request (lead):**
+  - a person added on a phone with "add person" reaches the server only with their first record;
+  - an IT admin can change "Access and sharing" on forms he did not make, while research may be confidential to its team;
+  - locked forms disappeared after the right code, even after "this form is now on this device"; a newly registered person could enter the same codes and the forms showed;
+  - colleagues' accounts and data in production must be handled carefully; the server may go down at night for the fixes.
+- **Diagnosis (with evidence, before building):**
+  - **People not on the server:** the server learns of a person only from something they send (a record, message or source). Production logs show eight refused joins (404) from device GFQ3 on 31 Oct 09:14–09:29; the server had no person for that device.
+  - **Forms that vanished:**
+    - the phone lists a form only when it also has the form's project;
+    - each phone reads changes from a cursor, and a join re-sends the form and its version but not the project;
+    - phones set up on 29 Oct read past the CHS4102 project (production xid 1902) while all its forms were closed to them;
+    - on 31 Oct HQ was opened (08:39) and LOG and OC joined with codes (08:50–09:44): the forms arrived and the lock went, but the project never came, so nothing showed;
+    - device 7D8B, installed at 09:12, read from the start, got the project and its joins worked; this was the "new person" case;
+    - reproduced in a backend test: the form and its version arrive after a join, the project does not.
+  - **Admins and access:** the access, code, sharing, editors and collectors endpoints, and the team list, accepted the IT admin role as part of every team.
+- **Outcome (on dev, not yet committed):**
+  - **Projects follow their forms (migration 0026):**
+    - any change to a form re-sends its project;
+    - every project is re-sent once, so phones already affected get theirs at the next sync, with no records touched.
+  - **People sent on their own:**
+    - Collect queues a person's details when they are added or edited, or accept the documents;
+    - the server accepts them from phones only, and only for the person named;
+    - before a join, the person is sent again;
+    - people added before this update are sent once;
+    - these do not count as records waiting, refused or exported.
+  - **Access stays with the team:**
+    - changing who collects, the access code, sharing, editors and assigned collectors is for the owner and supervisors only;
+    - changing who is on the team is for the owner only;
+    - IT admins outside the team still see the form and its records, but not the Access tab or the code.
+- **Tests:**
+  - backend all passing; new: a form joined later arrives with its project, a person sent on their own can join at once, access and sharing refused to an IT admin outside the team; ruff, ruff format and mypy clean;
+  - data 25 in the repositories test (new: profiles are queued, once each), Collect 72, Console 51;
+  - CI format check and `dart analyze --fatal-infos` clean.
+- **Production (read-only queries):** the CHS4102 forms, joins by device and access changes were looked at; nothing was changed.

@@ -201,4 +201,8 @@ String researchErrorText(AppLocalizations l10n, Object error) {
 extension ProjectRole on ProjectDetail {
   bool get canEdit => myRole != 'analyst';
   bool get canLead => myRole == 'owner' || myRole == 'admin';
+
+  /// Who is on the team: the owner only, so an IT admin cannot join a
+  /// project to reach its forms' access (2026-10-31).
+  bool get canChangeTeam => myRole == 'owner';
 }
