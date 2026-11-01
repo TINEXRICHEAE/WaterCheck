@@ -64,6 +64,28 @@ class FakeTransport implements SyncTransport {
   }
 }
 
+/// Answers 'held' as the server does for a collector waiting for approval.
+class _AwaitingTransport implements SyncTransport {
+  _AwaitingTransport(this._inner);
+
+  final FakeTransport _inner;
+
+  @override
+  Future<List<ChangeOutcome>> push(
+    String batchId,
+    List<OutgoingChange> changes,
+  ) async => [
+    for (final (i, o) in (await _inner.push(batchId, changes)).indexed)
+      _inner.answer(changes[i]) == 'held'
+          ? const ChangeOutcome('rejected', reason: 'awaiting_approval')
+          : o,
+  ];
+
+  @override
+  Future<PullPage> pull(String stream, String? cursor, {int limit = 500}) =>
+      _inner.pull(stream, cursor, limit: limit);
+}
+
 Future<void> queue(AppDatabase db, int n, {int payloadBytes = 20}) async {
   for (var i = 0; i < n; i++) {
     await db
@@ -120,6 +142,47 @@ void main() {
     expect(server.pushes.map((b) => b.length), [50, 50, 20]);
     expect(server.pushes.first.first.id, 'id-0');
     expect((await outbox()).map((r) => r.status).toSet(), {'sent'});
+  });
+
+  test('records of a form waiting for approval, and their pictures, stay '
+      'on the phone; the rest go', () async {
+    Future<void> add(String entity, String id, Map<String, Object?> data) => db
+        .into(db.outbox)
+        .insert(
+          OutboxCompanion.insert(
+            entity: entity,
+            entityId: id,
+            op: 'insert',
+            payload: jsonEncode(data),
+            createdAt: fixedClock(),
+          ),
+        );
+    // The picture is queued before its record.
+    await add('attachment', 'pic-1', {'owner_id': 'rec-1'});
+    await add('research_record', 'rec-1', {'form_id': 'waiting'});
+    await add('research_record', 'rec-2', {'form_id': 'approved'});
+    await add('research_record', 'rec-3', {'form_id': 'unknown-to-phone'});
+    server.answer = (c) => c.id == 'rec-3' ? 'held' : 'applied';
+    final svc = SyncService(
+      db,
+      _AwaitingTransport(server),
+      streams: const ['reference'],
+      heldForms: () async => {'waiting'},
+      clock: () => now,
+      random: Random(1),
+    );
+    final report = await svc.run();
+    expect(report.ok, isTrue);
+    expect(server.pushes.expand((b) => b).map((c) => c.id), ['rec-2', 'rec-3']);
+    final status = {for (final r in await outbox()) r.entityId: r.status};
+    // rec-3: the server said it waits for approval; kept to send again.
+    expect(status, {
+      'pic-1': 'pending',
+      'rec-1': 'pending',
+      'rec-2': 'sent',
+      'rec-3': 'pending',
+    });
+    expect(report.rejected, 0);
   });
 
   test('batches stay under 256 KB; a huge record goes alone', () async {

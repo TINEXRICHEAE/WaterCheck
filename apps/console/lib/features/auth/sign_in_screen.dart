@@ -6,6 +6,7 @@ import 'package:ui_kit/ui_kit.dart';
 
 import '../../app/session.dart';
 import '../../l10n/app_localizations.dart';
+import '../research/shared_form.dart' show NullIfEmpty;
 import '../research/research_mode.dart';
 import 'reset_password.dart';
 
@@ -221,7 +222,17 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
         ),
         // Open sign-up on the side chosen above (ADR-031).
         OutlinedButton(
-          onPressed: _busy ? null : () => context.go('/sign-up'),
+          onPressed: _busy
+              ? null
+              : () => context.go(
+                  Uri(
+                    path: '/sign-up',
+                    queryParameters: GoRouterState.of(context)
+                        .uri
+                        .queryParameters
+                        .nullIfEmpty,
+                  ).toString(),
+                ),
           child: Text(l10n.signUpLink),
         ),
         const SizedBox(height: 8),

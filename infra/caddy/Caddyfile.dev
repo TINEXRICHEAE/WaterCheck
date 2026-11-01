@@ -32,6 +32,8 @@
 		reverse_proxy routing:8002
 	}
 
+	# Shared form links (2026-11-01): the Console answers them.
+	redir /f/* /console{uri}
 	redir /console /console/
 	# Build with: flutter build web --base-href /console/
 	handle_path /console/* {

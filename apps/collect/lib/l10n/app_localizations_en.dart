@@ -2378,4 +2378,48 @@ class AppLocalizationsEn extends AppLocalizations {
   String profileDeleteBodyResearch(String name) {
     return '$name, every device will sign you out and your phone and email are erased. The research records you sent stay with their projects.';
   }
+
+  @override
+  String get researchAwaitingApproval =>
+      'Waiting for the team\'s approval. Fill it now; your records stay on this device until then.';
+
+  @override
+  String get researchJoinedWaiting =>
+      'Joined. Your records wait on this device until the team approves you.';
+
+  @override
+  String get researchJoinOrLink => 'A shared link works here too.';
+
+  @override
+  String get researchJoinLinkWrong =>
+      'This link no longer works. Ask for a new one.';
+
+  @override
+  String get researchShare => 'Share this form';
+
+  @override
+  String get researchShareHint =>
+      'Anyone with this link sees the questions and can ask to collect. Where the team approves new collectors, they wait for its approval.';
+
+  @override
+  String get researchShareCopy => 'Copy link';
+
+  @override
+  String get researchShareDone => 'Done';
+
+  @override
+  String get researchLinkTitle => 'A form shared with you';
+
+  @override
+  String get researchLinkJoin => 'Join this form';
+
+  @override
+  String get researchLinkNeedsPerson =>
+      'Add yourself as a research collector to join it.';
+
+  @override
+  String get researchLinkAddPerson => 'Add me';
+
+  @override
+  String get researchLinkDismiss => 'Not now';
 }

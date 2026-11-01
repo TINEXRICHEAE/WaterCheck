@@ -25,6 +25,7 @@ class LibraryForm {
     required this.updatedAt,
     required this.projectTitle,
     required this.owner,
+    this.joinApproval = false,
   });
 
   factory LibraryForm.fromJson(Map<String, Object?> json) =>
@@ -45,6 +46,8 @@ class LibraryForm {
   @JsonKey(name: 'current_version')
   final int? currentVersion;
   final int records;
+  @JsonKey(name: 'join_approval')
+  final bool joinApproval;
   @JsonKey(name: 'has_draft')
   final bool hasDraft;
   @JsonKey(name: 'updated_at')

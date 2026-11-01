@@ -1,5 +1,6 @@
 import 'package:drift/wasm.dart';
 import 'package:sqlite3/wasm.dart';
+import 'package:web/web.dart' as web;
 
 import 'database.dart';
 import 'key_store.dart';
@@ -15,7 +16,12 @@ Future<AppDatabase> openAppDatabase({
   String fileName = 'watercheck.db',
   bool persistOnWeb = false,
 }) async {
-  final sqlite3 = await WasmSqlite3.loadFromUrl(Uri.parse('sqlite3.wasm'));
+  // Next to the app (its base address), not the page: a page such as a
+  // shared form (`…/f/<link>`) is not where the app's files are
+  // (2026-11-01).
+  final sqlite3 = await WasmSqlite3.loadFromUrl(
+    Uri.parse(web.document.baseURI).resolve('sqlite3.wasm'),
+  );
   if (!persistOnWeb) {
     sqlite3.registerVirtualFileSystem(InMemoryFileSystem(), makeDefault: true);
     return AppDatabase(WasmDatabase.inMemory(sqlite3));

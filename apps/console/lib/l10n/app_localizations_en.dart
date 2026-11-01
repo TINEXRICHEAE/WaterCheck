@@ -4672,4 +4672,145 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get peopleAdminNobodyOnDevice => 'Nobody signed in';
+
+  @override
+  String get linkPageTitle => 'Shared form';
+
+  @override
+  String linkPageGuest(String name) {
+    return 'You are looking as $name, a guest. Nothing you do here is saved.';
+  }
+
+  @override
+  String linkPageSignedIn(String name) {
+    return 'Signed in as $name';
+  }
+
+  @override
+  String get linkPageForCollectors => 'Shared with collectors';
+
+  @override
+  String get linkPageForEditors => 'Shared with editors';
+
+  @override
+  String get linkPageClosed => 'This form is not open for collection now.';
+
+  @override
+  String get linkPageCollect => 'Collect with this form';
+
+  @override
+  String get linkPageCollectHint =>
+      'Opens FieldQuire Collect in this browser. Add yourself there as a research collector and the form is yours to fill. Where the team approves new collectors, your records wait on your device until they do.';
+
+  @override
+  String get linkPageAndroidHint =>
+      'With the Android app: open Research, tap the key, and paste this link.';
+
+  @override
+  String get linkPageCopy => 'Copy link';
+
+  @override
+  String get linkPageSignInToEdit => 'Sign in to ask to edit';
+
+  @override
+  String get linkPageSignUpToEdit => 'Create a research account';
+
+  @override
+  String get linkPageAskToEdit => 'Ask to edit';
+
+  @override
+  String get linkPageAsked =>
+      'Asked. Once the owner agrees, the form appears in your Console for you to edit.';
+
+  @override
+  String get linkPageYouEdit => 'You can edit this form.';
+
+  @override
+  String get linkPageOpenForm => 'Open in the Console';
+
+  @override
+  String get linkPageQuestions => 'Questions';
+
+  @override
+  String get linkPageGone =>
+      'This link no longer works. Ask whoever shared it for a new one.';
+
+  @override
+  String get shareTitle => 'Share';
+
+  @override
+  String get shareHint =>
+      'A link anyone can open to see the questions, then join as a collector or ask to edit. It works until it is turned off; for a form behind a code, until the code changes.';
+
+  @override
+  String get shareForCollectors => 'Link for collectors';
+
+  @override
+  String get shareForEditors => 'Link for editors';
+
+  @override
+  String get shareEditorsHint =>
+      'Only the owner makes these. People who open one ask to edit, and the owner decides.';
+
+  @override
+  String shareMadeBy(String who, String when) {
+    return '$who · $when';
+  }
+
+  @override
+  String get shareCollectorsTag => 'Collectors';
+
+  @override
+  String get shareEditorsTag => 'Editors';
+
+  @override
+  String get shareTurnOff => 'Turn off';
+
+  @override
+  String get shareNotWorking => 'No longer works';
+
+  @override
+  String get shareApproval => 'New collectors need approval';
+
+  @override
+  String get shareApprovalHint =>
+      'Until the team approves them, their records stay on their device.';
+
+  @override
+  String get shareWaiting => 'Waiting for approval';
+
+  @override
+  String get shareApprove => 'Approve';
+
+  @override
+  String get shareEditRequests => 'Asking to edit';
+
+  @override
+  String get shareLetEdit => 'Let them edit';
+
+  @override
+  String get shareDecline => 'Decline';
+
+  @override
+  String get linkPageNumber => 'Research number';
+
+  @override
+  String get linkPageNumberTyped =>
+      'Type the number from your list. Never a name.';
+
+  @override
+  String get linkPageNumberGenerated =>
+      'Given by the app; it shows on the map instead of a name.';
+
+  @override
+  String get linkPagePlace => 'Where you are is recorded when you collect.';
+
+  @override
+  String get linkPageTryNote =>
+      'You can try the questions here; nothing is kept.';
+
+  @override
+  String linkPageResearch(String project) {
+    return 'Research · $project';
+  }
 }

@@ -41,6 +41,44 @@ void main() {
       expect(sessionRedirect(stakeholder, '/sign-in'), '/dashboard');
     });
 
+    test('shared forms open for anyone; signing in returns to the page', () {
+      // A shared form needs no account (2026-11-01).
+      expect(sessionRedirect(ConsoleSession.signedOut, '/f/abcDEF123'), isNull);
+      expect(
+        sessionRedirect(
+          const ConsoleSession(SessionPhase.signedIn),
+          '/f/abcDEF123',
+        ),
+        isNull,
+      );
+      // Signing in from a page carries it along, and goes back after.
+      expect(
+        sessionRedirect(
+          ConsoleSession.signedOut,
+          '/research/forms/x',
+          from: '/research/forms/x',
+        ),
+        '/sign-in?next=%2Fresearch%2Fforms%2Fx',
+      );
+      expect(
+        sessionRedirect(
+          const ConsoleSession(SessionPhase.signedIn),
+          '/sign-in',
+          next: '/f/abcDEF123?ask=1',
+        ),
+        '/f/abcDEF123?ask=1',
+      );
+      // Only addresses on this site.
+      expect(
+        sessionRedirect(
+          const ConsoleSession(SessionPhase.signedIn),
+          '/sign-up',
+          next: '//evil.example/x',
+        ),
+        '/dashboard',
+      );
+    });
+
     test('passwords follow the server rule', () {
       expect(passwordAcceptable('short1'), isFalse);
       expect(passwordAcceptable('1234567890'), isFalse);

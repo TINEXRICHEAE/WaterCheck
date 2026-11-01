@@ -21,6 +21,7 @@ FormOut _$FormOutFromJson(Map<String, dynamic> json) => FormOut(
   records: (json['records'] as num).toInt(),
   hasDraft: json['has_draft'] as bool,
   updatedAt: DateTime.parse(json['updated_at'] as String),
+  joinApproval: json['join_approval'] as bool? ?? false,
 );
 
 Map<String, dynamic> _$FormOutToJson(FormOut instance) => <String, dynamic>{
@@ -36,6 +37,7 @@ Map<String, dynamic> _$FormOutToJson(FormOut instance) => <String, dynamic>{
   'numbering': instance.numbering,
   'current_version': instance.currentVersion,
   'records': instance.records,
+  'join_approval': instance.joinApproval,
   'has_draft': instance.hasDraft,
   'updated_at': instance.updatedAt.toIso8601String(),
 };

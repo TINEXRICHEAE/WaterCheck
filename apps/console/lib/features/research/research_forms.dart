@@ -14,6 +14,7 @@ import '../../l10n/app_localizations.dart';
 import '../dashboard/dashboard_state.dart' show dataVersionProvider;
 import '../reports/save_file.dart';
 import 'form_builder.dart';
+import 'form_sharing.dart';
 import 'research_dashboard.dart';
 import 'research_mode.dart';
 import 'research_state.dart';
@@ -796,7 +797,17 @@ class _AccessTabState extends ConsumerState<_AccessTab> {
               ),
             ),
           ),
-        const SizedBox(height: 8),
+        // Whether new collectors wait for the team (2026-11-01).
+        if (form.collectAccess != 'assigned')
+          SwitchListTile(
+            title: Text(l10n.shareApproval),
+            subtitle: Text(l10n.shareApprovalHint),
+            value: form.joinApproval,
+            onChanged: (v) => _patch(context, ref, FormPatch(joinApproval: v)),
+          ),
+        const Divider(height: 24),
+        FormSharing(form: form),
+        const Divider(height: 32),
         Row(
           children: [
             Expanded(
@@ -817,23 +828,52 @@ class _AccessTabState extends ConsumerState<_AccessTab> {
             leading: const Icon(Icons.person_outline),
             title: Text(c.name ?? '?'),
             subtitle: Text(
-              c.forms.firstWhere((f) => f.formId == form.id).via == 'code'
-                  ? l10n.researchJoinedWithCode
-                  : l10n.researchAssignedByTeam,
+              [
+                switch (c.forms.firstWhere((f) => f.formId == form.id).via) {
+                  'code' => l10n.researchJoinedWithCode,
+                  'link' => l10n.shareCollectorsTag,
+                  _ => l10n.researchAssignedByTeam,
+                },
+                if (c.forms.firstWhere((f) => f.formId == form.id).status ==
+                    'pending')
+                  l10n.shareWaiting,
+              ].join(' · '),
             ),
-            trailing: BusyIconButton(
-              tooltip: l10n.researchRemove,
-              icon: const Icon(Icons.person_remove_outlined),
-              onPressed: () => researchCall(
-                context,
-                ref,
-                () => ref
-                    .read(researchApiProvider)
-                    .unassignCollector(
-                      formId: form.id,
-                      collectorKey: c.collectorKey,
+            trailing: Wrap(
+              spacing: 4,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                if (c.forms.firstWhere((f) => f.formId == form.id).status ==
+                    'pending')
+                  BusyButton(
+                    kind: BusyButtonKind.tonal,
+                    onPressed: () => researchCall(
+                      context,
+                      ref,
+                      () => ref
+                          .read(researchApiProvider)
+                          .approveCollector(
+                            formId: form.id,
+                            collectorKey: c.collectorKey,
+                          ),
                     ),
-              ),
+                    child: Text(l10n.shareApprove),
+                  ),
+                BusyIconButton(
+                  tooltip: l10n.researchRemove,
+                  icon: const Icon(Icons.person_remove_outlined),
+                  onPressed: () => researchCall(
+                    context,
+                    ref,
+                    () => ref
+                        .read(researchApiProvider)
+                        .unassignCollector(
+                          formId: form.id,
+                          collectorKey: c.collectorKey,
+                        ),
+                  ),
+                ),
+              ],
             ),
           ),
         const Divider(height: 32),

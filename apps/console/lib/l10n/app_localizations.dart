@@ -7353,6 +7353,252 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Nobody signed in'**
   String get peopleAdminNobodyOnDevice;
+
+  /// No description provided for @linkPageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Shared form'**
+  String get linkPageTitle;
+
+  /// No description provided for @linkPageGuest.
+  ///
+  /// In en, this message translates to:
+  /// **'You are looking as {name}, a guest. Nothing you do here is saved.'**
+  String linkPageGuest(String name);
+
+  /// No description provided for @linkPageSignedIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed in as {name}'**
+  String linkPageSignedIn(String name);
+
+  /// No description provided for @linkPageForCollectors.
+  ///
+  /// In en, this message translates to:
+  /// **'Shared with collectors'**
+  String get linkPageForCollectors;
+
+  /// No description provided for @linkPageForEditors.
+  ///
+  /// In en, this message translates to:
+  /// **'Shared with editors'**
+  String get linkPageForEditors;
+
+  /// No description provided for @linkPageClosed.
+  ///
+  /// In en, this message translates to:
+  /// **'This form is not open for collection now.'**
+  String get linkPageClosed;
+
+  /// No description provided for @linkPageCollect.
+  ///
+  /// In en, this message translates to:
+  /// **'Collect with this form'**
+  String get linkPageCollect;
+
+  /// No description provided for @linkPageCollectHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Opens FieldQuire Collect in this browser. Add yourself there as a research collector and the form is yours to fill. Where the team approves new collectors, your records wait on your device until they do.'**
+  String get linkPageCollectHint;
+
+  /// No description provided for @linkPageAndroidHint.
+  ///
+  /// In en, this message translates to:
+  /// **'With the Android app: open Research, tap the key, and paste this link.'**
+  String get linkPageAndroidHint;
+
+  /// No description provided for @linkPageCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy link'**
+  String get linkPageCopy;
+
+  /// No description provided for @linkPageSignInToEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to ask to edit'**
+  String get linkPageSignInToEdit;
+
+  /// No description provided for @linkPageSignUpToEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a research account'**
+  String get linkPageSignUpToEdit;
+
+  /// No description provided for @linkPageAskToEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask to edit'**
+  String get linkPageAskToEdit;
+
+  /// No description provided for @linkPageAsked.
+  ///
+  /// In en, this message translates to:
+  /// **'Asked. Once the owner agrees, the form appears in your Console for you to edit.'**
+  String get linkPageAsked;
+
+  /// No description provided for @linkPageYouEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'You can edit this form.'**
+  String get linkPageYouEdit;
+
+  /// No description provided for @linkPageOpenForm.
+  ///
+  /// In en, this message translates to:
+  /// **'Open in the Console'**
+  String get linkPageOpenForm;
+
+  /// No description provided for @linkPageQuestions.
+  ///
+  /// In en, this message translates to:
+  /// **'Questions'**
+  String get linkPageQuestions;
+
+  /// No description provided for @linkPageGone.
+  ///
+  /// In en, this message translates to:
+  /// **'This link no longer works. Ask whoever shared it for a new one.'**
+  String get linkPageGone;
+
+  /// No description provided for @shareTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get shareTitle;
+
+  /// No description provided for @shareHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A link anyone can open to see the questions, then join as a collector or ask to edit. It works until it is turned off; for a form behind a code, until the code changes.'**
+  String get shareHint;
+
+  /// No description provided for @shareForCollectors.
+  ///
+  /// In en, this message translates to:
+  /// **'Link for collectors'**
+  String get shareForCollectors;
+
+  /// No description provided for @shareForEditors.
+  ///
+  /// In en, this message translates to:
+  /// **'Link for editors'**
+  String get shareForEditors;
+
+  /// No description provided for @shareEditorsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Only the owner makes these. People who open one ask to edit, and the owner decides.'**
+  String get shareEditorsHint;
+
+  /// No description provided for @shareMadeBy.
+  ///
+  /// In en, this message translates to:
+  /// **'{who} · {when}'**
+  String shareMadeBy(String who, String when);
+
+  /// No description provided for @shareCollectorsTag.
+  ///
+  /// In en, this message translates to:
+  /// **'Collectors'**
+  String get shareCollectorsTag;
+
+  /// No description provided for @shareEditorsTag.
+  ///
+  /// In en, this message translates to:
+  /// **'Editors'**
+  String get shareEditorsTag;
+
+  /// No description provided for @shareTurnOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn off'**
+  String get shareTurnOff;
+
+  /// No description provided for @shareNotWorking.
+  ///
+  /// In en, this message translates to:
+  /// **'No longer works'**
+  String get shareNotWorking;
+
+  /// No description provided for @shareApproval.
+  ///
+  /// In en, this message translates to:
+  /// **'New collectors need approval'**
+  String get shareApproval;
+
+  /// No description provided for @shareApprovalHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Until the team approves them, their records stay on their device.'**
+  String get shareApprovalHint;
+
+  /// No description provided for @shareWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for approval'**
+  String get shareWaiting;
+
+  /// No description provided for @shareApprove.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve'**
+  String get shareApprove;
+
+  /// No description provided for @shareEditRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'Asking to edit'**
+  String get shareEditRequests;
+
+  /// No description provided for @shareLetEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Let them edit'**
+  String get shareLetEdit;
+
+  /// No description provided for @shareDecline.
+  ///
+  /// In en, this message translates to:
+  /// **'Decline'**
+  String get shareDecline;
+
+  /// No description provided for @linkPageNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Research number'**
+  String get linkPageNumber;
+
+  /// No description provided for @linkPageNumberTyped.
+  ///
+  /// In en, this message translates to:
+  /// **'Type the number from your list. Never a name.'**
+  String get linkPageNumberTyped;
+
+  /// No description provided for @linkPageNumberGenerated.
+  ///
+  /// In en, this message translates to:
+  /// **'Given by the app; it shows on the map instead of a name.'**
+  String get linkPageNumberGenerated;
+
+  /// No description provided for @linkPagePlace.
+  ///
+  /// In en, this message translates to:
+  /// **'Where you are is recorded when you collect.'**
+  String get linkPagePlace;
+
+  /// No description provided for @linkPageTryNote.
+  ///
+  /// In en, this message translates to:
+  /// **'You can try the questions here; nothing is kept.'**
+  String get linkPageTryNote;
+
+  /// No description provided for @linkPageResearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Research · {project}'**
+  String linkPageResearch(String project);
 }
 
 class _AppLocalizationsDelegate

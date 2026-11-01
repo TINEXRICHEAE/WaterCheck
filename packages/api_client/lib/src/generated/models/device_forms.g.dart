@@ -11,7 +11,14 @@ DeviceForms _$DeviceFormsFromJson(Map<String, dynamic> json) => DeviceForms(
   locked: (json['locked'] as List<dynamic>)
       .map((e) => LockedForm.fromJson(e as Map<String, dynamic>))
       .toList(),
+  pending:
+      (json['pending'] as List<dynamic>?)?.map((e) => e as String).toList() ??
+      const [],
 );
 
 Map<String, dynamic> _$DeviceFormsToJson(DeviceForms instance) =>
-    <String, dynamic>{'allowed': instance.allowed, 'locked': instance.locked};
+    <String, dynamic>{
+      'allowed': instance.allowed,
+      'locked': instance.locked,
+      'pending': instance.pending,
+    };

@@ -23,6 +23,7 @@ LibraryForm _$LibraryFormFromJson(Map<String, dynamic> json) => LibraryForm(
   updatedAt: DateTime.parse(json['updated_at'] as String),
   projectTitle: json['project_title'] as String,
   owner: json['owner'] as String?,
+  joinApproval: json['join_approval'] as bool? ?? false,
 );
 
 Map<String, dynamic> _$LibraryFormToJson(LibraryForm instance) =>
@@ -39,6 +40,7 @@ Map<String, dynamic> _$LibraryFormToJson(LibraryForm instance) =>
       'numbering': instance.numbering,
       'current_version': instance.currentVersion,
       'records': instance.records,
+      'join_approval': instance.joinApproval,
       'has_draft': instance.hasDraft,
       'updated_at': instance.updatedAt.toIso8601String(),
       'project_title': instance.projectTitle,

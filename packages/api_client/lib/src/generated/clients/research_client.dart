@@ -10,7 +10,11 @@ import '../models/collector_assign_in.dart';
 import '../models/collector_detail.dart';
 import '../models/collector_out.dart';
 import '../models/device_forms.dart';
+import '../models/device_link_in.dart';
 import '../models/draft_in.dart';
+import '../models/edit_request_in.dart';
+import '../models/edit_request_out.dart';
+import '../models/edit_request_row.dart';
 import '../models/editor_in.dart';
 import '../models/form_detail.dart';
 import '../models/form_in.dart';
@@ -18,8 +22,13 @@ import '../models/form_out.dart';
 import '../models/form_patch.dart';
 import '../models/form_records.dart';
 import '../models/join_in.dart';
+import '../models/join_link_in.dart';
+import '../models/join_link_out.dart';
 import '../models/join_out.dart';
 import '../models/library_form.dart';
+import '../models/link_in.dart';
+import '../models/link_out.dart';
+import '../models/link_preview.dart';
 import '../models/member_in.dart';
 import '../models/message_in.dart';
 import '../models/message_out.dart';
@@ -345,5 +354,86 @@ abstract class ResearchClient {
   @GET('/v1/research/messages')
   Future<List<ThreadOut>> researchThreads({
     @Query('project_id') String? projectId,
+  });
+
+  /// Make Link.
+  ///
+  /// A link to share: for collectors (anyone on the team), or for editors.
+  /// (the project's owner).
+  @POST('/v1/research/forms/{form_id}/links')
+  Future<LinkOut> makeLink({
+    @Path('form_id') required String formId,
+    @Body() required LinkIn body,
+  });
+
+  /// Form Links.
+  ///
+  /// Every link made to the form, by whom, and whether it still works.
+  @GET('/v1/research/forms/{form_id}/links')
+  Future<List<LinkOut>> formLinks({@Path('form_id') required String formId});
+
+  /// Turn Off Link.
+  ///
+  /// Stops a link working: by the team, or whoever made it.
+  @POST('/v1/research/links/{link_id}/off')
+  Future<void> turnOffLink({@Path('link_id') required String linkId});
+
+  /// Device Link.
+  ///
+  /// Collect: a collector who has the form shares it with someone else.
+  @POST('/v1/research/device/forms/{form_id}/link')
+  Future<LinkOut> deviceLink({
+    @Path('form_id') required String formId,
+    @Body() required DeviceLinkIn body,
+  });
+
+  /// Open Link.
+  ///
+  /// No sign-in: the form a link points to, read-only.
+  @GET('/v1/public/links/{token}')
+  Future<LinkPreview> openLink({@Path('token') required String token});
+
+  /// Join With Link.
+  ///
+  /// Collect: a tester on this phone joins the form a link points to; it.
+  /// arrives with the next sync, waiting for approval where the form asks.
+  @POST('/v1/research/join-link')
+  Future<JoinLinkOut> joinWithLink({@Body() required JoinLinkIn body});
+
+  /// Ask To Edit.
+  ///
+  /// Console: someone who opened an editor link asks the owner to let them.
+  /// edit the form.
+  @POST('/v1/research/edit-requests')
+  Future<EditRequestOut> askToEdit({@Body() required EditRequestIn body});
+
+  /// Edit Requests
+  @GET('/v1/research/forms/{form_id}/edit-requests')
+  Future<List<EditRequestRow>> editRequests({
+    @Path('form_id') required String formId,
+  });
+
+  /// Approve Edit
+  @POST('/v1/research/forms/{form_id}/edit-requests/{user_id}/approve')
+  Future<void> approveEdit({
+    @Path('form_id') required String formId,
+    @Path('user_id') required String userId,
+  });
+
+  /// Decline Edit
+  @DELETE('/v1/research/forms/{form_id}/edit-requests/{user_id}')
+  Future<void> declineEdit({
+    @Path('form_id') required String formId,
+    @Path('user_id') required String userId,
+  });
+
+  /// Approve Collector.
+  ///
+  /// Lets a collector who joined send their records; they arrive with.
+  /// the phone's next sync. Declining is removing them.
+  @POST('/v1/research/forms/{form_id}/collectors/{collector_key}/approve')
+  Future<void> approveCollector({
+    @Path('form_id') required String formId,
+    @Path('collector_key') required String collectorKey,
   });
 }

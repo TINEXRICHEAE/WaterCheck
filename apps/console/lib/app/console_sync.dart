@@ -26,6 +26,11 @@ class BearerInterceptor extends QueuedInterceptor {
     RequestInterceptorHandler handler,
   ) async {
     final token = await _token();
+    // Public pages (a shared form, 2026-11-01) need no account.
+    if (token == null && options.path.startsWith('/v1/public/')) {
+      handler.next(options);
+      return;
+    }
     if (token == null) {
       handler.reject(
         DioException.connectionError(

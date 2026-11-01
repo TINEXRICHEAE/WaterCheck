@@ -35,3 +35,5 @@ Format: context → decision → consequences. Number them sequentially. Never r
 | [029](ADR-029-live-navigation-and-located-pictures.md) | Live navigation with trips kept on the device; pictures with where and when they were taken | Accepted (built, waiting for dev check) |
 | [030](ADR-030-fieldquire-research-module.md) | FieldQuire: a research module (custom forms, records with location and media, analysis) beside water testing, on the same server | Accepted (R1 in progress) |
 | [031](ADR-031-sides-accounts-and-consent.md) | Sides of FieldQuire: separate linked accounts and profiles, open sign-up, areas as allocation, Terms and Privacy per side ticked once | Accepted (built, waiting for dev check) |
+| [032](ADR-032-people-by-username.md) | People by username, private by default; chats; form editors; computers without GPS | Accepted |
+| [033](ADR-033-shared-form-links.md) | Shared form links: a guest view, joining as a collector with the team's approval, asking to edit, coming back after signing in | Accepted (built, waiting for dev check) |

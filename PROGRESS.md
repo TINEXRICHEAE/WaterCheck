@@ -31,6 +31,8 @@ deployment and cache versioning.
   - people added on a phone reach the server at the next sync, so codes work at once;
   - access and sharing only for the form's own team; IT admins outside it can look but not change.
 - [x] **Loading shown everywhere (DEVLOG 62; `4099ed4`, deployed 2026-10-31):** a top bar for any wait in both apps, spinners on buttons that wait, loaders on pages.
+- [x] Admins reach every collector; people named on devices and lists (DEVLOG 65; `6ac52aa`, not yet deployed).
+- [ ] **Shared form links (DEVLOG 66, ADR-033, migration 0027; on dev, not committed):** guest view, joining with the team's approval, asking to edit, coming back after signing in.
 
 ## Round 2: anywhere in Uganda (2026-10-22, ADR-019) 🔄
 

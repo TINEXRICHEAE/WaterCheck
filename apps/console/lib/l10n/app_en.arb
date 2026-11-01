@@ -2827,5 +2827,77 @@
       }
     }
   },
-  "peopleAdminNobodyOnDevice": "Nobody signed in"
+  "peopleAdminNobodyOnDevice": "Nobody signed in",
+  "linkPageTitle": "Shared form",
+  "linkPageGuest": "You are looking as {name}, a guest. Nothing you do here is saved.",
+  "@linkPageGuest": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "linkPageSignedIn": "Signed in as {name}",
+  "@linkPageSignedIn": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "linkPageForCollectors": "Shared with collectors",
+  "linkPageForEditors": "Shared with editors",
+  "linkPageClosed": "This form is not open for collection now.",
+  "linkPageCollect": "Collect with this form",
+  "linkPageCollectHint": "Opens FieldQuire Collect in this browser. Add yourself there as a research collector and the form is yours to fill. Where the team approves new collectors, your records wait on your device until they do.",
+  "linkPageAndroidHint": "With the Android app: open Research, tap the key, and paste this link.",
+  "linkPageCopy": "Copy link",
+  "linkPageSignInToEdit": "Sign in to ask to edit",
+  "linkPageSignUpToEdit": "Create a research account",
+  "linkPageAskToEdit": "Ask to edit",
+  "linkPageAsked": "Asked. Once the owner agrees, the form appears in your Console for you to edit.",
+  "linkPageYouEdit": "You can edit this form.",
+  "linkPageOpenForm": "Open in the Console",
+  "linkPageQuestions": "Questions",
+  "linkPageGone": "This link no longer works. Ask whoever shared it for a new one.",
+  "shareTitle": "Share",
+  "shareHint": "A link anyone can open to see the questions, then join as a collector or ask to edit. It works until it is turned off; for a form behind a code, until the code changes.",
+  "shareForCollectors": "Link for collectors",
+  "shareForEditors": "Link for editors",
+  "shareEditorsHint": "Only the owner makes these. People who open one ask to edit, and the owner decides.",
+  "shareMadeBy": "{who} · {when}",
+  "@shareMadeBy": {
+    "placeholders": {
+      "who": {
+        "type": "String"
+      },
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "shareCollectorsTag": "Collectors",
+  "shareEditorsTag": "Editors",
+  "shareTurnOff": "Turn off",
+  "shareNotWorking": "No longer works",
+  "shareApproval": "New collectors need approval",
+  "shareApprovalHint": "Until the team approves them, their records stay on their device.",
+  "shareWaiting": "Waiting for approval",
+  "shareApprove": "Approve",
+  "shareEditRequests": "Asking to edit",
+  "shareLetEdit": "Let them edit",
+  "shareDecline": "Decline",
+  "linkPageNumber": "Research number",
+  "linkPageNumberTyped": "Type the number from your list. Never a name.",
+  "linkPageNumberGenerated": "Given by the app; it shows on the map instead of a name.",
+  "linkPagePlace": "Where you are is recorded when you collect.",
+  "linkPageTryNote": "You can try the questions here; nothing is kept.",
+  "linkPageResearch": "Research · {project}",
+  "@linkPageResearch": {
+    "placeholders": {
+      "project": {
+        "type": "String"
+      }
+    }
+  }
 }

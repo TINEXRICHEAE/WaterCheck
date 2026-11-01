@@ -28,13 +28,14 @@ class FormDetail {
     required this.definition,
     required this.projectTitle,
     required this.clonedFrom,
+    this.draft,
+    this.accessCode,
+    this.myCopy,
+    this.joinApproval = false,
     this.canManage = false,
     this.canShare = false,
     this.canEdit = false,
     this.editors = const [],
-    this.draft,
-    this.accessCode,
-    this.myCopy,
   });
 
   factory FormDetail.fromJson(Map<String, Object?> json) =>
@@ -55,6 +56,8 @@ class FormDetail {
   @JsonKey(name: 'current_version')
   final int? currentVersion;
   final int records;
+  @JsonKey(name: 'join_approval')
+  final bool joinApproval;
   @JsonKey(name: 'has_draft')
   final bool hasDraft;
   @JsonKey(name: 'updated_at')

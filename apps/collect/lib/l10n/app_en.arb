@@ -1332,5 +1332,18 @@
         "type": "String"
       }
     }
-  }
+  },
+  "researchAwaitingApproval": "Waiting for the team's approval. Fill it now; your records stay on this device until then.",
+  "researchJoinedWaiting": "Joined. Your records wait on this device until the team approves you.",
+  "researchJoinOrLink": "A shared link works here too.",
+  "researchJoinLinkWrong": "This link no longer works. Ask for a new one.",
+  "researchShare": "Share this form",
+  "researchShareHint": "Anyone with this link sees the questions and can ask to collect. Where the team approves new collectors, they wait for its approval.",
+  "researchShareCopy": "Copy link",
+  "researchShareDone": "Done",
+  "researchLinkTitle": "A form shared with you",
+  "researchLinkJoin": "Join this form",
+  "researchLinkNeedsPerson": "Add yourself as a research collector to join it.",
+  "researchLinkAddPerson": "Add me",
+  "researchLinkDismiss": "Not now"
 }

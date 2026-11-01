@@ -602,7 +602,8 @@ class PushService:
         form = (
             await self.conn.execute(
                 text(
-                    "SELECT f.project_id, research.can_collect(f.id) AS ok, EXISTS ("
+                    "SELECT f.project_id, research.can_collect(f.id) AS ok, "
+                    "research.device_awaits(f.id) AS waiting, EXISTS ("
                     " SELECT 1 FROM research.form_version v WHERE v.form_id = f.id "
                     " AND v.version = :v) AS known FROM research.form f WHERE f.id = :f"
                 ),
@@ -612,7 +613,9 @@ class PushService:
         if form is None:
             raise Rejected("not_found")
         if not form.ok:
-            raise Rejected("not_allowed")
+            # Joined, the team still to approve: the phone keeps it and
+            # sends it again later (2026-11-01).
+            raise Rejected("awaiting_approval" if form.waiting else "not_allowed")
         if not form.known:
             raise Rejected("unknown_version")
         clash = (

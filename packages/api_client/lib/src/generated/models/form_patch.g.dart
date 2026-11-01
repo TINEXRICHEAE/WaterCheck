@@ -16,6 +16,7 @@ FormPatch _$FormPatchFromJson(Map<String, dynamic> json) => FormPatch(
     json['collect_access'],
   ),
   hidden: json['hidden'] as bool?,
+  joinApproval: json['join_approval'] as bool?,
   status: $enumDecodeNullable(_$FormPatchStatusEnumMap, json['status']),
 );
 
@@ -23,6 +24,7 @@ Map<String, dynamic> _$FormPatchToJson(FormPatch instance) => <String, dynamic>{
   'visibility': instance.visibility,
   'collect_access': instance.collectAccess,
   'hidden': instance.hidden,
+  'join_approval': instance.joinApproval,
   'status': instance.status,
 };
 

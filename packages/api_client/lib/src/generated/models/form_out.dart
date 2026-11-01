@@ -23,6 +23,7 @@ class FormOut {
     required this.records,
     required this.hasDraft,
     required this.updatedAt,
+    this.joinApproval = false,
   });
 
   factory FormOut.fromJson(Map<String, Object?> json) =>
@@ -43,6 +44,8 @@ class FormOut {
   @JsonKey(name: 'current_version')
   final int? currentVersion;
   final int records;
+  @JsonKey(name: 'join_approval')
+  final bool joinApproval;
   @JsonKey(name: 'has_draft')
   final bool hasDraft;
   @JsonKey(name: 'updated_at')

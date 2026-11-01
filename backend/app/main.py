@@ -19,6 +19,7 @@ from app.api import (
     auth,
     conflicts,
     dashboard,
+    form_links,
     health,
     installations,
     notifications,
@@ -94,6 +95,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(installations.router)
     app.include_router(reference.router)
     app.include_router(research.router)
+    app.include_router(form_links.router)
     app.include_router(people.router)
     app.include_router(sync.router)
     app.include_router(attachments.router)

@@ -12,6 +12,7 @@ class CollectorForm {
     required this.formId,
     required this.code,
     required this.via,
+    this.status = 'approved',
   });
 
   factory CollectorForm.fromJson(Map<String, Object?> json) =>
@@ -21,6 +22,7 @@ class CollectorForm {
   final String formId;
   final String code;
   final String via;
+  final String status;
 
   Map<String, Object?> toJson() => _$CollectorFormToJson(this);
 }

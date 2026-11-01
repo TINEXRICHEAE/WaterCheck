@@ -184,6 +184,11 @@ final syncServiceProvider = Provider<SyncService?>((ref) {
     ref.watch(databaseProvider),
     transport,
     streams: collectStreams(c),
+    // Forms waiting for the team's approval: their records stay here.
+    heldForms: () async => {
+      ...ref.read(pendingFormsProvider),
+      ...await PendingForms.read(ref),
+    },
     // The districts of the people using the phone, read at each sync (not
     // watched: a rebuild here would hold the database open).
     moreStreams: () async => [
@@ -275,6 +280,9 @@ class SyncController extends Notifier<SyncUiState> {
       });
       if (ref.mounted) {
         ref.read(lockedFormsProvider.notifier).set(now.locked);
+        await ref.read(pendingFormsProvider.notifier).set({
+          for (final id in now.pending) id,
+        });
       }
     } catch (_) {
       // Offline or an older server: the next sync tries again.

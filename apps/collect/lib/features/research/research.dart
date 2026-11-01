@@ -82,6 +82,86 @@ final lockedFormsProvider = NotifierProvider<LockedForms, List<LockedForm>>(
   LockedForms.new,
 );
 
+const _pendingSetting = 'research.pending_forms';
+
+/// Forms joined and waiting for the team's approval (2026-11-01): filled
+/// meanwhile, their records kept on this phone until approved. Kept on the
+/// phone, so sync holds them back even before the next check.
+class PendingForms extends Notifier<Set<String>> {
+  @override
+  Set<String> build() {
+    read(ref).then((saved) {
+      if (ref.mounted && saved.isNotEmpty) state = {...state, ...saved};
+    }, onError: (Object _) {});
+    return const {};
+  }
+
+  static Future<Set<String>> read(Ref ref) async => {
+    for (final id
+        in (await ref
+                    .read(localSettingsRepositoryProvider)
+                    .read(_pendingSetting))
+                ?.split(',') ??
+            const <String>[])
+      if (id.isNotEmpty) id,
+  };
+
+  Future<void> set(Set<String> forms) async {
+    state = forms;
+    await ref
+        .read(localSettingsRepositoryProvider)
+        .write(_pendingSetting, forms.join(','));
+  }
+
+  Future<void> add(String form) => set({...state, form});
+}
+
+final pendingFormsProvider = NotifierProvider<PendingForms, Set<String>>(
+  PendingForms.new,
+);
+
+const _linkSetting = 'research.shared_link';
+
+/// A shared form link opened in this app (`/research/link/<link>`), kept
+/// through adding a person until it is joined or dismissed (2026-11-01).
+class SharedLink extends Notifier<String?> {
+  @override
+  String? build() {
+    ref.read(localSettingsRepositoryProvider).read(_linkSetting).then((v) {
+      if (ref.mounted && v != null && v.isNotEmpty && state == null) {
+        state = v;
+      }
+    }, onError: (Object _) {});
+    return null;
+  }
+
+  Future<void> set(String? token) async {
+    state = token;
+    await ref.read(localSettingsRepositoryProvider).write(_linkSetting, token);
+  }
+}
+
+final sharedLinkProvider = NotifierProvider<SharedLink, String?>(
+  SharedLink.new,
+);
+
+/// The link token in what someone typed or pasted: a whole address
+/// (`…/f/<link>`) or the link alone; null for an access code.
+String? linkTokenIn(String typed) {
+  final t = typed.trim();
+  final m = RegExp(r'/f/([A-Za-z0-9_-]{6,64})').firstMatch(t);
+  if (m != null) return m.group(1);
+  return null;
+}
+
+/// The address to share for [token], on the site this phone uses.
+String sharedLinkAddress(String apiUrl, String token) {
+  final site = kIsWeb
+      ? Uri.base.resolve('/')
+      : Uri.parse(apiUrl.replaceFirst(RegExp(r'/api/?$'), '/'));
+  return site.resolve('f/$token').toString();
+}
+
 final researchFormsProvider = StreamProvider<List<ResearchFormItem>>(
   (ref) => ref.watch(researchRepositoryProvider).watchForms(),
 );

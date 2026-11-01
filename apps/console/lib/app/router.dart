@@ -38,6 +38,7 @@ import '../features/research/research_mode.dart';
 import '../features/research/research_analysis.dart';
 import '../features/research/research_collector.dart';
 import '../features/research/research_collectors.dart';
+import '../features/research/shared_form.dart';
 import '../features/research/research_dashboard.dart';
 import '../features/research/research_forms.dart';
 import '../features/research/research_more.dart';
@@ -73,22 +74,50 @@ const _authRoutes = {
 /// - Each account stays on its own side (ADR-031): water accounts never see
 ///   research pages and research accounts never see water pages. IT admins
 ///   see both.
-String? sessionRedirect(ConsoleSession s, String location) {
+/// - A shared form (`/f/<link>`) opens for anyone, signed in or not
+///   (2026-11-01).
+/// - Signing in or creating an account from a page goes back to it: [from]
+///   is the address asked for, carried as `next`; [next] is where to go
+///   once signed in.
+String? sessionRedirect(
+  ConsoleSession s,
+  String location, {
+  String? from,
+  String? next,
+}) {
   String? only(String route) => location == route ? null : route;
+  if (location.startsWith('/f/')) {
+    return switch (s.phase) {
+      SessionPhase.signedOut || SessionPhase.signedIn => null,
+      _ => sessionRedirect(s, '/dashboard'),
+    };
+  }
+  final back = next != null && next.startsWith('/') && !next.startsWith('//')
+      ? next
+      : null;
   final research = location == '/research' || location.startsWith('/research/');
   final shared =
       location.startsWith('/join/') || location.startsWith('/switch/');
   return switch (s.phase) {
     SessionPhase.signedOut =>
-      location == '/sign-in' || location == '/sign-up' ? null : '/sign-in',
+      location == '/sign-in' || location == '/sign-up'
+          ? null
+          : from == null || from == '/' || from == '/dashboard'
+          ? '/sign-in'
+          : '/sign-in?next=${Uri.encodeComponent(from)}',
     SessionPhase.mustChangePassword => only('/change-password'),
     SessionPhase.choosePin => only('/pin'),
     SessionPhase.locked => only('/unlock'),
     // Each side's current documents, accepted once (ADR-026, ADR-031).
-    SessionPhase.signedIn when s.legalDue.isNotEmpty => only('/legal'),
+    SessionPhase.signedIn when s.legalDue.isNotEmpty =>
+      location == '/legal'
+          ? null
+          : back == null
+          ? '/legal'
+          : '/legal?next=${Uri.encodeComponent(back)}',
     SessionPhase.signedIn
         when _authRoutes.contains(location) || location == '/legal' =>
-      '/dashboard',
+      back ?? '/dashboard',
     SessionPhase.signedIn
         when (location.startsWith('/admin') ||
                 location.startsWith('/research/admin')) &&
@@ -112,10 +141,17 @@ final routerProvider = Provider<GoRouter>((ref) {
   // Water testing or research (ADR-030): each starts on its own page.
   ConsoleMode mode() => ref.read(activeModeProvider);
   final router = GoRouter(
-    initialLocation: '/dashboard',
+    // A shared form link opened by its plain address (`…/f/<link>`, which
+    // the web server answers with the app) starts on that form.
+    initialLocation: sharedLinkAt(Uri.base) ?? '/dashboard',
     refreshListenable: session,
     redirect: (context, state) {
-      final to = sessionRedirect(session.value, state.matchedLocation);
+      final to = sessionRedirect(
+        session.value,
+        state.matchedLocation,
+        from: state.uri.toString(),
+        next: state.uri.queryParameters['next'],
+      );
       return to == '/dashboard' ? homeFor(mode()) : to;
     },
     // An unknown address (a stale bookmark, a typo): a safe page that
@@ -132,6 +168,14 @@ final routerProvider = Provider<GoRouter>((ref) {
     routes: [
       GoRoute(path: '/sign-in', builder: (_, _) => const SignInScreen()),
       GoRoute(path: '/sign-up', builder: (_, _) => const SignUpScreen()),
+      // A shared form, open to anyone (2026-11-01).
+      GoRoute(
+        path: '/f/:token',
+        builder: (_, state) => SharedFormScreen(
+          token: state.pathParameters['token']!,
+          ask: state.uri.queryParameters['ask'] == '1',
+        ),
+      ),
       // The full switch for someone without an account there (ADR-031).
       GoRoute(
         path: '/switch/:side',

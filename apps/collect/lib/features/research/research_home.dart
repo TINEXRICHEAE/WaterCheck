@@ -1,11 +1,13 @@
 import 'package:api_client/api_client.dart';
 import 'package:data/data.dart';
+import 'package:domain/domain.dart' show AppSide;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:ui_kit/ui_kit.dart';
 
+import '../../app/gate.dart' show credentialsProvider;
 import '../../app/providers.dart';
 import '../../l10n/app_localizations.dart';
 import '../activation/installation_service.dart';
@@ -105,7 +107,7 @@ class _ResearchHomeState extends ConsumerState<ResearchHome> {
               Text(locked.projectTitle),
               const SizedBox(height: 8),
             ],
-            Text(l10n.researchJoinHint),
+            Text('${l10n.researchJoinHint} ${l10n.researchJoinOrLink}'),
             const SizedBox(height: 12),
             TextField(
               controller: code,
@@ -124,8 +126,15 @@ class _ResearchHomeState extends ConsumerState<ResearchHome> {
             child: Text(l10n.researchJoin),
             onPressed: () async {
               try {
-                await joinResearchForm(ref, code.text);
-                if (context.mounted) Navigator.pop(context, true);
+                final waiting = await joinResearchForm(ref, code.text);
+                if (context.mounted) {
+                  Navigator.pop(context, waiting ? null : true);
+                }
+                if (waiting && mounted) {
+                  ScaffoldMessenger.of(this.context).showSnackBar(
+                    SnackBar(content: Text(l10n.researchJoinedWaiting)),
+                  );
+                }
               } catch (e) {
                 if (!context.mounted) return;
                 final f = ApiFailure.from(e);
@@ -133,6 +142,7 @@ class _ResearchHomeState extends ConsumerState<ResearchHome> {
                   SnackBar(
                     content: Text(switch (f.code) {
                       'invalid_code' => l10n.researchJoinWrong,
+                      'link_not_found' => l10n.researchJoinLinkWrong,
                       ApiFailure.offline => l10n.researchJoinOffline,
                       _ => l10n.researchJoinFailed(f.code),
                     }),
@@ -147,6 +157,92 @@ class _ResearchHomeState extends ConsumerState<ResearchHome> {
     if (joined == true && mounted) {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text(l10n.researchJoined)));
+    }
+  }
+
+  /// A link to send on: anyone opening it sees the questions and may ask
+  /// to collect (2026-11-01).
+  Future<void> _share(String formId) async {
+    final l10n = AppLocalizations.of(context);
+    final dio = ref.read(collectApiDioProvider);
+    final key = ref.read(submissionOriginProvider)?.collectorKey;
+    final api = ref.read(credentialsProvider)?.apiUrl;
+    if (dio == null || key == null || api == null) return;
+    final String address;
+    try {
+      final made = await WaterCheckApi(dio).research.deviceLink(
+        formId: formId,
+        body: DeviceLinkIn(collectorKey: key),
+      );
+      address = sharedLinkAddress(api, made.token);
+    } catch (e) {
+      final f = ApiFailure.from(e);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              f.isOffline
+                  ? l10n.researchJoinOffline
+                  : l10n.researchJoinFailed(f.code),
+            ),
+          ),
+        );
+      }
+      return;
+    }
+    if (!mounted) return;
+    await showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.researchShare),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SelectableText(address),
+            const SizedBox(height: 8),
+            Text(l10n.researchShareHint),
+          ],
+        ),
+        actions: [
+          CopyButton(text: address, label: l10n.researchShareCopy),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(l10n.researchShareDone),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Joins the form a link opened here points to.
+  Future<void> _joinLink(String token) async {
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      final waiting = await joinResearchForm(ref, '/f/$token');
+      await ref.read(sharedLinkProvider.notifier).set(null);
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(
+            waiting ? l10n.researchJoinedWaiting : l10n.researchJoined,
+          ),
+        ),
+      );
+    } catch (e) {
+      final f = ApiFailure.from(e);
+      if (f.code == 'link_not_found') {
+        await ref.read(sharedLinkProvider.notifier).set(null);
+      }
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(switch (f.code) {
+            'link_not_found' => l10n.researchJoinLinkWrong,
+            ApiFailure.offline => l10n.researchJoinOffline,
+            _ => l10n.researchJoinFailed(f.code),
+          }),
+        ),
+      );
     }
   }
 
@@ -165,6 +261,8 @@ class _ResearchHomeState extends ConsumerState<ResearchHome> {
     final drafts = ref.watch(researchDraftsProvider).value ?? const [];
     final records = ref.watch(researchRecordsProvider).value ?? const [];
     final locked = ref.watch(lockedFormsProvider);
+    final pending = ref.watch(pendingFormsProvider);
+    final link = ref.watch(sharedLinkProvider);
     final shownForms = [
       for (final f in forms ?? const <ResearchFormItem>[])
         if (_matches([f.code, f.title, f.projectTitle])) f,
@@ -239,6 +337,11 @@ class _ResearchHomeState extends ConsumerState<ResearchHome> {
                   onChanged: (v) => setState(() => _query = v),
                 ),
                 const SizedBox(height: 12),
+                // A link opened in the app, kept until joined (2026-11-01).
+                if (link != null) ...[
+                  _SharedLinkCard(token: link, onJoin: () => _joinLink(link)),
+                  const SizedBox(height: 12),
+                ],
                 Text(l10n.researchForms, style: text.titleMedium),
                 const SizedBox(height: 4),
                 if (forms.isEmpty && locked.isEmpty)
@@ -271,12 +374,30 @@ class _ResearchHomeState extends ConsumerState<ResearchHome> {
                     child: ListTile(
                       leading: CircleAvatar(child: Text(f.code)),
                       title: Text(f.title),
-                      subtitle: Text(f.projectTitle),
-                      trailing: FilledButton.tonal(
-                        onPressed: _starting
-                            ? null
-                            : () => _start(f.id, f.version),
-                        child: Text(l10n.researchStart),
+                      subtitle: Text(
+                        pending.contains(f.id)
+                            ? '${f.projectTitle}\n'
+                                  '${l10n.researchAwaitingApproval}'
+                            : f.projectTitle,
+                      ),
+                      isThreeLine: pending.contains(f.id),
+                      trailing: Wrap(
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: [
+                          // Shared on by collectors who have it (2026-11-01).
+                          if (!pending.contains(f.id))
+                            BusyIconButton(
+                              tooltip: l10n.researchShare,
+                              icon: const Icon(Icons.share_outlined),
+                              onPressed: () => _share(f.id),
+                            ),
+                          FilledButton.tonal(
+                            onPressed: _starting
+                                ? null
+                                : () => _start(f.id, f.version),
+                            child: Text(l10n.researchStart),
+                          ),
+                        ],
                       ),
                     ),
                   ),
@@ -384,10 +505,11 @@ class _ResearchHomeState extends ConsumerState<ResearchHome> {
   }
 }
 
-/// Joins a form with the access code from the research team (needs a
-/// connection). The tester's details reach the server first, then the
-/// form arrives with the sync that follows.
-Future<void> joinResearchForm(WidgetRef ref, String code) async {
+/// Joins a form with the access code from the research team, or a shared
+/// link (needs a connection). The tester's details reach the server first,
+/// then the form arrives with the sync that follows. True when the team
+/// still has to approve them (2026-11-01).
+Future<bool> joinResearchForm(WidgetRef ref, String code) async {
   await ref.read(installationServiceProvider).ensureRegistered();
   final key = ref.read(submissionOriginProvider)?.collectorKey;
   if (key != null) {
@@ -398,15 +520,100 @@ Future<void> joinResearchForm(WidgetRef ref, String code) async {
   if (dio == null || key == null) {
     throw const ApiFailure(ApiFailure.offline);
   }
+  final String form;
+  final String status;
   try {
-    await WaterCheckApi(dio).research.joinWithCode(
-      body: JoinIn(
-        code: code.trim().toUpperCase().replaceAll(' ', ''),
-        collectorKey: key,
-      ),
-    );
+    final api = WaterCheckApi(dio).research;
+    if (linkTokenIn(code) case final token?) {
+      final out = await api.joinWithLink(
+        body: JoinLinkIn(token: token, collectorKey: key),
+      );
+      (form, status) = (out.formId, out.status);
+    } else {
+      final out = await api.joinWithCode(
+        body: JoinIn(
+          code: code.trim().toUpperCase().replaceAll(' ', ''),
+          collectorKey: key,
+        ),
+      );
+      (form, status) = (out.formId, out.status);
+    }
   } catch (e) {
     throw ApiFailure.from(e);
   }
+  final waiting = status == 'pending';
+  // Held back from the next sync at once, before the server is asked.
+  if (waiting) await ref.read(pendingFormsProvider.notifier).add(form);
   await ref.read(syncControllerProvider.notifier).run(force: true);
+  return waiting;
+}
+
+final _linkPreviewProvider = FutureProvider.autoDispose
+    .family<LinkPreview?, String>((ref, token) async {
+      final dio = ref.watch(collectApiDioProvider);
+      if (dio == null) return null;
+      return WaterCheckApi(dio).research.openLink(token: token);
+    });
+
+/// The form a shared link points to, with a way to join it (2026-11-01).
+class _SharedLinkCard extends ConsumerWidget {
+  const _SharedLinkCard({required this.token, required this.onJoin});
+
+  final String token;
+  final Future<void> Function() onJoin;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final preview = ref.watch(_linkPreviewProvider(token));
+    final researcher =
+        ref.watch(submissionOriginProvider)?.collector?.side ==
+        AppSide.research;
+    return Card(
+      color: Theme.of(context).colorScheme.secondaryContainer,
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              l10n.researchLinkTitle,
+              style: Theme.of(context).textTheme.titleSmall,
+            ),
+            switch (preview) {
+              AsyncData(value: final p?) => ListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text('${p.title} (${p.code})'),
+                subtitle: Text(p.projectTitle),
+              ),
+              AsyncError() => Text(l10n.researchJoinLinkWrong),
+              _ => const LinearProgressIndicator(),
+            },
+            if (!researcher) Text(l10n.researchLinkNeedsPerson),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              children: [
+                if (researcher)
+                  BusyButton(
+                    onPressed: preview.hasError ? null : onJoin,
+                    child: Text(l10n.researchLinkJoin),
+                  )
+                else
+                  FilledButton(
+                    onPressed: () => context.push('/who/switch/research'),
+                    child: Text(l10n.researchLinkAddPerson),
+                  ),
+                TextButton(
+                  onPressed: () =>
+                      ref.read(sharedLinkProvider.notifier).set(null),
+                  child: Text(l10n.researchLinkDismiss),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }

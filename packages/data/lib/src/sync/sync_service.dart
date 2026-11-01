@@ -49,6 +49,7 @@ class SyncService {
     this._transport, {
     required this.streams,
     this.moreStreams,
+    this.heldForms,
     this.clock = systemClock,
     this.ids = const IdGenerator(),
     this.maxRecords = 50,
@@ -71,6 +72,11 @@ class SyncService {
   /// Streams worked out when each sync starts (Collect: the districts of
   /// the people using the phone, ADR-019), pulled after [streams].
   final Future<List<String>> Function()? moreStreams;
+
+  /// Research forms joined and waiting for the team's approval (Collect,
+  /// 2026-11-01): their records, and those records' pictures, stay on the
+  /// phone until approved.
+  final Future<Set<String>> Function()? heldForms;
   final Clock clock;
   final IdGenerator ids;
   final int maxRecords;
@@ -80,6 +86,12 @@ class SyncService {
   final Random _random;
 
   Future<SyncReport>? _running;
+
+  /// Outbox rows not to send in this run: waiting for approval.
+  final _held = <int>{};
+
+  /// Research records held back in this run, whose pictures wait too.
+  final _heldRecords = <String>{};
 
   /// Runs one sync unless one is running or the backoff wait is not over.
   /// [force] ("Sync now") ignores the backoff wait.
@@ -126,8 +138,25 @@ class SyncService {
 
   // ------------------------------------------------------------- push
   Future<void> _push(SyncReport report) async {
+    _held.clear();
+    _heldRecords.clear();
+    final waiting = await heldForms?.call() ?? const <String>{};
+    // Their records first: a picture can be queued before its record.
+    if (waiting.isNotEmpty) {
+      for (final r
+          in await (_db.select(_db.outbox)..where(
+                (t) =>
+                    t.status.equals('pending') &
+                    t.entity.equals('research_record'),
+              ))
+              .get()) {
+        if (waiting.contains((jsonDecode(r.payload) as Map)['form_id'])) {
+          _heldRecords.add(r.entityId);
+        }
+      }
+    }
     while (true) {
-      final batch = await _nextBatch();
+      final batch = await _nextBatch(waiting);
       if (batch.isEmpty) return;
       final List<ChangeOutcome> outcomes;
       try {
@@ -160,6 +189,12 @@ class SyncService {
       await _db.transaction(() async {
         for (var i = 0; i < batch.length; i++) {
           final o = outcomes[i];
+          // Joined, the team still to approve: kept, sent again later.
+          if (o.status == 'rejected' && o.reason == 'awaiting_approval') {
+            _held.add(batch[i].id);
+            _heldRecords.add(batch[i].entityId);
+            continue;
+          }
           final (status, note) = switch (o.status) {
             'applied' || 'duplicate' => ('sent', o.reason),
             'conflict' => ('sent', 'conflict: ${o.reason}'),
@@ -187,16 +222,30 @@ class SyncService {
 
   /// Oldest pending records first, up to [maxRecords] or [maxBytes]
   /// (one record larger than that still goes, alone).
-  Future<List<OutboxRow>> _nextBatch() async {
+  Future<List<OutboxRow>> _nextBatch(Set<String> waiting) async {
     final rows =
         await (_db.select(_db.outbox)
               ..where((t) => t.status.equals('pending'))
-              ..orderBy([(t) => OrderingTerm(expression: t.id)])
-              ..limit(maxRecords))
+              ..orderBy([(t) => OrderingTerm(expression: t.id)]))
             .get();
     final batch = <OutboxRow>[];
     var bytes = 0;
     for (final r in rows) {
+      if (batch.length >= maxRecords) break;
+      if (_held.contains(r.id)) continue;
+      if (waiting.isNotEmpty || _heldRecords.isNotEmpty) {
+        final data = jsonDecode(r.payload) as Map;
+        if (r.entity == 'research_record' &&
+            _heldRecords.contains(r.entityId)) {
+          _held.add(r.id);
+          continue;
+        }
+        if (r.entity == 'attachment' &&
+            _heldRecords.contains(data['owner_id'])) {
+          _held.add(r.id);
+          continue;
+        }
+      }
       final size = r.payload.length + 120;
       if (batch.isNotEmpty && bytes + size > maxBytes) break;
       batch.add(r);

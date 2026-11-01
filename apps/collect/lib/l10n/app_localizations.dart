@@ -3963,6 +3963,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{name}, every device will sign you out and your phone and email are erased. The research records you sent stay with their projects.'**
   String profileDeleteBodyResearch(String name);
+
+  /// No description provided for @researchAwaitingApproval.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for the team\'s approval. Fill it now; your records stay on this device until then.'**
+  String get researchAwaitingApproval;
+
+  /// No description provided for @researchJoinedWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Joined. Your records wait on this device until the team approves you.'**
+  String get researchJoinedWaiting;
+
+  /// No description provided for @researchJoinOrLink.
+  ///
+  /// In en, this message translates to:
+  /// **'A shared link works here too.'**
+  String get researchJoinOrLink;
+
+  /// No description provided for @researchJoinLinkWrong.
+  ///
+  /// In en, this message translates to:
+  /// **'This link no longer works. Ask for a new one.'**
+  String get researchJoinLinkWrong;
+
+  /// No description provided for @researchShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Share this form'**
+  String get researchShare;
+
+  /// No description provided for @researchShareHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Anyone with this link sees the questions and can ask to collect. Where the team approves new collectors, they wait for its approval.'**
+  String get researchShareHint;
+
+  /// No description provided for @researchShareCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy link'**
+  String get researchShareCopy;
+
+  /// No description provided for @researchShareDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get researchShareDone;
+
+  /// No description provided for @researchLinkTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'A form shared with you'**
+  String get researchLinkTitle;
+
+  /// No description provided for @researchLinkJoin.
+  ///
+  /// In en, this message translates to:
+  /// **'Join this form'**
+  String get researchLinkJoin;
+
+  /// No description provided for @researchLinkNeedsPerson.
+  ///
+  /// In en, this message translates to:
+  /// **'Add yourself as a research collector to join it.'**
+  String get researchLinkNeedsPerson;
+
+  /// No description provided for @researchLinkAddPerson.
+  ///
+  /// In en, this message translates to:
+  /// **'Add me'**
+  String get researchLinkAddPerson;
+
+  /// No description provided for @researchLinkDismiss.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get researchLinkDismiss;
 }
 
 class _AppLocalizationsDelegate

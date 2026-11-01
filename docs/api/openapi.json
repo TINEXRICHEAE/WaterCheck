@@ -3690,6 +3690,550 @@
         }
       }
     },
+    "/v1/research/forms/{form_id}/links": {
+      "post": {
+        "tags": [
+          "research"
+        ],
+        "summary": "Make Link",
+        "description": "A link to share: for collectors (anyone on the team), or for editors\n(the project's owner).",
+        "operationId": "make_link",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "form_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Form Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LinkIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LinkOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "research"
+        ],
+        "summary": "Form Links",
+        "description": "Every link made to the form, by whom, and whether it still works.",
+        "operationId": "form_links",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "form_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Form Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LinkOut"
+                  },
+                  "title": "Response Form Links"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/research/links/{link_id}/off": {
+      "post": {
+        "tags": [
+          "research"
+        ],
+        "summary": "Turn Off Link",
+        "description": "Stops a link working: by the team, or whoever made it.",
+        "operationId": "turn_off_link",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "link_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Link Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/research/device/forms/{form_id}/link": {
+      "post": {
+        "tags": [
+          "research"
+        ],
+        "summary": "Device Link",
+        "description": "Collect: a collector who has the form shares it with someone else.",
+        "operationId": "device_link",
+        "parameters": [
+          {
+            "name": "form_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Form Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeviceLinkIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LinkOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/public/links/{token}": {
+      "get": {
+        "tags": [
+          "research"
+        ],
+        "summary": "Open Link",
+        "description": "No sign-in: the form a link points to, read-only.",
+        "operationId": "open_link",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Token"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LinkPreview"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/research/join-link": {
+      "post": {
+        "tags": [
+          "research"
+        ],
+        "summary": "Join With Link",
+        "description": "Collect: a tester on this phone joins the form a link points to; it\narrives with the next sync, waiting for approval where the form asks.",
+        "operationId": "join_with_link",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/JoinLinkIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JoinLinkOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/research/edit-requests": {
+      "post": {
+        "tags": [
+          "research"
+        ],
+        "summary": "Ask To Edit",
+        "description": "Console: someone who opened an editor link asks the owner to let them\nedit the form.",
+        "operationId": "ask_to_edit",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EditRequestIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EditRequestOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/v1/research/forms/{form_id}/edit-requests": {
+      "get": {
+        "tags": [
+          "research"
+        ],
+        "summary": "Edit Requests",
+        "operationId": "edit_requests",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "form_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Form Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EditRequestRow"
+                  },
+                  "title": "Response Edit Requests"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/research/forms/{form_id}/edit-requests/{user_id}/approve": {
+      "post": {
+        "tags": [
+          "research"
+        ],
+        "summary": "Approve Edit",
+        "operationId": "approve_edit",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "form_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Form Id"
+            }
+          },
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "User Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/research/forms/{form_id}/edit-requests/{user_id}": {
+      "delete": {
+        "tags": [
+          "research"
+        ],
+        "summary": "Decline Edit",
+        "operationId": "decline_edit",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "form_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Form Id"
+            }
+          },
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "User Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/research/forms/{form_id}/collectors/{collector_key}/approve": {
+      "post": {
+        "tags": [
+          "research"
+        ],
+        "summary": "Approve Collector",
+        "description": "Lets a collector who joined send their records; they arrive with\nthe phone's next sync. Declining is removing them.",
+        "operationId": "approve_collector",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "form_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Form Id"
+            }
+          },
+          {
+            "name": "collector_key",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Collector Key"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/me/identity": {
       "get": {
         "tags": [
@@ -10217,6 +10761,11 @@
           "via": {
             "type": "string",
             "title": "Via"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "default": "approved"
           }
         },
         "type": "object",
@@ -10810,6 +11359,15 @@
             },
             "type": "array",
             "title": "Locked"
+          },
+          "pending": {
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "type": "array",
+            "title": "Pending",
+            "default": []
           }
         },
         "type": "object",
@@ -10818,6 +11376,20 @@
           "locked"
         ],
         "title": "DeviceForms"
+      },
+      "DeviceLinkIn": {
+        "properties": {
+          "collector_key": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Collector Key"
+          }
+        },
+        "type": "object",
+        "required": [
+          "collector_key"
+        ],
+        "title": "DeviceLinkIn"
       },
       "DraftIn": {
         "properties": {
@@ -10832,6 +11404,63 @@
           "definition"
         ],
         "title": "DraftIn"
+      },
+      "EditRequestIn": {
+        "properties": {
+          "token": {
+            "type": "string",
+            "title": "Token"
+          }
+        },
+        "type": "object",
+        "required": [
+          "token"
+        ],
+        "title": "EditRequestIn"
+      },
+      "EditRequestOut": {
+        "properties": {
+          "form_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Form Id"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          }
+        },
+        "type": "object",
+        "required": [
+          "form_id",
+          "status"
+        ],
+        "title": "EditRequestOut"
+      },
+      "EditRequestRow": {
+        "properties": {
+          "user_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "User Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "requested_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Requested At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "user_id",
+          "name",
+          "requested_at"
+        ],
+        "title": "EditRequestRow"
       },
       "EditorIn": {
         "properties": {
@@ -10945,6 +11574,11 @@
           "records": {
             "type": "integer",
             "title": "Records"
+          },
+          "join_approval": {
+            "type": "boolean",
+            "title": "Join Approval",
+            "default": false
           },
           "has_draft": {
             "type": "boolean",
@@ -11184,6 +11818,11 @@
             "type": "integer",
             "title": "Records"
           },
+          "join_approval": {
+            "type": "boolean",
+            "title": "Join Approval",
+            "default": false
+          },
           "has_draft": {
             "type": "boolean",
             "title": "Has Draft"
@@ -11257,6 +11896,17 @@
               }
             ],
             "title": "Hidden"
+          },
+          "join_approval": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Join Approval"
           },
           "status": {
             "anyOf": [
@@ -11756,12 +12406,55 @@
         ],
         "title": "JoinIn"
       },
+      "JoinLinkIn": {
+        "properties": {
+          "token": {
+            "type": "string",
+            "title": "Token"
+          },
+          "collector_key": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Collector Key"
+          }
+        },
+        "type": "object",
+        "required": [
+          "token",
+          "collector_key"
+        ],
+        "title": "JoinLinkIn"
+      },
+      "JoinLinkOut": {
+        "properties": {
+          "form_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Form Id"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          }
+        },
+        "type": "object",
+        "required": [
+          "form_id",
+          "status"
+        ],
+        "title": "JoinLinkOut"
+      },
       "JoinOut": {
         "properties": {
           "form_id": {
             "type": "string",
             "format": "uuid",
             "title": "Form Id"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "default": "approved"
           }
         },
         "type": "object",
@@ -12350,6 +13043,11 @@
             "type": "integer",
             "title": "Records"
           },
+          "join_approval": {
+            "type": "boolean",
+            "title": "Join Approval",
+            "default": false
+          },
           "has_draft": {
             "type": "boolean",
             "title": "Has Draft"
@@ -12395,6 +13093,151 @@
           "owner"
         ],
         "title": "LibraryForm"
+      },
+      "LinkIn": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "collect",
+              "edit"
+            ],
+            "title": "Kind"
+          }
+        },
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "title": "LinkIn"
+      },
+      "LinkOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "token": {
+            "type": "string",
+            "title": "Token"
+          },
+          "kind": {
+            "type": "string",
+            "title": "Kind"
+          },
+          "made_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Made By"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "active": {
+            "type": "boolean",
+            "title": "Active"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "token",
+          "kind",
+          "made_by",
+          "created_at",
+          "active"
+        ],
+        "title": "LinkOut"
+      },
+      "LinkPreview": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "title": "Kind"
+          },
+          "form_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Form Id"
+          },
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "project_title": {
+            "type": "string",
+            "title": "Project Title"
+          },
+          "definition": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Definition"
+          },
+          "collect_access": {
+            "type": "string",
+            "title": "Collect Access"
+          },
+          "open_for_collection": {
+            "type": "boolean",
+            "title": "Open For Collection"
+          },
+          "version": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Version"
+          }
+        },
+        "type": "object",
+        "required": [
+          "kind",
+          "form_id",
+          "code",
+          "title",
+          "description",
+          "project_title",
+          "definition",
+          "collect_access",
+          "open_for_collection"
+        ],
+        "title": "LinkPreview",
+        "description": "What a link shows to anyone: the form's questions, never records."
       },
       "LockedForm": {
         "properties": {

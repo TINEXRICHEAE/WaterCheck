@@ -152,6 +152,12 @@ async def test_researcher_builds_publishes_and_collects(
     assert wrong.status_code == 404
     joined = await _join(client, a, patched["access_code"].lower())
     assert joined.status_code == 200, joined.text
+    # New forms ask for the team's approval first (2026-11-01).
+    assert joined.json()["status"] == "pending"
+    approved = await client.post(
+        f"/v1/research/forms/{form['id']}/collectors/{a.collector}/approve", headers=owner
+    )
+    assert approved.status_code == 204
     pulled = (await a.pull("research")).json()["changes"]
     assert form["id"] in {c["id"] for c in pulled if c["entity"] == "research_form"}
 

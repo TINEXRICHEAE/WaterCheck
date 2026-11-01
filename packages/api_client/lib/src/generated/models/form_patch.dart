@@ -16,6 +16,7 @@ class FormPatch {
     this.visibility,
     this.collectAccess,
     this.hidden,
+    this.joinApproval,
     this.status,
   });
 
@@ -26,6 +27,8 @@ class FormPatch {
   @JsonKey(name: 'collect_access')
   final FormPatchCollectAccess? collectAccess;
   final bool? hidden;
+  @JsonKey(name: 'join_approval')
+  final bool? joinApproval;
   final FormPatchStatus? status;
 
   Map<String, Object?> toJson() => _$FormPatchToJson(this);

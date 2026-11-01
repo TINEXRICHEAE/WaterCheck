@@ -1470,3 +1470,36 @@ Decisions are also recorded in [PLAN.md](PLAN.md) (decisions log and §3a), the 
   - All of these use the same label as "Codes to pass on" (`wc_collector_label`, `wc_user_label`).
 - **Tests:** backend all passing (new: a collector who never collected is listed with details and device, devices name who is on them, only for IT admins); Console 51 (the admin test now switches to collectors, searches by phone, and sees who is on a device); ruff, mypy, analyze and format clean.
 - **Note:** a collector added on a phone appears once that phone syncs (DEVLOG 60 sends people on their own).
+
+### 66. Shared form links: a guest view, joining with the team's approval, asking to edit (2026-11-01)
+- **Request (lead):**
+  - forms shareable by link with people who have not used the app yet: public forms, and code-locked ones with the code in the link, for collectors and for editors;
+  - a read-only view for guests with a temporary name;
+  - links that take a collector or Console user to register or sign in, then straight to the form;
+  - a friend opening a collector's link sees the form, registers as a collector, and needs the owner's approval to send, records staying on the phone meanwhile;
+  - an editor link that starts read-only and leads to the Console;
+  - creating an account signs in at once.
+  - The lead chose: approval per form; editor links send a request the owner approves; guests see the questions only; links last until turned off.
+- **Audit before building:**
+  - creating a Console account already signed in, but the page asked for was lost: signing in always went to the dashboard;
+  - nothing could be seen without an account;
+  - Collect had no addresses into a form; joining was by typed code only, and at once.
+- **Outcome (on dev, not yet committed):** see ADR-033.
+  - **Links:** `…/f/<link>` for collectors (the team, or a collector who has the form) and for editors (the owner); listed in the Access tab with who made them, and turned off there. A link to a form behind a code stops when the code changes.
+  - **Guest view:** the form's questions read-only, for anyone, as `guest-1234` when not signed in.
+  - **Collectors:** "Collect with this form" opens Collect; the link waits on the device while the person is added, then "Join this form"; a pasted link works in "Join with a code" too; collectors share a form on with its share button.
+  - **Approval:** "New collectors need approval" per form, on for new forms and off for existing ones (migration 0027); waiting collectors fill the form, their records and pictures stay on the device until approved; the team approves in the Access tab.
+  - **Editors:** sign in or create a research account from the link, come back, "Ask to edit"; the owner lets them edit or declines.
+  - **Coming back:** pages asked for while signed out open after signing in, creating an account and accepting the documents (`next`), same site only.
+- **Tests:**
+  - backend all passing (new: guest view and joining with approval, records held then accepted, links stopping with a new code or turned off, letting collectors in at once and collectors sharing, editor links asking the owner; the collection test now approves the collector);
+  - data 93 (new: a waiting form's records and pictures stay on the phone), Collect 72, Console 52 (new: shared pages open to anyone, signing in returns to the page, only same-site addresses), ui_kit 42;
+  - ruff, mypy, analyze and format clean.
+- **Fixed on the lead's first check:** opening a link showed "could not open its local data".
+  - **Cause 1:** the browser database (`sqlite3.wasm`) was fetched relative to the page; from `…/f/<link>` that is `/f/sqlite3.wasm`, which the web server answers with the app page. It is now fetched next to the app (its base address). Production would have failed the same way.
+  - **Cause 2:** the Console sent no request without a sign-in, so a guest never got the form; public addresses (`/v1/public/…`) now go without one, and a test checks that everything else still needs signing in.
+  - Both links then shown as a guest in a headless browser: the questions, "Collect with this form", and "Sign in to ask to edit" / "Create a research account".
+- **Second check (lead): the guest pages looked alike and poor;** each should look as the form's own people see it, with fewer actions.
+  - **Collector links:** now Collect's page for filling the form (title above, research number and where it is filled, the questions to try, nothing kept), with "Collect with this form" where Collect has Save and Finish.
+  - **Editor links:** now the Console's form page as the owner sees it (title and code, project, status and version), with only the Questions tab; the owner's buttons become "Sign in to ask to edit", "Create a research account" and "Copy link".
+  - The link answer now carries the form's version (migration 0027 updated before it reaches production).

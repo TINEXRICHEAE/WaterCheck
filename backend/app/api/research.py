@@ -50,6 +50,8 @@ class FormOut(BaseModel):
     numbering: str
     current_version: int | None
     records: int
+    # New collectors wait for the team's approval (2026-11-01).
+    join_approval: bool = False
     has_draft: bool
     updated_at: datetime
 
@@ -158,7 +160,7 @@ _FORM_COLUMNS = (
     "f.id, f.project_id, f.code, f.title, f.description, f.status, f.visibility, "
     "f.collect_access, f.hidden, f.numbering, f.current_version, "
     "(SELECT count(*) FROM research.record r WHERE r.form_id = f.id) AS records, "
-    "f.draft IS NOT NULL AS has_draft, f.updated_at"
+    "f.draft IS NOT NULL AS has_draft, f.updated_at, f.join_approval"
 )
 
 
@@ -747,6 +749,7 @@ class FormPatch(BaseModel):
     visibility: Literal["public", "private", "shared"] | None = None
     collect_access: Literal["assigned", "code", "open"] | None = None
     hidden: bool | None = None
+    join_approval: bool | None = None
     # Closing stops collection (records stay); reopening publishes again.
     status: Literal["published", "closed"] | None = None
 
@@ -976,8 +979,11 @@ async def unshare_form(
 class CollectorForm(BaseModel):
     form_id: UUID
     code: str
-    # 'assigned' (given by the team) or 'code' (joined with the access code).
+    # 'assigned' (given by the team), 'code' (joined with the access code)
+    # or 'link' (joined from a shared link).
     via: str
+    # 'pending' until the team approves them (2026-11-01).
+    status: str = "approved"
 
 
 class CollectorOut(BaseModel):
@@ -1017,7 +1023,8 @@ async def project_collectors(
                 "CASE WHEN wc_sees_collector(k.collector_key) "
                 "THEN cp.snapshot->>'phone' END AS phone, coalesce(m.records, 0) AS records, "
                 "m.first_at, m.last_at, coalesce((SELECT jsonb_agg(jsonb_build_object("
-                " 'form_id', f.id, 'code', f.code, 'via', c.via) ORDER BY f.code) "
+                " 'form_id', f.id, 'code', f.code, 'via', c.via, 'status', c.status) "
+                " ORDER BY f.code) "
                 " FROM research.form_collector c JOIN research.form f ON f.id = c.form_id "
                 " WHERE f.project_id = :p AND c.collector_key = k.collector_key), "
                 " '[]'::jsonb) AS forms "
@@ -1094,6 +1101,9 @@ class DeviceForms(BaseModel):
     allowed: list[UUID]
     # Forms behind an access code, shown with a lock.
     locked: list[LockedForm]
+    # Forms joined and waiting for the team's approval: filled meanwhile,
+    # their records kept on the phone (2026-11-01).
+    pending: list[UUID] = []
 
 
 @router.get("/device/forms")
@@ -1101,16 +1111,20 @@ async def device_forms(device: InstallationDep, db: DbDep) -> DeviceForms:
     """After each sync, Collect keeps only the research forms it may still
     use and lists those behind a code (2026-10-27)."""
     async with db.transaction(device) as conn:
-        allowed = await conn.execute(
-            text(
-                "SELECT f.id FROM research.form f WHERE research.can_collect(f.id) "
-                "AND f.current_version IS NOT NULL"
+        allowed = (
+            await conn.execute(
+                text(
+                    "SELECT f.id, NOT research.can_collect(f.id) AS waiting "
+                    "FROM research.form f WHERE (research.can_collect(f.id) "
+                    "OR research.device_awaits(f.id)) AND f.current_version IS NOT NULL"
+                )
             )
-        )
+        ).all()
         locked = await conn.execute(text("SELECT * FROM research.locked_forms()"))
         return DeviceForms(
             allowed=[r.id for r in allowed],
             locked=[LockedForm(**r._mapping) for r in locked],
+            pending=[r.id for r in allowed if r.waiting],
         )
 
 
@@ -1264,6 +1278,8 @@ class JoinIn(BaseModel):
 
 class JoinOut(BaseModel):
     form_id: UUID
+    # 'pending' when the team approves new collectors first.
+    status: str = "approved"
 
 
 @router.post("/join")
@@ -1279,7 +1295,16 @@ async def join_with_code(body: JoinIn, device: InstallationDep, db: DbDep) -> Jo
         ).scalar_one_or_none()
         if form is None:
             raise HTTPException(status.HTTP_404_NOT_FOUND, "invalid_code")
-        return JoinOut(form_id=form)
+        joined = (
+            await conn.execute(
+                text(
+                    "SELECT status FROM research.form_collector "
+                    "WHERE form_id = :f AND collector_key = :k"
+                ),
+                {"f": form, "k": body.collector_key},
+            )
+        ).scalar_one_or_none()
+        return JoinOut(form_id=form, status=joined or "approved")
 
 
 # ------------------------------------------------- records across a project

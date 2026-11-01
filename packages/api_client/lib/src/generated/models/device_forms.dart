@@ -10,13 +10,18 @@ part 'device_forms.g.dart';
 
 @JsonSerializable()
 class DeviceForms {
-  const DeviceForms({required this.allowed, required this.locked});
+  const DeviceForms({
+    required this.allowed,
+    required this.locked,
+    this.pending = const [],
+  });
 
   factory DeviceForms.fromJson(Map<String, Object?> json) =>
       _$DeviceFormsFromJson(json);
 
   final List<String> allowed;
   final List<LockedForm> locked;
+  final List<String> pending;
 
   Map<String, Object?> toJson() => _$DeviceFormsToJson(this);
 }

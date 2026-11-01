@@ -7,6 +7,7 @@ import 'package:ui_kit/ui_kit.dart';
 
 import '../../app/session.dart';
 import '../../l10n/app_localizations.dart';
+import '../research/shared_form.dart' show NullIfEmpty;
 import '../research/research_mode.dart';
 import 'sign_in_screen.dart';
 
@@ -192,7 +193,17 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
           ),
         const SizedBox(height: 8),
         TextButton(
-          onPressed: _busy ? null : () => context.go('/sign-in'),
+          onPressed: _busy
+              ? null
+              : () => context.go(
+                  Uri(
+                    path: '/sign-in',
+                    queryParameters: GoRouterState.of(context)
+                        .uri
+                        .queryParameters
+                        .nullIfEmpty,
+                  ).toString(),
+                ),
           child: Text(l10n.signUpHaveAccount),
         ),
       ],

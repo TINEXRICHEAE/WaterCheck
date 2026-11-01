@@ -78,6 +78,16 @@ final routerProvider = Provider<GoRouter>((ref) {
     refreshListenable: gate,
     redirect: (context, state) {
       final location = state.matchedLocation;
+      // A shared form link (2026-11-01): kept through adding a person,
+      // on the research side, then joined from Research's home.
+      if (location.startsWith('/research/link/')) {
+        final token = location.substring('/research/link/'.length);
+        Future.microtask(() async {
+          await ref.read(sharedLinkProvider.notifier).set(token);
+          await ref.read(appModeProvider.notifier).set(AppMode.research);
+        });
+        return gateRedirect(gate.value, '/research') ?? '/research';
+      }
       final to = gateRedirect(gate.value, location);
       if (to != null) return to;
       // The sides run apart (ADR-031): research's pages live under
@@ -221,6 +231,8 @@ final routerProvider = Provider<GoRouter>((ref) {
         ],
       ),
       // Research (ADR-030): filling a record, and one finished record.
+      // Handled by the redirect above; never shown.
+      GoRoute(path: '/research/link/:token', redirect: (_, _) => '/research'),
       GoRoute(
         path: '/research/fill/:id',
         builder: (_, state) => FillScreen(draftId: state.pathParameters['id']!),
