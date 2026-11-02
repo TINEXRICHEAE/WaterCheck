@@ -261,7 +261,7 @@ For a pilot, distribute the complete `Release` directory as a ZIP. The
 current project does not generate MSI or MSIX packages. If recipients must
 receive one `.exe`, use an installer builder such as Inno Setup to embed the
 complete `Release` directory in a self-extracting
-`WaterCheck-Collect-Setup.exe`. It can install fully offline; it does not
+`FieldQuire-Collect-Setup.exe`. It can install fully offline; it does not
 make the Flutter application itself a single-file executable. After
 installation, the application still has its DLLs and `data` directory in its
 installed location. MSIX is the preferred future package for managed Windows

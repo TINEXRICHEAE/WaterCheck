@@ -35,6 +35,8 @@ final _guestName = 'guest-${1000 + Random().nextInt(9000)}';
 
 final _linkProvider = FutureProvider.autoDispose.family<LinkPreview, String>(
   (ref, token) => ref.watch(researchApiProvider).openLink(token: token),
+  // A link that does not work will not by trying again: say so at once.
+  retry: (_, _) => null,
 );
 
 /// A shared form (2026-11-01), open to anyone, shown as its own people see
@@ -97,15 +99,7 @@ class _SharedFormScreenState extends ConsumerState<SharedFormScreen> {
         ? l10n.linkPageGuest(_guestName)
         : l10n.linkPageSignedIn(me.fullName);
     return switch (link) {
-      AsyncData(:final value) when value.kind == 'edit' => _editorPage(
-        context,
-        l10n,
-        value,
-        who: who,
-        signedIn: me != null,
-      ),
-      AsyncData(:final value) => _collectorPage(context, l10n, value, who),
-      AsyncError(:final error) => Scaffold(
+      AsyncValue(hasValue: false, :final error?) => Scaffold(
         appBar: AppBar(title: Text(l10n.linkPageTitle)),
         body: ApiFailure.from(error).code == 'link_not_found'
             ? Center(
@@ -119,6 +113,14 @@ class _SharedFormScreenState extends ConsumerState<SharedFormScreen> {
                 onRetry: () => ref.invalidate(_linkProvider(widget.token)),
               ),
       ),
+      AsyncData(:final value) when value.kind == 'edit' => _editorPage(
+        context,
+        l10n,
+        value,
+        who: who,
+        signedIn: me != null,
+      ),
+      AsyncData(:final value) => _collectorPage(context, l10n, value, who),
       _ => const Scaffold(body: PageLoading()),
     };
   }

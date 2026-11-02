@@ -917,7 +917,7 @@ shows.
 
 ## 17a. Releasing a client version
 
-The 0.1.1 release (2026-10-21) followed this procedure.
+The 0.1.1 (2026-10-21) and 0.2.0 (2026-11-01) releases followed this procedure.
 
 ### 1. Set the version
 
@@ -926,10 +926,10 @@ counts and the installers agree:
 
 | File | Value |
 |------|-------|
-| `apps/console/pubspec.yaml`, `apps/collect/pubspec.yaml` | `version: 0.1.1+2`; raise the build number (`+N`) every release, because Android refuses an update with a lower one |
+| `apps/console/pubspec.yaml`, `apps/collect/pubspec.yaml` | `version: 0.2.0+3`; raise the build number (`+N`) every release, because Android refuses an update with a lower one |
 | `apps/console/lib/app/router.dart` | `consoleVersion` |
 | `apps/collect/lib/features/settings/settings_screen.dart` | `appVersion` |
-| `tools/windows/WaterCheck-Console.iss`, `WaterCheck-Collect.iss` | `#define AppVersion` |
+| `tools/windows/WaterCheck-Console.iss`, `WaterCheck-Collect.iss` | `#define AppVersion` (the installers they make are named `FieldQuire-*-Setup.exe`) |
 
 ### 2. Build against production
 
@@ -937,13 +937,16 @@ Run from `C:\Users\ocenr\Desktop\Research\app\watercheck`. The web Console
 uses the same-origin API; Windows and Android use the API hostname.
 
 ```powershell
-# Web Console (a separate output keeps the local /console/ preview intact)
+# Web Console at / and web Collect at /collect/ (a separate output keeps
+# the local previews intact; on the web both reach the API on the address
+# they are opened on)
 Set-Location .\apps\console
 flutter build web --release --base-href / --no-web-resources-cdn `
-  --dart-define=WC_API_URL=https://watercheck.fieldquire.cooptconnect.app/api `
   -o "C:\Users\ocenr\Desktop\Research\app\watercheck\apps\console\build\web-prod"
-New-Item -ItemType Directory -Force ..\..\dist\web | Out-Null
-tar -czf ..\..\dist\web\console-web.tar.gz -C build\web-prod .
+Set-Location ..\collect
+flutter build web --release --base-href /collect/ --no-web-resources-cdn `
+  -o "C:\Users\ocenr\Desktop\Research\app\watercheck\apps\collect\build\web-prod"
+Set-Location ..\console
 
 # Windows bundles
 flutter build windows --release `
@@ -957,12 +960,19 @@ Set-Location ..\..
 .\tools\windows\build-installers.ps1 `
   -VcRedist ".\tools\windows\prerequisites\Microsoft Visual C++ v14 Redistributable (x64)_14.51.36247.0_Machine_X64_burn_en-US.exe"
 
-# Android APK
+# Writes dist\windows\FieldQuire-Collect-Setup.exe and FieldQuire-Console-Setup.exe
+
+# Android APKs (signed with the development key: install directly; an app
+# store needs a project key first)
 Set-Location .\apps\collect
 flutter build apk --release `
   --dart-define=WC_API_URL=https://api.watercheck.fieldquire.cooptconnect.app/api
 New-Item -ItemType Directory -Force ..\..\dist\android | Out-Null
-Copy-Item build\app\outputs\flutter-apk\app-release.apk ..\..\dist\android\WaterCheck-Collect-0.1.1.apk
+Copy-Item build\app\outputs\flutter-apk\app-release.apk ..\..\dist\android\FieldQuire-Collect-0.2.0.apk
+Set-Location ..\console
+flutter build apk --release `
+  --dart-define=WC_API_URL=https://api.watercheck.fieldquire.cooptconnect.app/api
+Copy-Item build\app\outputs\flutter-apk\app-release.apk ..\..\dist\android\FieldQuire-Console-0.2.0.apk
 ```
 
 Windows PowerShell 5.1 reports Flutter's informational stderr notes (for

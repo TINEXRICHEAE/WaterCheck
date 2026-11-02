@@ -57,7 +57,7 @@ import 'session.dart';
 import '../features/messages/messages.dart';
 
 /// Shown in "About" (pubspec version).
-const consoleVersion = '0.1.1';
+const consoleVersion = '0.2.0';
 
 const _authRoutes = {
   '/sign-in',

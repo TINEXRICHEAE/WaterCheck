@@ -1503,3 +1503,48 @@ Decisions are also recorded in [PLAN.md](PLAN.md) (decisions log and §3a), the 
   - **Collector links:** now Collect's page for filling the form (title above, research number and where it is filled, the questions to try, nothing kept), with "Collect with this form" where Collect has Save and Finish.
   - **Editor links:** now the Console's form page as the owner sees it (title and code, project, status and version), with only the Questions tab; the owner's buttons become "Sign in to ask to edit", "Create a research account" and "Copy link".
   - The link answer now carries the form's version (migration 0027 updated before it reaches production).
+
+### 67. Deployed admins' people pages and shared form links to production (2026-11-01)
+- **Request (lead):** the GitHub checks passed; deploy carefully.
+- **Deployed `8e0f3cf`** (production had been at `4099ed4`):
+  - **Database:**
+    - backed up first (`~/backups/watercheck-20261101-1127-before-0027.dump`, 6.6 MB, readable);
+    - migration 0027 applied;
+    - counts the same before and after: 6 users, 5 collectors, 14 devices, 3 projects, 7 forms, 7 joins, 4 records, 7 tests;
+    - all 7 forms keep letting collectors in at once, and all 7 joins stay approved: nobody's access changed.
+  - **API and worker:** built while the old ones served, then switched; healthy, no server errors; the public link address answers.
+  - **Web apps:** the Console and Collect built for production, uploaded with matching checksums, swapped in (previous builds kept as `web.old`), Caddy recreated; `/f/<link>` and `sqlite3.wasm` served right; the live files match the builds.
+- **Found while checking:** a link that does not work showed a spinner instead of "This link no longer works": the page kept trying again and showed loading meanwhile. Fixed on dev (no retrying a link; an error shows at once), seen in a headless browser; **not yet committed or deployed**. Working links are not affected.
+- **Cleaned:** VM build cache and uploads (19 GB free of 29 GB); local production builds, then `tools/cleanup.ps1`.
+
+### 68. Release 0.2.0: Windows installers and Android apps; final documentation (2026-11-01)
+- **Request (lead):** make the final Android and Windows installers, then the final documentation, and call the project done for now.
+- **Also included:** the fix found while deploying (DEVLOG 67): a link that no longer works now says so at once instead of loading forever (no retrying a link that failed).
+- **Version 0.2.0+3** in all six places (both `pubspec.yaml`, `consoleVersion`, Collect's `appVersion`, both `.iss`).
+- **Built against production** (`WC_API_URL=https://api.watercheck.fieldquire.cooptconnect.app/api`):
+  - Windows release bundles of both apps, then offline installers with the Visual C++ runtime: `dist/windows/FieldQuire-Collect-Setup.exe` (31 MB), `FieldQuire-Console-Setup.exe` (34 MB);
+  - Android release APKs: `dist/android/FieldQuire-Collect-0.2.0.apk` (81 MB), `FieldQuire-Console-0.2.0.apk` (87 MB), signed with the development key;
+  - checksums: `dist/SHA256SUMS-0.2.0.txt`.
+- **Removed:** the superseded 0.1.1 installers and APK in `dist`, so the old ones are not handed out by mistake. `build-installers.ps1` now lists the `FieldQuire-*` installers it makes.
+- **Documentation:**
+  - README: what works now on both sides, release 0.2.0 and where its files are, production addresses, and upcoming work (email provider, Android signing key, links opening in the Android app);
+  - DEPLOYMENT_GUIDE §17a: the release steps as used for 0.2.0 (both web apps, both APKs, installer names); DEV_DEPLOYMENT_GUIDE: installer name;
+  - PROGRESS: "Where things stand" with what is carried forward.
+- **Disk:** build outputs cleaned (2.8 GB); 19.7 GB free, just under the 20 GB mark.
+- **Not run:** the installers and APKs were not installed on a real Windows computer or phone in this session.
+
+### 69. Download folders and a users' guide for Google Docs (2026-11-01)
+- **Request (lead):** a .docx to upload to Google Docs with a brief about and the setup for web, Android and Windows (production links for web; placeholders for the Google Drive links of the installers), and a folder per installer with a very brief README.txt, to zip and share; precise, short steps.
+- **Checked first:** Collect has no activation step (it opens on "Who is collecting?"; "Add a person"); the Console sign-in has "Create an account"; Android needs 7.0 or later (API 24, Flutter's default); all four web addresses answer.
+- **Made (in `dist/share`, not in git):**
+  - `FieldQuire-Console-Windows/`, `FieldQuire-Collect-Windows/`, `FieldQuire-Console-Android/`, `FieldQuire-Collect-Android/`: each with its installer (moved there from `dist/windows` and `dist/android`) and a README.txt of five or six steps (Windows line endings);
+  - `FieldQuire-Getting-Started.docx`: about, the two apps, web links for each side, Windows and Android download tables with highlighted placeholders for the Drive links, install steps, and shared form links. Passed the Word format check; previewed as a web page.
+  - `dist/SHA256SUMS-0.2.0.txt` updated for the new paths.
+
+### 70. Links in the users' guide; the guide linked from the README (2026-11-02)
+- **Request (lead):**
+  - the Google Drive links added to the guide become links reading "download"; the web addresses become links reading "open";
+  - the guide, now on Google Docs, linked from the README, then commit.
+- **Outcome:**
+  - `dist/share/FieldQuire-Getting-Started.docx`: the four Drive links and four web addresses are links reading "download" and "open", each checked to open its own file or address; it passes the Word format check (63 paragraphs, as before).
+  - README: "Install and get started (for users)" links the Google Doc. The address is kept to `…/edit?usp=sharing`; Google's extra parameters (including the owner's account number) are left out of this public file.

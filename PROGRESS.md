@@ -1,6 +1,6 @@
 # Progress
 
-**Current phase:** P11 gate passed (2026-10-12); app-wide UX conventions (2026-10-13, ADR-017); production on Azure (2026-10-17); client release 0.1.1 with the working production map (2026-10-21); archive, edit trails and UX refinements (2026-10-22, ADR-018); round 2 "anywhere in Uganda" in progress (ADR-019, slice A on dev). Next: slices B–D, then P12. Plan: [docs/PLAN.md](docs/PLAN.md) §3a; every request: [docs/DEVLOG.md](docs/DEVLOG.md).
+**Current phase:** paused after client release **0.2.0** (2026-11-01). Water testing (P0–P11 gates, production since 2026-10-17) and the FieldQuire research side (ADR-030 to ADR-033) are live in production; the first research project (CHS4102) is collecting. Open items are listed under "Where things stand" below and in the README's "Upcoming work". Plan: [docs/PLAN.md](docs/PLAN.md) §3a; every request: [docs/DEVLOG.md](docs/DEVLOG.md).
 
 Windows release bundles now build for both apps. Offline single-file
 installer definitions were added under `tools/windows/`; Inno Setup and an
@@ -9,9 +9,20 @@ installer artifacts. Automatic update delivery is not implemented yet:
 Windows needs a signed installer/update channel, Android needs Play
 distribution or a user-approved sideload update, and web updates use the VPS
 deployment and cache versioning.
-**Last updated:** 2026-10-27
+**Last updated:** 2026-11-01
 
-## FieldQuire research side (ADR-030, ADR-031) 🔄
+## Where things stand (2026-11-01)
+
+- **Release 0.2.0** (DEVLOG 68): web Console and Collect in production; in `dist/share`, one folder each with a README.txt: `FieldQuire-Console-Windows`, `FieldQuire-Collect-Windows` (Visual C++ runtime included), `FieldQuire-Console-Android`, `FieldQuire-Collect-Android`; the users' guide `dist/share/FieldQuire-Getting-Started.docx`; checksums in `dist/SHA256SUMS-0.2.0.txt`. The installers and APKs talk to `https://api.watercheck.fieldquire.cooptconnect.app/api`.
+- **Production** runs `8e0f3cf` with migrations to 0027; backups in `~/backups` on the VM.
+- **Not yet done (carried forward):**
+  - a real email provider, so reset and confirmation codes reach people by email (IT admins read them out meanwhile);
+  - Android signing with a project key (0.2.0 uses the development key: install directly, not for an app store);
+  - shared links opening straight in the installed Android app (today: paste the link in "Join with a code");
+  - real-device and real-printer checks, restore drills, and the other P12 items in the README;
+  - on the VM, for the lead: `sudo apt-get clean`, `sudo journalctl --vacuum-size=100M`, and old backups no longer needed.
+
+## FieldQuire research side (ADR-030, ADR-031) ✅
 
 - [x] Research module and the FieldQuire name (DEVLOG 49; `638a699`).
 - [x] Sides kept apart, consent per side, research admin, acceptances kept (DEVLOG 50–51; `08e9771`).
@@ -31,8 +42,8 @@ deployment and cache versioning.
   - people added on a phone reach the server at the next sync, so codes work at once;
   - access and sharing only for the form's own team; IT admins outside it can look but not change.
 - [x] **Loading shown everywhere (DEVLOG 62; `4099ed4`, deployed 2026-10-31):** a top bar for any wait in both apps, spinners on buttons that wait, loaders on pages.
-- [x] Admins reach every collector; people named on devices and lists (DEVLOG 65; `6ac52aa`, not yet deployed).
-- [ ] **Shared form links (DEVLOG 66, ADR-033, migration 0027; on dev, not committed):** guest view, joining with the team's approval, asking to edit, coming back after signing in.
+- [x] Admins reach every collector; people named on devices and lists (DEVLOG 65; `6ac52aa`, deployed 2026-11-01).
+- [x] **Shared form links (DEVLOG 66–67, ADR-033, migration 0027; `8e0f3cf`, deployed 2026-11-01):** guest view, joining with the team's approval, asking to edit, coming back after signing in.
 
 ## Round 2: anywhere in Uganda (2026-10-22, ADR-019) 🔄
 

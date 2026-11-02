@@ -49,5 +49,5 @@ if ($VcRedist) { $common += "/DVcRedist=$VcRedist" }
 & $isccPath @common (Join-Path $PSScriptRoot "WaterCheck-Console.iss")
 if ($LASTEXITCODE -ne 0) { throw "Console installer compilation failed." }
 
-Get-ChildItem $dist -Filter "WaterCheck-*-Setup.exe" | Select-Object FullName,
+Get-ChildItem $dist -Filter "FieldQuire-*-Setup.exe" | Select-Object FullName,
   @{Name = "SizeMB"; Expression = { [math]::Round($_.Length / 1MB, 2) }}

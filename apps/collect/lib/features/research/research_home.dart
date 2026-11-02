@@ -553,7 +553,7 @@ final _linkPreviewProvider = FutureProvider.autoDispose
       final dio = ref.watch(collectApiDioProvider);
       if (dio == null) return null;
       return WaterCheckApi(dio).research.openLink(token: token);
-    });
+    }, retry: (_, _) => null);
 
 /// The form a shared link points to, with a way to join it (2026-11-01).
 class _SharedLinkCard extends ConsumerWidget {
