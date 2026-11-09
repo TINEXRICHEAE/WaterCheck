@@ -4546,6 +4546,48 @@ abstract class AppLocalizations {
   /// **'Record {number}'**
   String researchRecordTitle(String number);
 
+  /// No description provided for @researchCorrectionTag.
+  ///
+  /// In en, this message translates to:
+  /// **'Correction'**
+  String get researchCorrectionTag;
+
+  /// No description provided for @researchRetakeTag.
+  ///
+  /// In en, this message translates to:
+  /// **'Done again'**
+  String get researchRetakeTag;
+
+  /// No description provided for @researchReplacedTag.
+  ///
+  /// In en, this message translates to:
+  /// **'Replaced'**
+  String get researchReplacedTag;
+
+  /// No description provided for @researchReplacedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A newer record replaces this one. Only the newest is counted.'**
+  String get researchReplacedHint;
+
+  /// No description provided for @researchOpenNewer.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the newer record'**
+  String get researchOpenNewer;
+
+  /// No description provided for @researchReplacesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Replaces an earlier record: {reason}'**
+  String researchReplacesHint(String reason);
+
+  /// No description provided for @researchOpenEarlier.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the earlier record'**
+  String get researchOpenEarlier;
+
   /// No description provided for @researchMinutes.
   ///
   /// In en, this message translates to:

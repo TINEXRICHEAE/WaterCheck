@@ -28,6 +28,10 @@ class RecordWithAnswers {
     required this.answers,
     required this.pictures,
     this.locationSource,
+    this.replaces,
+    this.replaceKind,
+    this.replaceReason,
+    this.replacedBy,
   });
 
   factory RecordWithAnswers.fromJson(Map<String, Object?> json) =>
@@ -57,6 +61,13 @@ class RecordWithAnswers {
   @JsonKey(name: 'location_source')
   final String? locationSource;
   final bool declined;
+  final String? replaces;
+  @JsonKey(name: 'replace_kind')
+  final String? replaceKind;
+  @JsonKey(name: 'replace_reason')
+  final String? replaceReason;
+  @JsonKey(name: 'replaced_by')
+  final String? replacedBy;
   @JsonKey(name: 'end_lat')
   final num? endLat;
   @JsonKey(name: 'end_lon')

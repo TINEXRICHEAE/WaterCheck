@@ -237,6 +237,7 @@ class SyncController extends Notifier<SyncUiState> {
     state = SyncUiState(running: true, last: state.last);
     try {
       await _sendProfilesOnce();
+      await _sendDraftsNeverSent();
       // Shown at the top while it runs (2026-10-31).
       final report = await showingActivity(() => sync.run(force: force));
       if (report.failure?.code == 'installation_revoked') {
@@ -255,6 +256,33 @@ class SyncController extends Notifier<SyncUiState> {
       if (ref.mounted) state = SyncUiState(last: state.last);
       rethrow;
     }
+  }
+
+  /// Sends unfinished forms as they are filled, and their pictures
+  /// (ADR-034): quiet, and without fetching anything.
+  Future<void> sendDrafts() async {
+    if (ref.read(appGateProvider).revoked) return;
+    final sync = ref.read(syncServiceProvider);
+    if (sync == null) return;
+    try {
+      final report = await sync.pushOnly();
+      if (report.ok) await ref.read(attachmentUploaderProvider)?.run();
+    } catch (_) {
+      // Offline: the next sync sends them.
+    }
+  }
+
+  /// Unfinished forms from before they were sent (ADR-034).
+  Future<void> _sendDraftsNeverSent() async {
+    final origin = ref.read(submissionOriginProvider);
+    if (origin == null) return;
+    await ref
+        .read(researchRepositoryProvider)
+        .sendDraftsNeverSent(
+          origin,
+          ref.read(attachmentRepositoryProvider),
+          ref.read(photoFilesProvider),
+        );
   }
 
   /// Testers added before profiles were sent on their own (2026-10-31)

@@ -1,6 +1,7 @@
 import 'package:api_client/api_client.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:ui_kit/form_kit.dart';
 import 'package:ui_kit/ui_kit.dart';
@@ -351,8 +352,40 @@ class ResearchRecordScreen extends ConsumerWidget {
                   ),
                   label: Text(l10n.researchClash),
                 ),
+              if (r.replaceKind != null)
+                Chip(
+                  avatar: const Icon(Icons.edit_note, size: 18),
+                  label: Text(
+                    r.replaceKind == 'correction'
+                        ? l10n.researchCorrectionTag
+                        : l10n.researchRetakeTag,
+                  ),
+                ),
+              if (r.replacedBy != null)
+                Chip(
+                  avatar: const Icon(Icons.history, size: 18),
+                  label: Text(l10n.researchReplacedTag),
+                ),
             ],
           ),
+          if (r.replacedBy case final newer?)
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(l10n.researchReplacedHint),
+              trailing: TextButton(
+                onPressed: () => context.go('/research/records/$newer'),
+                child: Text(l10n.researchOpenNewer),
+              ),
+            ),
+          if (r.replaces case final earlier?)
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(l10n.researchReplacesHint(r.replaceReason ?? '')),
+              trailing: TextButton(
+                onPressed: () => context.go('/research/records/$earlier'),
+                child: Text(l10n.researchOpenEarlier),
+              ),
+            ),
           const SizedBox(height: 8),
           Card(
             child: Column(

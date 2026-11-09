@@ -151,6 +151,45 @@ class PullApplier {
       db.researchRecords,
       ResearchRecordRow.fromJson(j, serializer: _s),
     ),
+    // An unfinished form back from the server (ADR-034): never over a newer
+    // copy here, and never again once it is a record on this device.
+    'research_draft': (db, j) async {
+      final id = j['id']! as String;
+      if (j['closed_at'] != null) {
+        await (db.delete(
+          db.researchDrafts,
+        )..where((d) => d.id.equals(id))).go();
+        return;
+      }
+      final finished = await (db.select(
+        db.researchRecords,
+      )..where((r) => r.id.equals(id))).getSingleOrNull();
+      if (finished != null) return;
+      final row = ResearchDraftRow.fromJson(j, serializer: _s);
+      final local = await (db.select(
+        db.researchDrafts,
+      )..where((d) => d.id.equals(id))).getSingleOrNull();
+      if (local != null && !row.updatedAt.isAfter(local.updatedAt)) return;
+      await _upsert(db, db.researchDrafts, row);
+    },
+    // A water test in progress, the same way.
+    'water_draft': (db, j) async {
+      final id = j['id']! as String;
+      if (j['closed_at'] != null) {
+        await (db.delete(db.waterDrafts)..where((d) => d.id.equals(id))).go();
+        return;
+      }
+      final submitted = await (db.select(
+        db.testSessions,
+      )..where((t) => t.id.equals(id))).getSingleOrNull();
+      if (submitted != null) return;
+      final row = WaterDraftRow.fromJson(j, serializer: _s);
+      final local = await (db.select(
+        db.waterDrafts,
+      )..where((d) => d.id.equals(id))).getSingleOrNull();
+      if (local != null && !row.updatedAt.isAfter(local.updatedAt)) return;
+      await _upsert(db, db.waterDrafts, row);
+    },
     'change_trail': (db, j) =>
         _keep(db, db.changeTrails, ChangeTrailRow.fromJson(j, serializer: _s)),
     // A message (ADR-022): the server's copy fills in the author and time,

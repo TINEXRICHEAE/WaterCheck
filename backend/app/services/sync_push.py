@@ -39,6 +39,8 @@ Status = Literal["applied", "duplicate", "conflict", "rejected"]
 ORDER = [
     # A tester's details before anything they made (2026-10-31).
     "collector_profile",
+    # Before the session that ends it (ADR-034).
+    "water_draft",
     "admin_unit",
     "place_name",
     "parameter_definition",
@@ -51,7 +53,8 @@ ORDER = [
     "alert",
     "alert_event",
     "sanitary_inspection",
-    # Research records (ADR-030) before their pictures.
+    # Unfinished forms and research records (ADR-030) before their pictures.
+    "research_draft",
     "research_record",
     "attachment",
     "collector_mark",
@@ -113,6 +116,9 @@ _PLACE_ORDER = ["district", "subcounty", "parish", "village"]
 # Clock sanity (SPEC §5.2): tested in the future, or long before first sync.
 FUTURE_SLACK = timedelta(days=1)
 TOO_OLD = timedelta(days=60)
+
+# An unfinished form's answers and list of pictures, as text.
+_MAX_DRAFT = 512 * 1024
 
 
 @dataclass(frozen=True)
@@ -618,12 +624,17 @@ class PushService:
             raise Rejected("awaiting_approval" if form.waiting else "not_allowed")
         if not form.known:
             raise Rejected("unknown_version")
+        replaces, kind, reason, original_number = await self._replacement(d, o, form_id)
+        # A correction or second go keeps its household's number.
         clash = (
-            await self.conn.execute(
-                text("SELECT research.number_used(:p, :n, :id)"),
-                {"p": form.project_id, "n": number, "id": rid},
-            )
-        ).scalar()
+            number != original_number
+            and (
+                await self.conn.execute(
+                    text("SELECT research.number_used(:p, :n, :id)"),
+                    {"p": form.project_id, "n": number, "id": rid},
+                )
+            ).scalar()
+        )
 
         def num(field: str) -> float | None:
             v = _num(d.get(field), field)
@@ -634,11 +645,15 @@ class PushService:
                 "INSERT INTO research.record (id, form_id, form_version, number, number_clash, "
                 "collector_key, installation_id, collector_snapshot, started_at, finished_at, "
                 "lat, lon, accuracy_m, altitude_m, end_lat, end_lon, end_accuracy_m, answers, "
-                "location_source, server_seq) VALUES (:id, :f, :v, :n, :clash, :ck, :inst, "
+                "location_source, replaces, replace_kind, replace_reason, server_seq) "
+                "VALUES (:id, :f, :v, :n, :clash, :ck, :inst, "
                 "CAST(:cs AS jsonb), :started, :finished, :lat, :lon, :acc, :alt, :elat, :elon, "
-                ":eacc, CAST(:answers AS jsonb), :src, 0)"
+                ":eacc, CAST(:answers AS jsonb), :src, :replaces, :kind, :reason, 0)"
             ),
             {
+                "replaces": replaces,
+                "kind": kind,
+                "reason": reason,
                 "id": rid,
                 "f": form_id,
                 "v": version,
@@ -660,7 +675,214 @@ class PushService:
                 "src": _location_source(d),
             },
         )
+        # Its unfinished copy ends here: the pictures still answering a
+        # question stay with the record.
+        await self.conn.execute(
+            text("SELECT research.close_draft(:id, 'finished', :keep)"),
+            {"id": rid, "keep": [v for v in answers.values() if isinstance(v, str)]},
+        )
         return Outcome(c.id, c.entity, "applied", reason="number_clash" if clash else None)
+
+    async def _replacement(
+        self, d: dict[str, Any], o: dict[str, Any], form_id: UUID | None
+    ) -> tuple[UUID | None, str | None, str | None, str | None]:
+        """What a correction or second go replaces: only the collector who
+        made a record may do so (ADR-018, ADR-034)."""
+        replaces = _uuid(d.get("replaces"), "replaces")
+        if replaces is None:
+            return None, None, None, None
+        kind = d.get("replace_kind")
+        if kind not in ("correction", "retake"):
+            raise Rejected("invalid:replace_kind")
+        reason = " ".join(str(d.get("replace_reason") or "").split())
+        if not reason or len(reason) > 500:
+            raise Rejected("missing:replace_reason")
+        original = (
+            await self.conn.execute(
+                text("SELECT form_id, collector_key, number FROM research.record WHERE id = :id"),
+                {"id": replaces},
+            )
+        ).first()
+        if original is None:
+            raise Rejected("missing_parent")
+        if original.form_id != form_id:
+            raise Rejected("invalid:replaces")
+        if original.collector_key != o["ck"]:
+            raise Rejected("not_creator")
+        return replaces, str(kind), reason, str(original.number)
+
+    async def research_draft_upsert(self, c: Change) -> Outcome:
+        """The latest copy of an unfinished form (ADR-034): an older copy
+        arriving late changes nothing, nor does one after the form ended.
+        Accepted while the team has still to approve the collector: it is
+        a backup, not a record."""
+        if self.p.kind != "installation":
+            raise Rejected("not_allowed")
+        d, o = c.data, self._origin(c.data)
+        rid = _uuid(c.id, "id")
+        if o["ck"] is None:
+            raise Rejected("missing:collector")
+        form_id = _uuid(_req(d, "form_id"), "form_id")
+        version = int(_req(d, "form_version"))
+        answers, media = d.get("answers"), d.get("media") or {}
+        for part in (answers, media):
+            if isinstance(part, str):
+                raise Rejected("invalid:answers")
+        if not isinstance(answers, dict) or not isinstance(media, dict):
+            raise Rejected("invalid:answers")
+        answers_text, media_text = json.dumps(answers), json.dumps(media)
+        if len(answers_text) + len(media_text) > _MAX_DRAFT:
+            raise Rejected("too_large")
+        number = " ".join(str(d.get("number") or "").split()) or None
+        if number is not None and len(number) > 60:
+            raise Rejected("invalid:number")
+        if (
+            await self.conn.execute(
+                text("SELECT 1 FROM research.record WHERE id = :id"), {"id": rid}
+            )
+        ).first():
+            return Outcome(c.id, c.entity, "duplicate")
+        form = (
+            await self.conn.execute(
+                text(
+                    "SELECT research.can_collect(f.id) OR research.device_awaits(f.id) AS ok, "
+                    "EXISTS (SELECT 1 FROM research.form_version v WHERE v.form_id = f.id "
+                    "AND v.version = :v) AS known FROM research.form f WHERE f.id = :f"
+                ),
+                {"f": form_id, "v": version},
+            )
+        ).first()
+        if form is None:
+            raise Rejected("not_found")
+        if not form.ok:
+            raise Rejected("not_allowed")
+        if not form.known:
+            raise Rejected("unknown_version")
+        kind = d.get("replace_kind")
+        if kind not in (None, "correction", "retake"):
+            raise Rejected("invalid:replace_kind")
+        reason = str(d.get("replace_reason") or "")[:500] or None
+
+        def num(field: str) -> float | None:
+            v = _num(d.get(field), field)
+            return None if v is None else float(v)
+
+        written = (
+            await self.conn.execute(
+                text(
+                    "INSERT INTO research.draft (id, form_id, form_version, number, "
+                    "collector_key, installation_id, answers, media, started_at, updated_at, "
+                    "lat, lon, accuracy_m, altitude_m, location_source, replaces, replace_kind, "
+                    "replace_reason, server_seq) VALUES (:id, :f, :v, :n, :ck, :inst, "
+                    "CAST(:answers AS jsonb), CAST(:media AS jsonb), :started, :updated, :lat, "
+                    ":lon, :acc, :alt, :src, :replaces, :kind, :reason, 0) "
+                    "ON CONFLICT (id) DO UPDATE SET form_version = EXCLUDED.form_version, "
+                    "number = EXCLUDED.number, installation_id = EXCLUDED.installation_id, "
+                    "answers = EXCLUDED.answers, media = EXCLUDED.media, "
+                    "updated_at = EXCLUDED.updated_at, lat = EXCLUDED.lat, lon = EXCLUDED.lon, "
+                    "accuracy_m = EXCLUDED.accuracy_m, altitude_m = EXCLUDED.altitude_m, "
+                    "location_source = EXCLUDED.location_source, "
+                    "replace_reason = EXCLUDED.replace_reason "
+                    "WHERE research.draft.closed_at IS NULL "
+                    "AND research.draft.collector_key = EXCLUDED.collector_key "
+                    "AND EXCLUDED.updated_at >= research.draft.updated_at RETURNING 1"
+                ),
+                {
+                    "id": rid,
+                    "f": form_id,
+                    "v": version,
+                    "n": number,
+                    "ck": o["ck"],
+                    "inst": o["inst"],
+                    "answers": answers_text,
+                    "media": media_text,
+                    "started": _ts(_req(d, "started_at"), "started_at"),
+                    "updated": _ts(_req(d, "updated_at"), "updated_at"),
+                    "lat": num("lat"),
+                    "lon": num("lon"),
+                    "acc": num("accuracy_m"),
+                    "alt": num("altitude_m"),
+                    "src": _location_source(d),
+                    "replaces": _uuid(d.get("replaces"), "replaces"),
+                    "kind": kind,
+                    "reason": reason,
+                },
+            )
+        ).first()
+        return Outcome(c.id, c.entity, "applied" if written else "duplicate")
+
+    async def water_draft_upsert(self, c: Change) -> Outcome:
+        """The latest copy of a water test in progress (ADR-034); it will
+        become the test session of the same id."""
+        if self.p.kind != "installation":
+            raise Rejected("not_allowed")
+        d, o = c.data, self._origin(c.data)
+        rid = _uuid(c.id, "id")
+        if o["ck"] is None:
+            raise Rejected("missing:collector")
+        state, media = d.get("state"), d.get("media") or {}
+        if not isinstance(state, dict) or not isinstance(media, dict):
+            raise Rejected("invalid:state")
+        state_text, media_text = json.dumps(state), json.dumps(media)
+        if len(state_text) + len(media_text) > _MAX_DRAFT:
+            raise Rejected("too_large")
+        if (
+            await self.conn.execute(text("SELECT 1 FROM test_session WHERE id = :id"), {"id": rid})
+        ).first():
+            return Outcome(c.id, c.entity, "duplicate")
+        written = (
+            await self.conn.execute(
+                text(
+                    "INSERT INTO water_test_draft (id, collector_key, installation_id, source_id, "
+                    "state, media, started_at, updated_at, server_seq) VALUES (:id, :ck, :inst, "
+                    ":src, CAST(:state AS jsonb), CAST(:media AS jsonb), :started, :updated, 0) "
+                    "ON CONFLICT (id) DO UPDATE SET installation_id = EXCLUDED.installation_id, "
+                    "state = EXCLUDED.state, media = EXCLUDED.media, "
+                    "updated_at = EXCLUDED.updated_at WHERE water_test_draft.closed_at IS NULL "
+                    "AND water_test_draft.collector_key = EXCLUDED.collector_key "
+                    "AND EXCLUDED.updated_at >= water_test_draft.updated_at RETURNING 1"
+                ),
+                {
+                    "id": rid,
+                    "ck": o["ck"],
+                    "inst": o["inst"],
+                    "src": _uuid(_req(d, "source_id"), "source_id"),
+                    "state": state_text,
+                    "media": media_text,
+                    "started": _ts(_req(d, "started_at"), "started_at"),
+                    "updated": _ts(_req(d, "updated_at"), "updated_at"),
+                },
+            )
+        ).first()
+        return Outcome(c.id, c.entity, "applied" if written else "duplicate")
+
+    async def water_draft_discard(self, c: Change) -> Outcome:
+        """The tester threw a test in progress away."""
+        if self.p.kind != "installation":
+            raise Rejected("not_allowed")
+        if not c.data.get("discarded"):
+            raise Rejected("unsupported_change")
+        closed = (
+            await self.conn.execute(
+                text("SELECT wc_close_water_draft(:id, 'discarded')"), {"id": _uuid(c.id, "id")}
+            )
+        ).scalar()
+        return Outcome(c.id, c.entity, "applied" if closed else "duplicate")
+
+    async def research_draft_discard(self, c: Change) -> Outcome:
+        """The collector threw an unfinished form away: its answers leave
+        the server too."""
+        if self.p.kind != "installation":
+            raise Rejected("not_allowed")
+        if not c.data.get("discarded"):
+            raise Rejected("unsupported_change")
+        closed = (
+            await self.conn.execute(
+                text("SELECT research.close_draft(:id, 'discarded', '{}')"),
+                {"id": _uuid(c.id, "id")},
+            )
+        ).scalar()
+        return Outcome(c.id, c.entity, "applied" if closed else "duplicate")
 
     async def water_source_insert(self, c: Change) -> Outcome:
         d, o = c.data, self._origin(c.data)
@@ -841,7 +1063,7 @@ class PushService:
         await self._refuse_archived("water_source", _uuid(_req(d, "source_id"), "source_id"))
         at = _ts(_req(d, "tested_at_device"), "tested_at_device")
         assert at is not None  # noqa: S101 - _req guarantees it
-        return await self._insert(
+        out = await self._insert(
             c,
             "INSERT INTO test_session (id, source_id, installation_id, collector_key, "  # noqa: S608 - constant SQL
             "collector_snapshot, calibration_id, tester_profile_id, reference_standard_id, "
@@ -871,6 +1093,12 @@ class PushService:
                 **o,
             },
         )
+        if out.status == "applied":
+            # The test in progress is now this session (ADR-034).
+            await self.conn.execute(
+                text("SELECT wc_close_water_draft(:id, 'finished')"), {"id": _uuid(c.id, "id")}
+            )
+        return out
 
     async def test_result_insert(self, c: Change) -> Outcome:
         d = c.data
@@ -1078,7 +1306,13 @@ class PushService:
         if mime not in ATTACHMENT_MIME:
             raise Rejected("unsupported_type")
         owner_type = str(_req(d, "owner_type"))
-        if owner_type not in ("water_source", "test_session", "research_record"):
+        if owner_type not in (
+            "water_source",
+            "test_session",
+            "research_record",
+            "research_draft",
+            "water_draft",
+        ):
             raise Rejected("invalid:owner_type")
         aid = _uuid(c.id, "id")
         lat, lon = _num(d.get("taken_lat"), "taken_lat"), _num(d.get("taken_lon"), "taken_lon")
@@ -1402,6 +1636,10 @@ _HANDLERS: dict[tuple[str, str], _Handler] = {
     ("admin_unit", "insert"): PushService.admin_unit_insert,
     ("place_name", "insert"): PushService.place_name_insert,
     ("research_record", "insert"): PushService.research_record_insert,
+    ("research_draft", "insert"): PushService.research_draft_upsert,
+    ("research_draft", "update"): PushService.research_draft_discard,
+    ("water_draft", "insert"): PushService.water_draft_upsert,
+    ("water_draft", "update"): PushService.water_draft_discard,
     ("water_source", "insert"): PushService.water_source_insert,
     ("water_source", "update"): PushService.water_source_update,
     ("calibration", "insert"): PushService.calibration_insert,

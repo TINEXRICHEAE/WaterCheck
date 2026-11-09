@@ -26,6 +26,22 @@ class _InstallAppTileState extends State<InstallAppTile> {
         leading: const Icon(Icons.ios_share),
         title: Text(l10n.installAppIos),
         subtitle: Text(l10n.installAppIosHint),
+        trailing: const Icon(Icons.chevron_right),
+        onTap: () => showDialog<void>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text(l10n.installAppIos),
+            content: SingleChildScrollView(
+              child: Text(l10n.installAppIosSteps),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text(l10n.installAppIosDone),
+              ),
+            ],
+          ),
+        ),
       );
     }
     if (!_can) return const SizedBox.shrink();

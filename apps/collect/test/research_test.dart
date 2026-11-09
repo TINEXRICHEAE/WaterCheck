@@ -96,6 +96,29 @@ void main() {
     expect(record['answers'], {'consent': 'yes', 'B6': 'weekly'});
     expect((record['lat'], record['lon']), (2.7019, 33.6531));
     expect(find.text('H-001'), findsOneWidget, reason: 'under My records');
+
+    // Correcting it (ADR-034): the same answers and number, with a reason,
+    // as a new record; the first stays and says it was replaced.
+    await tapAndSettle(tester, find.text('H-001'));
+    await tester.ensureVisible(find.text('Correct a mistake'));
+    await tapAndSettle(tester, find.text('Correct a mistake'));
+    await tapAndSettle(tester, find.text('Finish'));
+    expect(find.text('Say what was wrong'), findsWidgets);
+    await tester.enterText(find.byType(TextField).first, 'wrong frequency');
+    await settle(tester);
+    await tapAndSettle(tester, find.text('Daily'));
+    await tapAndSettle(tester, find.text('Finish'));
+    final records = (await tester.runAsync(() => db.select(db.outbox).get()))!
+        .where((o) => o.entity == 'research_record')
+        .map((o) => jsonDecode(o.payload) as Map<String, Object?>)
+        .toList();
+    expect(records, hasLength(2));
+    expect(records.last['number'], 'H-001');
+    expect(records.last['replaces'], records.first['id']);
+    expect(records.last['replace_kind'], 'correction');
+    expect(records.last['replace_reason'], 'wrong frequency');
+    expect(records.last['answers'], {'consent': 'yes', 'B6': 'daily'});
+    expect((records.last['lat'], records.last['lon']), (2.7019, 33.6531));
     await disposeApp(tester, db);
   });
 }

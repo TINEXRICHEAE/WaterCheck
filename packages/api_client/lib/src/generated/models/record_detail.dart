@@ -33,6 +33,10 @@ class RecordDetail {
     required this.definition,
     required this.pictures,
     this.locationSource,
+    this.replaces,
+    this.replaceKind,
+    this.replaceReason,
+    this.replacedBy,
   });
 
   factory RecordDetail.fromJson(Map<String, Object?> json) =>
@@ -62,6 +66,13 @@ class RecordDetail {
   @JsonKey(name: 'location_source')
   final String? locationSource;
   final bool declined;
+  final String? replaces;
+  @JsonKey(name: 'replace_kind')
+  final String? replaceKind;
+  @JsonKey(name: 'replace_reason')
+  final String? replaceReason;
+  @JsonKey(name: 'replaced_by')
+  final String? replacedBy;
   @JsonKey(name: 'altitude_m')
   final num? altitudeM;
   @JsonKey(name: 'end_lat')

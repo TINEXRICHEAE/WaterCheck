@@ -116,6 +116,7 @@ export 'models/library_form.dart';
 export 'models/link_in.dart';
 export 'models/link_out.dart';
 export 'models/link_preview.dart';
+export 'models/linked_collector.dart';
 export 'models/locked_form.dart';
 export 'models/login_request.dart';
 export 'models/me_response.dart';

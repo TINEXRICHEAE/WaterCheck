@@ -21378,6 +21378,39 @@ class $ResearchRecordsTable extends ResearchRecords
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _replacesMeta = const VerificationMeta(
+    'replaces',
+  );
+  @override
+  late final GeneratedColumn<String> replaces = GeneratedColumn<String>(
+    'replaces',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _replaceKindMeta = const VerificationMeta(
+    'replaceKind',
+  );
+  @override
+  late final GeneratedColumn<String> replaceKind = GeneratedColumn<String>(
+    'replace_kind',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _replaceReasonMeta = const VerificationMeta(
+    'replaceReason',
+  );
+  @override
+  late final GeneratedColumn<String> replaceReason = GeneratedColumn<String>(
+    'replace_reason',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _createdAtServerMeta = const VerificationMeta(
     'createdAtServer',
   );
@@ -21422,6 +21455,9 @@ class $ResearchRecordsTable extends ResearchRecords
     endAccuracyM,
     locationSource,
     answers,
+    replaces,
+    replaceKind,
+    replaceReason,
     createdAtServer,
     serverSeq,
   ];
@@ -21579,6 +21615,30 @@ class $ResearchRecordsTable extends ResearchRecords
     } else if (isInserting) {
       context.missing(_answersMeta);
     }
+    if (data.containsKey('replaces')) {
+      context.handle(
+        _replacesMeta,
+        replaces.isAcceptableOrUnknown(data['replaces']!, _replacesMeta),
+      );
+    }
+    if (data.containsKey('replace_kind')) {
+      context.handle(
+        _replaceKindMeta,
+        replaceKind.isAcceptableOrUnknown(
+          data['replace_kind']!,
+          _replaceKindMeta,
+        ),
+      );
+    }
+    if (data.containsKey('replace_reason')) {
+      context.handle(
+        _replaceReasonMeta,
+        replaceReason.isAcceptableOrUnknown(
+          data['replace_reason']!,
+          _replaceReasonMeta,
+        ),
+      );
+    }
     if (data.containsKey('created_at_server')) {
       context.handle(
         _createdAtServerMeta,
@@ -21679,6 +21739,18 @@ class $ResearchRecordsTable extends ResearchRecords
         DriftSqlType.string,
         data['${effectivePrefix}answers'],
       )!,
+      replaces: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}replaces'],
+      ),
+      replaceKind: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}replace_kind'],
+      ),
+      replaceReason: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}replace_reason'],
+      ),
       createdAtServer: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at_server'],
@@ -21726,6 +21798,12 @@ class ResearchRecordRow extends DataClass
 
   /// The answers (JSON).
   final String answers;
+
+  /// The earlier record this one corrects or does again, how, and why
+  /// (ADR-034). Added in v15.
+  final String? replaces;
+  final String? replaceKind;
+  final String? replaceReason;
   final DateTime? createdAtServer;
   final int? serverSeq;
   const ResearchRecordRow({
@@ -21748,6 +21826,9 @@ class ResearchRecordRow extends DataClass
     this.endAccuracyM,
     this.locationSource,
     required this.answers,
+    this.replaces,
+    this.replaceKind,
+    this.replaceReason,
     this.createdAtServer,
     this.serverSeq,
   });
@@ -21799,6 +21880,15 @@ class ResearchRecordRow extends DataClass
       map['location_source'] = Variable<String>(locationSource);
     }
     map['answers'] = Variable<String>(answers);
+    if (!nullToAbsent || replaces != null) {
+      map['replaces'] = Variable<String>(replaces);
+    }
+    if (!nullToAbsent || replaceKind != null) {
+      map['replace_kind'] = Variable<String>(replaceKind);
+    }
+    if (!nullToAbsent || replaceReason != null) {
+      map['replace_reason'] = Variable<String>(replaceReason);
+    }
     if (!nullToAbsent || createdAtServer != null) {
       map['created_at_server'] = Variable<DateTime>(createdAtServer);
     }
@@ -21851,6 +21941,15 @@ class ResearchRecordRow extends DataClass
           ? const Value.absent()
           : Value(locationSource),
       answers: Value(answers),
+      replaces: replaces == null && nullToAbsent
+          ? const Value.absent()
+          : Value(replaces),
+      replaceKind: replaceKind == null && nullToAbsent
+          ? const Value.absent()
+          : Value(replaceKind),
+      replaceReason: replaceReason == null && nullToAbsent
+          ? const Value.absent()
+          : Value(replaceReason),
       createdAtServer: createdAtServer == null && nullToAbsent
           ? const Value.absent()
           : Value(createdAtServer),
@@ -21887,6 +21986,9 @@ class ResearchRecordRow extends DataClass
       endAccuracyM: serializer.fromJson<double?>(json['end_accuracy_m']),
       locationSource: serializer.fromJson<String?>(json['location_source']),
       answers: serializer.fromJson<String>(json['answers']),
+      replaces: serializer.fromJson<String?>(json['replaces']),
+      replaceKind: serializer.fromJson<String?>(json['replace_kind']),
+      replaceReason: serializer.fromJson<String?>(json['replace_reason']),
       createdAtServer: serializer.fromJson<DateTime?>(
         json['created_at_server'],
       ),
@@ -21916,6 +22018,9 @@ class ResearchRecordRow extends DataClass
       'end_accuracy_m': serializer.toJson<double?>(endAccuracyM),
       'location_source': serializer.toJson<String?>(locationSource),
       'answers': serializer.toJson<String>(answers),
+      'replaces': serializer.toJson<String?>(replaces),
+      'replace_kind': serializer.toJson<String?>(replaceKind),
+      'replace_reason': serializer.toJson<String?>(replaceReason),
       'created_at_server': serializer.toJson<DateTime?>(createdAtServer),
       'server_seq': serializer.toJson<int?>(serverSeq),
     };
@@ -21941,6 +22046,9 @@ class ResearchRecordRow extends DataClass
     Value<double?> endAccuracyM = const Value.absent(),
     Value<String?> locationSource = const Value.absent(),
     String? answers,
+    Value<String?> replaces = const Value.absent(),
+    Value<String?> replaceKind = const Value.absent(),
+    Value<String?> replaceReason = const Value.absent(),
     Value<DateTime?> createdAtServer = const Value.absent(),
     Value<int?> serverSeq = const Value.absent(),
   }) => ResearchRecordRow(
@@ -21969,6 +22077,11 @@ class ResearchRecordRow extends DataClass
         ? locationSource.value
         : this.locationSource,
     answers: answers ?? this.answers,
+    replaces: replaces.present ? replaces.value : this.replaces,
+    replaceKind: replaceKind.present ? replaceKind.value : this.replaceKind,
+    replaceReason: replaceReason.present
+        ? replaceReason.value
+        : this.replaceReason,
     createdAtServer: createdAtServer.present
         ? createdAtServer.value
         : this.createdAtServer,
@@ -22011,6 +22124,13 @@ class ResearchRecordRow extends DataClass
           ? data.locationSource.value
           : this.locationSource,
       answers: data.answers.present ? data.answers.value : this.answers,
+      replaces: data.replaces.present ? data.replaces.value : this.replaces,
+      replaceKind: data.replaceKind.present
+          ? data.replaceKind.value
+          : this.replaceKind,
+      replaceReason: data.replaceReason.present
+          ? data.replaceReason.value
+          : this.replaceReason,
       createdAtServer: data.createdAtServer.present
           ? data.createdAtServer.value
           : this.createdAtServer,
@@ -22040,6 +22160,9 @@ class ResearchRecordRow extends DataClass
           ..write('endAccuracyM: $endAccuracyM, ')
           ..write('locationSource: $locationSource, ')
           ..write('answers: $answers, ')
+          ..write('replaces: $replaces, ')
+          ..write('replaceKind: $replaceKind, ')
+          ..write('replaceReason: $replaceReason, ')
           ..write('createdAtServer: $createdAtServer, ')
           ..write('serverSeq: $serverSeq')
           ..write(')'))
@@ -22067,6 +22190,9 @@ class ResearchRecordRow extends DataClass
     endAccuracyM,
     locationSource,
     answers,
+    replaces,
+    replaceKind,
+    replaceReason,
     createdAtServer,
     serverSeq,
   ]);
@@ -22093,6 +22219,9 @@ class ResearchRecordRow extends DataClass
           other.endAccuracyM == this.endAccuracyM &&
           other.locationSource == this.locationSource &&
           other.answers == this.answers &&
+          other.replaces == this.replaces &&
+          other.replaceKind == this.replaceKind &&
+          other.replaceReason == this.replaceReason &&
           other.createdAtServer == this.createdAtServer &&
           other.serverSeq == this.serverSeq);
 }
@@ -22117,6 +22246,9 @@ class ResearchRecordsCompanion extends UpdateCompanion<ResearchRecordRow> {
   final Value<double?> endAccuracyM;
   final Value<String?> locationSource;
   final Value<String> answers;
+  final Value<String?> replaces;
+  final Value<String?> replaceKind;
+  final Value<String?> replaceReason;
   final Value<DateTime?> createdAtServer;
   final Value<int?> serverSeq;
   final Value<int> rowid;
@@ -22140,6 +22272,9 @@ class ResearchRecordsCompanion extends UpdateCompanion<ResearchRecordRow> {
     this.endAccuracyM = const Value.absent(),
     this.locationSource = const Value.absent(),
     this.answers = const Value.absent(),
+    this.replaces = const Value.absent(),
+    this.replaceKind = const Value.absent(),
+    this.replaceReason = const Value.absent(),
     this.createdAtServer = const Value.absent(),
     this.serverSeq = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -22164,6 +22299,9 @@ class ResearchRecordsCompanion extends UpdateCompanion<ResearchRecordRow> {
     this.endAccuracyM = const Value.absent(),
     this.locationSource = const Value.absent(),
     required String answers,
+    this.replaces = const Value.absent(),
+    this.replaceKind = const Value.absent(),
+    this.replaceReason = const Value.absent(),
     this.createdAtServer = const Value.absent(),
     this.serverSeq = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -22192,6 +22330,9 @@ class ResearchRecordsCompanion extends UpdateCompanion<ResearchRecordRow> {
     Expression<double>? endAccuracyM,
     Expression<String>? locationSource,
     Expression<String>? answers,
+    Expression<String>? replaces,
+    Expression<String>? replaceKind,
+    Expression<String>? replaceReason,
     Expression<DateTime>? createdAtServer,
     Expression<int>? serverSeq,
     Expression<int>? rowid,
@@ -22216,6 +22357,9 @@ class ResearchRecordsCompanion extends UpdateCompanion<ResearchRecordRow> {
       if (endAccuracyM != null) 'end_accuracy_m': endAccuracyM,
       if (locationSource != null) 'location_source': locationSource,
       if (answers != null) 'answers': answers,
+      if (replaces != null) 'replaces': replaces,
+      if (replaceKind != null) 'replace_kind': replaceKind,
+      if (replaceReason != null) 'replace_reason': replaceReason,
       if (createdAtServer != null) 'created_at_server': createdAtServer,
       if (serverSeq != null) 'server_seq': serverSeq,
       if (rowid != null) 'rowid': rowid,
@@ -22242,6 +22386,9 @@ class ResearchRecordsCompanion extends UpdateCompanion<ResearchRecordRow> {
     Value<double?>? endAccuracyM,
     Value<String?>? locationSource,
     Value<String>? answers,
+    Value<String?>? replaces,
+    Value<String?>? replaceKind,
+    Value<String?>? replaceReason,
     Value<DateTime?>? createdAtServer,
     Value<int?>? serverSeq,
     Value<int>? rowid,
@@ -22266,6 +22413,9 @@ class ResearchRecordsCompanion extends UpdateCompanion<ResearchRecordRow> {
       endAccuracyM: endAccuracyM ?? this.endAccuracyM,
       locationSource: locationSource ?? this.locationSource,
       answers: answers ?? this.answers,
+      replaces: replaces ?? this.replaces,
+      replaceKind: replaceKind ?? this.replaceKind,
+      replaceReason: replaceReason ?? this.replaceReason,
       createdAtServer: createdAtServer ?? this.createdAtServer,
       serverSeq: serverSeq ?? this.serverSeq,
       rowid: rowid ?? this.rowid,
@@ -22332,6 +22482,15 @@ class ResearchRecordsCompanion extends UpdateCompanion<ResearchRecordRow> {
     if (answers.present) {
       map['answers'] = Variable<String>(answers.value);
     }
+    if (replaces.present) {
+      map['replaces'] = Variable<String>(replaces.value);
+    }
+    if (replaceKind.present) {
+      map['replace_kind'] = Variable<String>(replaceKind.value);
+    }
+    if (replaceReason.present) {
+      map['replace_reason'] = Variable<String>(replaceReason.value);
+    }
     if (createdAtServer.present) {
       map['created_at_server'] = Variable<DateTime>(createdAtServer.value);
     }
@@ -22366,6 +22525,9 @@ class ResearchRecordsCompanion extends UpdateCompanion<ResearchRecordRow> {
           ..write('endAccuracyM: $endAccuracyM, ')
           ..write('locationSource: $locationSource, ')
           ..write('answers: $answers, ')
+          ..write('replaces: $replaces, ')
+          ..write('replaceKind: $replaceKind, ')
+          ..write('replaceReason: $replaceReason, ')
           ..write('createdAtServer: $createdAtServer, ')
           ..write('serverSeq: $serverSeq, ')
           ..write('rowid: $rowid')
@@ -22523,6 +22685,39 @@ class $ResearchDraftsTable extends ResearchDrafts
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _replacesMeta = const VerificationMeta(
+    'replaces',
+  );
+  @override
+  late final GeneratedColumn<String> replaces = GeneratedColumn<String>(
+    'replaces',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _replaceKindMeta = const VerificationMeta(
+    'replaceKind',
+  );
+  @override
+  late final GeneratedColumn<String> replaceKind = GeneratedColumn<String>(
+    'replace_kind',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _replaceReasonMeta = const VerificationMeta(
+    'replaceReason',
+  );
+  @override
+  late final GeneratedColumn<String> replaceReason = GeneratedColumn<String>(
+    'replace_reason',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -22539,6 +22734,9 @@ class $ResearchDraftsTable extends ResearchDrafts
     accuracyM,
     altitudeM,
     locationSource,
+    replaces,
+    replaceKind,
+    replaceReason,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -22654,6 +22852,30 @@ class $ResearchDraftsTable extends ResearchDrafts
         ),
       );
     }
+    if (data.containsKey('replaces')) {
+      context.handle(
+        _replacesMeta,
+        replaces.isAcceptableOrUnknown(data['replaces']!, _replacesMeta),
+      );
+    }
+    if (data.containsKey('replace_kind')) {
+      context.handle(
+        _replaceKindMeta,
+        replaceKind.isAcceptableOrUnknown(
+          data['replace_kind']!,
+          _replaceKindMeta,
+        ),
+      );
+    }
+    if (data.containsKey('replace_reason')) {
+      context.handle(
+        _replaceReasonMeta,
+        replaceReason.isAcceptableOrUnknown(
+          data['replace_reason']!,
+          _replaceReasonMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -22719,6 +22941,18 @@ class $ResearchDraftsTable extends ResearchDrafts
         DriftSqlType.string,
         data['${effectivePrefix}location_source'],
       ),
+      replaces: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}replaces'],
+      ),
+      replaceKind: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}replace_kind'],
+      ),
+      replaceReason: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}replace_reason'],
+      ),
     );
   }
 
@@ -22749,6 +22983,11 @@ class ResearchDraftRow extends DataClass
   /// Where the location came from: null for the device itself, 'internet'
   /// (a computer's rough guess) or 'hand' (set on the map). Added in v14.
   final String? locationSource;
+
+  /// The record this draft will correct or do again (ADR-034). Added in v15.
+  final String? replaces;
+  final String? replaceKind;
+  final String? replaceReason;
   const ResearchDraftRow({
     required this.id,
     required this.formId,
@@ -22764,6 +23003,9 @@ class ResearchDraftRow extends DataClass
     this.accuracyM,
     this.altitudeM,
     this.locationSource,
+    this.replaces,
+    this.replaceKind,
+    this.replaceReason,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -22796,6 +23038,15 @@ class ResearchDraftRow extends DataClass
     if (!nullToAbsent || locationSource != null) {
       map['location_source'] = Variable<String>(locationSource);
     }
+    if (!nullToAbsent || replaces != null) {
+      map['replaces'] = Variable<String>(replaces);
+    }
+    if (!nullToAbsent || replaceKind != null) {
+      map['replace_kind'] = Variable<String>(replaceKind);
+    }
+    if (!nullToAbsent || replaceReason != null) {
+      map['replace_reason'] = Variable<String>(replaceReason);
+    }
     return map;
   }
 
@@ -22825,6 +23076,15 @@ class ResearchDraftRow extends DataClass
       locationSource: locationSource == null && nullToAbsent
           ? const Value.absent()
           : Value(locationSource),
+      replaces: replaces == null && nullToAbsent
+          ? const Value.absent()
+          : Value(replaces),
+      replaceKind: replaceKind == null && nullToAbsent
+          ? const Value.absent()
+          : Value(replaceKind),
+      replaceReason: replaceReason == null && nullToAbsent
+          ? const Value.absent()
+          : Value(replaceReason),
     );
   }
 
@@ -22848,6 +23108,9 @@ class ResearchDraftRow extends DataClass
       accuracyM: serializer.fromJson<double?>(json['accuracy_m']),
       altitudeM: serializer.fromJson<double?>(json['altitude_m']),
       locationSource: serializer.fromJson<String?>(json['location_source']),
+      replaces: serializer.fromJson<String?>(json['replaces']),
+      replaceKind: serializer.fromJson<String?>(json['replace_kind']),
+      replaceReason: serializer.fromJson<String?>(json['replace_reason']),
     );
   }
   @override
@@ -22868,6 +23131,9 @@ class ResearchDraftRow extends DataClass
       'accuracy_m': serializer.toJson<double?>(accuracyM),
       'altitude_m': serializer.toJson<double?>(altitudeM),
       'location_source': serializer.toJson<String?>(locationSource),
+      'replaces': serializer.toJson<String?>(replaces),
+      'replace_kind': serializer.toJson<String?>(replaceKind),
+      'replace_reason': serializer.toJson<String?>(replaceReason),
     };
   }
 
@@ -22886,6 +23152,9 @@ class ResearchDraftRow extends DataClass
     Value<double?> accuracyM = const Value.absent(),
     Value<double?> altitudeM = const Value.absent(),
     Value<String?> locationSource = const Value.absent(),
+    Value<String?> replaces = const Value.absent(),
+    Value<String?> replaceKind = const Value.absent(),
+    Value<String?> replaceReason = const Value.absent(),
   }) => ResearchDraftRow(
     id: id ?? this.id,
     formId: formId ?? this.formId,
@@ -22903,6 +23172,11 @@ class ResearchDraftRow extends DataClass
     locationSource: locationSource.present
         ? locationSource.value
         : this.locationSource,
+    replaces: replaces.present ? replaces.value : this.replaces,
+    replaceKind: replaceKind.present ? replaceKind.value : this.replaceKind,
+    replaceReason: replaceReason.present
+        ? replaceReason.value
+        : this.replaceReason,
   );
   ResearchDraftRow copyWithCompanion(ResearchDraftsCompanion data) {
     return ResearchDraftRow(
@@ -22926,6 +23200,13 @@ class ResearchDraftRow extends DataClass
       locationSource: data.locationSource.present
           ? data.locationSource.value
           : this.locationSource,
+      replaces: data.replaces.present ? data.replaces.value : this.replaces,
+      replaceKind: data.replaceKind.present
+          ? data.replaceKind.value
+          : this.replaceKind,
+      replaceReason: data.replaceReason.present
+          ? data.replaceReason.value
+          : this.replaceReason,
     );
   }
 
@@ -22945,7 +23226,10 @@ class ResearchDraftRow extends DataClass
           ..write('lon: $lon, ')
           ..write('accuracyM: $accuracyM, ')
           ..write('altitudeM: $altitudeM, ')
-          ..write('locationSource: $locationSource')
+          ..write('locationSource: $locationSource, ')
+          ..write('replaces: $replaces, ')
+          ..write('replaceKind: $replaceKind, ')
+          ..write('replaceReason: $replaceReason')
           ..write(')'))
         .toString();
   }
@@ -22966,6 +23250,9 @@ class ResearchDraftRow extends DataClass
     accuracyM,
     altitudeM,
     locationSource,
+    replaces,
+    replaceKind,
+    replaceReason,
   );
   @override
   bool operator ==(Object other) =>
@@ -22984,7 +23271,10 @@ class ResearchDraftRow extends DataClass
           other.lon == this.lon &&
           other.accuracyM == this.accuracyM &&
           other.altitudeM == this.altitudeM &&
-          other.locationSource == this.locationSource);
+          other.locationSource == this.locationSource &&
+          other.replaces == this.replaces &&
+          other.replaceKind == this.replaceKind &&
+          other.replaceReason == this.replaceReason);
 }
 
 class ResearchDraftsCompanion extends UpdateCompanion<ResearchDraftRow> {
@@ -23002,6 +23292,9 @@ class ResearchDraftsCompanion extends UpdateCompanion<ResearchDraftRow> {
   final Value<double?> accuracyM;
   final Value<double?> altitudeM;
   final Value<String?> locationSource;
+  final Value<String?> replaces;
+  final Value<String?> replaceKind;
+  final Value<String?> replaceReason;
   final Value<int> rowid;
   const ResearchDraftsCompanion({
     this.id = const Value.absent(),
@@ -23018,6 +23311,9 @@ class ResearchDraftsCompanion extends UpdateCompanion<ResearchDraftRow> {
     this.accuracyM = const Value.absent(),
     this.altitudeM = const Value.absent(),
     this.locationSource = const Value.absent(),
+    this.replaces = const Value.absent(),
+    this.replaceKind = const Value.absent(),
+    this.replaceReason = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   ResearchDraftsCompanion.insert({
@@ -23035,6 +23331,9 @@ class ResearchDraftsCompanion extends UpdateCompanion<ResearchDraftRow> {
     this.accuracyM = const Value.absent(),
     this.altitudeM = const Value.absent(),
     this.locationSource = const Value.absent(),
+    this.replaces = const Value.absent(),
+    this.replaceKind = const Value.absent(),
+    this.replaceReason = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        formId = Value(formId),
@@ -23057,6 +23356,9 @@ class ResearchDraftsCompanion extends UpdateCompanion<ResearchDraftRow> {
     Expression<double>? accuracyM,
     Expression<double>? altitudeM,
     Expression<String>? locationSource,
+    Expression<String>? replaces,
+    Expression<String>? replaceKind,
+    Expression<String>? replaceReason,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -23074,6 +23376,9 @@ class ResearchDraftsCompanion extends UpdateCompanion<ResearchDraftRow> {
       if (accuracyM != null) 'accuracy_m': accuracyM,
       if (altitudeM != null) 'altitude_m': altitudeM,
       if (locationSource != null) 'location_source': locationSource,
+      if (replaces != null) 'replaces': replaces,
+      if (replaceKind != null) 'replace_kind': replaceKind,
+      if (replaceReason != null) 'replace_reason': replaceReason,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -23093,6 +23398,9 @@ class ResearchDraftsCompanion extends UpdateCompanion<ResearchDraftRow> {
     Value<double?>? accuracyM,
     Value<double?>? altitudeM,
     Value<String?>? locationSource,
+    Value<String?>? replaces,
+    Value<String?>? replaceKind,
+    Value<String?>? replaceReason,
     Value<int>? rowid,
   }) {
     return ResearchDraftsCompanion(
@@ -23110,6 +23418,9 @@ class ResearchDraftsCompanion extends UpdateCompanion<ResearchDraftRow> {
       accuracyM: accuracyM ?? this.accuracyM,
       altitudeM: altitudeM ?? this.altitudeM,
       locationSource: locationSource ?? this.locationSource,
+      replaces: replaces ?? this.replaces,
+      replaceKind: replaceKind ?? this.replaceKind,
+      replaceReason: replaceReason ?? this.replaceReason,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -23159,6 +23470,15 @@ class ResearchDraftsCompanion extends UpdateCompanion<ResearchDraftRow> {
     if (locationSource.present) {
       map['location_source'] = Variable<String>(locationSource.value);
     }
+    if (replaces.present) {
+      map['replaces'] = Variable<String>(replaces.value);
+    }
+    if (replaceKind.present) {
+      map['replace_kind'] = Variable<String>(replaceKind.value);
+    }
+    if (replaceReason.present) {
+      map['replace_reason'] = Variable<String>(replaceReason.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -23182,6 +23502,478 @@ class ResearchDraftsCompanion extends UpdateCompanion<ResearchDraftRow> {
           ..write('accuracyM: $accuracyM, ')
           ..write('altitudeM: $altitudeM, ')
           ..write('locationSource: $locationSource, ')
+          ..write('replaces: $replaces, ')
+          ..write('replaceKind: $replaceKind, ')
+          ..write('replaceReason: $replaceReason, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $WaterDraftsTable extends WaterDrafts
+    with TableInfo<$WaterDraftsTable, WaterDraftRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $WaterDraftsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _sourceIdMeta = const VerificationMeta(
+    'sourceId',
+  );
+  @override
+  late final GeneratedColumn<String> sourceId = GeneratedColumn<String>(
+    'source_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _collectorKeyMeta = const VerificationMeta(
+    'collectorKey',
+  );
+  @override
+  late final GeneratedColumn<String> collectorKey = GeneratedColumn<String>(
+    'collector_key',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _stateMeta = const VerificationMeta('state');
+  @override
+  late final GeneratedColumn<String> state = GeneratedColumn<String>(
+    'state',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _mediaMeta = const VerificationMeta('media');
+  @override
+  late final GeneratedColumn<String> media = GeneratedColumn<String>(
+    'media',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('{}'),
+  );
+  static const VerificationMeta _startedAtMeta = const VerificationMeta(
+    'startedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> startedAt = GeneratedColumn<DateTime>(
+    'started_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    sourceId,
+    collectorKey,
+    state,
+    media,
+    startedAt,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'water_drafts';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<WaterDraftRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('source_id')) {
+      context.handle(
+        _sourceIdMeta,
+        sourceId.isAcceptableOrUnknown(data['source_id']!, _sourceIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_sourceIdMeta);
+    }
+    if (data.containsKey('collector_key')) {
+      context.handle(
+        _collectorKeyMeta,
+        collectorKey.isAcceptableOrUnknown(
+          data['collector_key']!,
+          _collectorKeyMeta,
+        ),
+      );
+    }
+    if (data.containsKey('state')) {
+      context.handle(
+        _stateMeta,
+        state.isAcceptableOrUnknown(data['state']!, _stateMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_stateMeta);
+    }
+    if (data.containsKey('media')) {
+      context.handle(
+        _mediaMeta,
+        media.isAcceptableOrUnknown(data['media']!, _mediaMeta),
+      );
+    }
+    if (data.containsKey('started_at')) {
+      context.handle(
+        _startedAtMeta,
+        startedAt.isAcceptableOrUnknown(data['started_at']!, _startedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_startedAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  WaterDraftRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return WaterDraftRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      sourceId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}source_id'],
+      )!,
+      collectorKey: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}collector_key'],
+      ),
+      state: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}state'],
+      )!,
+      media: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}media'],
+      )!,
+      startedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}started_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $WaterDraftsTable createAlias(String alias) {
+    return $WaterDraftsTable(attachedDatabase, alias);
+  }
+}
+
+class WaterDraftRow extends DataClass implements Insertable<WaterDraftRow> {
+  /// The id its test session will have.
+  final String id;
+  final String sourceId;
+  final String? collectorKey;
+
+  /// JSON: readings entered, limits, tester, where it was checked.
+  final String state;
+
+  /// Pictures so far (JSON): attachment id → local file and fix.
+  final String media;
+  final DateTime startedAt;
+  final DateTime updatedAt;
+  const WaterDraftRow({
+    required this.id,
+    required this.sourceId,
+    this.collectorKey,
+    required this.state,
+    required this.media,
+    required this.startedAt,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['source_id'] = Variable<String>(sourceId);
+    if (!nullToAbsent || collectorKey != null) {
+      map['collector_key'] = Variable<String>(collectorKey);
+    }
+    map['state'] = Variable<String>(state);
+    map['media'] = Variable<String>(media);
+    map['started_at'] = Variable<DateTime>(startedAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  WaterDraftsCompanion toCompanion(bool nullToAbsent) {
+    return WaterDraftsCompanion(
+      id: Value(id),
+      sourceId: Value(sourceId),
+      collectorKey: collectorKey == null && nullToAbsent
+          ? const Value.absent()
+          : Value(collectorKey),
+      state: Value(state),
+      media: Value(media),
+      startedAt: Value(startedAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory WaterDraftRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return WaterDraftRow(
+      id: serializer.fromJson<String>(json['id']),
+      sourceId: serializer.fromJson<String>(json['source_id']),
+      collectorKey: serializer.fromJson<String?>(json['collector_key']),
+      state: serializer.fromJson<String>(json['state']),
+      media: serializer.fromJson<String>(json['media']),
+      startedAt: serializer.fromJson<DateTime>(json['started_at']),
+      updatedAt: serializer.fromJson<DateTime>(json['updated_at']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'source_id': serializer.toJson<String>(sourceId),
+      'collector_key': serializer.toJson<String?>(collectorKey),
+      'state': serializer.toJson<String>(state),
+      'media': serializer.toJson<String>(media),
+      'started_at': serializer.toJson<DateTime>(startedAt),
+      'updated_at': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  WaterDraftRow copyWith({
+    String? id,
+    String? sourceId,
+    Value<String?> collectorKey = const Value.absent(),
+    String? state,
+    String? media,
+    DateTime? startedAt,
+    DateTime? updatedAt,
+  }) => WaterDraftRow(
+    id: id ?? this.id,
+    sourceId: sourceId ?? this.sourceId,
+    collectorKey: collectorKey.present ? collectorKey.value : this.collectorKey,
+    state: state ?? this.state,
+    media: media ?? this.media,
+    startedAt: startedAt ?? this.startedAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  WaterDraftRow copyWithCompanion(WaterDraftsCompanion data) {
+    return WaterDraftRow(
+      id: data.id.present ? data.id.value : this.id,
+      sourceId: data.sourceId.present ? data.sourceId.value : this.sourceId,
+      collectorKey: data.collectorKey.present
+          ? data.collectorKey.value
+          : this.collectorKey,
+      state: data.state.present ? data.state.value : this.state,
+      media: data.media.present ? data.media.value : this.media,
+      startedAt: data.startedAt.present ? data.startedAt.value : this.startedAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('WaterDraftRow(')
+          ..write('id: $id, ')
+          ..write('sourceId: $sourceId, ')
+          ..write('collectorKey: $collectorKey, ')
+          ..write('state: $state, ')
+          ..write('media: $media, ')
+          ..write('startedAt: $startedAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    sourceId,
+    collectorKey,
+    state,
+    media,
+    startedAt,
+    updatedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is WaterDraftRow &&
+          other.id == this.id &&
+          other.sourceId == this.sourceId &&
+          other.collectorKey == this.collectorKey &&
+          other.state == this.state &&
+          other.media == this.media &&
+          other.startedAt == this.startedAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class WaterDraftsCompanion extends UpdateCompanion<WaterDraftRow> {
+  final Value<String> id;
+  final Value<String> sourceId;
+  final Value<String?> collectorKey;
+  final Value<String> state;
+  final Value<String> media;
+  final Value<DateTime> startedAt;
+  final Value<DateTime> updatedAt;
+  final Value<int> rowid;
+  const WaterDraftsCompanion({
+    this.id = const Value.absent(),
+    this.sourceId = const Value.absent(),
+    this.collectorKey = const Value.absent(),
+    this.state = const Value.absent(),
+    this.media = const Value.absent(),
+    this.startedAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  WaterDraftsCompanion.insert({
+    required String id,
+    required String sourceId,
+    this.collectorKey = const Value.absent(),
+    required String state,
+    this.media = const Value.absent(),
+    required DateTime startedAt,
+    required DateTime updatedAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       sourceId = Value(sourceId),
+       state = Value(state),
+       startedAt = Value(startedAt),
+       updatedAt = Value(updatedAt);
+  static Insertable<WaterDraftRow> custom({
+    Expression<String>? id,
+    Expression<String>? sourceId,
+    Expression<String>? collectorKey,
+    Expression<String>? state,
+    Expression<String>? media,
+    Expression<DateTime>? startedAt,
+    Expression<DateTime>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (sourceId != null) 'source_id': sourceId,
+      if (collectorKey != null) 'collector_key': collectorKey,
+      if (state != null) 'state': state,
+      if (media != null) 'media': media,
+      if (startedAt != null) 'started_at': startedAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  WaterDraftsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? sourceId,
+    Value<String?>? collectorKey,
+    Value<String>? state,
+    Value<String>? media,
+    Value<DateTime>? startedAt,
+    Value<DateTime>? updatedAt,
+    Value<int>? rowid,
+  }) {
+    return WaterDraftsCompanion(
+      id: id ?? this.id,
+      sourceId: sourceId ?? this.sourceId,
+      collectorKey: collectorKey ?? this.collectorKey,
+      state: state ?? this.state,
+      media: media ?? this.media,
+      startedAt: startedAt ?? this.startedAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (sourceId.present) {
+      map['source_id'] = Variable<String>(sourceId.value);
+    }
+    if (collectorKey.present) {
+      map['collector_key'] = Variable<String>(collectorKey.value);
+    }
+    if (state.present) {
+      map['state'] = Variable<String>(state.value);
+    }
+    if (media.present) {
+      map['media'] = Variable<String>(media.value);
+    }
+    if (startedAt.present) {
+      map['started_at'] = Variable<DateTime>(startedAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('WaterDraftsCompanion(')
+          ..write('id: $id, ')
+          ..write('sourceId: $sourceId, ')
+          ..write('collectorKey: $collectorKey, ')
+          ..write('state: $state, ')
+          ..write('media: $media, ')
+          ..write('startedAt: $startedAt, ')
+          ..write('updatedAt: $updatedAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -23300,6 +24092,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     this,
   );
   late final $ResearchDraftsTable researchDrafts = $ResearchDraftsTable(this);
+  late final $WaterDraftsTable waterDrafts = $WaterDraftsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -23355,6 +24148,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     researchFormVersions,
     researchRecords,
     researchDrafts,
+    waterDrafts,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -36032,6 +36826,9 @@ typedef $$ResearchRecordsTableCreateCompanionBuilder =
       Value<double?> endAccuracyM,
       Value<String?> locationSource,
       required String answers,
+      Value<String?> replaces,
+      Value<String?> replaceKind,
+      Value<String?> replaceReason,
       Value<DateTime?> createdAtServer,
       Value<int?> serverSeq,
       Value<int> rowid,
@@ -36057,6 +36854,9 @@ typedef $$ResearchRecordsTableUpdateCompanionBuilder =
       Value<double?> endAccuracyM,
       Value<String?> locationSource,
       Value<String> answers,
+      Value<String?> replaces,
+      Value<String?> replaceKind,
+      Value<String?> replaceReason,
       Value<DateTime?> createdAtServer,
       Value<int?> serverSeq,
       Value<int> rowid,
@@ -36163,6 +36963,21 @@ class $$ResearchRecordsTableFilterComposer
 
   ColumnFilters<String> get answers => $composableBuilder(
     column: $table.answers,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get replaces => $composableBuilder(
+    column: $table.replaces,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get replaceKind => $composableBuilder(
+    column: $table.replaceKind,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get replaceReason => $composableBuilder(
+    column: $table.replaceReason,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -36281,6 +37096,21 @@ class $$ResearchRecordsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get replaces => $composableBuilder(
+    column: $table.replaces,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get replaceKind => $composableBuilder(
+    column: $table.replaceKind,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get replaceReason => $composableBuilder(
+    column: $table.replaceReason,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get createdAtServer => $composableBuilder(
     column: $table.createdAtServer,
     builder: (column) => ColumnOrderings(column),
@@ -36374,6 +37204,19 @@ class $$ResearchRecordsTableAnnotationComposer
   GeneratedColumn<String> get answers =>
       $composableBuilder(column: $table.answers, builder: (column) => column);
 
+  GeneratedColumn<String> get replaces =>
+      $composableBuilder(column: $table.replaces, builder: (column) => column);
+
+  GeneratedColumn<String> get replaceKind => $composableBuilder(
+    column: $table.replaceKind,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get replaceReason => $composableBuilder(
+    column: $table.replaceReason,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<DateTime> get createdAtServer => $composableBuilder(
     column: $table.createdAtServer,
     builder: (column) => column,
@@ -36439,6 +37282,9 @@ class $$ResearchRecordsTableTableManager
                 Value<double?> endAccuracyM = const Value.absent(),
                 Value<String?> locationSource = const Value.absent(),
                 Value<String> answers = const Value.absent(),
+                Value<String?> replaces = const Value.absent(),
+                Value<String?> replaceKind = const Value.absent(),
+                Value<String?> replaceReason = const Value.absent(),
                 Value<DateTime?> createdAtServer = const Value.absent(),
                 Value<int?> serverSeq = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
@@ -36462,6 +37308,9 @@ class $$ResearchRecordsTableTableManager
                 endAccuracyM: endAccuracyM,
                 locationSource: locationSource,
                 answers: answers,
+                replaces: replaces,
+                replaceKind: replaceKind,
+                replaceReason: replaceReason,
                 createdAtServer: createdAtServer,
                 serverSeq: serverSeq,
                 rowid: rowid,
@@ -36487,6 +37336,9 @@ class $$ResearchRecordsTableTableManager
                 Value<double?> endAccuracyM = const Value.absent(),
                 Value<String?> locationSource = const Value.absent(),
                 required String answers,
+                Value<String?> replaces = const Value.absent(),
+                Value<String?> replaceKind = const Value.absent(),
+                Value<String?> replaceReason = const Value.absent(),
                 Value<DateTime?> createdAtServer = const Value.absent(),
                 Value<int?> serverSeq = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
@@ -36510,6 +37362,9 @@ class $$ResearchRecordsTableTableManager
                 endAccuracyM: endAccuracyM,
                 locationSource: locationSource,
                 answers: answers,
+                replaces: replaces,
+                replaceKind: replaceKind,
+                replaceReason: replaceReason,
                 createdAtServer: createdAtServer,
                 serverSeq: serverSeq,
                 rowid: rowid,
@@ -36564,6 +37419,9 @@ typedef $$ResearchDraftsTableCreateCompanionBuilder =
       Value<double?> accuracyM,
       Value<double?> altitudeM,
       Value<String?> locationSource,
+      Value<String?> replaces,
+      Value<String?> replaceKind,
+      Value<String?> replaceReason,
       Value<int> rowid,
     });
 typedef $$ResearchDraftsTableUpdateCompanionBuilder =
@@ -36582,6 +37440,9 @@ typedef $$ResearchDraftsTableUpdateCompanionBuilder =
       Value<double?> accuracyM,
       Value<double?> altitudeM,
       Value<String?> locationSource,
+      Value<String?> replaces,
+      Value<String?> replaceKind,
+      Value<String?> replaceReason,
       Value<int> rowid,
     });
 
@@ -36661,6 +37522,21 @@ class $$ResearchDraftsTableFilterComposer
 
   ColumnFilters<String> get locationSource => $composableBuilder(
     column: $table.locationSource,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get replaces => $composableBuilder(
+    column: $table.replaces,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get replaceKind => $composableBuilder(
+    column: $table.replaceKind,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get replaceReason => $composableBuilder(
+    column: $table.replaceReason,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -36743,6 +37619,21 @@ class $$ResearchDraftsTableOrderingComposer
     column: $table.locationSource,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get replaces => $composableBuilder(
+    column: $table.replaces,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get replaceKind => $composableBuilder(
+    column: $table.replaceKind,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get replaceReason => $composableBuilder(
+    column: $table.replaceReason,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$ResearchDraftsTableAnnotationComposer
@@ -36801,6 +37692,19 @@ class $$ResearchDraftsTableAnnotationComposer
     column: $table.locationSource,
     builder: (column) => column,
   );
+
+  GeneratedColumn<String> get replaces =>
+      $composableBuilder(column: $table.replaces, builder: (column) => column);
+
+  GeneratedColumn<String> get replaceKind => $composableBuilder(
+    column: $table.replaceKind,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get replaceReason => $composableBuilder(
+    column: $table.replaceReason,
+    builder: (column) => column,
+  );
 }
 
 class $$ResearchDraftsTableTableManager
@@ -36854,6 +37758,9 @@ class $$ResearchDraftsTableTableManager
                 Value<double?> accuracyM = const Value.absent(),
                 Value<double?> altitudeM = const Value.absent(),
                 Value<String?> locationSource = const Value.absent(),
+                Value<String?> replaces = const Value.absent(),
+                Value<String?> replaceKind = const Value.absent(),
+                Value<String?> replaceReason = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ResearchDraftsCompanion(
                 id: id,
@@ -36870,6 +37777,9 @@ class $$ResearchDraftsTableTableManager
                 accuracyM: accuracyM,
                 altitudeM: altitudeM,
                 locationSource: locationSource,
+                replaces: replaces,
+                replaceKind: replaceKind,
+                replaceReason: replaceReason,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -36888,6 +37798,9 @@ class $$ResearchDraftsTableTableManager
                 Value<double?> accuracyM = const Value.absent(),
                 Value<double?> altitudeM = const Value.absent(),
                 Value<String?> locationSource = const Value.absent(),
+                Value<String?> replaces = const Value.absent(),
+                Value<String?> replaceKind = const Value.absent(),
+                Value<String?> replaceReason = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ResearchDraftsCompanion.insert(
                 id: id,
@@ -36904,6 +37817,9 @@ class $$ResearchDraftsTableTableManager
                 accuracyM: accuracyM,
                 altitudeM: altitudeM,
                 locationSource: locationSource,
+                replaces: replaces,
+                replaceKind: replaceKind,
+                replaceReason: replaceReason,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -36938,6 +37854,255 @@ typedef $$ResearchDraftsTableProcessedTableManager =
         BaseReferences<_$AppDatabase, $ResearchDraftsTable, ResearchDraftRow>,
       ),
       ResearchDraftRow,
+      PrefetchHooks Function()
+    >;
+typedef $$WaterDraftsTableCreateCompanionBuilder =
+    WaterDraftsCompanion Function({
+      required String id,
+      required String sourceId,
+      Value<String?> collectorKey,
+      required String state,
+      Value<String> media,
+      required DateTime startedAt,
+      required DateTime updatedAt,
+      Value<int> rowid,
+    });
+typedef $$WaterDraftsTableUpdateCompanionBuilder =
+    WaterDraftsCompanion Function({
+      Value<String> id,
+      Value<String> sourceId,
+      Value<String?> collectorKey,
+      Value<String> state,
+      Value<String> media,
+      Value<DateTime> startedAt,
+      Value<DateTime> updatedAt,
+      Value<int> rowid,
+    });
+
+class $$WaterDraftsTableFilterComposer
+    extends Composer<_$AppDatabase, $WaterDraftsTable> {
+  $$WaterDraftsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get sourceId => $composableBuilder(
+    column: $table.sourceId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get collectorKey => $composableBuilder(
+    column: $table.collectorKey,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get state => $composableBuilder(
+    column: $table.state,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get media => $composableBuilder(
+    column: $table.media,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get startedAt => $composableBuilder(
+    column: $table.startedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$WaterDraftsTableOrderingComposer
+    extends Composer<_$AppDatabase, $WaterDraftsTable> {
+  $$WaterDraftsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get sourceId => $composableBuilder(
+    column: $table.sourceId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get collectorKey => $composableBuilder(
+    column: $table.collectorKey,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get state => $composableBuilder(
+    column: $table.state,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get media => $composableBuilder(
+    column: $table.media,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get startedAt => $composableBuilder(
+    column: $table.startedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$WaterDraftsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $WaterDraftsTable> {
+  $$WaterDraftsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get sourceId =>
+      $composableBuilder(column: $table.sourceId, builder: (column) => column);
+
+  GeneratedColumn<String> get collectorKey => $composableBuilder(
+    column: $table.collectorKey,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get state =>
+      $composableBuilder(column: $table.state, builder: (column) => column);
+
+  GeneratedColumn<String> get media =>
+      $composableBuilder(column: $table.media, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get startedAt =>
+      $composableBuilder(column: $table.startedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
+class $$WaterDraftsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $WaterDraftsTable,
+          WaterDraftRow,
+          $$WaterDraftsTableFilterComposer,
+          $$WaterDraftsTableOrderingComposer,
+          $$WaterDraftsTableAnnotationComposer,
+          $$WaterDraftsTableCreateCompanionBuilder,
+          $$WaterDraftsTableUpdateCompanionBuilder,
+          (
+            WaterDraftRow,
+            BaseReferences<_$AppDatabase, $WaterDraftsTable, WaterDraftRow>,
+          ),
+          WaterDraftRow,
+          PrefetchHooks Function()
+        > {
+  $$WaterDraftsTableTableManager(_$AppDatabase db, $WaterDraftsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$WaterDraftsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$WaterDraftsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$WaterDraftsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> sourceId = const Value.absent(),
+                Value<String?> collectorKey = const Value.absent(),
+                Value<String> state = const Value.absent(),
+                Value<String> media = const Value.absent(),
+                Value<DateTime> startedAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => WaterDraftsCompanion(
+                id: id,
+                sourceId: sourceId,
+                collectorKey: collectorKey,
+                state: state,
+                media: media,
+                startedAt: startedAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String sourceId,
+                Value<String?> collectorKey = const Value.absent(),
+                required String state,
+                Value<String> media = const Value.absent(),
+                required DateTime startedAt,
+                required DateTime updatedAt,
+                Value<int> rowid = const Value.absent(),
+              }) => WaterDraftsCompanion.insert(
+                id: id,
+                sourceId: sourceId,
+                collectorKey: collectorKey,
+                state: state,
+                media: media,
+                startedAt: startedAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$WaterDraftsTable, WaterDraftRow>(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $WaterDraftsTable,
+                    WaterDraftRow
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$WaterDraftsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $WaterDraftsTable,
+      WaterDraftRow,
+      $$WaterDraftsTableFilterComposer,
+      $$WaterDraftsTableOrderingComposer,
+      $$WaterDraftsTableAnnotationComposer,
+      $$WaterDraftsTableCreateCompanionBuilder,
+      $$WaterDraftsTableUpdateCompanionBuilder,
+      (
+        WaterDraftRow,
+        BaseReferences<_$AppDatabase, $WaterDraftsTable, WaterDraftRow>,
+      ),
+      WaterDraftRow,
       PrefetchHooks Function()
     >;
 
@@ -37018,4 +38183,6 @@ class $AppDatabaseManager {
       $$ResearchRecordsTableTableManager(_db, _db.researchRecords);
   $$ResearchDraftsTableTableManager get researchDrafts =>
       $$ResearchDraftsTableTableManager(_db, _db.researchDrafts);
+  $$WaterDraftsTableTableManager get waterDrafts =>
+      $$WaterDraftsTableTableManager(_db, _db.waterDrafts);
 }

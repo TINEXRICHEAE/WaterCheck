@@ -717,10 +717,15 @@ async def test_a_collector_gets_back_in_on_another_phone_with_a_code(
     back = r.json()
     assert back["collector_key"] == a.collector
     assert back["snapshot"]["full_name"] == "Example Collector"
+    # Where they worked comes back too (ADR-034).
+    assert back["districts"] == [str(district["id"])]
     # Once only.
     again = await b.post("/v1/collectors/recover", {"code": issued["code"]})
     assert again.status_code == 404
-    assert await count(owner_db, "audit_log", action="collector.recovered") == 1
+    assert (
+        await count(owner_db, "audit_log", action="collector.recovered", collector_key=a.collector)
+        == 1
+    )
 
     # Any water user may (areas no longer limit, ADR-031); a research
     # account may not, for a water tester.

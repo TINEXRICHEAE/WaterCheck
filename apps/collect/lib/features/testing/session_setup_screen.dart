@@ -324,6 +324,8 @@ class _SessionSetupScreenState extends ConsumerState<SessionSetupScreen> {
                         .read(testDraftProvider.notifier)
                         .update(
                           (d) => TestDraft(
+                            id: d.id,
+                            touched: d.touched,
                             sourceId: d.sourceId,
                             retestOf: d.retestOf,
                             amendmentOf: d.amendmentOf,
@@ -338,6 +340,8 @@ class _SessionSetupScreenState extends ConsumerState<SessionSetupScreen> {
                                 : null,
                             values: d.values,
                             revealed: d.revealed,
+                            photos: d.photos,
+                            photoTaken: d.photoTaken,
                           ),
                         );
                     context.push('/test/entry');

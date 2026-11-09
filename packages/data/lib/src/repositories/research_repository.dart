@@ -30,6 +30,7 @@ typedef ResearchDraftItem = ({
   String? number,
   DateTime startedAt,
   DateTime updatedAt,
+  String? replaceKind,
 });
 
 /// A finished record of this device's testers, for their list and map.
@@ -44,11 +45,34 @@ typedef ResearchRecordItem = ({
   double? lat,
   double? lon,
   bool sent,
+  String? replaceKind,
+  bool replaced,
 });
 
 /// A picture taken while filling a draft: kept as a file until the record
 /// is finished (ADR-030 R1).
 typedef DraftPicture = ({String path, String field, GeoFix? taken});
+
+/// The pictures an unfinished form lists (JSON): id → file and fix.
+Map<String, DraftPicture> parseDraftMedia(String media) => {
+  for (final e in (jsonDecode(media) as Map).cast<String, Object?>().entries)
+    e.key: () {
+      final m = (e.value! as Map).cast<String, Object?>();
+      return (
+        path: m['path']! as String,
+        field: m['field']! as String,
+        taken: m['lat'] == null
+            ? null
+            : GeoFix(
+                lat: (m['lat']! as num).toDouble(),
+                lon: (m['lon']! as num).toDouble(),
+                at: DateTime.parse(m['at']! as String),
+                accuracyM: (m['accuracy_m'] as num?)?.toDouble(),
+                altitudeM: (m['altitude_m'] as num?)?.toDouble(),
+              ),
+      );
+    }(),
+};
 
 /// FieldQuire research on the device (ADR-030): the forms to collect with,
 /// drafts saved as the collector goes, and finished records queued for the
@@ -148,26 +172,136 @@ class ResearchRepository {
   }) async {
     final id = ids.next();
     final now = clock();
-    await _db
-        .into(_db.researchDrafts)
-        .insert(
-          ResearchDraftsCompanion.insert(
-            id: id,
-            formId: formId,
-            formVersion: version,
-            collectorKey: Value(collectorKey),
-            answers: '{}',
-            startedAt: now,
-            updatedAt: now,
-            lat: Value(at?.lat),
-            lon: Value(at?.lon),
-            accuracyM: Value(at?.accuracyM),
-            altitudeM: Value(at?.altitudeM),
-            locationSource: Value(at?.source.wire),
-          ),
-        );
+    await _db.transaction(() async {
+      await _db
+          .into(_db.researchDrafts)
+          .insert(
+            ResearchDraftsCompanion.insert(
+              id: id,
+              formId: formId,
+              formVersion: version,
+              collectorKey: Value(collectorKey),
+              answers: '{}',
+              startedAt: now,
+              updatedAt: now,
+              lat: Value(at?.lat),
+              lon: Value(at?.lon),
+              accuracyM: Value(at?.accuracyM),
+              altitudeM: Value(at?.altitudeM),
+              locationSource: Value(at?.source.wire),
+            ),
+          );
+      await _queueDraft(id);
+    });
     return id;
   }
+
+  /// Starts correcting a mistake in [record]: its answers, form version,
+  /// number, time and point of interview, ready to change (ADR-034). Its
+  /// open correction, if there already is one.
+  Future<String> startCorrection(
+    ResearchRecordRow record, {
+    String? collectorKey,
+  }) async {
+    final open = await _openReplacement(record.id);
+    if (open != null) return open;
+    final id = ids.next();
+    final now = clock();
+    await _db.transaction(() async {
+      await _db
+          .into(_db.researchDrafts)
+          .insert(
+            ResearchDraftsCompanion.insert(
+              id: id,
+              formId: record.formId,
+              formVersion: record.formVersion,
+              number: Value(record.number),
+              collectorKey: Value(collectorKey),
+              answers: record.answers,
+              startedAt: record.startedAt ?? now,
+              updatedAt: now,
+              lat: Value(record.lat),
+              lon: Value(record.lon),
+              accuracyM: Value(record.accuracyM),
+              altitudeM: Value(record.altitudeM),
+              locationSource: Value(record.locationSource),
+              replaces: Value(record.id),
+              replaceKind: const Value('correction'),
+            ),
+          );
+      await _queueDraft(id);
+    });
+    return id;
+  }
+
+  /// Starts [record] again from nothing, with the same number, at the
+  /// form's [version] (ADR-034). Its open second go, if there is one.
+  Future<String> startRetake(
+    ResearchRecordRow record, {
+    required int version,
+    String? collectorKey,
+  }) async {
+    final open = await _openReplacement(record.id);
+    if (open != null) return open;
+    final id = ids.next();
+    final now = clock();
+    await _db.transaction(() async {
+      await _db
+          .into(_db.researchDrafts)
+          .insert(
+            ResearchDraftsCompanion.insert(
+              id: id,
+              formId: record.formId,
+              formVersion: version,
+              number: Value(record.number),
+              collectorKey: Value(collectorKey),
+              answers: '{}',
+              startedAt: now,
+              updatedAt: now,
+              replaces: Value(record.id),
+              replaceKind: const Value('retake'),
+            ),
+          );
+      await _queueDraft(id);
+    });
+    return id;
+  }
+
+  Future<String?> _openReplacement(String recordId) async =>
+      (await (_db.select(_db.researchDrafts)
+                ..where((d) => d.replaces.equals(recordId))
+                ..limit(1))
+              .getSingleOrNull())
+          ?.id;
+
+  /// The newest copy of a draft, once, for the server (ADR-034). An older
+  /// copy still waiting is replaced, not updated: one being sent right now
+  /// is then not mistaken for this one. Call inside the transaction that
+  /// changes the draft.
+  Future<void> _queueDraft(String id) async {
+    final d = await draft(id);
+    if (d == null) return;
+    await _dropQueuedDraft(id);
+    if (d.collectorKey == null) return;
+    await enqueueOutbox(
+      _db,
+      entity: 'research_draft',
+      entityId: id,
+      op: OutboxOp.insert,
+      payload: {
+        ...d.toJson(serializer: syncSerializer),
+        'answers': jsonDecode(d.answers),
+        'media': jsonDecode(d.media),
+      },
+      at: clock(),
+    );
+  }
+
+  Future<void> _dropQueuedDraft(String id) =>
+      (_db.delete(_db.outbox)..where(
+            (o) => o.entity.equals('research_draft') & o.entityId.equals(id),
+          ))
+          .go();
 
   /// The draft as it changes (its point arrives after it starts).
   Stream<ResearchDraftRow?> watchDraft(String id) => (_db.select(
@@ -178,40 +312,52 @@ class ResearchRepository {
     _db.researchDrafts,
   )..where((d) => d.id.equals(id))).getSingleOrNull();
 
-  /// Saves the answers so far (and the number, once given).
+  /// Saves the answers so far (and the number, once given, and why a
+  /// record is being replaced), and queues them for the server.
   Future<void> saveDraft(
     String id,
     Map<String, Object?> answers, {
     String? number,
-  }) => (_db.update(_db.researchDrafts)..where((d) => d.id.equals(id))).write(
-    ResearchDraftsCompanion(
-      answers: Value(jsonEncode(answers)),
-      number: Value(number),
-      updatedAt: Value(clock()),
-    ),
-  );
+    String? replaceReason,
+  }) => _db.transaction(() async {
+    await (_db.update(_db.researchDrafts)..where((d) => d.id.equals(id))).write(
+      ResearchDraftsCompanion(
+        answers: Value(jsonEncode(answers)),
+        number: Value(number),
+        replaceReason: replaceReason == null
+            ? const Value.absent()
+            : Value(replaceReason),
+        updatedAt: Value(clock()),
+      ),
+    );
+    await _queueDraft(id);
+  });
 
   /// The point of interview, when the first fix arrives after starting.
-  Future<void> placeDraft(String id, GeoFix at) =>
-      (_db.update(
-        _db.researchDrafts,
-      )..where((d) => d.id.equals(id) & d.lat.isNull())).write(
-        ResearchDraftsCompanion(
-          lat: Value(at.lat),
-          lon: Value(at.lon),
-          accuracyM: Value(at.accuracyM),
-          altitudeM: Value(at.altitudeM),
-          locationSource: Value(at.source.wire),
-        ),
-      );
+  Future<void> placeDraft(String id, GeoFix at) => _db.transaction(() async {
+    await (_db.update(
+      _db.researchDrafts,
+    )..where((d) => d.id.equals(id) & d.lat.isNull())).write(
+      ResearchDraftsCompanion(
+        lat: Value(at.lat),
+        lon: Value(at.lon),
+        accuracyM: Value(at.accuracyM),
+        altitudeM: Value(at.altitudeM),
+        locationSource: Value(at.source.wire),
+      ),
+    );
+    await _queueDraft(id);
+  });
 
-  /// Keeps a picture with the draft; returns its attachment id, which is
-  /// the field's answer.
+  /// Keeps a picture with the draft and queues it for the server; returns
+  /// its attachment id, which is the field's answer.
   Future<String> addDraftPicture(
     String draftId,
     String field,
     Uint8List jpeg,
     PhotoFiles files, {
+    required AttachmentRepository attachments,
+    required SubmissionOrigin origin,
     GeoFix? taken,
   }) async {
     final d = await draft(draftId);
@@ -230,31 +376,74 @@ class ResearchRepository {
         'altitude_m': taken.altitudeM,
       },
     };
-    await (_db.update(_db.researchDrafts)..where((r) => r.id.equals(draftId)))
-        .write(ResearchDraftsCompanion(media: Value(jsonEncode(media))));
+    await _db.transaction(() async {
+      await (_db.update(_db.researchDrafts)..where((r) => r.id.equals(draftId)))
+          .write(ResearchDraftsCompanion(media: Value(jsonEncode(media))));
+      await _queueDraft(draftId);
+    });
+    await attachments.addPhoto(
+      owner: PhotoOwner.researchDraft,
+      ownerId: draftId,
+      jpeg: jpeg,
+      origin: origin,
+      taken: taken,
+      id: id,
+      fieldName: field,
+    );
     return id;
   }
 
-  Map<String, DraftPicture> draftPictures(ResearchDraftRow d) => {
-    for (final e
-        in (jsonDecode(d.media) as Map).cast<String, Object?>().entries)
-      e.key: () {
-        final m = (e.value! as Map).cast<String, Object?>();
-        return (
-          path: m['path']! as String,
-          field: m['field']! as String,
-          taken: m['lat'] == null
-              ? null
-              : GeoFix(
-                  lat: (m['lat']! as num).toDouble(),
-                  lon: (m['lon']! as num).toDouble(),
-                  at: DateTime.parse(m['at']! as String),
-                  accuracyM: (m['accuracy_m'] as num?)?.toDouble(),
-                  altitudeM: (m['altitude_m'] as num?)?.toDouble(),
-                ),
+  /// Drafts of this collector that have never been queued (made before
+  /// drafts were sent, or brought back from the server), with any picture
+  /// still only on this device (ADR-034).
+  Future<void> sendDraftsNeverSent(
+    SubmissionOrigin origin,
+    AttachmentRepository attachments,
+    PhotoFiles files,
+  ) async {
+    final key = origin.collectorKey;
+    if (key == null) return;
+    final mine = await (_db.select(
+      _db.researchDrafts,
+    )..where((d) => d.collectorKey.equals(key))).get();
+    for (final d in mine) {
+      final queued =
+          await (_db.select(_db.outbox)
+                ..where(
+                  (o) =>
+                      o.entity.equals('research_draft') &
+                      o.entityId.equals(d.id),
+                )
+                ..limit(1))
+              .getSingleOrNull();
+      if (queued == null) await _db.transaction(() => _queueDraft(d.id));
+      for (final e in draftPictures(d).entries) {
+        final known = await (_db.select(
+          _db.attachments,
+        )..where((a) => a.id.equals(e.key))).getSingleOrNull();
+        if (known != null) continue;
+        final bytes = await files.read(e.value.path);
+        if (bytes == null) continue;
+        await attachments.addPhoto(
+          owner: PhotoOwner.researchDraft,
+          ownerId: d.id,
+          jpeg: bytes,
+          origin: origin,
+          taken: e.value.taken,
+          id: e.key,
+          fieldName: e.value.field,
         );
-      }(),
-  };
+      }
+    }
+  }
+
+  /// Where a picture is kept on this device, whichever record has it.
+  Future<String?> picturePath(String id) async => (await (_db.select(
+    _db.attachmentQueue,
+  )..where((q) => q.attachmentId.equals(id))).getSingleOrNull())?.localPath;
+
+  Map<String, DraftPicture> draftPictures(ResearchDraftRow d) =>
+      parseDraftMedia(d.media);
 
   Stream<List<ResearchDraftItem>> watchDrafts(String? collectorKey) {
     final q = _db.select(_db.researchDrafts).join([
@@ -276,19 +465,39 @@ class ResearchRepository {
             number: r.readTable(_db.researchDrafts).number,
             startedAt: r.readTable(_db.researchDrafts).startedAt,
             updatedAt: r.readTable(_db.researchDrafts).updatedAt,
+            replaceKind: r.readTable(_db.researchDrafts).replaceKind,
           ),
       ],
     );
   }
 
-  /// Discards a draft and its pictures.
+  /// Discards a draft and its pictures, here and on the server.
   Future<void> deleteDraft(String id, PhotoFiles files) async {
     final d = await draft(id);
     if (d == null) return;
-    for (final p in draftPictures(d).values) {
+    final pictures = draftPictures(d);
+    await _db.transaction(() async {
+      await _dropQueuedDraft(id);
+      if (d.collectorKey != null) {
+        await enqueueOutbox(
+          _db,
+          entity: 'research_draft',
+          entityId: id,
+          op: OutboxOp.update,
+          payload: {'discarded': true, 'collector_key': d.collectorKey},
+          at: clock(),
+        );
+      }
+      for (final picture in pictures.keys) {
+        await forgetPicture(_db, picture);
+      }
+      await (_db.delete(
+        _db.researchDrafts,
+      )..where((r) => r.id.equals(id))).go();
+    });
+    for (final p in pictures.values) {
       await files.delete(p.path);
     }
-    await (_db.delete(_db.researchDrafts)..where((r) => r.id.equals(id))).go();
   }
 
   /// The next generated number for a form on this device:
@@ -371,6 +580,9 @@ class ResearchRepository {
               accuracyM: Value(d.accuracyM),
               altitudeM: Value(d.altitudeM),
               locationSource: Value(d.locationSource),
+              replaces: Value(d.replaces),
+              replaceKind: Value(d.replaceKind),
+              replaceReason: Value(d.replaceReason?.trim()),
               endLat: Value(end?.lat),
               endLon: Value(end?.lon),
               endAccuracyM: Value(end?.accuracyM),
@@ -390,6 +602,7 @@ class ResearchRepository {
         },
         at: now,
       );
+      await _dropQueuedDraft(draftId);
       await (_db.delete(
         _db.researchDrafts,
       )..where((r) => r.id.equals(draftId))).go();
@@ -400,6 +613,20 @@ class ResearchRepository {
         if (v is String) v,
     };
     for (final e in pictures.entries) {
+      // Already queued with the draft (ADR-034): it now belongs to the
+      // record, or goes if it no longer answers anything.
+      final known = await (_db.select(
+        _db.attachments,
+      )..where((a) => a.id.equals(e.key))).getSingleOrNull();
+      if (known != null) {
+        if (kept.contains(e.key)) {
+          await movePictureTo(_db, e.key, PhotoOwner.research.wire, at: now);
+        } else {
+          await attachments.removePhoto(e.key, origin);
+          await files.delete(e.value.path);
+        }
+        continue;
+      }
       final bytes = await files.read(e.value.path);
       await files.delete(e.value.path);
       if (bytes == null || !kept.contains(e.key)) continue;
@@ -433,8 +660,11 @@ class ResearchRepository {
     if (collectorKey != null) {
       q.where(_db.researchRecords.collectorKey.equals(collectorKey));
     }
-    return q.watch().map(
-      (rows) => [
+    return q.watch().map((rows) {
+      final replaced = {
+        for (final r in rows) ?r.readTable(_db.researchRecords).replaces,
+      };
+      return [
         for (final r in rows)
           () {
             final rec = r.readTable(_db.researchRecords);
@@ -450,11 +680,21 @@ class ResearchRepository {
               lat: rec.lat,
               lon: rec.lon,
               sent: r.readTableOrNull(_db.outbox) == null,
+              replaceKind: rec.replaceKind,
+              replaced: replaced.contains(rec.id),
             );
           }(),
-      ],
-    );
+      ];
+    });
   }
+
+  /// Whether a newer record already replaces this one.
+  Future<bool> isReplaced(String id) async =>
+      (await (_db.select(_db.researchRecords)
+            ..where((r) => r.replaces.equals(id))
+            ..limit(1))
+          .getSingleOrNull()) !=
+      null;
 
   Future<ResearchRecordRow?> record(String id) => (_db.select(
     _db.researchRecords,

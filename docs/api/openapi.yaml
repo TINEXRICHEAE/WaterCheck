@@ -8529,6 +8529,21 @@ components:
       - open_for_collection
       title: LinkPreview
       description: 'What a link shows to anyone: the form''s questions, never records.'
+    LinkedCollector:
+      properties:
+        collector_key:
+          type: string
+          format: uuid
+          title: Collector Key
+        snapshot:
+          additionalProperties: true
+          type: object
+          title: Snapshot
+      type: object
+      required:
+      - collector_key
+      - snapshot
+      title: LinkedCollector
     LockedForm:
       properties:
         id:
@@ -9804,6 +9819,28 @@ components:
         declined:
           type: boolean
           title: Declined
+        replaces:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Replaces
+        replace_kind:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Replace Kind
+        replace_reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Replace Reason
+        replaced_by:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Replaced By
         altitude_m:
           anyOf:
           - type: number
@@ -9944,6 +9981,28 @@ components:
         declined:
           type: boolean
           title: Declined
+        replaces:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Replaces
+        replace_kind:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Replace Kind
+        replace_reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Replace Reason
+        replaced_by:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Replaced By
       type: object
       required:
       - id
@@ -10029,6 +10088,28 @@ components:
         declined:
           type: boolean
           title: Declined
+        replaces:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Replaces
+        replace_kind:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Replace Kind
+        replace_reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Replace Reason
+        replaced_by:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Replaced By
         end_lat:
           anyOf:
           - type: number
@@ -10088,6 +10169,17 @@ components:
           additionalProperties: true
           type: object
           title: Snapshot
+        linked:
+          anyOf:
+          - $ref: '#/components/schemas/LinkedCollector'
+          - type: 'null'
+        districts:
+          items:
+            type: string
+            format: uuid
+          type: array
+          title: Districts
+          default: []
       type: object
       required:
       - collector_key

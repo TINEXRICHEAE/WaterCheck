@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'dart:convert';
 
 import 'package:data/data.dart';
+import 'package:domain/domain.dart' show GeoFix;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -35,23 +36,54 @@ class _FillScreenState extends ConsumerState<FillScreen> {
   ResearchFormItem? _form;
   FormAnswers? _answers;
   final _number = TextEditingController();
+  final _reason = TextEditingController();
   var _showIssues = false;
   var _finishing = false;
   Timer? _save;
+  Timer? _send;
+  AppLifecycleListener? _lifecycle;
+
+  /// The record this one corrects or does again (ADR-034).
+  ResearchRecordRow? _replaces;
 
   ResearchRepository get _repo => ref.read(researchRepositoryProvider);
+
+  bool get _replacing => _draft?.replaces != null;
 
   @override
   void initState() {
     super.initState();
+    // Leaving the app may be the last chance: a browser can drop what it
+    // keeps at any time after (ADR-034).
+    _lifecycle = AppLifecycleListener(onHide: _keepNow);
     _load();
   }
 
   @override
   void dispose() {
     _save?.cancel();
+    _send?.cancel();
+    _lifecycle?.dispose();
     _number.dispose();
+    _reason.dispose();
     super.dispose();
+  }
+
+  /// Saved and on its way to the server, now.
+  Future<void> _keepNow() async {
+    final sync = ref.read(syncControllerProvider.notifier);
+    _save?.cancel();
+    _send?.cancel();
+    await _saveNow();
+    await sync.sendDrafts();
+  }
+
+  /// Sent a little after the last change, not at every one (ADR-034).
+  void _sendSoon() {
+    if (_send?.isActive ?? false) return;
+    _send = Timer(const Duration(seconds: 30), () {
+      unawaited(ref.read(syncControllerProvider.notifier).sendDrafts());
+    });
   }
 
   Future<void> _load() async {
@@ -75,7 +107,13 @@ class _FillScreenState extends ConsumerState<FillScreen> {
       );
     }
     _number.text = number ?? '';
+    _reason.text = d.replaceReason ?? '';
+    final replaces = d.replaces == null
+        ? null
+        : await _repo.record(d.replaces!);
+    if (!mounted) return;
     setState(() {
+      _replaces = replaces;
       _draft = d;
       _form = form;
       _answers = FormAnswers(
@@ -95,11 +133,14 @@ class _FillScreenState extends ConsumerState<FillScreen> {
     final a = _answers;
     if (a == null) return;
     final n = _number.text.trim();
-    await _repo.saveDraft(
+    final saving = _repo.saveDraft(
       widget.draftId,
       a.values,
       number: n.isEmpty ? null : n,
+      replaceReason: _replacing ? _reason.text.trim() : null,
     );
+    _sendSoon();
+    await saving;
   }
 
   Future<String?> _takePicture(FormItem field) async {
@@ -115,19 +156,30 @@ class _FillScreenState extends ConsumerState<FillScreen> {
       }
       return null;
     }
-    return _repo.addDraftPicture(
+    final origin = ref.read(submissionOriginProvider);
+    if (origin == null) return null;
+    final id = await _repo.addDraftPicture(
       widget.draftId,
       field.name,
       photo.jpeg,
       ref.read(photoFilesProvider),
+      attachments: ref.read(attachmentRepositoryProvider),
+      origin: origin,
       taken: photo.taken,
     );
+    _sendSoon();
+    return id;
   }
 
+  /// From this device, or the server's copy after the browser cleared it
+  /// or when correcting a record made elsewhere (ADR-034).
   Future<Uint8List?> _loadPicture(String id) async {
+    final files = ref.read(photoFilesProvider);
     final d = await _repo.draft(widget.draftId);
     final p = d == null ? null : _repo.draftPictures(d)[id];
-    return p == null ? null : ref.read(photoFilesProvider).read(p.path);
+    final here = p == null ? null : await files.read(p.path);
+    if (here != null || !mounted) return here;
+    return researchPicture(ref, id);
   }
 
   Future<void> _finish() async {
@@ -136,13 +188,16 @@ class _FillScreenState extends ConsumerState<FillScreen> {
     final messenger = ScaffoldMessenger.of(context);
     final number = _number.text.trim();
     final issues = a.check();
-    if (number.isEmpty || issues.isNotEmpty) {
+    final noReason = _replacing && _reason.text.trim().isEmpty;
+    if (number.isEmpty || noReason || issues.isNotEmpty) {
       setState(() => _showIssues = true);
       messenger.showSnackBar(
         SnackBar(
           content: Text(
             number.isEmpty
                 ? l10n.researchNumberMissing
+                : noReason
+                ? l10n.researchReasonMissing
                 : l10n.researchIssues(issues.length),
           ),
         ),
@@ -151,7 +206,10 @@ class _FillScreenState extends ConsumerState<FillScreen> {
     }
     final origin = ref.read(submissionOriginProvider);
     if (origin == null) return;
-    if (await _repo.numberUsed(_draft!.formId, number) && mounted) {
+    // The number of the record being replaced is meant to come back.
+    if (number != _replaces?.number &&
+        await _repo.numberUsed(_draft!.formId, number) &&
+        mounted) {
       final keep = await showDialog<bool>(
         context: context,
         builder: (c) => AlertDialog(
@@ -171,9 +229,22 @@ class _FillScreenState extends ConsumerState<FillScreen> {
       if (keep != true) return;
     }
     setState(() => _finishing = true);
-    final end = await ref
-        .read(liveLocationProvider)
-        .detail(wait: const Duration(seconds: 10));
+    await _saveNow();
+    // A correction happens anywhere: it keeps where the interview ended.
+    final was = _draft!.replaceKind == 'correction' ? _replaces : null;
+    final end = was != null
+        ? (was.endLat == null
+              ? null
+              : GeoFix(
+                  lat: was.endLat!,
+                  lon: was.endLon!,
+                  at: was.finishedAt ?? DateTime.now().toUtc(),
+                  accuracyM: was.endAccuracyM,
+                ))
+        : await ref
+              .read(liveLocationProvider)
+              .detail(wait: const Duration(seconds: 10));
+    _send?.cancel();
     await _repo.finish(
       draftId: widget.draftId,
       number: number,
@@ -225,8 +296,9 @@ class _FillScreenState extends ConsumerState<FillScreen> {
     }
     final typed = a.definition.numbering == Numbering.typed;
     final point = ref.watch(_draftPointProvider(widget.draftId)).value;
+    final kind = _draft?.replaceKind;
     return PopScope(
-      onPopInvokedWithResult: (_, _) => _saveNow(),
+      onPopInvokedWithResult: (_, _) => _keepNow(),
       child: Scaffold(
         appBar: AppBar(
           title: Text(form.title, maxLines: 1, overflow: TextOverflow.ellipsis),
@@ -254,6 +326,27 @@ class _FillScreenState extends ConsumerState<FillScreen> {
           header: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              if (kind != null) ...[
+                Text(
+                  kind == 'correction'
+                      ? l10n.researchCorrectExplain
+                      : l10n.researchRedoExplain,
+                ),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: _reason,
+                  maxLength: 500,
+                  decoration: InputDecoration(
+                    labelText: l10n.amendReason,
+                    hintText: l10n.researchReasonHint,
+                    errorText: _showIssues && _reason.text.trim().isEmpty
+                        ? l10n.researchReasonMissing
+                        : null,
+                  ),
+                  onChanged: (_) => _changed(),
+                ),
+                const SizedBox(height: 8),
+              ],
               TextField(
                 controller: _number,
                 readOnly: !typed,
@@ -305,7 +398,7 @@ class _FillScreenState extends ConsumerState<FillScreen> {
                 Expanded(
                   child: OutlinedButton(
                     onPressed: () async {
-                      await _saveNow();
+                      await _keepNow();
                       if (context.mounted) context.pop();
                     },
                     child: Text(l10n.researchSaveClose),

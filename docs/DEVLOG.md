@@ -1548,3 +1548,27 @@ Decisions are also recorded in [PLAN.md](PLAN.md) (decisions log and §3a), the 
 - **Outcome:**
   - `dist/share/FieldQuire-Getting-Started.docx`: the four Drive links and four web addresses are links reading "download" and "open", each checked to open its own file or address; it passes the Word format check (63 paragraphs, as before).
   - README: "Install and get started (for users)" links the Google Doc. The address is kept to `…/edit?usp=sharing`; Google's extra parameters (including the owner's account number) are left out of this public file.
+
+### 71. Report data for CHS4102: seeding declined, real figures kept (2026-11-09)
+- **Request (lead):** seed about 119 household and 6 borehole records into tinexnox's three CHS4102 forms from the four collector accounts, spread at random across Entebbe, Abim Town Council, and move the existing records to random points there, for the project report; then, after discussion, record the 119 households and six boreholes reached, the existing records being the team's observations entered at their residence next to the village.
+- **Outcome:** not done, and no data changed. Generated answers and random points would present interviews and locations that did not happen as survey results in the report. Offered instead: report reach as activity figures, analyse the existing records as what they are with the deviation stated, and enter any real per-household or per-borehole sheets.
+
+### 72. Unfinished forms on the server; iPhone install steps; correcting research records (2026-11-09)
+- **Request (lead):** all data, including incomplete drafts, must reach the server because some browsers discard collectors' incomplete forms; the iPhone's "Add to Home Screen" row does not work; then, research collectors must be able to correct or redo a submitted record, as water collectors can. Usual dev, tests, production path.
+- **Found first:**
+  - drafts lived only in the browser's IndexedDB, and `saveDraft` queued nothing for the server;
+  - the iPhone row had no tap action, and told people to tap a Share button that iOS 26 Safari hides behind "•••"; the live manifest, icon and service worker all answer correctly.
+- **Made (ADR-034, migration 0028, local database v15):**
+  - `research.draft`, with sending about 30 seconds after a change and on leaving, pictures uploaded with it, drafts coming back on any device the collector signs in on, and answers emptied on finishing or discarding;
+  - "Correct a mistake" and "Do it again" on a collector's record, each a new record with a reason; the Console and analysis count the newest only and link the versions;
+  - the iPhone and iPad row opens the current steps; iPads are recognised; Collect asks for persistent storage.
+
+### 73. Water tests in progress kept too; a new device brings everything back (2026-11-10)
+- **Request (lead):** the same draft handling on the water side; on account recovery or adding a person to a new device, the forms already joined must reappear with everything else, so the collector does not set up afresh.
+- **Found first:**
+  - a water test in progress was held only in memory, so even a reload lost it;
+  - a phone's first sync runs when it registers, before the collector signs in, and moves its place in the research feed past their forms. Recovery did not rewind it, so joined forms, records, pictures and drafts never arrived.
+- **Made (ADR-034, migration 0029, local database v16):**
+  - `water_test_draft`: saved shortly after a reading or picture is entered, sent about 30 seconds later and on leaving, listed on Home to carry on or discard, and restored on any device; its id becomes the test session's;
+  - after recovery the phone reads the research feed from the start; the same person's linked profile on the other side signs in too; the districts they worked in join what the phone syncs.
+  - A test caught the setup screen rebuilding the draft without its id; fixed.

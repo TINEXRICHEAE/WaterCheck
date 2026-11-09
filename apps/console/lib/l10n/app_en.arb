@@ -1773,6 +1773,14 @@
   "researchClash": "Number used twice: check with the collector",
   "researchMore": "Show more",
   "researchRecordTitle": "Record {number}",
+  "researchCorrectionTag": "Correction",
+  "researchRetakeTag": "Done again",
+  "researchReplacedTag": "Replaced",
+  "researchReplacedHint": "A newer record replaces this one. Only the newest is counted.",
+  "researchOpenNewer": "Open the newer record",
+  "researchReplacesHint": "Replaces an earlier record: {reason}",
+  "@researchReplacesHint": {"placeholders": {"reason": {"type": "String"}}},
+  "researchOpenEarlier": "Open the earlier record",
   "@researchRecordTitle": {
     "placeholders": {
       "number": {

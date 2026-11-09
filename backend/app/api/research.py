@@ -101,6 +101,12 @@ class RecordRow(BaseModel):
     # (a computer's rough guess) or 'hand' (set on the map); 2026-10-29.
     location_source: str | None = None
     declined: bool
+    # A correction or second go (ADR-034): what it replaces, why, and the
+    # newer record that replaced this one, if any.
+    replaces: UUID | None = None
+    replace_kind: str | None = None
+    replace_reason: str | None = None
+    replaced_by: UUID | None = None
 
 
 class RecordPage(BaseModel):
@@ -135,8 +141,15 @@ _RECORD_COLUMNS = (
     "r.id, r.form_id, f.code AS form_code, r.form_version, r.number, r.number_clash, "
     "wc_collector_label(r.collector_key) AS collector, r.collector_key, r.started_at, "
     "r.finished_at, r.lat, r.lon, r.accuracy_m, r.location_source, "
-    "coalesce(r.answers->>'consent' = 'no', false) AS declined"
+    "coalesce(r.answers->>'consent' = 'no', false) AS declined, "
+    "r.replaces, r.replace_kind, r.replace_reason, "
+    "(SELECT n.id FROM research.record n WHERE n.replaces = r.id "
+    " ORDER BY n.created_at_server DESC LIMIT 1) AS replaced_by"
 )
+
+# Lists, counts, maps and analysis count a record once: its newest version
+# (ADR-034). The earlier ones stay, reached from the newest.
+_CURRENT = "NOT EXISTS (SELECT 1 FROM research.record n WHERE n.replaces = r.id)"
 
 
 @router.get("/projects")
@@ -145,11 +158,11 @@ async def list_projects(user: ResearcherDep, db: DbDep) -> list[ProjectOut]:
     async with db.transaction(user) as conn:
         rows = await conn.execute(
             text(
-                "SELECT p.id, p.code, p.title, p.description, research.user_name(p.owner_user_id) "
+                "SELECT p.id, p.code, p.title, p.description, research.user_name(p.owner_user_id) "  # noqa: S608
                 "AS owner, "
                 "(SELECT count(*) FROM research.form f WHERE f.project_id = p.id) AS forms, "
                 "(SELECT count(*) FROM research.record r JOIN research.form f ON f.id = r.form_id "
-                " WHERE f.project_id = p.id) AS records "
+                f" WHERE f.project_id = p.id AND {_CURRENT}) AS records "
                 "FROM research.project p WHERE research.can_manage(p.id) ORDER BY p.created_at DESC"
             )
         )
@@ -157,9 +170,9 @@ async def list_projects(user: ResearcherDep, db: DbDep) -> list[ProjectOut]:
 
 
 _FORM_COLUMNS = (
-    "f.id, f.project_id, f.code, f.title, f.description, f.status, f.visibility, "
+    "f.id, f.project_id, f.code, f.title, f.description, f.status, f.visibility, "  # noqa: S608
     "f.collect_access, f.hidden, f.numbering, f.current_version, "
-    "(SELECT count(*) FROM research.record r WHERE r.form_id = f.id) AS records, "
+    f"(SELECT count(*) FROM research.record r WHERE r.form_id = f.id AND {_CURRENT}) AS records, "
     "f.draft IS NOT NULL AS has_draft, f.updated_at, f.join_approval"
 )
 
@@ -249,7 +262,7 @@ async def list_records(
         "all": not term,
         "q": f"%{term}%",
     }
-    where = "r.form_id = :f AND (CAST(:all AS boolean) OR r.number ILIKE :q)"
+    where = f"r.form_id = :f AND (CAST(:all AS boolean) OR r.number ILIKE :q) AND {_CURRENT}"
     async with db.transaction(user) as conn:
         total = (
             await conn.execute(
@@ -291,7 +304,10 @@ async def get_record(record_id: UUID, user: ResearcherDep, db: DbDep) -> RecordD
             text(
                 "SELECT id, field_name, upload_status = 'uploaded' AS uploaded, taken_lat, "
                 "taken_lon, taken_at FROM attachment WHERE owner_type = 'research_record' "
-                "AND owner_id = :id AND removed_at IS NULL ORDER BY created_at_server"
+                "AND removed_at IS NULL AND (owner_id = :id OR id::text IN ("
+                # A correction keeps the pictures of the record it replaces.
+                " SELECT a.value FROM research.record x, jsonb_each_text(x.answers) a "
+                " WHERE x.id = :id)) ORDER BY created_at_server"
             ),
             {"id": record_id},
         )
@@ -322,11 +338,12 @@ async def project_points(project_id: UUID, user: ResearcherDep, db: DbDep) -> li
             raise HTTPException(status.HTTP_404_NOT_FOUND, "not_found")
         rows = await conn.execute(
             text(
-                "SELECT r.id, r.number, f.code AS form_code, r.lat, r.lon, "
+                "SELECT r.id, r.number, f.code AS form_code, r.lat, r.lon, "  # noqa: S608
                 "coalesce(r.started_at, r.created_at_server) AS at, "
                 "wc_collector_label(r.collector_key) AS collector FROM research.record r "
                 "JOIN research.form f ON f.id = r.form_id "
-                "WHERE f.project_id = :p AND r.lat IS NOT NULL ORDER BY at"
+                f"WHERE f.project_id = :p AND r.lat IS NOT NULL AND {_CURRENT} "
+                "ORDER BY at"
             ),
             {"p": project_id},
         )
@@ -402,11 +419,11 @@ async def _project_detail(conn: AsyncConnection, project_id: UUID) -> ProjectDet
     row = (
         await conn.execute(
             text(
-                "SELECT p.id, p.code, p.title, p.description, p.analysis, p.created_at, "
+                "SELECT p.id, p.code, p.title, p.description, p.analysis, p.created_at, "  # noqa: S608
                 "p.owner_user_id, research.user_name(p.owner_user_id) AS owner, "
                 "(SELECT count(*) FROM research.form f WHERE f.project_id = p.id) AS forms, "
                 "(SELECT count(*) FROM research.record r JOIN research.form f "
-                " ON f.id = r.form_id WHERE f.project_id = p.id) AS records "
+                f" ON f.id = r.form_id WHERE f.project_id = p.id AND {_CURRENT}) AS records "
                 "FROM research.project p WHERE p.id = :p"
             ),
             {"p": project_id},
@@ -1332,7 +1349,7 @@ async def project_records(
         "k": collector_key,
     }
     where = (
-        "f.project_id = :p AND (CAST(:all AS boolean) OR r.number ILIKE :q) "
+        f"{_CURRENT} AND f.project_id = :p AND (CAST(:all AS boolean) OR r.number ILIKE :q) "
         "AND (CAST(:f AS uuid) IS NULL OR r.form_id = CAST(:f AS uuid)) "
         "AND (CAST(:k AS uuid) IS NULL OR r.collector_key = CAST(:k AS uuid))"
     )
@@ -1398,7 +1415,7 @@ async def form_data(
                 "(SELECT count(*) FROM attachment a WHERE a.owner_type = 'research_record' "
                 " AND a.owner_id = r.id AND a.removed_at IS NULL) AS pictures "
                 "FROM research.record r JOIN research.form f ON f.id = r.form_id "
-                "WHERE r.form_id = :f "
+                f"WHERE r.form_id = :f AND {_CURRENT} "
                 "AND (CAST(:s AS timestamptz) IS NULL "
                 " OR coalesce(r.started_at, r.created_at_server) >= CAST(:s AS timestamptz)) "
                 "AND (CAST(:u AS timestamptz) IS NULL "

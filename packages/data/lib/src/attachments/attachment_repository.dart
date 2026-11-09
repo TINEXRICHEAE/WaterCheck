@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:crypto/crypto.dart';
 import 'package:domain/domain.dart';
 import 'package:drift/drift.dart';
@@ -12,7 +14,13 @@ enum PhotoOwner {
   test('test_session'),
 
   /// A FieldQuire research record (ADR-030).
-  research('research_record');
+  research('research_record'),
+
+  /// A picture taken while a research form is unfinished (ADR-034).
+  researchDraft('research_draft'),
+
+  /// A picture taken while a water test is in progress (ADR-034).
+  waterDraft('water_draft');
 
   const PhotoOwner(this.wire);
 
@@ -232,6 +240,54 @@ class DriftAttachmentRepository implements AttachmentRepository {
 
   @override
   Future<Uint8List?> read(String path) => _files.read(path);
+}
+
+/// A picture kept with an unfinished form now belongs to what it became
+/// (ADR-034). Still unsent, it is queued again, after that record, which
+/// the server needs first; already sent, the server moved it when the
+/// record arrived.
+Future<void> movePictureTo(
+  AppDatabase db,
+  String id,
+  String ownerType, {
+  required DateTime at,
+}) => db.transaction(() async {
+  await (db.update(db.attachments)..where((a) => a.id.equals(id))).write(
+    AttachmentsCompanion(ownerType: Value(ownerType)),
+  );
+  final unsent =
+      await (db.select(db.outbox)..where(
+            (o) =>
+                o.entity.equals('attachment') &
+                o.entityId.equals(id) &
+                o.status.equals('pending'),
+          ))
+          .getSingleOrNull();
+  if (unsent == null) return;
+  await (db.delete(db.outbox)..where((o) => o.id.equals(unsent.id))).go();
+  await enqueueOutbox(
+    db,
+    entity: 'attachment',
+    entityId: id,
+    op: OutboxOp.insert,
+    payload: {
+      ...(jsonDecode(unsent.payload) as Map).cast<String, Object?>(),
+      'owner_type': ownerType,
+    },
+    at: at,
+  );
+});
+
+/// Takes a picture off this device's lists, with an unfinished form that
+/// was thrown away. Call inside that transaction.
+Future<void> forgetPicture(AppDatabase db, String id) async {
+  await (db.delete(
+    db.outbox,
+  )..where((o) => o.entity.equals('attachment') & o.entityId.equals(id))).go();
+  await (db.delete(
+    db.attachmentQueue,
+  )..where((q) => q.attachmentId.equals(id))).go();
+  await (db.delete(db.attachments)..where((a) => a.id.equals(id))).go();
 }
 
 /// Where and when a stored picture was taken (ADR-029), if known.

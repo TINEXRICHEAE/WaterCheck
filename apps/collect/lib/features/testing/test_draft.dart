@@ -1,10 +1,12 @@
 import 'dart:typed_data';
 
+import 'package:data/data.dart' show IdGenerator;
 import 'package:domain/domain.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/providers.dart';
 import '../sources/source_providers.dart';
+import 'water_draft_keeper.dart';
 
 /// What the collector typed for one parameter (kept as text until submit).
 class FieldInput {
@@ -32,6 +34,8 @@ class FieldInput {
 /// A test in progress, from "pick source" to "submit" (SPEC §3.1 steps 3–9).
 class TestDraft {
   const TestDraft({
+    this.id,
+    this.touched = false,
     this.sourceId,
     this.retestOf,
     this.amendmentOf,
@@ -48,6 +52,12 @@ class TestDraft {
     this.photoTaken = const {},
   });
 
+  /// Also the id of the test session it becomes (ADR-034).
+  final String? id;
+
+  /// Something was entered: kept from here on, not before, so opening a
+  /// test and going back leaves nothing behind.
+  final bool touched;
   final String? sourceId;
   final String? retestOf;
 
@@ -84,7 +94,10 @@ class TestDraft {
     Set<String>? revealed,
     List<Uint8List>? photos,
     Map<Uint8List, GeoFix>? photoTaken,
+    bool? touched,
   }) => TestDraft(
+    id: id,
+    touched: touched ?? (photos != null || this.touched),
     sourceId: sourceId ?? this.sourceId,
     retestOf: retestOf,
     amendmentOf: amendmentOf,
@@ -100,6 +113,94 @@ class TestDraft {
     photos: photos ?? this.photos,
     photoTaken: photoTaken ?? this.photoTaken,
   );
+
+  /// What is saved and sent while the test is in progress (ADR-034).
+  /// Pictures are kept apart, as files.
+  Map<String, Object?> toState() => {
+    'retest_of': retestOf,
+    'amendment_of': amendmentOf,
+    'calibration_id': calibrationId,
+    'calibrated': calibrated,
+    'tester_id': tester?.id,
+    'profile_id': profile?.id,
+    if (location case final l?)
+      'location': {
+        'lat': l.lat,
+        'lon': l.lon,
+        'accuracy_m': l.accuracyM,
+        'source': l.source.wire,
+      },
+    'distance_m': distanceM,
+    'far_reason': farReason,
+    'values': {
+      for (final e in values.entries)
+        e.key: {
+          'number': e.value.number,
+          'detected': e.value.detected,
+          'acceptable': e.value.acceptable,
+          'text': e.value.text,
+          'derived': e.value.derived,
+        },
+    },
+    'revealed': revealed.toList(),
+  };
+
+  /// A saved test, as it was; limits or a tester no longer on this device
+  /// are asked for again.
+  factory TestDraft.fromState({
+    required String id,
+    required String sourceId,
+    required Map<String, Object?> state,
+    required List<TesterProfile> testers,
+    required List<ReferenceProfile> profiles,
+    required List<Uint8List> photos,
+    required Map<Uint8List, GeoFix> photoTaken,
+  }) {
+    final at = (state['location'] as Map?)?.cast<String, Object?>();
+    return TestDraft(
+      id: id,
+      touched: true,
+      sourceId: sourceId,
+      retestOf: state['retest_of'] as String?,
+      amendmentOf: state['amendment_of'] as String?,
+      calibrationId: state['calibration_id'] as String?,
+      calibrated: state['calibrated'] == true,
+      tester: testers.where((t) => t.id == state['tester_id']).firstOrNull,
+      profile: profiles.where((p) => p.id == state['profile_id']).firstOrNull,
+      location: at == null
+          ? null
+          : GeoPoint(
+              lat: (at['lat']! as num).toDouble(),
+              lon: (at['lon']! as num).toDouble(),
+              accuracyM: (at['accuracy_m'] as num?)?.toDouble(),
+              source: LocationSource.parse(at['source'] as String?),
+            ),
+      distanceM: (state['distance_m'] as num?)?.toDouble(),
+      farReason: state['far_reason'] as String?,
+      values: {
+        for (final e
+            in ((state['values'] as Map?) ?? const {})
+                .cast<String, Object?>()
+                .entries)
+          e.key: () {
+            final v = (e.value! as Map).cast<String, Object?>();
+            return FieldInput(
+              number: v['number'] as String? ?? '',
+              detected: v['detected'] as bool?,
+              acceptable: v['acceptable'] as bool?,
+              text: v['text'] as String? ?? '',
+              derived: v['derived'] == true,
+            );
+          }(),
+      },
+      revealed: {
+        for (final c in (state['revealed'] as List?) ?? const <Object?>[])
+          c as String,
+      },
+      photos: photos,
+      photoTaken: photoTaken,
+    );
+  }
 
   /// Parameter codes shown on the entry screen, in display order:
   /// core first, then the tester's, then those revealed by category.
@@ -142,11 +243,24 @@ class TestDraft {
 }
 
 class TestDraftNotifier extends Notifier<TestDraft> {
+  /// Saves and sends the test as it goes (ADR-034).
+  late WaterDraftKeeper keeper;
+
   @override
-  TestDraft build() => const TestDraft();
+  TestDraft build() {
+    final k = keeper = WaterDraftKeeper(ref);
+    ref.onDispose(k.dispose);
+    listenSelf((_, next) => k.changed(next));
+    return const TestDraft();
+  }
+
+  static String _newId() => const IdGenerator().next();
 
   void start(String sourceId, {String? retestOf}) =>
-      state = TestDraft(sourceId: sourceId, retestOf: retestOf);
+      state = TestDraft(id: _newId(), sourceId: sourceId, retestOf: retestOf);
+
+  /// Carries on with a saved test.
+  void resume(TestDraft saved) => state = saved;
 
   /// Opens a saved result for correction: same source, profile and
   /// calibration state, readings pre-filled.
@@ -160,6 +274,7 @@ class TestDraftNotifier extends Notifier<TestDraft> {
   }) {
     final core = {for (final p in catalogue.core) p.code};
     state = TestDraft(
+      id: _newId(),
       sourceId: sourceId,
       amendmentOf: resultId,
       calibrated: calibrated,
@@ -183,8 +298,10 @@ class TestDraftNotifier extends Notifier<TestDraft> {
 
   void update(TestDraft Function(TestDraft d) change) => state = change(state);
 
-  void setValue(String code, FieldInput value) =>
-      state = state.copyWith(values: {...state.values, code: value});
+  void setValue(String code, FieldInput value) => state = state.copyWith(
+    values: {...state.values, code: value},
+    touched: true,
+  );
 
   void reveal(String code, bool show) => state = state.copyWith(
     revealed: show

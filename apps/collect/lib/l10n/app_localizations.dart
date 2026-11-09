@@ -3382,6 +3382,78 @@ abstract class AppLocalizations {
   /// **'Research'**
   String get researchTitle;
 
+  /// No description provided for @waterDraftUnfinished.
+  ///
+  /// In en, this message translates to:
+  /// **'Test not finished'**
+  String get waterDraftUnfinished;
+
+  /// No description provided for @waterDraftDiscard.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard this test'**
+  String get waterDraftDiscard;
+
+  /// No description provided for @waterDraftDiscardAsk.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard this unfinished test and its pictures?'**
+  String get waterDraftDiscardAsk;
+
+  /// No description provided for @researchRedo.
+  ///
+  /// In en, this message translates to:
+  /// **'Do it again'**
+  String get researchRedo;
+
+  /// No description provided for @researchRedoTag.
+  ///
+  /// In en, this message translates to:
+  /// **'Done again'**
+  String get researchRedoTag;
+
+  /// No description provided for @researchReplacedTag.
+  ///
+  /// In en, this message translates to:
+  /// **'Replaced by a newer record'**
+  String get researchReplacedTag;
+
+  /// No description provided for @researchCorrectExplain.
+  ///
+  /// In en, this message translates to:
+  /// **'Fix what was entered wrongly. The first record is kept and marked as replaced.'**
+  String get researchCorrectExplain;
+
+  /// No description provided for @researchRedoExplain.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill this record again from the start. The first record is kept and marked as replaced.'**
+  String get researchRedoExplain;
+
+  /// No description provided for @researchReasonHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. typed 60 people instead of 6'**
+  String get researchReasonHint;
+
+  /// No description provided for @researchReasonMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Say what was wrong'**
+  String get researchReasonMissing;
+
+  /// No description provided for @researchSuperseded.
+  ///
+  /// In en, this message translates to:
+  /// **'This record was replaced. Open the newest one to change it again.'**
+  String get researchSuperseded;
+
+  /// No description provided for @researchCannotChange.
+  ///
+  /// In en, this message translates to:
+  /// **'This form is no longer open to you, so this record cannot be changed.'**
+  String get researchCannotChange;
+
   /// No description provided for @researchForms.
   ///
   /// In en, this message translates to:

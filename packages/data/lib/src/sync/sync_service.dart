@@ -98,7 +98,26 @@ class SyncService {
   Future<SyncReport> run({bool force = false}) =>
       _running ??= _run(force).whenComplete(() => _running = null);
 
-  Future<SyncReport> _run(bool force) async {
+  /// Sends what is waiting without pulling (ADR-034): quick and quiet, for
+  /// an unfinished form as it is being filled.
+  Future<SyncReport> pushOnly() =>
+      _running ??= _run(false, pull: false).whenComplete(() => _running = null);
+
+  /// Reads [stream] from its start at the next sync (ADR-034): someone
+  /// just signed in here, and what is theirs lies behind this device's
+  /// place in the feed.
+  Future<void> readAgain(String stream) async {
+    try {
+      await _running;
+    } on Object {
+      // That run's outcome does not matter here.
+    }
+    await (_db.delete(
+      _db.syncState,
+    )..where((t) => t.stream.equals(stream))).go();
+  }
+
+  Future<SyncReport> _run(bool force, {bool pull = true}) async {
     final state = await _state(pushStream);
     final now = clock();
     final wait = state?.nextAttemptAt;
@@ -112,7 +131,7 @@ class SyncService {
       await _push(report);
       // Push before pull (SPEC §8.1): never overwrite local edits that the
       // server has not seen yet.
-      if (report.failure == null) {
+      if (pull && report.failure == null) {
         final extra = await moreStreams?.call() ?? const <String>[];
         for (final stream in {...streams, ...extra}) {
           await _pull(stream, report);
@@ -228,6 +247,16 @@ class SyncService {
               ..where((t) => t.status.equals('pending'))
               ..orderBy([(t) => OrderingTerm(expression: t.id)]))
             .get();
+    // An unfinished form before its pictures: its latest copy is queued
+    // after them (ADR-034). The sort is stable.
+    bool draft(OutboxRow r) =>
+        r.entity == 'research_draft' || r.entity == 'water_draft';
+    final drafts = rows.where(draft).toList();
+    final others = rows.where((r) => !draft(r)).toList();
+    rows
+      ..clear()
+      ..addAll(drafts)
+      ..addAll(others);
     final batch = <OutboxRow>[];
     var bytes = 0;
     for (final r in rows) {

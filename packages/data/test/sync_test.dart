@@ -574,4 +574,30 @@ void main() {
     await service().run();
     expect(server.pulls.single, ('reference', null));
   });
+
+  test('someone signing in reads the research feed from its start again '
+      '(ADR-034)', () async {
+    await db
+        .into(db.syncState)
+        .insert(
+          SyncStateCompanion.insert(
+            stream: 'research',
+            cursorToken: const Value('2:99.99'),
+          ),
+        );
+    await db
+        .into(db.syncState)
+        .insert(
+          SyncStateCompanion.insert(
+            stream: 'reference',
+            cursorToken: const Value('2:50.50'),
+          ),
+        );
+    final svc = SyncService(db, server, streams: const ['research']);
+    await svc.readAgain('research');
+    final left = await db.select(db.syncState).get();
+    expect(left.map((r) => r.stream), ['reference']);
+    await svc.run();
+    expect(server.pulls, [('research', null)]);
+  });
 }

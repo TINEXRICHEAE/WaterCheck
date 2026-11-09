@@ -51,9 +51,18 @@ class RecoverIn(BaseModel):
     code: str = Field(min_length=6, max_length=40)
 
 
+class LinkedCollector(BaseModel):
+    collector_key: UUID
+    snapshot: dict[str, Any]
+
+
 class RecoveredCollector(BaseModel):
     collector_key: UUID
     snapshot: dict[str, Any]
+    # The same person's profile on the other side, signed in with this one.
+    linked: LinkedCollector | None = None
+    # Districts they have worked in, so that work comes back too (ADR-034).
+    districts: list[UUID] = []
 
 
 @router.post("/{collector_key}/recovery-code", status_code=status.HTTP_201_CREATED)
@@ -177,22 +186,59 @@ async def recover(body: RecoverIn, principal: AnyPrincipal, db: DbDep) -> Recove
         # This device now holds the tester (again, if signed out before),
         # and the sign-in is in their trail (ADR-024).
         via = "own_code" if row.own else "admin_code"
-        await conn.execute(
+
+        async def sign_in(key: UUID) -> None:
+            await conn.execute(
+                text(
+                    "INSERT INTO collector_device (collector_key, installation_id, signed_in_via) "
+                    "VALUES (:k, :i, :via) ON CONFLICT (collector_key, installation_id) DO UPDATE "
+                    "SET signed_out_at = NULL, signed_out_by_request = NULL, "
+                    "last_seen_at = now(), signed_in_via = EXCLUDED.signed_in_via"
+                ),
+                {"k": key, "i": principal.installation_id, "via": via},
+            )
+            await conn.execute(
+                text(
+                    "INSERT INTO collector_signin (id, collector_key, installation_id, via, "
+                    "platform) SELECT :id, :k, :i, :via, platform FROM installation WHERE id = :i"
+                ),
+                {"id": uuid4(), "k": key, "i": principal.installation_id, "via": via},
+            )
+
+        await sign_in(row.collector_key)
+        # Their other side comes along, joined forms and all (ADR-034).
+        own = _snapshot(profile.snapshot)
+        other = (
+            await conn.execute(
+                text(
+                    "SELECT collector_key, snapshot, side FROM collector_profile "
+                    "WHERE collector_key::text = :k AND side <> :side"
+                ),
+                {"k": str(own.get("linked_key") or ""), "side": profile.side},
+            )
+        ).first()
+        linked = None
+        if other is not None:
+            await sign_in(other.collector_key)
+            linked = LinkedCollector(
+                collector_key=other.collector_key,
+                snapshot=_snapshot(other.snapshot) | {"side": other.side},
+            )
+        keys = [row.collector_key, *([other.collector_key] if other is not None else [])]
+        districts = await conn.execute(
             text(
-                "INSERT INTO collector_device (collector_key, installation_id, signed_in_via) "
-                "VALUES (:k, :i, :via) ON CONFLICT (collector_key, installation_id) DO UPDATE "
-                "SET signed_out_at = NULL, signed_out_by_request = NULL, last_seen_at = now(), "
-                "signed_in_via = EXCLUDED.signed_in_via"
+                "WITH RECURSIVE up(id, parent_id, level) AS ("
+                " SELECT a.id, a.parent_id, a.level FROM admin_unit a WHERE a.id IN ("
+                "  SELECT village_id FROM water_source WHERE collector_key = ANY(:k)"
+                "  UNION SELECT s.village_id FROM test_session t"
+                "  JOIN water_source s ON s.id = t.source_id WHERE t.collector_key = ANY(:k))"
+                " UNION ALL SELECT a.id, a.parent_id, a.level FROM admin_unit a"
+                " JOIN up ON a.id = up.parent_id) "
+                "SELECT DISTINCT id FROM up WHERE level = 'district'"
             ),
-            {"k": row.collector_key, "i": principal.installation_id, "via": via},
+            {"k": keys},
         )
-        await conn.execute(
-            text(
-                "INSERT INTO collector_signin (id, collector_key, installation_id, via, platform) "
-                "SELECT :id, :k, :i, :via, platform FROM installation WHERE id = :i"
-            ),
-            {"id": uuid4(), "k": row.collector_key, "i": principal.installation_id, "via": via},
-        )
+        worked = [d.id for d in districts]
         await conn.execute(
             text(
                 "INSERT INTO audit_log (installation_id, collector_key, platform, action, entity) "
@@ -203,4 +249,6 @@ async def recover(body: RecoverIn, principal: AnyPrincipal, db: DbDep) -> Recove
     # The profile's side comes back with it (ADR-031), also for profiles
     # whose details were sent before sides.
     snap = _snapshot(profile.snapshot) | {"side": profile.side}
-    return RecoveredCollector(collector_key=row.collector_key, snapshot=snap)
+    return RecoveredCollector(
+        collector_key=row.collector_key, snapshot=snap, linked=linked, districts=worked
+    )

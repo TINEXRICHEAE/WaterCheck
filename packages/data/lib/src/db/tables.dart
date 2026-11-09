@@ -696,6 +696,12 @@ class ResearchRecords extends Table {
 
   /// The answers (JSON).
   TextColumn get answers => text()();
+
+  /// The earlier record this one corrects or does again, how, and why
+  /// (ADR-034). Added in v15.
+  TextColumn get replaces => text().nullable()();
+  TextColumn get replaceKind => text().nullable()();
+  TextColumn get replaceReason => text().nullable()();
   DateTimeColumn get createdAtServer => dateTime().nullable()();
   IntColumn get serverSeq => integer().nullable()();
 
@@ -705,6 +711,27 @@ class ResearchRecords extends Table {
 
 /// A record being filled; saved as the collector goes, never sent. Its
 /// pictures wait here as files ([media]) until the record is finished.
+/// A water test in progress (ADR-034): what the test screens hold so far.
+/// Added in v16.
+@DataClassName('WaterDraftRow')
+class WaterDrafts extends Table {
+  /// The id its test session will have.
+  TextColumn get id => text()();
+  TextColumn get sourceId => text()();
+  TextColumn get collectorKey => text().nullable()();
+
+  /// JSON: readings entered, limits, tester, where it was checked.
+  TextColumn get state => text()();
+
+  /// Pictures so far (JSON): attachment id → local file and fix.
+  TextColumn get media => text().withDefault(const Constant('{}'))();
+  DateTimeColumn get startedAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
 @DataClassName('ResearchDraftRow')
 class ResearchDrafts extends Table {
   TextColumn get id => text()();
@@ -726,6 +753,11 @@ class ResearchDrafts extends Table {
   /// Where the location came from: null for the device itself, 'internet'
   /// (a computer's rough guess) or 'hand' (set on the map). Added in v14.
   TextColumn get locationSource => text().nullable()();
+
+  /// The record this draft will correct or do again (ADR-034). Added in v15.
+  TextColumn get replaces => text().nullable()();
+  TextColumn get replaceKind => text().nullable()();
+  TextColumn get replaceReason => text().nullable()();
 
   @override
   Set<Column> get primaryKey => {id};

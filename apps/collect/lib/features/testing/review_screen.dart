@@ -12,6 +12,7 @@ import '../photos/photo_service.dart';
 import '../sources/source_providers.dart';
 import 'result_labels.dart';
 import 'test_draft.dart';
+import 'water_draft_keeper.dart';
 
 /// "Review & submit" (SPEC §3.1 step 9): who, where, which source, the
 /// readings and the result, before anything is saved.
@@ -113,6 +114,8 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
     final readings = draft.readings(classifier.catalogue);
     final result = ref.read(draftClassificationProvider)!;
     setState(() => _saving = true);
+    final keeper = ref.read(testDraftProvider.notifier).keeper;
+    await keeper.flush();
     if (draft.amendmentOf != null) {
       // A correction: a new result with its own readings and the reason;
       // the original stays in the history, marked as corrected (ADR-005).
@@ -125,6 +128,7 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
             reason: _reason.text.trim(),
             origin: ref.read(submissionOriginProvider)!,
           );
+      if (draft.id case final d?) await keeper.discard(d);
       if (mounted) context.go('/test/result/$id');
       return;
     }
@@ -133,6 +137,7 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
         .read(testingRepositoryProvider)
         .submit(
           TestSubmission(
+            sessionId: draft.id,
             sourceId: draft.sourceId!,
             profile: draft.profile!,
             calibrated: draft.calibrated,
@@ -151,6 +156,8 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
         );
     final attachments = ref.read(attachmentRepositoryProvider);
     for (final jpeg in draft.photos) {
+      // Those kept while the test was in progress follow it below.
+      if (keeper.picturesKept(jpeg)) continue;
       await attachments.addPhoto(
         owner: PhotoOwner.test,
         ownerId: ids.sessionId,
@@ -158,6 +165,10 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
         taken: draft.photoTaken[jpeg],
         origin: origin,
       );
+    }
+    if (draft.id case final d?) {
+      await ref.read(waterDraftRepositoryProvider).finish(d);
+      keeper.closed(d);
     }
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(

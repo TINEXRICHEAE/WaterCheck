@@ -47,6 +47,7 @@ part 'database.g.dart';
     ResearchFormVersions,
     ResearchRecords,
     ResearchDrafts,
+    WaterDrafts,
   ],
   include: {'immutability.drift'},
 )
@@ -54,7 +55,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.executor);
 
   @override
-  int get schemaVersion => 14;
+  int get schemaVersion => 16;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -179,6 +180,20 @@ class AppDatabase extends _$AppDatabase {
           await m.addColumn(researchRecords, researchRecords.locationSource);
           await m.addColumn(researchDrafts, researchDrafts.locationSource);
         }
+      }
+      if (from < 15 && from >= 12) {
+        // Research records corrected or done again (ADR-034); tables made
+        // by an earlier step of this upgrade already have these.
+        await m.addColumn(researchRecords, researchRecords.replaces);
+        await m.addColumn(researchRecords, researchRecords.replaceKind);
+        await m.addColumn(researchRecords, researchRecords.replaceReason);
+        await m.addColumn(researchDrafts, researchDrafts.replaces);
+        await m.addColumn(researchDrafts, researchDrafts.replaceKind);
+        await m.addColumn(researchDrafts, researchDrafts.replaceReason);
+      }
+      if (from < 16) {
+        // Water tests in progress (ADR-034).
+        await m.createTable(waterDrafts);
       }
     },
     beforeOpen: (details) async {

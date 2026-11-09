@@ -167,4 +167,35 @@ void main() {
     expect((draft.lat, draft.locationSource), (2.69, null));
     await db.close();
   });
+
+  test(
+    'v14 → v15 keeps drafts and records, replacing nothing (ADR-034)',
+    () async {
+      final schema = await verifier.schemaAt(14);
+      schema.rawDatabase.execute(
+        "INSERT INTO research_drafts (id, form_id, form_version, answers, "
+        "started_at, updated_at) VALUES ('d', 'f', 1, '{\"a\": 1}', "
+        "'2026-11-08T09:00:00Z', '2026-11-08T09:00:00Z')",
+      );
+      schema.rawDatabase.execute(
+        "INSERT INTO research_records (id, form_id, form_version, number, "
+        "answers) VALUES ('r', 'f', 1, 'H-1', '{}')",
+      );
+      final db = AppDatabase(schema.newConnection());
+      await verifier.migrateAndValidate(db, localSchemaVersion);
+      final draft = await db.select(db.researchDrafts).getSingle();
+      final record = await db.select(db.researchRecords).getSingle();
+      expect((draft.answers, draft.replaces), ('{"a": 1}', null));
+      expect((record.number, record.replaceKind), ('H-1', null));
+      await db.close();
+    },
+  );
+
+  test('v15 → v16 adds water tests in progress (ADR-034)', () async {
+    final schema = await verifier.schemaAt(15);
+    final db = AppDatabase(schema.newConnection());
+    await verifier.migrateAndValidate(db, localSchemaVersion);
+    expect(await db.select(db.waterDrafts).get(), isEmpty);
+    await db.close();
+  });
 }

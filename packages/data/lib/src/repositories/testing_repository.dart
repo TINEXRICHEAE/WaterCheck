@@ -41,8 +41,11 @@ class TestSubmission {
     this.retestOf,
     this.alertTriggers = const [],
     this.noPhotoReason,
+    this.sessionId,
   });
 
+  /// The id to give the test: that of its draft (ADR-034).
+  final String? sessionId;
   final String sourceId;
   final ReferenceProfile profile;
   final bool calibrated;
@@ -231,7 +234,7 @@ class DriftTestingRepository implements TestingRepository {
           .into(_db.testSessions)
           .insertReturning(
             TestSessionsCompanion.insert(
-              id: ids.next(),
+              id: s.sessionId ?? ids.next(),
               sourceId: s.sourceId,
               calibrationId: Value(s.calibrationId),
               testerProfileId: Value(s.testerProfileId),

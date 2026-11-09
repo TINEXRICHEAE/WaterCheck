@@ -81,7 +81,10 @@
     // iPhone and iPad Safari have no install prompt: "Add to Home Screen"
     // from the Share menu, explained in Settings. False once installed.
     window.wcIsIosBrowser = () =>
-      /iPad|iPhone|iPod/.test(navigator.userAgent) && !navigator.standalone;
+      (/iPad|iPhone|iPod/.test(navigator.userAgent) ||
+       // iPads say they are Macs, but Macs have no touch screen.
+       (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1)) &&
+      !navigator.standalone;
     window.addEventListener('flutter-first-frame', () => {
       const s = document.getElementById('wc-splash');
       if (!s) return;

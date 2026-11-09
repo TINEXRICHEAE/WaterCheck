@@ -1,5 +1,6 @@
 import 'package:api_client/api_client.dart' show LockedForm;
 import 'package:data/data.dart';
+import 'package:dio/dio.dart' show Dio, Options, ResponseType;
 import 'package:domain/domain.dart' show AppSide, CollectorSnapshot;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +12,32 @@ import 'package:ui_kit/ui_kit.dart'
 import '../../app/gate.dart';
 import '../../app/providers.dart';
 import '../../l10n/app_localizations.dart';
+import '../photos/photo_service.dart';
+import '../sync/collect_sync.dart' show collectApiDioProvider;
+
+/// A picture of a research record or unfinished form: from this device,
+/// or from the server when the device no longer has it (ADR-034).
+Future<Uint8List?> researchPicture(WidgetRef ref, String id) async {
+  final files = ref.read(photoFilesProvider);
+  final dio = ref.read(collectApiDioProvider);
+  final path = await ref.read(researchRepositoryProvider).picturePath(id);
+  final here = path == null ? null : await files.read(path);
+  return here ?? fetchPicture(dio, id);
+}
+
+/// The server's copy of a picture, or null.
+Future<Uint8List?> fetchPicture(Dio? dio, String id) async {
+  if (dio == null) return null;
+  try {
+    final got = await dio.get<List<int>>(
+      '/v1/attachments/$id/content',
+      options: Options(responseType: ResponseType.bytes),
+    );
+    return Uint8List.fromList(got.data!);
+  } catch (_) {
+    return null;
+  }
+}
 
 /// What the app is used for now (ADR-030, ADR-031): water testing or
 /// research. Each side has its own people, home, map and profile pages;

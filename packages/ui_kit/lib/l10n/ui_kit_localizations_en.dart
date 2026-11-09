@@ -640,7 +640,14 @@ class UiKitLocalizationsEn extends UiKitLocalizations {
 
   @override
   String get installAppIosHint =>
-      'In Safari, tap Share, then Add to Home Screen. FieldQuire then opens like an app, full screen.';
+      'Tap here to see how. FieldQuire then opens like an app, full screen, and your browser no longer clears it.';
+
+  @override
+  String get installAppIosSteps =>
+      '1. Open this page in Safari.\n2. Tap ••• beside the address. On older iPhones, go to step 3.\n3. Tap Share (the square with an arrow).\n4. Scroll down and tap Add to Home Screen. If you do not see it, tap More or View More first.\n5. Keep Open as Web App on, and tap Add.\n6. Open FieldQuire from its new icon.\n\nThe icon starts fresh, so sync here first, then sign in again there.';
+
+  @override
+  String get installAppIosDone => 'Got it';
 
   @override
   String get formRequired => 'Answer this question';

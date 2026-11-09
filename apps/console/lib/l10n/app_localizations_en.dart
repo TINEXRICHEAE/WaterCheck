@@ -2910,6 +2910,30 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get researchCorrectionTag => 'Correction';
+
+  @override
+  String get researchRetakeTag => 'Done again';
+
+  @override
+  String get researchReplacedTag => 'Replaced';
+
+  @override
+  String get researchReplacedHint =>
+      'A newer record replaces this one. Only the newest is counted.';
+
+  @override
+  String get researchOpenNewer => 'Open the newer record';
+
+  @override
+  String researchReplacesHint(String reason) {
+    return 'Replaces an earlier record: $reason';
+  }
+
+  @override
+  String get researchOpenEarlier => 'Open the earlier record';
+
+  @override
   String researchMinutes(int minutes) {
     return '$minutes min';
   }

@@ -1999,6 +1999,47 @@ class AppLocalizationsEn extends AppLocalizations {
   String get researchTitle => 'Research';
 
   @override
+  String get waterDraftUnfinished => 'Test not finished';
+
+  @override
+  String get waterDraftDiscard => 'Discard this test';
+
+  @override
+  String get waterDraftDiscardAsk =>
+      'Discard this unfinished test and its pictures?';
+
+  @override
+  String get researchRedo => 'Do it again';
+
+  @override
+  String get researchRedoTag => 'Done again';
+
+  @override
+  String get researchReplacedTag => 'Replaced by a newer record';
+
+  @override
+  String get researchCorrectExplain =>
+      'Fix what was entered wrongly. The first record is kept and marked as replaced.';
+
+  @override
+  String get researchRedoExplain =>
+      'Fill this record again from the start. The first record is kept and marked as replaced.';
+
+  @override
+  String get researchReasonHint => 'e.g. typed 60 people instead of 6';
+
+  @override
+  String get researchReasonMissing => 'Say what was wrong';
+
+  @override
+  String get researchSuperseded =>
+      'This record was replaced. Open the newest one to change it again.';
+
+  @override
+  String get researchCannotChange =>
+      'This form is no longer open to you, so this record cannot be changed.';
+
+  @override
   String get researchForms => 'Forms to fill';
 
   @override

@@ -2,6 +2,7 @@ import 'package:data/data.dart';
 import 'package:domain/domain.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:watercheck_collect/features/location/location_service.dart';
 
 import 'photos_test.dart' show cameraPhoto;
@@ -163,6 +164,42 @@ void main() {
     await tapAndSettle(tester, find.text('Done'));
     expect(find.text('Water sources'), findsOneWidget);
     expect(find.text('UNSAFE'), findsOneWidget);
+    await disposeApp(tester, db);
+  });
+
+  testWidgets('a test left unfinished is kept and carried on with (ADR-034)', (
+    tester,
+  ) async {
+    final db = await _start(tester);
+    await _openSetup(tester);
+    await tapAndSettle(tester, find.text('Test without calibrating'));
+    await tapAndSettle(tester, find.text('Check my location'));
+    await tapAndSettle(tester, find.text('Continue to readings'));
+    await _enter(tester, 'ph', '9.1');
+    // Saved a moment after the change, and queued for the server.
+    await tester.pump(const Duration(seconds: 1));
+    for (var i = 0; i < 4; i++) {
+      await settle(tester);
+    }
+    final saved = await tester.runAsync(
+      () async => (
+        await db.select(db.waterDrafts).get(),
+        await db.select(db.outbox).get(),
+      ),
+    );
+    expect(saved!.$1, hasLength(1));
+    expect(saved.$1.single.state, contains('9.1'));
+    expect(saved.$2.where((o) => o.entity == 'water_draft'), hasLength(1));
+
+    // Home lists it; opening it brings the reading back.
+    GoRouter.of(tester.element(find.text('Main readings'))).go('/');
+    await settle(tester);
+    expect(find.text('Water sources'), findsOneWidget);
+    await tapAndSettle(tester, find.textContaining('Test not finished'));
+    expect(find.text('Main readings'), findsOneWidget);
+    expect(find.text('9.1'), findsOneWidget);
+
+    await tapAndSettle(tester, find.text('Check and submit'));
     await disposeApp(tester, db);
   });
 

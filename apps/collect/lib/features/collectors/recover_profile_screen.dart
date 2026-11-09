@@ -8,6 +8,7 @@ import '../../app/gate.dart';
 import '../../app/providers.dart';
 import '../../l10n/app_localizations.dart';
 import '../research/research.dart';
+import '../sources/online_search.dart' show extraDistrictsKey;
 import '../activation/installation_service.dart';
 import '../sync/collect_sync.dart';
 
@@ -53,6 +54,17 @@ class _RecoverProfileScreenState extends ConsumerState<RecoverProfileScreen> {
         linkedKey: j['linked_key'] as String?,
       );
 
+  /// The districts they worked in stay on this device's sync.
+  Future<void> _keepDistricts(List<Object?> worked) async {
+    if (worked.isEmpty) return;
+    final settings = ref.read(localSettingsRepositoryProvider);
+    final now = (await settings.read(extraDistrictsKey))?.split(',') ?? [];
+    await settings.write(
+      extraDistrictsKey,
+      {...now, ...worked.cast<String>()}.where((s) => s.isNotEmpty).join(','),
+    );
+  }
+
   Future<void> _recover() async {
     final l10n = AppLocalizations.of(context);
     await ref.read(installationServiceProvider).ensureRegistered();
@@ -80,6 +92,21 @@ class _RecoverProfileScreenState extends ConsumerState<RecoverProfileScreen> {
               (r.data!['snapshot'] as Map).cast<String, dynamic>(),
             ),
           );
+      // Their other side comes back with them (ADR-034).
+      if (r.data!['linked'] case final Map<String, dynamic> linked) {
+        await ref
+            .read(collectorProfileRepositoryProvider)
+            .restore(
+              _snapshot(
+                linked['collector_key'] as String,
+                (linked['snapshot'] as Map).cast<String, dynamic>(),
+              ),
+            );
+      }
+      await _keepDistricts((r.data!['districts'] as List?) ?? const []);
+      // Their joined forms, records, pictures and unfinished work lie
+      // behind where this device has read to.
+      await ref.read(syncServiceProvider)?.readAgain('research');
       // Back on their own side (ADR-031).
       if (ref.read(appModeProvider).side != saved.side) {
         await ref.read(appModeProvider.notifier).set(AppMode.of(saved.side));

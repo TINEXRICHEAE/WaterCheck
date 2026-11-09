@@ -24,6 +24,10 @@ class RecordRow {
     required this.accuracyM,
     required this.declined,
     this.locationSource,
+    this.replaces,
+    this.replaceKind,
+    this.replaceReason,
+    this.replacedBy,
   });
 
   factory RecordRow.fromJson(Map<String, Object?> json) =>
@@ -53,6 +57,13 @@ class RecordRow {
   @JsonKey(name: 'location_source')
   final String? locationSource;
   final bool declined;
+  final String? replaces;
+  @JsonKey(name: 'replace_kind')
+  final String? replaceKind;
+  @JsonKey(name: 'replace_reason')
+  final String? replaceReason;
+  @JsonKey(name: 'replaced_by')
+  final String? replacedBy;
 
   Map<String, Object?> toJson() => _$RecordRowToJson(this);
 }

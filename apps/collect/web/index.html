@@ -65,6 +65,10 @@
   <script>
     // Installable web app (ADR-022): offline app shell, and the browser's
     // install prompt kept for the app's own "Install app" button.
+    // Ask the browser not to clear this app's work when space runs short.
+    if (navigator.storage && navigator.storage.persist) {
+      navigator.storage.persist().catch(() => {});
+    }
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('sw.js').catch(() => {});
@@ -81,7 +85,10 @@
     // iPhone and iPad Safari have no install prompt: "Add to Home Screen"
     // from the Share menu, explained in Settings. False once installed.
     window.wcIsIosBrowser = () =>
-      /iPad|iPhone|iPod/.test(navigator.userAgent) && !navigator.standalone;
+      (/iPad|iPhone|iPod/.test(navigator.userAgent) ||
+       // iPads say they are Macs, but Macs have no touch screen.
+       (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1)) &&
+      !navigator.standalone;
     window.addEventListener('flutter-first-frame', () => {
       const s = document.getElementById('wc-splash');
       if (!s) return;

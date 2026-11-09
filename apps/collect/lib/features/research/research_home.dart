@@ -449,7 +449,13 @@ class _ResearchHomeState extends ConsumerState<ResearchHome> {
                         leading: const Icon(Icons.edit_note),
                         title: Text(d.number ?? l10n.researchNoNumber),
                         subtitle: Text(
-                          '${d.formTitle} · ${when.format(d.updatedAt.toLocal())}',
+                          [
+                            d.formTitle,
+                            when.format(d.updatedAt.toLocal()),
+                            if (d.replaceKind == 'correction')
+                              l10n.historyCorrection,
+                            if (d.replaceKind == 'retake') l10n.researchRedoTag,
+                          ].join(' · '),
                         ),
                         trailing: const Icon(Icons.chevron_right),
                         onTap: () => context.push('/research/fill/${d.id}'),
@@ -485,6 +491,10 @@ class _ResearchHomeState extends ConsumerState<ResearchHome> {
                               when.format(t.toLocal()),
                             r.sent ? l10n.researchSent : l10n.researchWaiting,
                             if (r.numberClash) l10n.researchClash,
+                            if (r.replaceKind == 'correction')
+                              l10n.historyCorrection,
+                            if (r.replaceKind == 'retake') l10n.researchRedoTag,
+                            if (r.replaced) l10n.researchReplacedTag,
                           ].join(' · '),
                         ),
                         trailing: const Icon(Icons.chevron_right),

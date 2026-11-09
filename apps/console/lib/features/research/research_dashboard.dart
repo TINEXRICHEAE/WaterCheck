@@ -411,6 +411,8 @@ class RecordTile extends StatelessWidget {
           if (r.lat == null) l10n.researchNoLocation,
           if (r.declined) l10n.researchDeclinedShort,
           if (r.numberClash) l10n.researchClash,
+          if (r.replaceKind == 'correction') l10n.researchCorrectionTag,
+          if (r.replaceKind == 'retake') l10n.researchRetakeTag,
         ].join(' · '),
       ),
       trailing: const Icon(Icons.chevron_right),

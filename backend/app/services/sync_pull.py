@@ -145,7 +145,8 @@ AREA: dict[str, str] = {
             col="CASE WHEN x.owner_type = 'water_source' THEN x.owner_id ELSE "
             "(SELECT t.source_id FROM test_session t WHERE t.id = x.owner_id) END"
         )
-        + "} AND NOT wc_archived('water_source', x.owner_id) "
+        + "} AND x.owner_type IN ('water_source', 'test_session') "
+        "AND NOT wc_archived('water_source', x.owner_id) "
         "AND NOT wc_archived('test_session', x.owner_id)"
     ),
     # Staff only (RLS): phones never receive marks.
@@ -257,8 +258,21 @@ RESEARCH: dict[str, str] = {
         "SELECT id, form_id, form_version, number, number_clash, collector_key, "
         "installation_id, collector_snapshot, started_at, finished_at, lat, lon, accuracy_m, "
         "altitude_m, end_lat, end_lon, end_accuracy_m, location_source, answers, "
-        "created_at_server, {cols} "
+        "replaces, replace_kind, replace_reason, created_at_server, {cols} "
         "FROM research.record x"
+    ),
+    # A collector's unfinished forms (ADR-034), back on any device they sign
+    # in on; `closed_at` tells devices to drop one.
+    "research_draft": (
+        "SELECT id, form_id, form_version, number, collector_key, answers, media, started_at, "
+        "updated_at, lat, lon, accuracy_m, altitude_m, location_source, replaces, replace_kind, "
+        "replace_reason, closed_at, {cols} FROM research.draft x"
+    ),
+    # A collector's water tests in progress travel the same way: this is
+    # the feed that follows a person from device to device.
+    "water_draft": (
+        "SELECT id, collector_key, source_id, state, media, started_at, updated_at, closed_at, "
+        "{cols} FROM water_test_draft x"
     ),
     "attachment": (
         "SELECT id, owner_type, owner_id, field_name, object_key, sha256, bytes, mime, "
@@ -298,6 +312,8 @@ JSON_COLUMNS = {
     "content",
     "buffers",
     "answers",
+    "media",
+    "state",
     "reading_results",
     "parameters",
     "definition",

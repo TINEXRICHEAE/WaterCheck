@@ -53,8 +53,9 @@ Map<String, Object?> unsyncedExportContent({
 };
 
 /// Sent like records but not records: a tester's details (2026-10-31) go
-/// again with each record, so they are not counted, listed or exported.
-const _notRecords = ['collector_profile'];
+/// again with each record, and an unfinished form's copy changes as it is
+/// filled (ADR-034), so they are not counted, listed or exported.
+const _notRecords = ['collector_profile', 'research_draft', 'water_draft'];
 
 class DriftOutboxRepository implements OutboxRepository {
   DriftOutboxRepository(this._db);

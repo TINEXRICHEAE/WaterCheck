@@ -32,6 +32,7 @@ export 'src/repositories/outbox_repository.dart';
 export 'src/repositories/place_repository.dart';
 export 'src/repositories/reference_data_repository.dart';
 export 'src/repositories/research_repository.dart';
+export 'src/repositories/water_draft_repository.dart';
 export 'src/repositories/source_repository.dart';
 export 'src/repositories/stakeholder_repository.dart';
 export 'src/repositories/trail_queries.dart';
@@ -51,4 +52,4 @@ export 'src/sync/sync_transport.dart';
 export 'src/seed/seed_importer.dart';
 
 /// Local database schema version (see `drift_schemas/`).
-const int localSchemaVersion = 14;
+const int localSchemaVersion = 16;

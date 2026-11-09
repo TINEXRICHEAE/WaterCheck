@@ -35,6 +35,10 @@ RecordDetail _$RecordDetailFromJson(Map<String, dynamic> json) => RecordDetail(
       .map((e) => PictureOut.fromJson(e as Map<String, dynamic>))
       .toList(),
   locationSource: json['location_source'] as String?,
+  replaces: json['replaces'] as String?,
+  replaceKind: json['replace_kind'] as String?,
+  replaceReason: json['replace_reason'] as String?,
+  replacedBy: json['replaced_by'] as String?,
 );
 
 Map<String, dynamic> _$RecordDetailToJson(RecordDetail instance) =>
@@ -54,6 +58,10 @@ Map<String, dynamic> _$RecordDetailToJson(RecordDetail instance) =>
       'accuracy_m': instance.accuracyM,
       'location_source': instance.locationSource,
       'declined': instance.declined,
+      'replaces': instance.replaces,
+      'replace_kind': instance.replaceKind,
+      'replace_reason': instance.replaceReason,
+      'replaced_by': instance.replacedBy,
       'altitude_m': instance.altitudeM,
       'end_lat': instance.endLat,
       'end_lon': instance.endLon,

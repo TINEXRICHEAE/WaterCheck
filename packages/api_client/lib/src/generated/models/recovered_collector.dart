@@ -4,6 +4,8 @@
 
 import 'package:json_annotation/json_annotation.dart';
 
+import 'linked_collector.dart';
+
 part 'recovered_collector.g.dart';
 
 @JsonSerializable()
@@ -11,6 +13,8 @@ class RecoveredCollector {
   const RecoveredCollector({
     required this.collectorKey,
     required this.snapshot,
+    this.districts = const [],
+    this.linked,
   });
 
   factory RecoveredCollector.fromJson(Map<String, Object?> json) =>
@@ -19,6 +23,8 @@ class RecoveredCollector {
   @JsonKey(name: 'collector_key')
   final String collectorKey;
   final dynamic snapshot;
+  final LinkedCollector? linked;
+  final List<String> districts;
 
   Map<String, Object?> toJson() => _$RecoveredCollectorToJson(this);
 }

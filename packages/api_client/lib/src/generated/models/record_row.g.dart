@@ -26,6 +26,10 @@ RecordRow _$RecordRowFromJson(Map<String, dynamic> json) => RecordRow(
   accuracyM: json['accuracy_m'] as num?,
   declined: json['declined'] as bool,
   locationSource: json['location_source'] as String?,
+  replaces: json['replaces'] as String?,
+  replaceKind: json['replace_kind'] as String?,
+  replaceReason: json['replace_reason'] as String?,
+  replacedBy: json['replaced_by'] as String?,
 );
 
 Map<String, dynamic> _$RecordRowToJson(RecordRow instance) => <String, dynamic>{
@@ -44,4 +48,8 @@ Map<String, dynamic> _$RecordRowToJson(RecordRow instance) => <String, dynamic>{
   'accuracy_m': instance.accuracyM,
   'location_source': instance.locationSource,
   'declined': instance.declined,
+  'replaces': instance.replaces,
+  'replace_kind': instance.replaceKind,
+  'replace_reason': instance.replaceReason,
+  'replaced_by': instance.replacedBy,
 };
