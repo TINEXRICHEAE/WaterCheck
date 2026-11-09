@@ -307,9 +307,7 @@ void main() {
           attachments: attachments,
           origin: origin,
         );
-        expect(water.pictures((await water.draft('t-1'))!).keys, [
-          'p-1',
-        ]);
+        expect(water.pictures((await water.draft('t-1'))!).keys, ['p-1']);
         await water.finish('t-1');
         expect(await water.draft('t-1'), isNull);
         expect(await queued(), isEmpty);
