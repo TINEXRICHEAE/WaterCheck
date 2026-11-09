@@ -67,6 +67,10 @@ class SyncScreen extends ConsumerWidget {
         ? l10n.syncOffline(
             push.nextAttemptAt == null ? '' : when(push.nextAttemptAt!),
           )
+        : push.lastError == 'maintenance'
+        ? l10n.syncMaintenance(
+            push.nextAttemptAt == null ? '' : when(push.nextAttemptAt!),
+          )
         : l10n.syncServerProblem(
             push.lastError!,
             push.nextAttemptAt == null ? '' : when(push.nextAttemptAt!),

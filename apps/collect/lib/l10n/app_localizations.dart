@@ -3382,6 +3382,12 @@ abstract class AppLocalizations {
   /// **'Research'**
   String get researchTitle;
 
+  /// No description provided for @syncMaintenance.
+  ///
+  /// In en, this message translates to:
+  /// **'FieldQuire is being updated. Your work is safe here and is sent when the update is done (next try about {when}).'**
+  String syncMaintenance(String when);
+
   /// No description provided for @waterDraftUnfinished.
   ///
   /// In en, this message translates to:

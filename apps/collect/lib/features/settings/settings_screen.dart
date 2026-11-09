@@ -13,7 +13,7 @@ import '../research/research.dart';
 import '../lock/lock_screens.dart' show confirmLockOff;
 import '../photos/photo_service.dart';
 
-const appVersion = '0.2.0';
+const appVersion = '0.3.0';
 
 /// The app-lock state Settings shows: (config, biometrics available).
 final _lockStateProvider = FutureProvider.autoDispose<(LockConfig, bool)>((

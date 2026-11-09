@@ -8,6 +8,10 @@ const CACHE = 'watercheck-shell-v1';
 // Not the app's files, though under this scope (the Console is served at
 // the site root, next to these).
 const SKIP = ['api/', 'tiles/', 'route/', 'collect/', 'health'];
+// Change only with a Flutter or package upgrade: may come from the browser's
+// cache. Everything else is asked of the server each time, so a new release
+// is not hidden by a saved copy (2026-11-10).
+const ENGINE = ['canvaskit/', 'sqlite3.wasm', 'assets/fonts/', 'assets/packages/', 'assets/shaders/'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -33,8 +37,13 @@ self.addEventListener('fetch', (event) => {
   if (!request.url.startsWith(scope)) return;
   const path = request.url.slice(scope.length);
   if (SKIP.some((p) => path.startsWith(p))) return;
+  const saved = ENGINE.some((p) => path.startsWith(p));
+  // A page being opened is checked by the browser already.
+  const asked = saved || request.mode === 'navigate'
+    ? fetch(request)
+    : fetch(request, { cache: 'no-cache' });
   event.respondWith(
-    fetch(request)
+    asked
       .then((response) => {
         if (response.ok) {
           const copy = response.clone();

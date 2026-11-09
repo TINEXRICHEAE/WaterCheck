@@ -3,11 +3,17 @@ import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
+import '../l10n/ui_kit_localizations.dart';
+
 /// Requests to the server running right now: drives the thin progress bar at
 /// the top of the app, so anything that waits on the network shows it is
 /// working, on slow connections too (2026-10-31: page loads as well as
 /// changes, in both apps).
 final requestsInFlight = ValueNotifier<int>(0);
+
+/// The server said it is being updated (maintenance mode, ADR-035); clears
+/// with the next answer that says otherwise.
+final serverInMaintenance = ValueNotifier<bool>(false);
 
 /// Shows the bar while [work] runs: work that loads data without a single
 /// request to count, such as a sync of many pages.
@@ -44,12 +50,19 @@ class RequestActivityInterceptor extends Interceptor {
     ResponseInterceptorHandler handler,
   ) {
     _done(response.requestOptions);
+    serverInMaintenance.value = false;
     handler.next(response);
   }
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
     _done(err.requestOptions);
+    // No answer at all says nothing either way.
+    if (err.response case final r?) {
+      final data = r.data;
+      serverInMaintenance.value =
+          r.statusCode == 503 && data is Map && data['detail'] == 'maintenance';
+    }
     handler.next(err);
   }
 }
@@ -104,21 +117,68 @@ class _RequestActivityBarState extends State<RequestActivityBar> {
   }
 
   @override
-  Widget build(BuildContext context) => Stack(
+  Widget build(BuildContext context) => Column(
     children: [
-      widget.child,
-      if (_shown)
-        Positioned(
-          top: 0,
-          left: 0,
-          right: 0,
-          child: Semantics(
-            liveRegion: true,
-            label: MaterialLocalizations.of(context)
-                .refreshIndicatorSemanticLabel,
-            child: const LinearProgressIndicator(minHeight: 3),
+      const _MaintenanceBanner(),
+      // Keyed: the app keeps its state when the banner comes and goes.
+      Expanded(
+        key: const ValueKey('app'),
+        child: Stack(
+          children: [
+            widget.child,
+            if (_shown)
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: Semantics(
+                  liveRegion: true,
+                  label: MaterialLocalizations.of(context)
+                      .refreshIndicatorSemanticLabel,
+                  child: const LinearProgressIndicator(minHeight: 3),
+                ),
+              ),
+          ],
+        ),
+      ),
+    ],
+  );
+}
+
+/// Above every page while the server is being updated.
+class _MaintenanceBanner extends StatelessWidget {
+  const _MaintenanceBanner();
+
+  @override
+  Widget build(BuildContext context) => ValueListenableBuilder<bool>(
+    valueListenable: serverInMaintenance,
+    builder: (context, on, _) {
+      if (!on) return const SizedBox.shrink();
+      final scheme = Theme.of(context).colorScheme;
+      return Semantics(
+        liveRegion: true,
+        child: Material(
+          color: scheme.tertiaryContainer,
+          child: SafeArea(
+            bottom: false,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Row(
+                children: [
+                  Icon(Icons.construction, color: scheme.onTertiaryContainer),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      UiKitLocalizations.of(context).maintenanceBanner,
+                      style: TextStyle(color: scheme.onTertiaryContainer),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
         ),
-    ],
+      );
+    },
   );
 }

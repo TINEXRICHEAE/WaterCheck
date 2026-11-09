@@ -56,3 +56,5 @@ infra/routing/
 
 # Map place names and sub-county shapes (tools/build_places.py, ADR-023)
 infra/places/
+# Maintenance mode's switch (ADR-035).
+infra/maintenance/on

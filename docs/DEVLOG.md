@@ -1572,3 +1572,21 @@ Decisions are also recorded in [PLAN.md](PLAN.md) (decisions log and §3a), the 
   - `water_test_draft`: saved shortly after a reading or picture is entered, sent about 30 seconds later and on leaving, listed on Home to carry on or discard, and restored on any device; its id becomes the test session's;
   - after recovery the phone reads the research feed from the start; the same person's linked profile on the other side signs in too; the districts they worked in join what the phone syncs.
   - A test caught the setup screen rebuilding the draft without its id; fixed.
+
+### 74. Deployed unfinished work on the server and full return on a new device (2026-11-10)
+- **Request (lead):** commit (`4eb38cf`; the CI format check failed on one test line, fixed in `8cd889b`), then deploy with the backup first.
+- **Outcome:**
+  - **Backup:** `~/backups/watercheck-before-0028-20261109-2227.dump` on the VM, read back with `pg_restore -l` (75 tables).
+  - **Database:** migrations 0028 and 0029 applied. Counts were the same before and after: 6 users, 6 collectors, 31 devices, 3 projects, 7 forms, 11 joins, 162 records, 7 tests, 10 attachments.
+  - **Web apps:** the Console and Collect built for production, uploaded with matching checksums, swapped in (previous builds kept as `web.old`), Caddy recreated.
+  - **Checked:** the site, Collect, its manifest, a shared-link address and the API answer; the new build is what is served. Not tried with a real collector or on an iPhone.
+  - The installers and APKs are still 0.2.0, without these changes.
+
+### 75. Old app kept by browsers; correct and redo at the top; maintenance mode (2026-11-10)
+- **Request (lead):** updated Android and Windows installers, replacing the files and zips, for new Google Drive links; correct and redo were not showing on existing records after several reloads; maintenance mode for redeployments.
+- **Found first:** the live build had the buttons and the forms were open. The server sent no `Cache-Control` for the app's own files, so browsers could reuse an old `main.dart.js` through ordinary reloads (the lead chose the fix before this was confirmed on a device).
+- **Made:**
+  - the app's own files are always re-checked (Caddy `no-cache`; the service worker asks the server), while engine files stay cached a day;
+  - "Correct a mistake" and "Do it again" moved to the top of the record page;
+  - maintenance mode (ADR-035): a file on the server switches it; the API answers 503 `maintenance`, the Console shows a "being updated" page, Collect keeps working, open apps show a banner;
+  - version **0.3.0+4** set in all six places for the next installers. A first build was stopped at the lead's request, so these fixes go in first; the installers follow after production.

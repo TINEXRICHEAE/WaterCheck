@@ -442,6 +442,7 @@
   "installAppIosHint": "Tap here to see how. FieldQuire then opens like an app, full screen, and your browser no longer clears it.",
   "installAppIosSteps": "1. Open this page in Safari.\n2. Tap ••• beside the address. On older iPhones, go to step 3.\n3. Tap Share (the square with an arrow).\n4. Scroll down and tap Add to Home Screen. If you do not see it, tap More or View More first.\n5. Keep Open as Web App on, and tap Add.\n6. Open FieldQuire from its new icon.\n\nThe icon starts fresh, so sync here first, then sign in again there.",
   "installAppIosDone": "Got it",
+  "maintenanceBanner": "FieldQuire is being updated. Your saved work is safe; anything waiting is sent when the update is done.",
   "formRequired": "Answer this question",
   "formNotAccepted": "This answer is not accepted",
   "formNotNumber": "Enter a number",

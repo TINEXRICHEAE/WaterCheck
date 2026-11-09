@@ -1999,6 +1999,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get researchTitle => 'Research';
 
   @override
+  String syncMaintenance(String when) {
+    return 'FieldQuire is being updated. Your work is safe here and is sent when the update is done (next try about $when).';
+  }
+
+  @override
   String get waterDraftUnfinished => 'Test not finished';
 
   @override

@@ -1156,6 +1156,12 @@ abstract class UiKitLocalizations {
   /// **'Got it'**
   String get installAppIosDone;
 
+  /// No description provided for @maintenanceBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'FieldQuire is being updated. Your saved work is safe; anything waiting is sent when the update is done.'**
+  String get maintenanceBanner;
+
   /// No description provided for @formRequired.
   ///
   /// In en, this message translates to:

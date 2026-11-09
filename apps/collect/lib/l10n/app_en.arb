@@ -1044,6 +1044,8 @@
   "modeResearch": "Research",
   "navForms": "Forms",
   "researchTitle": "Research",
+  "syncMaintenance": "FieldQuire is being updated. Your work is safe here and is sent when the update is done (next try about {when}).",
+  "@syncMaintenance": {"placeholders": {"when": {"type": "String"}}},
   "waterDraftUnfinished": "Test not finished",
   "waterDraftDiscard": "Discard this test",
   "waterDraftDiscardAsk": "Discard this unfinished test and its pictures?",

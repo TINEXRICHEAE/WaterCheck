@@ -1,6 +1,6 @@
 # Progress
 
-**Current phase:** paused after client release **0.2.0** (2026-11-01). Water testing (P0–P11 gates, production since 2026-10-17) and the FieldQuire research side (ADR-030 to ADR-034) are live in production; the first research project (CHS4102) is collecting. Open items are listed under "Where things stand" below and in the README's "Upcoming work". Plan: [docs/PLAN.md](docs/PLAN.md) §3a; every request: [docs/DEVLOG.md](docs/DEVLOG.md).
+**Current phase:** paused after client release **0.2.0** (2026-11-01). Water testing (P0–P11 gates, production since 2026-10-17) and the FieldQuire research side (ADR-030 to ADR-035) are live in production; the first research project (CHS4102) is collecting. Open items are listed under "Where things stand" below and in the README's "Upcoming work". Plan: [docs/PLAN.md](docs/PLAN.md) §3a; every request: [docs/DEVLOG.md](docs/DEVLOG.md).
 
 Windows release bundles now build for both apps. Offline single-file
 installer definitions were added under `tools/windows/`; Inno Setup and an
@@ -43,7 +43,8 @@ deployment and cache versioning.
   - access and sharing only for the form's own team; IT admins outside it can look but not change.
 - [x] **Loading shown everywhere (DEVLOG 62; `4099ed4`, deployed 2026-10-31):** a top bar for any wait in both apps, spinners on buttons that wait, loaders on pages.
 - [x] Admins reach every collector; people named on devices and lists (DEVLOG 65; `6ac52aa`, deployed 2026-11-01).
-- [ ] **Unfinished work on the server (research forms and water tests), research records corrected or done again, a new device brings everything back, iPhone install steps (DEVLOG 72–73, ADR-034, migrations 0028–0029, local database v16):** built; waiting for the dev check and production.
+- [ ] **The app's own files always re-checked, correct and redo at the top of the record, maintenance mode (DEVLOG 75, ADR-035):** on dev, waiting for production.
+- [x] **Unfinished work on the server (research forms and water tests), research records corrected or done again, a new device brings everything back, iPhone install steps (DEVLOG 72–74, ADR-034, migrations 0028–0029, local database v16; `4eb38cf`, deployed 2026-11-10 to the web):** the installers and APKs follow in 0.3.0, not built yet.
 - [x] **Shared form links (DEVLOG 66–67, ADR-033, migration 0027; `8e0f3cf`, deployed 2026-11-01):** guest view, joining with the team's approval, asking to edit, coming back after signing in.
 
 ## Round 2: anywhere in Uganda (2026-10-22, ADR-019) 🔄

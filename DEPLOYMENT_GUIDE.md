@@ -915,6 +915,20 @@ curl -s https://api.watercheck.fieldquire.cooptconnect.app/v1/places/ip-location
 The apps credit "IP geolocation by DB-IP" (CC BY 4.0) where such a location
 shows.
 
+### Maintenance mode for a redeployment
+
+Switch it on first, before the backup, so nothing is written between the
+backup and the migration (ADR-035):
+
+```sh
+touch ~/WaterCheck/infra/maintenance/on   # on: Console shows "being updated", API answers 503
+# ... backup, pull, build, migrate, swap the web builds ...
+rm ~/WaterCheck/infra/maintenance/on      # off, once /health answers
+```
+
+Collect keeps working and sends its work afterwards. It takes effect at once;
+nothing needs restarting.
+
 ## 17a. Releasing a client version
 
 The 0.1.1 (2026-10-21) and 0.2.0 (2026-11-01) releases followed this procedure.
@@ -926,7 +940,7 @@ counts and the installers agree:
 
 | File | Value |
 |------|-------|
-| `apps/console/pubspec.yaml`, `apps/collect/pubspec.yaml` | `version: 0.2.0+3`; raise the build number (`+N`) every release, because Android refuses an update with a lower one |
+| `apps/console/pubspec.yaml`, `apps/collect/pubspec.yaml` | `version: 0.3.0+4`; raise the build number (`+N`) every release, because Android refuses an update with a lower one |
 | `apps/console/lib/app/router.dart` | `consoleVersion` |
 | `apps/collect/lib/features/settings/settings_screen.dart` | `appVersion` |
 | `tools/windows/WaterCheck-Console.iss`, `WaterCheck-Collect.iss` | `#define AppVersion` (the installers they make are named `FieldQuire-*-Setup.exe`) |
@@ -968,11 +982,11 @@ Set-Location .\apps\collect
 flutter build apk --release `
   --dart-define=WC_API_URL=https://api.watercheck.fieldquire.cooptconnect.app/api
 New-Item -ItemType Directory -Force ..\..\dist\android | Out-Null
-Copy-Item build\app\outputs\flutter-apk\app-release.apk ..\..\dist\android\FieldQuire-Collect-0.2.0.apk
+Copy-Item build\app\outputs\flutter-apk\app-release.apk ..\..\dist\android\FieldQuire-Collect-0.3.0.apk
 Set-Location ..\console
 flutter build apk --release `
   --dart-define=WC_API_URL=https://api.watercheck.fieldquire.cooptconnect.app/api
-Copy-Item build\app\outputs\flutter-apk\app-release.apk ..\..\dist\android\FieldQuire-Console-0.2.0.apk
+Copy-Item build\app\outputs\flutter-apk\app-release.apk ..\..\dist\android\FieldQuire-Console-0.3.0.apk
 ```
 
 Windows PowerShell 5.1 reports Flutter's informational stderr notes (for

@@ -131,6 +131,8 @@ services:
       - ./caddy/${WC_CADDYFILE:-Caddyfile.dev}:/etc/caddy/Caddyfile:ro
       - ../apps/console/build/web:/srv/console:ro
       - ../apps/collect/build/web:/srv/collect:ro
+      # Maintenance mode: the page, and the `on` file that switches it (ADR-035).
+      - ./maintenance:/srv/maintenance:ro
       - caddy-data:/data
     depends_on:
       api:

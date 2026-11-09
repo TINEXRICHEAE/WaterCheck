@@ -106,6 +106,59 @@ class RecordScreen extends ConsumerWidget {
               ),
             ),
           const SizedBox(height: 8),
+          // As for water tests (ADR-018): only who made it, and the newest.
+          if (replaced)
+            Text(l10n.researchSuperseded)
+          else if (r.collectorKey != null && r.collectorKey != mine)
+            Text(l10n.amendNotYours(_maker(r)))
+          else if (form == null)
+            Text(l10n.researchCannotChange)
+          else
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                OutlinedButton.icon(
+                  icon: const Icon(Icons.edit_note),
+                  label: Text(l10n.amendStart),
+                  onPressed: () async {
+                    final id = await repo.startCorrection(
+                      r,
+                      collectorKey: mine,
+                    );
+                    if (context.mounted) {
+                      await context.push('/research/fill/$id');
+                    }
+                    ref.invalidate(_recordProvider(recordId));
+                  },
+                ),
+                OutlinedButton.icon(
+                  icon: const Icon(Icons.replay),
+                  label: Text(l10n.researchRedo),
+                  onPressed: () async {
+                    final id = await repo.startRetake(
+                      r,
+                      version: form.version,
+                      collectorKey: mine,
+                    );
+                    // A new visit: its point is taken now.
+                    unawaited(
+                      ref
+                          .read(liveLocationProvider)
+                          .detail(wait: const Duration(seconds: 30))
+                          .then((fix) {
+                            if (fix != null) repo.placeDraft(id, fix);
+                          }),
+                    );
+                    if (context.mounted) {
+                      await context.push('/research/fill/$id');
+                    }
+                    ref.invalidate(_recordProvider(recordId));
+                  },
+                ),
+              ],
+            ),
+          const SizedBox(height: 8),
           Card(
             child: Column(
               children: [
@@ -162,59 +215,6 @@ class RecordScreen extends ConsumerWidget {
             answers: answers,
             loadPicture: (id) => researchPicture(ref, id),
           ),
-          const Divider(height: 32),
-          // As for water tests (ADR-018): only who made it, and the newest.
-          if (replaced)
-            Text(l10n.researchSuperseded)
-          else if (r.collectorKey != null && r.collectorKey != mine)
-            Text(l10n.amendNotYours(_maker(r)))
-          else if (form == null)
-            Text(l10n.researchCannotChange)
-          else
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                OutlinedButton.icon(
-                  icon: const Icon(Icons.edit_note),
-                  label: Text(l10n.amendStart),
-                  onPressed: () async {
-                    final id = await repo.startCorrection(
-                      r,
-                      collectorKey: mine,
-                    );
-                    if (context.mounted) {
-                      await context.push('/research/fill/$id');
-                    }
-                    ref.invalidate(_recordProvider(recordId));
-                  },
-                ),
-                OutlinedButton.icon(
-                  icon: const Icon(Icons.replay),
-                  label: Text(l10n.researchRedo),
-                  onPressed: () async {
-                    final id = await repo.startRetake(
-                      r,
-                      version: form.version,
-                      collectorKey: mine,
-                    );
-                    // A new visit: its point is taken now.
-                    unawaited(
-                      ref
-                          .read(liveLocationProvider)
-                          .detail(wait: const Duration(seconds: 30))
-                          .then((fix) {
-                            if (fix != null) repo.placeDraft(id, fix);
-                          }),
-                    );
-                    if (context.mounted) {
-                      await context.push('/research/fill/$id');
-                    }
-                    ref.invalidate(_recordProvider(recordId));
-                  },
-                ),
-              ],
-            ),
           const Divider(height: 32),
           Text(l10n.researchMessagesTitle, style: text.titleMedium),
           const SizedBox(height: 8),

@@ -15,6 +15,38 @@
 		reverse_proxy api:8000
 	}
 
+	# Maintenance mode (ADR-035): on while infra/maintenance/on exists. Checked
+	# on every request, so it works with the API down. Collect stays served: it
+	# works offline and sends its work afterwards.
+	@downApi {
+		path /api/*
+		file {
+			root /srv/maintenance
+			try_files /on
+		}
+	}
+	handle @downApi {
+		header Retry-After 300
+		header Cache-Control no-store
+		header Content-Type application/json
+		respond `{"detail":"maintenance"}` 503
+	}
+	@downSite {
+		path /console /console/*
+		file {
+			root /srv/maintenance
+			try_files /on
+		}
+	}
+	handle @downSite {
+		header Cache-Control no-store
+		root * /srv/maintenance
+		rewrite * /index.html
+		file_server {
+			status 503
+		}
+	}
+
 	# API lives under /api on the same origin as the web Console (plan D-H).
 	handle_path /api/* {
 		reverse_proxy api:8000
@@ -39,9 +71,13 @@
 	handle_path /console/* {
 		# Engine files change only with a Flutter or package upgrade: cached a
 		# day, so a reload on 3G does not re-check each one (P9 web gate). The
-		# app itself (index.html, main.dart.js) is re-checked every time.
+		# app itself (index.html, main.dart.js) is re-checked every time: without
+		# this a browser guesses how long to reuse it, and keeps an old release
+		# through ordinary reloads (2026-11-10).
 		@engine path /canvaskit/* /sqlite3.wasm /assets/fonts/* /assets/packages/* /assets/shaders/*
 		header @engine Cache-Control "public, max-age=86400"
+		@shell not path /canvaskit/* /sqlite3.wasm /assets/fonts/* /assets/packages/* /assets/shaders/*
+		header @shell Cache-Control "no-cache"
 		root * /srv/console
 		try_files {path} /index.html
 		file_server
@@ -51,6 +87,10 @@
 	# Collect targets Android and Windows. Build: tools/preview.ps1
 	redir /collect /collect/
 	handle_path /collect/* {
+		@engine path /canvaskit/* /sqlite3.wasm /assets/fonts/* /assets/packages/* /assets/shaders/*
+		header @engine Cache-Control "public, max-age=86400"
+		@shell not path /canvaskit/* /sqlite3.wasm /assets/fonts/* /assets/packages/* /assets/shaders/*
+		header @shell Cache-Control "no-cache"
 		root * /srv/collect
 		try_files {path} /index.html
 		file_server

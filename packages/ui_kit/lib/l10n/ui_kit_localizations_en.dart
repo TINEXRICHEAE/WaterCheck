@@ -650,6 +650,10 @@ class UiKitLocalizationsEn extends UiKitLocalizations {
   String get installAppIosDone => 'Got it';
 
   @override
+  String get maintenanceBanner =>
+      'FieldQuire is being updated. Your saved work is safe; anything waiting is sent when the update is done.';
+
+  @override
   String get formRequired => 'Answer this question';
 
   @override
