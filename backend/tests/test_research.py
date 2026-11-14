@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import json
 import uuid
+from datetime import UTC, datetime
 from typing import Any
 
 import pytest
@@ -262,7 +263,8 @@ async def test_researcher_builds_publishes_and_collects(
             "subject_type": "research_record",
             "subject_id": record_id,
             "body": "Checked: six",
-            "written_at_device": "2026-11-10T09:00:00Z",
+            # Written after the team's message, which the server stamps now.
+            "written_at_device": datetime.now(UTC).isoformat(),
             **a.origin(),
         },
     }

@@ -1617,3 +1617,11 @@ Decisions are also recorded in [PLAN.md](PLAN.md) (decisions log and §3a), the 
   - checked: both Caddyfiles validate with the folder empty (a warning only) and with a site file in it; on dev, FieldQuire's pages and API still answer after recreating Caddy;
   - a 2 GB swap file on the server (`/swapfile`, kept across reboots, swappiness 10). Memory was 2.3 GiB available with no swap.
 - **To deploy:** pull and recreate Caddy only; no database or app change.
+
+### 80. CI: opentelemetry-api 1.45.2; a test that expired with the calendar (2026-11-15)
+- **Request (lead):** the GitHub checks failed on `5fd7c70`.
+- **Found:**
+  - osv-scanner and pip-audit: a new advisory (GHSA-mf5v-w3w3-f6cg) against `opentelemetry-api` 1.45.1, fixed in 1.45.2;
+  - `test_researcher_builds_publishes_and_collects`: the collector's reply had a fixed time, 10 November 09:00, while the team's message is stamped by the server. Once that date passed, the team's message sorted as the newest. A test problem, not the app's.
+- **Fixed:** `uv lock --upgrade-package opentelemetry-api`; the reply is stamped with the current time. All 273 backend tests pass; pip-audit finds no known vulnerabilities.
+
