@@ -1625,3 +1625,10 @@ Decisions are also recorded in [PLAN.md](PLAN.md) (decisions log and §3a), the 
   - `test_researcher_builds_publishes_and_collects`: the collector's reply had a fixed time, 10 November 09:00, while the team's message is stamped by the server. Once that date passed, the team's message sorted as the newest. A test problem, not the app's.
 - **Fixed:** `uv lock --upgrade-package opentelemetry-api`; the reply is stamped with the current time. All 273 backend tests pass; pip-audit finds no known vulnerabilities.
 
+### 81. Deployed `344dfbe`: Caddy's other-sites folder, opentelemetry-api 1.45.2 (2026-11-15)
+- **Request (lead):** deploy after the GitHub checks passed.
+- **Outcome:** under maintenance mode; no database change.
+  - **Backup while on:** `~/backups/watercheck-before-344dfbe-20261114-2135.dump` (77 tables read back).
+  - The VM pulled `344dfbe`; api, worker and migrate rebuilt (`opentelemetry-api` 1.45.2 confirmed in the container); Caddy recreated with `infra/sites` mounted and `host.docker.internal` resolving to 172.17.0.1.
+  - Maintenance off; Console, Collect, the API on both addresses and `/health` answer. Counts unchanged: 193 research records, 7 tests, 10 attachments, 6 collectors, 6 users. Web apps unchanged, not rebuilt.
+
