@@ -38,4 +38,5 @@ Format: context → decision → consequences. Number them sequentially. Never r
 | [032](ADR-032-people-by-username.md) | People by username, private by default; chats; form editors; computers without GPS | Accepted |
 | [033](ADR-033-shared-form-links.md) | Shared form links: a guest view, joining as a collector with the team's approval, asking to edit, coming back after signing in | Accepted (built, waiting for dev check) |
 | [034](ADR-034-drafts-on-the-server-and-replaced-records.md) | Unfinished forms kept on the server; research records corrected or done again; iPhone install steps | Accepted (deployed 2026-11-10) |
-| [035](ADR-035-maintenance-mode.md) | Maintenance mode for redeployments: a file on the server, the Console shows a page, Collect keeps working | Accepted (on dev) |
+| [035](ADR-035-maintenance-mode.md) | Maintenance mode for redeployments: a file on the server, the Console shows a page, Collect keeps working | Accepted (deployed 2026-11-10) |
+| [036](ADR-036-other-sites-on-the-server.md) | Other sites on the same server: extra Caddy site files kept on the server, reaching services through the host gateway | Accepted (on dev) |

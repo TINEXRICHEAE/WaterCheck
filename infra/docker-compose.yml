@@ -133,7 +133,12 @@ services:
       - ../apps/collect/build/web:/srv/collect:ro
       # Maintenance mode: the page, and the `on` file that switches it (ADR-035).
       - ./maintenance:/srv/maintenance:ro
+      # Other sites on this server (ADR-036); kept on the server, not in git.
+      - ./sites:/etc/caddy/sites:ro
       - caddy-data:/data
+    # Lets those sites reach a service running on the server itself.
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
       api:
         condition: service_healthy

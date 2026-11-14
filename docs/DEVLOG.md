@@ -1590,3 +1590,30 @@ Decisions are also recorded in [PLAN.md](PLAN.md) (decisions log and §3a), the 
   - "Correct a mistake" and "Do it again" moved to the top of the record page;
   - maintenance mode (ADR-035): a file on the server switches it; the API answers 503 `maintenance`, the Console shows a "being updated" page, Collect keeps working, open apps show a banner;
   - version **0.3.0+4** set in all six places for the next installers. A first build was stopped at the lead's request, so these fixes go in first; the installers follow after production.
+
+### 76. Deployed caching fix, buttons and maintenance mode, using maintenance mode (2026-11-10)
+- **Request (lead):** commit (`20529da`), then deploy after the GitHub checks.
+- **Outcome:** no backend or database change.
+  - The new web server rules were applied first, then maintenance mode switched on; the Console answered 503 with its page, the API on both addresses answered `maintenance`, Collect and `/health` stayed up.
+  - **Backup while on:** `~/backups/watercheck-before-0.3.0-web-20261110-0002.dump` (77 tables read back).
+  - **Web apps** swapped with matching checksums (previous builds kept as `web.old`), then maintenance switched off. Counts unchanged: 162 records, 7 tests, 10 attachments, 6 collectors.
+
+### 77. Release 0.3.0: Windows installers and Android apps (2026-11-10)
+- **Request (lead):** after the fixes were deployed, build the installers afresh and replace the files and zips in `dist/share`, for new Google Drive links in the users' guide.
+- **Built against production**, version 0.3.0+4:
+  - `FieldQuire-Collect-Setup.exe` (33 MB) and `FieldQuire-Console-Setup.exe` (36 MB), with the Visual C++ runtime;
+  - `FieldQuire-Collect-0.3.0.apk` and `FieldQuire-Console-0.3.0.apk`, signed with the development key. Both checked for the production API and version 0.3.0. The Console APK failed once without a clear reason and built on a second run.
+- **In `dist/share`:** each folder's file replaced (the 0.2.0 APKs removed), README.txt versions updated, the four zips made again with their folder inside, and the guide's "version 0.3.0" line updated. Its Drive links are left for the lead to replace. Checksums: `dist/SHA256SUMS-0.3.0.txt`, replacing 0.2.0's.
+- **Not run:** the installers and APKs were not installed on a real device in this session.
+
+### 78. CHS4102 project report (2026-11-13 to 2026-11-14)
+- **Request (lead):** a report for the project from the exported results, then a shorter version organised by objective, positive in tone, with photography last.
+- **Outcome:** written outside this repository, in the CHDC report folder. The analysis left out four test entries made away from the village and ten team summary records, at the lead's direction.
+
+### 79. Other sites on the same server; swap (2026-11-15)
+- **Request (lead):** prepare the FieldQuire server for another application with its own domain and HTTPS, keeping that application's details out of this repository.
+- **Made (ADR-036):**
+  - Caddy also serves `infra/sites/*.caddy`, a folder kept on the server only (git ignores all but its README); extra sites reach services on the server through `host.docker.internal`;
+  - checked: both Caddyfiles validate with the folder empty (a warning only) and with a site file in it; on dev, FieldQuire's pages and API still answer after recreating Caddy;
+  - a 2 GB swap file on the server (`/swapfile`, kept across reboots, swappiness 10). Memory was 2.3 GiB available with no swap.
+- **To deploy:** pull and recreate Caddy only; no database or app change.

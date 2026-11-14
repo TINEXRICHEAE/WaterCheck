@@ -147,3 +147,7 @@ api.watercheck.fieldquire.cooptconnect.app, api.watercheck.cooptconnect.app {
 		}
 	}
 }
+
+# Other sites on this server (ADR-036): any *.caddy file in infra/sites/, kept
+# on the server only, is served beside FieldQuire's sites with its own certificate.
+import /etc/caddy/sites/*.caddy

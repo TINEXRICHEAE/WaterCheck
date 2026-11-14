@@ -58,3 +58,6 @@ infra/routing/
 infra/places/
 # Maintenance mode's switch (ADR-035).
 infra/maintenance/on
+# Other sites served by Caddy, kept on the server only (ADR-036).
+infra/sites/*
+!infra/sites/README.md

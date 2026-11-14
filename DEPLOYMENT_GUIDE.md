@@ -915,6 +915,17 @@ curl -s https://api.watercheck.fieldquire.cooptconnect.app/v1/places/ip-location
 The apps credit "IP geolocation by DB-IP" (CC BY 4.0) where such a location
 shows.
 
+### Other sites on this server
+
+Another application on the server can use Caddy's HTTPS with a site file in
+`~/WaterCheck/infra/sites/` (ADR-036). The file stays on the server; see that folder's README.
+Validate before recreating Caddy, since a broken file stops FieldQuire's sites too:
+
+```sh
+docker compose exec caddy caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile
+docker compose up -d --force-recreate caddy
+```
+
 ### Maintenance mode for a redeployment
 
 Switch it on first, before the backup, so nothing is written between the
@@ -931,7 +942,7 @@ nothing needs restarting.
 
 ## 17a. Releasing a client version
 
-The 0.1.1 (2026-10-21) and 0.2.0 (2026-11-01) releases followed this procedure.
+The 0.1.1 (2026-10-21), 0.2.0 (2026-11-01) and 0.3.0 (2026-11-10) releases followed this procedure.
 
 ### 1. Set the version
 

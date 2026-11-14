@@ -997,7 +997,7 @@ Research (FieldQuire, ADR-030 to ADR-033) and the shared platform:
 - loading shown everywhere: a bar at the top for any wait, spinners on
   buttons, loaders on pages.
 
-The current client release is **0.2.0** (2026-11-01): the web Console and
+The current client release is **0.3.0** (2026-11-10): the web Console and
 Collect, Windows installers for both (`FieldQuire-Console-Setup.exe`,
 `FieldQuire-Collect-Setup.exe`), and Android APKs for both, each in its own
 folder under `dist/share` with a short README.txt, plus
@@ -1047,7 +1047,7 @@ deferred work includes:
 - a real production SMTP provider in place of Mailpit, so password-reset
   and confirmation codes reach people by email (until then IT admins read
   them out from "Codes to pass on");
-- Android release signing with a project key (the 0.2.0 APKs are signed
+- Android release signing with a project key (the 0.3.0 APKs are signed
   with the development key: fine to install directly, not for an app store);
 - opening shared form links straight in the installed Android app (today a
   link is pasted in Collect's "Join with a code");
